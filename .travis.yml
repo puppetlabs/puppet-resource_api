@@ -1,6 +1,16 @@
 sudo: false
 language: ruby
-rvm:
-  - 2.4.1
-  - 2.1.9
 before_install: gem install bundler -v 1.15.4
+bundler_args: "--without development"
+script:
+  - cat Gemfile.lock
+  - bundle list
+  - bundle exec rake $CHECK
+cache: bundler
+matrix:
+  include:
+    - rvm: 2.4.1
+    - rvm: 2.1.9
+    - rvm: 2.4.1
+      env: CHECK=license_finder
+      bundler_args: ""
