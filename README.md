@@ -1,4 +1,4 @@
-# Puppet::ResourceApi
+# Puppet::ResourceApi [![Build Status](https://travis-ci.org/puppetlabs/puppet-resource_api.svg?branch=master)](https://travis-ci.org/puppetlabs/puppet-resource_api) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/qvor6rkh0d1e4suc?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api) [![Coverage Status](https://coveralls.io/repos/github/puppetlabs/puppet-resource_api/badge.svg?branch=master)](https://coveralls.io/github/puppetlabs/puppet-resource_api?branch=master)
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/puppet/resource_api`. To experiment with that code, run `bin/console` for an interactive prompt.
 
