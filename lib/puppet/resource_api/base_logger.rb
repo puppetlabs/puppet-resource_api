@@ -12,7 +12,7 @@ class Puppet::ResourceApi::BaseLogger
         resources = format_titles(args.first)
         message = "#{resources}: #{args.last}"
       else
-        message = "#{args.map(&inspect).join(', ')}"
+        message = args.map(&inspect).join(', ').to_s
       end
       send_log(level, message)
     end

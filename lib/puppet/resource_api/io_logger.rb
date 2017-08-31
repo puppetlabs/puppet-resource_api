@@ -7,6 +7,7 @@ class Puppet::ResourceApi::IOLogger < Puppet::ResourceApi::BaseLogger
   end
 
   protected
+
   def send_log(level, message)
     @target.puts "#{level}: #{message}"
   end

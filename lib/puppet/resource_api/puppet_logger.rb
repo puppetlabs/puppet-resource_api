@@ -8,7 +8,8 @@ class Puppet::ResourceApi::PuppetLogger < Puppet::ResourceApi::BaseLogger
   end
 
   protected
-  def send_log(level, message)
+
+  def send_log(_level, message)
     Puppet::Util::Logging.send_method(method, message)
   end
 end
