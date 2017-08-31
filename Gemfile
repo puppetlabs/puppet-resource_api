@@ -6,6 +6,9 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 group :tests do
-  gem 'rubocop'
+  gem 'rake', '~> 10.0'
+  gem 'rspec', '~> 3.0'
   gem 'rubocop-rspec'
+  gem 'rubocop'
+  gem 'simplecov-console'
 end
