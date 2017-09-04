@@ -1,8 +1,6 @@
 # Puppet::ResourceApi [![Build Status](https://travis-ci.org/puppetlabs/puppet-resource_api.svg?branch=master)](https://travis-ci.org/puppetlabs/puppet-resource_api) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/qvor6rkh0d1e4suc?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api) [![Coverage Status](https://coveralls.io/repos/github/puppetlabs/puppet-resource_api/badge.svg?branch=master)](https://coveralls.io/github/puppetlabs/puppet-resource_api?branch=master)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/puppet/resource_api`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This is an implementation of the [Resource API](https://github.com/DavidS/puppet-specifications/blob/resourceapi/language/resource-api/README.md) proposal.
 
 ## Installation
 
@@ -22,7 +20,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+The [Resource API](https://github.com/DavidS/puppet-specifications/blob/resourceapi/language/resource-api/README.md) explains the usage and capabilities of this gem.
 
 ## Development
 
