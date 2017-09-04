@@ -12,7 +12,7 @@ class Puppet::ResourceApi::BaseLogger
         resources = format_titles(args.first)
         message = "#{resources}: #{args.last}"
       else
-        message = args.map(&inspect).join(', ').to_s
+        message = args.map(&:to_s).join(', ')
       end
       send_log(level, message)
     end
@@ -53,10 +53,18 @@ class Puppet::ResourceApi::BaseLogger
     notice("Changed from #{is.inspect} to #{should.inspect}")
   end
 
+  def send_log(level, message)
+    raise RuntimeError, "Received send_log() on an unprepared BaseLogger. Use IOLogger, or PuppetLogger instead."
+  end
+
   private
 
   def format_titles(titles)
-    "#{@typename}[#{[titles].flatten.compact.join(', ')}]"
+    if titles.length.zero? && !titles.is_a?(String)
+      @typename
+    else
+      "#{@typename}[#{[titles].flatten.compact.join(', ')}]"
+    end
   end
 
   def setup_context(titles, message = nil)
