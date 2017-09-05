@@ -1,5 +1,5 @@
 require 'pathname'
-require 'puppet/resource_api/version'
+require 'puppet/resource_api/harness'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 
