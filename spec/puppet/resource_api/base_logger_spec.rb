@@ -39,7 +39,7 @@ RSpec.describe Puppet::ResourceApi::BaseLogger do
       expect(logger.last_message).to eq 'some_resource[a]: message'
     end
     it 'formats multiple titles' do
-      logger.warning(['a', 'b'], 'message')
+      logger.warning(%w[a b], 'message')
       expect(logger.last_message).to eq 'some_resource[a, b]: message'
     end
   end

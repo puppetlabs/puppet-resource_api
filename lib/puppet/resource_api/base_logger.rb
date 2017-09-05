@@ -53,8 +53,8 @@ class Puppet::ResourceApi::BaseLogger
     notice("Changed from #{is.inspect} to #{should.inspect}")
   end
 
-  def send_log(level, message)
-    raise RuntimeError, "Received send_log() on an unprepared BaseLogger. Use IOLogger, or PuppetLogger instead."
+  def send_log(_level, _message)
+    raise 'Received send_log() on an unprepared BaseLogger. Use IOLogger, or PuppetLogger instead.'
   end
 
   private
