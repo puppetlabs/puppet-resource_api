@@ -118,3 +118,7 @@ Style/FileName:
 Lint/NestedMethodDefinition:
   Exclude:
     - 'lib/puppet/resource_api.rb'
+
+# Interacting with external API makes message spies pretty useless
+RSpec/MessageSpies:
+  Enabled: false
