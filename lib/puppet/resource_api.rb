@@ -1,22 +1,27 @@
 require 'pathname'
-require 'puppet/resource_api/puppet_logger'
 require 'puppet/resource_api/version'
-
-module Puppet; end
+require 'puppet/resource_api/version'
+require 'puppet/type'
 
 module Puppet::ResourceApi
   def register_type(definition)
+    raise Puppet::DevError, 'requires a Hash as definition, not %{other_type}' % { other_type: definition.class } unless definition.is_a? Hash
+    raise Puppet::DevError, 'requires a name' unless definition.key? :name
+    raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
+
     Puppet::Type.newtype(definition[:name].to_sym) do
       @docs = definition[:docs]
       has_namevar = false
       namevar_name = nil
 
-      def initialize(attributes)
-        $stderr.puts "A: #{attributes.inspect}"
+      define_method(:initialize) do |attributes|
+        # $stderr.puts "A: #{attributes.inspect}"
         attributes = attributes.to_hash if attributes.is_a? Puppet::Resource
-        $stderr.puts "B: #{attributes.inspect}"
-        attributes = self.class.canonicalize([attributes])[0]
-        $stderr.puts "C: #{attributes.inspect}"
+        # $stderr.puts "B: #{attributes.inspect}"
+        if definition.key?(:features) && definition[:features].contains('canonicalize')
+          attributes = self.class.canonicalize([attributes])[0]
+        end
+        # $stderr.puts "C: #{attributes.inspect}"
         super(attributes)
       end
 
@@ -36,8 +41,8 @@ module Puppet::ResourceApi
             raise("#{definition[:name]}.#{name} has no type")
           end
 
-          if options[:docs]
-            desc "#{options[:docs]} (a #{options[:type]}"
+          if options[:desc]
+            desc "#{options[:desc]} (a #{options[:type]})"
           else
             warn("#{definition[:name]}.#{name} has no docs")
           end
@@ -70,13 +75,10 @@ module Puppet::ResourceApi
             case options[:type]
             when 'String'
               # require any string value
-              newvalue %r{} do
+              newvalues %r{} do
               end
             when 'Boolean'
-              ['true', 'false', :true, :false, true, false].each do |v|
-                newvalue v do
-                end
-              end
+              newvalues 'true', 'false', :true, :false, true, false
 
               munge do |v|
                 case v
@@ -89,7 +91,7 @@ module Puppet::ResourceApi
                 end
               end
             when 'Integer'
-              newvalue %r{^\d+$} do
+              newvalue %r{^-?\d+$} do
               end
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
@@ -131,7 +133,7 @@ module Puppet::ResourceApi
       end
 
       define_singleton_method(:instances) do
-        puts 'instances'
+        # puts 'instances'
         # force autoloading of the provider
         provider(name)
         get.map do |resource_hash|
@@ -140,7 +142,7 @@ module Puppet::ResourceApi
       end
 
       define_method(:retrieve) do
-        puts 'retrieve'
+        # puts 'retrieve'
         result        = Puppet::Resource.new(self.class, title)
         current_state = self.class.get.find { |h| h[namevar_name] == title }
 
@@ -152,20 +154,19 @@ module Puppet::ResourceApi
           result[:ensure] = :absent
         end
 
-        puts 'retrieve done'
+        # puts 'retrieve done'
 
         @rapi_current_state = current_state
         result
       end
 
       def flush
-        puts 'flush'
+        # puts 'flush'
         target_state = self.class.canonicalize([Hash[@parameters.map { |k, v| [k, v.value] }]]).first
-        if @rapi_current_state != target_state
-          self.class.set({ title => @rapi_current_state }, { title => target_state }, false)
-        else
-          puts 'no changes'
-        end
+
+        return if @rapi_current_state == target_state
+
+        self.class.set({ title => @rapi_current_state }, { title => target_state }, false)
       end
 
       define_singleton_method(:logger) do
@@ -175,9 +176,9 @@ module Puppet::ResourceApi
       def self.commands(*args)
         args.each do |command_group|
           command_group.each do |command_name, command|
-            puts "registering command: #{command_name}, using #{command}"
+            # puts "registering command: #{command_name}, using #{command}"
             define_singleton_method(command_name) do |*command_args|
-              puts "spawn([#{command}, #{command}], #{command_args.inspect})"
+              # puts "spawn([#{command}, #{command}], #{command_args.inspect})"
               # TODO: capture output to debug stream
               p = Process.spawn([command, command], *command_args)
               Process.wait(p)
@@ -187,7 +188,7 @@ module Puppet::ResourceApi
             end
 
             define_singleton_method("#{command_name}_lines") do |*command_args|
-              puts "capture3([#{command}, #{command}], #{args.inspect})"
+              # puts "capture3([#{command}, #{command}], #{args.inspect})"
               stdin_str, _stderr_str, status = Open3.capture3([command, command], *command_args)
               unless status.exitstatus.zero?
                 raise Puppet::ResourceError, "#{command} failed with exit code #{$CHILD_STATUS.exitstatus}"
@@ -202,6 +203,8 @@ module Puppet::ResourceApi
   module_function :register_type
 
   def register_provider(typename, &block)
+    raise Puppet::DevError, 'no implementation specified for \'%{typename}\'' % { typename: typename } unless block_given?
+
     type = Puppet::Type.type(typename.to_sym)
     type.instance_eval(&block)
     # require'pry';binding.pry
