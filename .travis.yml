@@ -11,6 +11,8 @@ matrix:
   include:
     - rvm: 2.4.1
       env: COVERAGE=yes
+    - rvm: 2.4.1
+      env: CHECK=rubocop
     - rvm: 2.1.9
     - rvm: 2.4.1
       env: CHECK=license_finder
