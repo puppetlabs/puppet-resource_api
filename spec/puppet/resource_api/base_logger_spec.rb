@@ -11,7 +11,7 @@ RSpec.describe Puppet::ResourceApi::BaseLogger do
   end
 
   subject(:logger) do
-    result = TestLogger.new('some_resource')
+    TestLogger.new('some_resource')
   end
 
   describe '#warning(msg)' do

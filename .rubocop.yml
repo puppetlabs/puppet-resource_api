@@ -1,5 +1,6 @@
 ---
 require: rubocop-rspec
+inherit_from: .rubocop_todo.yml
 AllCops:
   TargetRubyVersion: '2.1'
   Include:
@@ -30,6 +31,9 @@ Style/BlockDelimiters:
 Style/ClassAndModuleChildren:
   Description: Compact style reduces the required amount of indentation.
   EnforcedStyle: compact
+# this needs to be easily usable in the gemspec
+  Exclude:
+    - 'lib/puppet/resource_api/version.rb'
 Style/EmptyElse:
   Description: Enforce against empty else clauses, but allow `nil` for clarity.
   EnforcedStyle: empty
@@ -62,6 +66,8 @@ Style/TrailingCommaInLiteral:
 Style/SymbolArray:
   Description: Using percent style obscures symbolic intent of array's contents.
   EnforcedStyle: brackets
+Layout/EndOfLine:
+  Enabled: false
 Style/CollectionMethods:
   Enabled: true
 Style/MethodCalledOnDoEndBlock:
@@ -100,3 +106,15 @@ Style/IfUnlessModifier:
   Enabled: false
 Style/SymbolProc:
   Enabled: false
+
+# local overrides
+
+# overridden for local conventions
+Style/FileName:
+  Exclude:
+    - 'puppet-resource_api.gemspec'
+
+# metaprogramming makes everything "fun"
+Lint/NestedMethodDefinition:
+  Exclude:
+    - 'lib/puppet/resource_api.rb'
