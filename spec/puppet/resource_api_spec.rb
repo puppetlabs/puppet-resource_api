@@ -22,23 +22,6 @@ RSpec.describe Puppet::ResourceApi do
       it { is_expected.not_to be_nil }
       it { is_expected.to be_respond_to :instances }
     end
-
-    context 'when registering a provider without implementation' do
-      it do
-        expect {
-          described_class.register_provider(:minimal)
-        }.to raise_error(Puppet::DevError, %r{no implementation specified for 'minimal'})
-      end
-    end
-
-    context 'when registering a minimal provider' do
-      it do
-        expect {
-          described_class.register_provider(:minimal) do
-          end
-        }.not_to raise_error
-      end
-    end
   end
 
   context 'when registering a type with multiple attributes' do

@@ -1,5 +1,4 @@
 require 'pathname'
-require 'puppet/resource_api/harness'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 
@@ -201,15 +200,6 @@ module Puppet::ResourceApi
     end
   end
   module_function :register_type
-
-  def register_provider(typename, &block)
-    raise Puppet::DevError, 'no implementation specified for \'%{typename}\'' % { typename: typename } unless block_given?
-
-    type = Puppet::Type.type(typename.to_sym)
-    type.instance_eval(&block)
-    # require'pry';binding.pry
-  end
-  module_function :register_provider
 end
 
 module Puppet::SimpleResource
