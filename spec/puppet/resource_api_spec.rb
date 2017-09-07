@@ -22,6 +22,10 @@ RSpec.describe Puppet::ResourceApi do
       it { is_expected.not_to be_nil }
       it { is_expected.to be_respond_to :instances }
     end
+
+    describe Puppet::Provider do
+      it('has a module prepared for the provider') { expect(described_class.const_get('Minimal').name).to eq 'Puppet::Provider::Minimal' }
+    end
   end
 
   context 'when registering a type with multiple attributes' do
@@ -88,6 +92,28 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
       end
+    end
+  end
+
+  describe '#load_provider' do
+    before(:each) { described_class.register_type(definition) }
+
+    context 'when loading a non-existing provider' do
+      let(:definition) { { name: 'does_not_exist', attributes: {} } }
+
+      it { expect { described_class.load_provider('does_not_exist') }.to raise_error Puppet::DevError, %r{puppet/provider/does_not_exist/does_not_exist} }
+    end
+
+    context 'when loading a provider that doesn\'t create the correct class' do
+      let(:definition) { { name: 'no_class', attributes: {} } }
+
+      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{NoClass} }
+    end
+
+    context 'when loading a provider that doesn\'t create the correct class' do
+      let(:definition) { { name: 'test_provider', attributes: {} } }
+
+      it { expect(described_class.load_provider('test_provider').name).to eq 'Puppet::Provider::TestProvider::TestProvider' }
     end
   end
 end

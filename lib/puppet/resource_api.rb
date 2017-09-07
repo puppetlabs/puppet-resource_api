@@ -8,6 +8,10 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires a name' unless definition.key? :name
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
 
+    # prepare the ruby module for the provider
+    # this has to happen before Puppet::Type.newtype starts autoloading providers
+    Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
+
     Puppet::Type.newtype(definition[:name].to_sym) do
       @docs = definition[:docs]
       has_namevar = false
@@ -169,7 +173,7 @@ module Puppet::ResourceApi
       end
 
       define_singleton_method(:logger) do
-        return PuppetLogger.new(definition[:name])
+        PuppetLogger.new(definition[:name])
       end
 
       def self.commands(*args)
@@ -200,6 +204,22 @@ module Puppet::ResourceApi
     end
   end
   module_function :register_type
+
+  def load_provider(type_name)
+    class_name = class_name_from_type_name(type_name)
+    type_name_sym = type_name.to_sym
+
+    # loads the "puppet/provider/#{type_name}/#{type_name}" file through puppet
+    Puppet::Type.type(type_name_sym).provider(type_name_sym)
+    Puppet::Provider.const_get(class_name).const_get(class_name)
+  rescue NameError
+    raise Puppet::DevError, "class #{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
+  end
+  module_function :load_provider
+
+  def self.class_name_from_type_name(type_name)
+    type_name.to_s.split('_').map(&:capitalize).join
+  end
 end
 
 module Puppet::SimpleResource
