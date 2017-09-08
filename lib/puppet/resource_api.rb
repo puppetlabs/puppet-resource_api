@@ -10,19 +10,28 @@ module Puppet::ResourceApi
 
     # prepare the ruby module for the provider
     # this has to happen before Puppet::Type.newtype starts autoloading providers
-    Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
+    # it also needs to be guarded against the namespace already being defined by something
+    # else to avoid ruby warnings
+    unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]))
+      Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
+    end
 
     Puppet::Type.newtype(definition[:name].to_sym) do
       @docs = definition[:docs]
       has_namevar = false
       namevar_name = nil
 
+      # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
+      define_method(:my_provider) do
+        @my_provider ||= Puppet::ResourceApi.load_provider(definition[:name]).new
+      end
+
       define_method(:initialize) do |attributes|
         # $stderr.puts "A: #{attributes.inspect}"
         attributes = attributes.to_hash if attributes.is_a? Puppet::Resource
         # $stderr.puts "B: #{attributes.inspect}"
-        if definition.key?(:features) && definition[:features].contains('canonicalize')
-          attributes = self.class.canonicalize([attributes])[0]
+        if definition.key?(:features) && definition[:features].include?('canonicalize')
+          attributes = my_provider.canonicalize([attributes])[0]
         end
         # $stderr.puts "C: #{attributes.inspect}"
         super(attributes)

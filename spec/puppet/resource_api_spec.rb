@@ -88,9 +88,51 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
-        it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
+      end
+
+      describe 'different boolean values' do
+        let(:params) do
+          {
+            title: 'test',
+            test_string: 'somevalue',
+            test_boolean: the_boolean,
+            test_integer: '-1',
+            test_float: '-1.5',
+          }
+        end
+
+        context 'when using :true' do
+          let(:the_boolean) { :true }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
+        end
+        context 'when using :false' do
+          let(:the_boolean) { :false }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+        end
+        context 'when using "true"' do
+          let(:the_boolean) { 'true' }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
+        end
+        context 'when using "false"' do
+          let(:the_boolean) { 'false' }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+        end
+        context 'when using true' do
+          let(:the_boolean) { true }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
+        end
+        context 'when using false' do
+          let(:the_boolean) { false }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+        end
       end
     end
   end
@@ -114,6 +156,49 @@ RSpec.describe Puppet::ResourceApi do
       let(:definition) { { name: 'test_provider', attributes: {} } }
 
       it { expect(described_class.load_provider('test_provider').name).to eq 'Puppet::Provider::TestProvider::TestProvider' }
+    end
+  end
+
+  context 'with a provider that does canonicalization' do
+    let(:definition) do
+      {
+        name: 'canonicalizer',
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+          },
+          test_string: {
+            type: 'String',
+          },
+        },
+        features: ['canonicalize'],
+      }
+    end
+    let(:provider) do
+      Class.new do
+        def canonicalize(x)
+          x[0][:test_string] = 'canon'
+          x
+        end
+      end
+    end
+
+    before(:each) do
+      stub_const('Puppet::Provider::Canonicalizer', Module.new)
+      stub_const('Puppet::Provider::Canonicalizer::Canonicalizer', provider)
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:canonicalizer) }
+
+      let(:instance) { type.new(name: 'somename', test_string: 'sometest') }
+
+      it { is_expected.not_to be_nil }
+      it('its provider') { expect(instance.my_provider).not_to be_nil }
+      it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canon') }
     end
   end
 end
