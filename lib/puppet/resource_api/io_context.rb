@@ -1,6 +1,6 @@
-require 'puppet/resource_api/base_logger'
+require 'puppet/resource_api/base_context'
 
-class Puppet::ResourceApi::IOLogger < Puppet::ResourceApi::BaseLogger
+class Puppet::ResourceApi::IOContext < Puppet::ResourceApi::BaseContext
   def initialize(typename, target = $stderr)
     super(typename)
     @target = target

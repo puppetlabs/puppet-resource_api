@@ -1,7 +1,7 @@
-require 'puppet/resource_api/base_logger'
+require 'puppet/resource_api/base_context'
 require 'puppet/util/logging'
 
-class Puppet::ResourceApi::PuppetLogger < Puppet::ResourceApi::BaseLogger
+class Puppet::ResourceApi::PuppetContext < Puppet::ResourceApi::BaseContext
   protected
 
   def send_log(level, message)

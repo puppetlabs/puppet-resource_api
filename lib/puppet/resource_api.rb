@@ -46,7 +46,7 @@ module Puppet::ResourceApi
         # puts "#{name}: #{options.inspect}"
 
         # TODO: using newparam everywhere would suppress change reporting
-        #       that would allow more fine-grained reporting through logger,
+        #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
         param_or_property = if options[:behaviour] == :read_only || options[:behaviour] == :namevar
                               :newparam
@@ -189,8 +189,8 @@ module Puppet::ResourceApi
         self.class.set({ title => @rapi_current_state }, { title => target_state }, false)
       end
 
-      define_singleton_method(:logger) do
-        PuppetLogger.new(definition[:name])
+      define_singleton_method(:context) do
+        PuppetContext.new(definition[:name])
       end
     end
   end

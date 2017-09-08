@@ -1,5 +1,5 @@
 
-class Puppet::ResourceApi::BaseLogger
+class Puppet::ResourceApi::BaseContext
   def initialize(typename)
     @typename = typename
   end
@@ -54,7 +54,7 @@ class Puppet::ResourceApi::BaseLogger
   end
 
   def send_log(_level, _message)
-    raise 'Received send_log() on an unprepared BaseLogger. Use IOLogger, or PuppetLogger instead.'
+    raise 'Received send_log() on an unprepared BaseContext. Use IOContext, or PuppetContext instead.'
   end
 
   private
