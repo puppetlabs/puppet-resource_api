@@ -192,32 +192,6 @@ module Puppet::ResourceApi
       define_singleton_method(:logger) do
         PuppetLogger.new(definition[:name])
       end
-
-      def self.commands(*args)
-        args.each do |command_group|
-          command_group.each do |command_name, command|
-            # puts "registering command: #{command_name}, using #{command}"
-            define_singleton_method(command_name) do |*command_args|
-              # puts "spawn([#{command}, #{command}], #{command_args.inspect})"
-              # TODO: capture output to debug stream
-              p = Process.spawn([command, command], *command_args)
-              Process.wait(p)
-              unless $CHILD_STATUS.exitstatus.zero?
-                raise Puppet::ResourceError, "#{command} failed with exit code #{$CHILD_STATUS.exitstatus}"
-              end
-            end
-
-            define_singleton_method("#{command_name}_lines") do |*command_args|
-              # puts "capture3([#{command}, #{command}], #{args.inspect})"
-              stdin_str, _stderr_str, status = Open3.capture3([command, command], *command_args)
-              unless status.exitstatus.zero?
-                raise Puppet::ResourceError, "#{command} failed with exit code #{$CHILD_STATUS.exitstatus}"
-              end
-              stdin_str.split("\n")
-            end
-          end
-        end
-      end
     end
   end
   module_function :register_type
