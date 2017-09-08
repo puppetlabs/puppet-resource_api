@@ -22,8 +22,13 @@ module Puppet::ResourceApi
       namevar_name = nil
 
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
-      define_method(:my_provider) do
+      define_singleton_method(:my_provider) do
         @my_provider ||= Puppet::ResourceApi.load_provider(definition[:name]).new
+      end
+
+      # make the provider available in the instance's namespace
+      def my_provider
+        self.class.my_provider
       end
 
       define_method(:initialize) do |attributes|
@@ -148,7 +153,7 @@ module Puppet::ResourceApi
         # puts 'instances'
         # force autoloading of the provider
         provider(name)
-        get.map do |resource_hash|
+        my_provider.get.map do |resource_hash|
           Puppet::SimpleResource::TypeShim.new(resource_hash[namevar_name], resource_hash)
         end
       end

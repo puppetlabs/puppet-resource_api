@@ -175,18 +175,22 @@ RSpec.describe Puppet::ResourceApi do
         features: ['canonicalize'],
       }
     end
-    let(:provider) do
+    let(:provider_class) do
       Class.new do
         def canonicalize(x)
           x[0][:test_string] = 'canon'
           x
+        end
+
+        def get
+          []
         end
       end
     end
 
     before(:each) do
       stub_const('Puppet::Provider::Canonicalizer', Module.new)
-      stub_const('Puppet::Provider::Canonicalizer::Canonicalizer', provider)
+      stub_const('Puppet::Provider::Canonicalizer::Canonicalizer', provider_class)
     end
 
     it { expect { described_class.register_type(definition) }.not_to raise_error }
@@ -197,8 +201,17 @@ RSpec.describe Puppet::ResourceApi do
       let(:instance) { type.new(name: 'somename', test_string: 'sometest') }
 
       it { is_expected.not_to be_nil }
-      it('its provider') { expect(instance.my_provider).not_to be_nil }
+      it('its provider class') { expect(instance.my_provider).not_to be_nil }
       it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canon') }
+
+      context 'when retrieving instances through `get`' do
+        before(:each) do
+          allow(type.my_provider).to receive(:get).and_return([{ name: 'somename', test_string: 'foo' }])
+        end
+        it { expect(type.instances).to be_a Array }
+        it { expect(type.instances[0]).to be_a Puppet::SimpleResource::TypeShim }
+        it { expect(type.instances[0].name).to eq 'somename' }
+      end
     end
   end
 end
