@@ -178,12 +178,17 @@ RSpec.describe Puppet::ResourceApi do
     let(:provider_class) do
       Class.new do
         def canonicalize(x)
-          x[0][:test_string] = ['canon', x[0][:test_string]].compact.join
+          x[0][:test_string] = ['canon', x[0][:test_string]].compact.join unless x[0][:test_string] && x[0][:test_string].start_with?('canon')
           x
         end
 
         def get(_context)
           []
+        end
+
+        attr_reader :last_changes
+        def set(_context, changes)
+          @last_changes = changes
         end
       end
     end
@@ -201,17 +206,38 @@ RSpec.describe Puppet::ResourceApi do
       before(:each) do
         allow(type.my_provider).to receive(:get)
           .with(kind_of(Puppet::ResourceApi::BaseContext))
-          .and_return([{ name: 'somename', test_string: 'foo' },
-                       { name: 'other', test_string: 'bar' }])
+          .and_return([{ name: 'somename', test_string: 'canonfoo' },
+                       { name: 'other', test_string: 'canonbar' }])
       end
 
       it { is_expected.not_to be_nil }
 
       context 'when manually creating an instance' do
-        let(:instance) { type.new(name: 'somename', test_string: 'sometest') }
+        let(:test_string) { 'foo' }
+        let(:instance) { type.new(name: 'somename', test_string: test_string) }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
-        it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonsometest') }
+        it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonfoo') }
+
+        context 'when flushing' do
+          before(:each) do
+            instance.flush
+          end
+          context 'with no changes' do
+            it('set will not be called') { expect(instance.my_provider.last_changes).to be_nil }
+          end
+
+          context 'with a change' do
+            let(:test_string) { 'bar' }
+
+            it('set will be called with the correct structure') do
+              expect(instance.my_provider.last_changes).to eq('somename' => {
+                                                                is: { name: 'somename', test_string: 'canonfoo' },
+                                                                should: { name: 'somename', test_string: 'canonbar' },
+                                                              })
+            end
+          end
+        end
       end
 
       context 'when retrieving instances through `get`' do
@@ -227,7 +253,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:instance) { type.new(name: 'somename') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
-          it('its properties are set correctly') { expect(resource[:test_string]).to eq 'foo' }
+          it('its properties are set correctly') { expect(resource[:test_string]).to eq 'canonfoo' }
         end
 
         describe 'an absent instance' do

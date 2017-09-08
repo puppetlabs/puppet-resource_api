@@ -182,11 +182,20 @@ module Puppet::ResourceApi
 
       def flush
         # puts 'flush'
-        target_state = self.class.canonicalize([Hash[@parameters.map { |k, v| [k, v.value] }]]).first
+        target_state = Hash[@parameters.map { |k, v| [k, v.value] }]
+        # remove puppet's injected metaparams
+        target_state.delete(:loglevel)
+        target_state = my_provider.canonicalize([target_state]).first
 
+        retrieve unless @rapi_current_state
+
+        # require 'pry'; binding.pry
         return if @rapi_current_state == target_state
 
-        self.class.set({ title => @rapi_current_state }, { title => target_state }, false)
+        puts "@rapi_current_state: #{@rapi_current_state.inspect}"
+        puts "target_state: #{target_state.inspect}"
+
+        my_provider.set(context, title => { is: @rapi_current_state, should: target_state })
       end
 
       define_singleton_method(:context) do
