@@ -153,7 +153,7 @@ module Puppet::ResourceApi
         # puts 'instances'
         # force autoloading of the provider
         provider(name)
-        my_provider.get.map do |resource_hash|
+        my_provider.get(context).map do |resource_hash|
           Puppet::SimpleResource::TypeShim.new(resource_hash[namevar_name], resource_hash)
         end
       end
@@ -161,7 +161,7 @@ module Puppet::ResourceApi
       define_method(:retrieve) do
         # puts 'retrieve'
         result        = Puppet::Resource.new(self.class, title)
-        current_state = my_provider.get.find { |h| h[namevar_name] == title }
+        current_state = my_provider.get(context).find { |h| h[namevar_name] == title }
 
         # require 'pry'; binding.pry
 
@@ -190,7 +190,11 @@ module Puppet::ResourceApi
       end
 
       define_singleton_method(:context) do
-        PuppetContext.new(definition[:name])
+        @context ||= PuppetContext.new(definition[:name])
+      end
+
+      def context
+        self.class.context
       end
     end
   end

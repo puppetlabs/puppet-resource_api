@@ -182,7 +182,7 @@ RSpec.describe Puppet::ResourceApi do
           x
         end
 
-        def get
+        def get(_context)
           []
         end
       end
@@ -199,8 +199,10 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:canonicalizer) }
 
       before(:each) do
-        allow(type.my_provider).to receive(:get).and_return([{ name: 'somename', test_string: 'foo' },
-                                                             { name: 'other', test_string: 'bar' }])
+        allow(type.my_provider).to receive(:get)
+          .with(kind_of(Puppet::ResourceApi::BaseContext))
+          .and_return([{ name: 'somename', test_string: 'foo' },
+                       { name: 'other', test_string: 'bar' }])
       end
 
       it { is_expected.not_to be_nil }
