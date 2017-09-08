@@ -161,13 +161,16 @@ module Puppet::ResourceApi
       define_method(:retrieve) do
         # puts 'retrieve'
         result        = Puppet::Resource.new(self.class, title)
-        current_state = self.class.get.find { |h| h[namevar_name] == title }
+        current_state = my_provider.get.find { |h| h[namevar_name] == title }
+
+        # require 'pry'; binding.pry
 
         if current_state
           current_state.each do |k, v|
             result[k] = v
           end
         else
+          result[:name] = title
           result[:ensure] = :absent
         end
 

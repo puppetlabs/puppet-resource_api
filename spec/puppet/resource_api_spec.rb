@@ -178,7 +178,7 @@ RSpec.describe Puppet::ResourceApi do
     let(:provider_class) do
       Class.new do
         def canonicalize(x)
-          x[0][:test_string] = 'canon'
+          x[0][:test_string] = ['canon', x[0][:test_string]].compact.join
           x
         end
 
@@ -198,19 +198,43 @@ RSpec.describe Puppet::ResourceApi do
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:canonicalizer) }
 
-      let(:instance) { type.new(name: 'somename', test_string: 'sometest') }
+      before(:each) do
+        allow(type.my_provider).to receive(:get).and_return([{ name: 'somename', test_string: 'foo' },
+                                                             { name: 'other', test_string: 'bar' }])
+      end
 
       it { is_expected.not_to be_nil }
-      it('its provider class') { expect(instance.my_provider).not_to be_nil }
-      it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canon') }
+
+      context 'when manually creating an instance' do
+        let(:instance) { type.new(name: 'somename', test_string: 'sometest') }
+
+        it('its provider class') { expect(instance.my_provider).not_to be_nil }
+        it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonsometest') }
+      end
 
       context 'when retrieving instances through `get`' do
-        before(:each) do
-          allow(type.my_provider).to receive(:get).and_return([{ name: 'somename', test_string: 'foo' }])
+        it('instances returns an Array') { expect(type.instances).to be_a Array }
+        it('returns an array of TypeShims') { expect(type.instances[0]).to be_a Puppet::SimpleResource::TypeShim }
+        it('its name is set correctly') { expect(type.instances[0].name).to eq 'somename' }
+      end
+
+      context 'when retrieving an instance through `retrieve`' do
+        let(:resource) { instance.retrieve }
+
+        describe 'an existing instance' do
+          let(:instance) { type.new(name: 'somename') }
+
+          it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
+          it('its properties are set correctly') { expect(resource[:test_string]).to eq 'foo' }
         end
-        it { expect(type.instances).to be_a Array }
-        it { expect(type.instances[0]).to be_a Puppet::SimpleResource::TypeShim }
-        it { expect(type.instances[0].name).to eq 'somename' }
+
+        describe 'an absent instance' do
+          let(:instance) { type.new(name: 'does_not_exist') }
+
+          it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
+          it('its properties are set correctly') { expect(resource[:test_string]).to be_nil }
+          it('is set to absent') { expect(resource[:ensure]).to eq :absent }
+        end
       end
     end
   end
