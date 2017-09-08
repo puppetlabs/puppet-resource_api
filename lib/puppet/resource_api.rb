@@ -55,7 +55,7 @@ module Puppet::ResourceApi
                             end
         send(param_or_property, name.to_sym) do
           unless options[:type]
-            raise("#{definition[:name]}.#{name} has no type")
+            raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
           end
 
           if options[:desc]

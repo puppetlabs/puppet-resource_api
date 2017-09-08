@@ -137,6 +137,21 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with a malformed attributes' do
+    let(:definition) do
+      {
+        name: 'no_type',
+        attributes: {
+          name: {
+            behaviour: :namevar,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*has no type} }
+  end
+
   describe '#load_provider' do
     before(:each) { described_class.register_type(definition) }
 
