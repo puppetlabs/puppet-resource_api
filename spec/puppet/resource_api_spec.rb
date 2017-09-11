@@ -238,6 +238,7 @@ RSpec.describe Puppet::ResourceApi do
           before(:each) do
             instance.flush
           end
+
           context 'with no changes' do
             it('set will not be called') { expect(instance.my_provider.last_changes).to be_nil }
           end
