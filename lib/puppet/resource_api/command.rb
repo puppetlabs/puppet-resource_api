@@ -15,7 +15,7 @@ module Puppet::ResourceApi
       @environment = {}
     end
 
-    def run(*args)
+    def run(_context, *args)
       process = ChildProcess.build(command, *args)
       @environment.each do |k, v|
         process.environment[k] = v
