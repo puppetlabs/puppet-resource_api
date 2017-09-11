@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'puppet/resource_api/io_context'
 
 RSpec.describe Puppet::ResourceApi::BaseContext do
   class TestContext < described_class

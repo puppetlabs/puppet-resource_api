@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'puppet/resource_api/puppet_context'
 
 RSpec.describe Puppet::ResourceApi::PuppetContext do
   subject(:context) { described_class.new('some_resource') }

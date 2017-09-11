@@ -1,6 +1,7 @@
 require 'pathname'
 require 'puppet/resource_api/command'
 require 'puppet/resource_api/errors'
+require 'puppet/resource_api/puppet_context'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 
