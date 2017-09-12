@@ -26,6 +26,21 @@ module Puppet::ResourceApi
       raise Puppet::ResourceApi::CommandNotFoundError, 'Error when executing %{command}: %{error}' % { command: command, error: e.to_s }
     end
 
+    def start_read(context, *args, noop: false)
+      return if noop
+      process = self.class.prepare_process(context, command, *args, environment: environment, cwd: cwd)
+
+      process.start
+      result = yield process if block_given?
+      exit_code = process.wait
+
+      raise Puppet::ResourceApi::CommandExecutionError, 'Command %{command} failed with exit code %{exit_code}' % { command: command, exit_code: exit_code } unless exit_code.zero?
+
+      result
+    rescue ChildProcess::LaunchError => e
+      raise Puppet::ResourceApi::CommandNotFoundError, 'Error when executing %{command}: %{error}' % { command: command, error: e.to_s }
+    end
+
     def self.prepare_process(_context, command, *args, environment:, cwd:)
       process = ChildProcess.build(command, *args)
       environment.each do |k, v|

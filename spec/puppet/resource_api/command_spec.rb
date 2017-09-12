@@ -137,4 +137,101 @@ RSpec.describe Puppet::ResourceApi::Command do
       end
     end
   end
+
+  describe '#start_read(context, *args, noop:)' do
+    let(:args) { [] }
+
+    before(:each) do
+      allow(ChildProcess).to receive(:build).with('commandname', *args).and_return(process)
+      allow(process).to receive(:cwd=)
+      allow(process).to receive(:start)
+      allow(process).to receive(:wait).and_return(0)
+    end
+
+    context 'when running an existing command' do
+      context 'when passing no arguments' do
+        it('executes the bare command') do
+          expect(process).to receive(:start).once
+          expect(process).to receive(:wait).and_return(0).once
+          expect { command.start_read(context) { |process| } }.not_to raise_error
+        end
+
+        it('call the block with the process handle') do
+          expect { |b| command.start_read(context, &b) }.to yield_with_args(process)
+        end
+
+        it('return the block\'s return value') do
+          expect(command.start_read(context) { |_process| :return_value }).to eq :return_value
+        end
+
+        context 'with noop: true' do
+          it('doesn\'t execute the command') do
+            expect(process).to receive(:start).never
+            expect { command.start_read(context, noop: true) { |process| } }.not_to raise_error
+          end
+          it('doesn\'t execute the block') do
+            expect { |b| command.start_read(context, noop: true, &b) }.not_to yield_control
+          end
+        end
+      end
+
+      context 'when passing in arguments' do
+        let(:args) { %w[firstarg secondarg] }
+
+        it('executes the command with the provided arguments') do
+          expect(process).to receive(:start).once
+          expect(process).to receive(:wait).and_return(0).once
+          expect { command.start_read(context, 'firstarg', 'secondarg') { |process| } }.not_to raise_error
+        end
+
+        it('call the block with the process handle') do
+          expect { |b| command.start_read(context, 'firstarg', 'secondarg', &b) }.to yield_with_args(process)
+        end
+
+        it('return the block\'s return value') do
+          expect(command.start_read(context, 'firstarg', 'secondarg') { |_process| :return_value }).to eq :return_value
+        end
+
+        context 'with noop: true' do
+          it('doesn\'t execute the command') do
+            expect(process).to receive(:start).never
+            expect { command.start_read(context, 'firstarg', 'secondarg', noop: true) { |process| } }.not_to raise_error
+          end
+          it('doesn\'t execute the block') do
+            expect { |b| command.start_read(context, 'firstarg', 'secondarg', noop: true, &b) }.not_to yield_control
+          end
+        end
+      end
+    end
+
+    context 'when trying to run a non-existing command' do
+      let(:args) { %w[firstarg secondarg] }
+
+      it('raises a Puppet::ResourceApi::CommandNotFoundError') do
+        expect(process).to receive(:start).and_raise(ChildProcess::LaunchError, 'some error message').once
+        expect(process).to receive(:wait).never
+        expect { command.start_read(context, 'firstarg', 'secondarg') { |process| } }.to raise_error Puppet::ResourceApi::CommandNotFoundError, %r{some error message}
+      end
+      context 'with noop: true' do
+        it('doesn\'t raise an error') do
+          expect(process).to receive(:start).never
+          expect { command.start_read(context, 'firstarg', 'secondarg', noop: true) { |process| } }.not_to raise_error
+        end
+      end
+    end
+
+    context 'when running a failing command' do
+      it('raises a Puppet::ResourceApi::CommandExecutionError') do
+        expect(process).to receive(:wait).and_return(1)
+        expect { command.start_read(context) { |process| } }.to raise_error Puppet::ResourceApi::CommandExecutionError, %r{exit code 1}
+      end
+
+      context 'with noop: true' do
+        it('doesn\'t raise an error') do
+          expect(process).to receive(:start).never
+          expect { command.start_read(context, noop: true) { |process| } }.not_to raise_error
+        end
+      end
+    end
+  end
 end
