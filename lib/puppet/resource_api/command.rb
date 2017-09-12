@@ -15,7 +15,8 @@ module Puppet::ResourceApi
       @environment = {}
     end
 
-    def run(_context, *args)
+    def run(_context, *args, noop: false)
+      return if noop
       process = ChildProcess.build(command, *args)
       @environment.each do |k, v|
         process.environment[k] = v

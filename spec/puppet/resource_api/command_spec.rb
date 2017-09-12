@@ -64,7 +64,7 @@ RSpec.describe Puppet::ResourceApi::Command do
     end
   end
 
-  describe '#run(context, *args)' do
+  describe '#run(context, *args, noop:)' do
     let(:args) { [] }
 
     before(:each) do
@@ -81,6 +81,13 @@ RSpec.describe Puppet::ResourceApi::Command do
           expect(process).to receive(:wait).once
           expect { command.run(context) }.not_to raise_error
         end
+
+        context 'with noop: true' do
+          it('doesn\'t execute the command') do
+            expect(process).to receive(:start).never
+            expect { command.run(context, noop: true) }.not_to raise_error
+          end
+        end
       end
 
       context 'when passing in arguments' do
@@ -90,6 +97,12 @@ RSpec.describe Puppet::ResourceApi::Command do
           expect(process).to receive(:start).once
           expect(process).to receive(:wait).once
           expect { command.run(context, 'firstarg', 'secondarg') }.not_to raise_error
+        end
+        context 'with noop: true' do
+          it('doesn\'t execute the command') do
+            expect(process).to receive(:start).never
+            expect { command.run(context, 'firstarg', 'secondarg', noop: true) }.not_to raise_error
+          end
         end
       end
     end
@@ -102,12 +115,25 @@ RSpec.describe Puppet::ResourceApi::Command do
         expect(process).to receive(:wait).never
         expect { command.run(context, 'firstarg', 'secondarg') }.to raise_error Puppet::ResourceApi::CommandNotFoundError, %r{some error message}
       end
+      context 'with noop: true' do
+        it('doesn\'t raise an error') do
+          expect(process).to receive(:start).never
+          expect { command.run(context, 'firstarg', 'secondarg', noop: true) }.not_to raise_error
+        end
+      end
     end
 
     context 'when running a failing command' do
-      it('raises a Puppet::ResourceApi::CommandNotFoundError') do
+      it('raises a Puppet::ResourceApi::CommandExecutionError') do
         expect(process).to receive(:wait).and_return(1)
         expect { command.run(context) }.to raise_error Puppet::ResourceApi::CommandExecutionError, %r{exit code 1}
+      end
+
+      context 'with noop: true' do
+        it('doesn\'t raise an error') do
+          expect(process).to receive(:start).never
+          expect { command.run(context, noop: true) }.not_to raise_error
+        end
       end
     end
   end
