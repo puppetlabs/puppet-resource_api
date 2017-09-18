@@ -5,6 +5,18 @@ RSpec.describe Puppet::ResourceApi::Command do
 
   let(:context) { nil }
   let(:process) { instance_double('ChildProcess::AbstractProcess') }
+  let(:io) { instance_double('ChildProcess::AbstractIO') }
+  let(:stdin) { instance_double('IO') }
+  let(:stdout) { instance_double('IO') }
+  let(:stderr) { instance_double('IO') }
+
+  before(:each) do
+    allow(process).to receive(:io).and_return(io)
+    allow(io).to receive(:stdin).and_return(stdin)
+    allow(stdin).to receive(:close)
+    allow(io).to receive(:stdout).and_return(stdout)
+    allow(io).to receive(:stderr).and_return(stderr)
+  end
 
   describe '#initialize(command)' do
     context 'when specifying a command name' do
@@ -37,6 +49,7 @@ RSpec.describe Puppet::ResourceApi::Command do
         expect(process).to receive(:environment).and_return(env)
         expect(env).to receive(:[]=).with('TARGET', 'somevalue')
         allow(process).to receive(:cwd=)
+        allow(process).to receive(:duplex=)
         allow(process).to receive(:start)
         allow(process).to receive(:wait).and_return(0)
         command.environment['TARGET'] = 'somevalue'
@@ -56,6 +69,7 @@ RSpec.describe Puppet::ResourceApi::Command do
       it 'passes the contents on to the execution environment' do
         allow(ChildProcess).to receive(:build).with('commandname').and_return(process)
         expect(process).to receive(:cwd=).with('/tmp')
+        allow(process).to receive(:duplex=)
         allow(process).to receive(:start)
         allow(process).to receive(:wait).and_return(0)
         command.cwd = '/tmp'
@@ -64,12 +78,13 @@ RSpec.describe Puppet::ResourceApi::Command do
     end
   end
 
-  describe '#run(context, *args, noop:)' do
+  describe '#run(context, *args, **kwargs)' do
     let(:args) { [] }
 
     before(:each) do
       allow(ChildProcess).to receive(:build).with('commandname', *args).and_return(process)
       allow(process).to receive(:cwd=)
+      allow(process).to receive(:duplex=)
       allow(process).to receive(:start)
       allow(process).to receive(:wait).and_return(0)
     end
@@ -136,100 +151,29 @@ RSpec.describe Puppet::ResourceApi::Command do
         end
       end
     end
-  end
 
-  describe '#start_read(context, *args, noop:)' do
-    let(:args) { [] }
+    describe 'stdin_source:' do
+      describe ':none' do
+        it('provides no input to the command') do
+          expect(stdin).to receive(:close).once
 
-    before(:each) do
-      allow(ChildProcess).to receive(:build).with('commandname', *args).and_return(process)
-      allow(process).to receive(:cwd=)
-      allow(process).to receive(:start)
-      allow(process).to receive(:wait).and_return(0)
-    end
-
-    context 'when running an existing command' do
-      context 'when passing no arguments' do
-        it('executes the bare command') do
-          expect(process).to receive(:start).once
-          expect(process).to receive(:wait).and_return(0).once
-          expect { command.start_read(context) { |process| } }.not_to raise_error
-        end
-
-        it('call the block with the process handle') do
-          expect { |b| command.start_read(context, &b) }.to yield_with_args(process)
-        end
-
-        it('return the block\'s return value') do
-          expect(command.start_read(context) { |_process| :return_value }).to eq :return_value
-        end
-
-        context 'with noop: true' do
-          it('doesn\'t execute the command') do
-            expect(process).to receive(:start).never
-            expect { command.start_read(context, noop: true) { |process| } }.not_to raise_error
-          end
-          it('doesn\'t execute the block') do
-            expect { |b| command.start_read(context, noop: true, &b) }.not_to yield_control
-          end
+          command.run(context, stdin_source: :none)
         end
       end
+      describe ':value' do
+        it('provides the input to the command') do
+          expect(stdin).to receive(:write).with('söme_text').once
+          expect(stdin).to receive(:close).once
 
-      context 'when passing in arguments' do
-        let(:args) { %w[firstarg secondarg] }
-
-        it('executes the command with the provided arguments') do
-          expect(process).to receive(:start).once
-          expect(process).to receive(:wait).and_return(0).once
-          expect { command.start_read(context, 'firstarg', 'secondarg') { |process| } }.not_to raise_error
-        end
-
-        it('call the block with the process handle') do
-          expect { |b| command.start_read(context, 'firstarg', 'secondarg', &b) }.to yield_with_args(process)
-        end
-
-        it('return the block\'s return value') do
-          expect(command.start_read(context, 'firstarg', 'secondarg') { |_process| :return_value }).to eq :return_value
-        end
-
-        context 'with noop: true' do
-          it('doesn\'t execute the command') do
-            expect(process).to receive(:start).never
-            expect { command.start_read(context, 'firstarg', 'secondarg', noop: true) { |process| } }.not_to raise_error
-          end
-          it('doesn\'t execute the block') do
-            expect { |b| command.start_read(context, 'firstarg', 'secondarg', noop: true, &b) }.not_to yield_control
-          end
+          command.run(context, stdin_source: :value, stdin_value: 'söme_text')
         end
       end
-    end
+      describe ':io' do
+        it('provides the file descriptor as input to the command') do
+          expect(stdin).to receive(:write).with('söme_text').once
+          expect(stdin).to receive(:close).once
 
-    context 'when trying to run a non-existing command' do
-      let(:args) { %w[firstarg secondarg] }
-
-      it('raises a Puppet::ResourceApi::CommandNotFoundError') do
-        expect(process).to receive(:start).and_raise(ChildProcess::LaunchError, 'some error message').once
-        expect(process).to receive(:wait).never
-        expect { command.start_read(context, 'firstarg', 'secondarg') { |process| } }.to raise_error Puppet::ResourceApi::CommandNotFoundError, %r{some error message}
-      end
-      context 'with noop: true' do
-        it('doesn\'t raise an error') do
-          expect(process).to receive(:start).never
-          expect { command.start_read(context, 'firstarg', 'secondarg', noop: true) { |process| } }.not_to raise_error
-        end
-      end
-    end
-
-    context 'when running a failing command' do
-      it('raises a Puppet::ResourceApi::CommandExecutionError') do
-        expect(process).to receive(:wait).and_return(1)
-        expect { command.start_read(context) { |process| } }.to raise_error Puppet::ResourceApi::CommandExecutionError, %r{exit code 1}
-      end
-
-      context 'with noop: true' do
-        it('doesn\'t raise an error') do
-          expect(process).to receive(:start).never
-          expect { command.start_read(context, noop: true) { |process| } }.not_to raise_error
+          command.run(context, stdin_source: :io, stdin_io: StringIO.new('söme_text'))
         end
       end
     end
