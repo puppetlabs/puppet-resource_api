@@ -176,6 +176,8 @@ RSpec.describe Puppet::ResourceApi::Command do
           command.run(context, stdin_source: :io, stdin_io: StringIO.new('söme_text'))
         end
       end
+
+      it 'rejects other values'
     end
   end
 end
