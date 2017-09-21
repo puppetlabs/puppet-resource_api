@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe 'calling a Command' do
   let(:touch_cmd) { Puppet::ResourceApi::Command.new('touch') }
