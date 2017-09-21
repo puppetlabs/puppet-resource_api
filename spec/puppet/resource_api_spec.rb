@@ -152,6 +152,23 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*has no type} }
   end
 
+  context 'when registering a namevar that is not called `name`' do
+    let(:definition) do
+      {
+        name: 'wrong_namevar_name',
+        attributes: {
+          not_name: {
+            type: 'String',
+            behaviour: :namevar,
+            desc: 'the title',
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{namevar must be called 'name'} }
+  end
+
   describe '#load_provider' do
     before(:each) { described_class.register_type(definition) }
 
