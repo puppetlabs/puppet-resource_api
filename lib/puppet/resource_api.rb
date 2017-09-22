@@ -39,7 +39,7 @@ module Puppet::ResourceApi
         attributes = attributes.to_hash if attributes.is_a? Puppet::Resource
         # $stderr.puts "B: #{attributes.inspect}"
         if definition.key?(:features) && definition[:features].include?('canonicalize')
-          attributes = my_provider.canonicalize([attributes])[0]
+          attributes = my_provider.canonicalize(context, [attributes])[0]
         end
         # $stderr.puts "C: #{attributes.inspect}"
         super(attributes)
@@ -189,7 +189,7 @@ module Puppet::ResourceApi
         target_state = Hash[@parameters.map { |k, v| [k, v.value] }]
         # remove puppet's injected metaparams
         target_state.delete(:loglevel)
-        target_state = my_provider.canonicalize([target_state]).first
+        target_state = my_provider.canonicalize(context, [target_state]).first
 
         retrieve unless @rapi_current_state
 
