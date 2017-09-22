@@ -15,6 +15,9 @@ group :tests do
   gem 'simplecov-console'
 end
 
+group :development do
+  gem 'pry-byebug'
+end
 
 # Find a location or specific version for a gem. place_or_version can be a
 # version, which is most often used. It can also be git, which is specified as
