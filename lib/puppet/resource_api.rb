@@ -51,7 +51,7 @@ module Puppet::ResourceApi
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        param_or_property = if options[:behaviour] == :read_only || options[:behaviour] == :namevar
+        param_or_property = if [:read_only, :parameter, :namevar].include? options[:behaviour]
                               :newparam
                             else
                               :newproperty
@@ -132,9 +132,7 @@ module Puppet::ResourceApi
               # the namevar needs to be a Parameter, which only has newvalue*s*
               newvalues(%r{\A(0x)?[0-9a-fA-F]{8}\Z}, %r{\A(0x)?[0-9a-fA-F]{16}\Z}, %r{\A(0x)?[0-9a-fA-F]{40}\Z})
             when 'Optional[String]'
-              newvalue :undef do
-              end
-              newvalue %r{} do
+              newvalues(%r{}, :undef) do
               end
             when 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]'
               # TODO: this is wrong, but matches original implementation
