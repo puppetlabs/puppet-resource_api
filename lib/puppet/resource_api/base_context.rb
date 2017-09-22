@@ -19,11 +19,11 @@ class Puppet::ResourceApi::BaseContext
   end
 
   [:creating, :updating, :deleting, :failing].each do |method|
-    define_method(method) do |titles, message: method.to_s.capitalize|
+    define_method(method) do |titles, message: method.to_s.capitalize, &block|
       setup_context(titles, message)
       begin
         debug('Start')
-        yield
+        block.call
         notice('Finished in x.yz seconds')
       rescue
         err('Failed after x.yz seconds')
