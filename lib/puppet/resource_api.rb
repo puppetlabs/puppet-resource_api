@@ -98,6 +98,7 @@ module Puppet::ResourceApi
               # require any string value
               newvalues %r{} do
               end
+            # rubocop:disable Lint/BooleanSymbol
             when 'Boolean'
               newvalues 'true', 'false', :true, :false, true, false
 
@@ -111,6 +112,7 @@ module Puppet::ResourceApi
                   v
                 end
               end
+            # rubocop:enable Lint/BooleanSymbol
             when 'Integer'
               newvalue %r{^-?\d+$} do
               end
@@ -161,7 +163,7 @@ module Puppet::ResourceApi
       end
 
       define_method(:retrieve) do
-        # puts 'retrieve'
+        # puts "retrieve(#{title.inspect})"
         result        = Puppet::Resource.new(self.class, title)
         current_state = my_provider.get(context).find { |h| h[namevar_name] == title }
 
@@ -176,7 +178,7 @@ module Puppet::ResourceApi
           result[:ensure] = :absent
         end
 
-        # puts 'retrieve done'
+        # puts "retrieved #{current_state.inspect}"
 
         @rapi_current_state = current_state
         result
@@ -184,6 +186,7 @@ module Puppet::ResourceApi
 
       def flush
         # puts 'flush'
+        # require'pry';binding.pry
         target_state = Hash[@parameters.map { |k, v| [k, v.value] }]
         # remove puppet's injected metaparams
         target_state.delete(:loglevel)
@@ -266,7 +269,8 @@ module Puppet::SimpleResource
     end
 
     def to_manifest
-      (["apt_key { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{values[k].inspect}," } + ['}']).join("\n")
+      # TODO: get the correct typename here
+      (["SOMETYPE { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{values[k].inspect}," } + ['}']).join("\n")
     end
   end
 end

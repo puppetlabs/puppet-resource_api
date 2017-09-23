@@ -104,12 +104,12 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         context 'when using :true' do
-          let(:the_boolean) { :true }
+          let(:the_boolean) { :true } # rubocop:disable Lint/BooleanSymbol
 
           it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
         end
         context 'when using :false' do
-          let(:the_boolean) { :false }
+          let(:the_boolean) { :false } # rubocop:disable Lint/BooleanSymbol
 
           it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
         end
