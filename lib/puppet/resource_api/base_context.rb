@@ -20,14 +20,14 @@ class Puppet::ResourceApi::BaseContext
 
   [:creating, :updating, :deleting, :failing].each do |method|
     define_method(method) do |titles, message: method.to_s.capitalize, &block|
+      start_time = Time.now
       setup_context(titles, message)
       begin
         debug('Start')
         block.call
-        notice('Finished in x.yz seconds')
-      rescue
-        err('Failed after x.yz seconds')
-        raise
+        notice("Finished in #{format_seconds(Time.now - start_time)} seconds")
+      rescue StandardError => e
+        err("Failed after #{format_seconds(Time.now - start_time)} seconds: #{e}")
       ensure
         @context = nil
       end
@@ -35,13 +35,14 @@ class Puppet::ResourceApi::BaseContext
   end
 
   def processing(titles, is, should, message: 'Processing')
+    start_time = Time.now
     setup_context(titles, message)
     begin
       debug("Changing #{is.inspect} to #{should.inspect}")
       yield
-      notice("Changed from #{is.inspect} to #{should.inspect} in x.yz seconds")
+      notice("Changed from #{is.inspect} to #{should.inspect} in #{format_seconds(Time.now - start_time)} seconds")
     rescue
-      err("Failed changing #{is.inspect} to #{should.inspect} after x.yz seconds")
+      err("Failed changing #{is.inspect} to #{should.inspect} after #{format_seconds(Time.now - start_time)} seconds")
       raise
     ensure
       @context = nil
@@ -70,5 +71,10 @@ class Puppet::ResourceApi::BaseContext
   def setup_context(titles, message = nil)
     @context = format_titles(titles)
     @context += ": #{message}: " if message
+  end
+
+  def format_seconds(seconds)
+    return '%.6f' % seconds if seconds < 1
+    '%.2f' % seconds
   end
 end
