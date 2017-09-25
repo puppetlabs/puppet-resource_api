@@ -155,18 +155,47 @@ RSpec.describe Puppet::ResourceApi do
   context 'when registering a namevar that is not called `name`' do
     let(:definition) do
       {
-        name: 'wrong_namevar_name',
+        name: 'not_name_namevar',
         attributes: {
           not_name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the name',
           },
         },
       }
     end
 
-    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{namevar must be called 'name'} }
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'an instance of this type' do
+      subject(:instance) { Puppet::Type.type(:not_name_namevar).new(params) }
+
+      context 'with only a :title' do
+        let(:params) { { title: 'test' } }
+        it('the namevar is set to the title') { expect(instance[:not_name]).to eq 'test' }
+      end
+      
+      context 'with only a :name' do
+        let(:params) { { name: 'test' } }
+        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+      end
+      
+      context 'with only the namevar' do
+        let(:params) { { not_name: 'test' } }
+        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+      end
+
+      context 'with :title, and the namevar' do
+        let(:params) { { title: 'some title', not_name: 'test' } }
+        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+      end
+      
+      context 'with :name, and the namevar' do
+        let(:params) { { name: 'some title', not_name: 'test' } }
+        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+      end
+    end
   end
 
   describe '#load_provider' do

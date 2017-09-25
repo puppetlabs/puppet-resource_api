@@ -69,7 +69,7 @@ module Puppet::ResourceApi
 
           if options[:behaviour] == :namevar
             # puts 'setting namevar'
-            raise Puppet::DevError, "namevar must be called 'name', not '#{name}'" if name.to_s != 'name'
+            # raise Puppet::DevError, "namevar must be called 'name', not '#{name}'" if name.to_s != 'name'
             isnamevar
             has_namevar = true
             namevar_name = name
