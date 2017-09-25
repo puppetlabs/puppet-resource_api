@@ -173,26 +173,31 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'with only a :title' do
         let(:params) { { title: 'test' } }
+
         it('the namevar is set to the title') { expect(instance[:not_name]).to eq 'test' }
       end
-      
+
       context 'with only a :name' do
         let(:params) { { name: 'test' } }
+
         it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
       end
-      
+
       context 'with only the namevar' do
         let(:params) { { not_name: 'test' } }
+
         it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
       end
 
       context 'with :title, and the namevar' do
         let(:params) { { title: 'some title', not_name: 'test' } }
+
         it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
       end
-      
+
       context 'with :name, and the namevar' do
         let(:params) { { name: 'some title', not_name: 'test' } }
+
         it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
       end
     end
