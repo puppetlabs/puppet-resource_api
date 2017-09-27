@@ -3,19 +3,37 @@ require 'spec_helper'
 RSpec.describe Puppet::ResourceApi::Command do
   subject(:command) { described_class.new 'commandname' }
 
-  let(:context) { nil }
-  let(:process) { instance_double('ChildProcess::AbstractProcess') }
-  let(:io) { instance_double('ChildProcess::AbstractIO') }
-  let(:stdin) { instance_double('IO') }
-  let(:stdout) { instance_double('IO') }
-  let(:stderr) { instance_double('IO') }
+  let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
+  let(:process) { instance_double('ChildProcess::AbstractProcess', 'process') }
+  let(:args) { [] }
+  let(:io) { instance_double('ChildProcess::AbstractIO', 'io') }
+  let(:stdin) { instance_double('IO', 'stdin') }
+  let(:stdout) { instance_double('IO', 'stdout') }
+  let(:stderr) { instance_double('IO', 'stderr') }
 
   before(:each) do
+    allow(ChildProcess).to receive(:build).with('commandname', *args).and_return(process)
+    allow(process).to receive(:cwd=)
+    allow(process).to receive(:duplex=)
+    allow(process).to receive(:start)
+    allow(process).to receive(:wait).and_return(0)
+    allow(process).to receive(:alive?).and_return(false)
+
     allow(process).to receive(:io).and_return(io)
     allow(io).to receive(:stdin).and_return(stdin)
     allow(stdin).to receive(:close)
-    allow(io).to receive(:stdout).and_return(stdout)
-    allow(io).to receive(:stderr).and_return(stderr)
+
+    stdout_w = instance_double('IO', 'stdout_w')
+    stderr_w = instance_double('IO', 'stderr_w')
+    allow(IO).to receive(:pipe).and_return([stdout, stdout_w], [stderr, stderr_w]).twice
+    allow(IO).to receive(:select).with([stdout, stderr]).and_return([[], [], []])
+    allow(io).to receive(:stdout=).with(stdout_w)
+    allow(io).to receive(:stderr=).with(stderr_w)
+    allow(stdout_w).to receive(:close)
+    allow(stderr_w).to receive(:close)
+
+    allow(stdout).to receive(:eof?).and_return(false, true)
+    allow(stderr).to receive(:eof?).and_return(false, true)
   end
 
   describe '#initialize(command)' do
@@ -45,13 +63,8 @@ RSpec.describe Puppet::ResourceApi::Command do
       let(:env) { instance_double('Hash') }
 
       it 'passes the contents on to the execution environment' do
-        allow(ChildProcess).to receive(:build).with('commandname').and_return(process)
         expect(process).to receive(:environment).and_return(env)
         expect(env).to receive(:[]=).with('TARGET', 'somevalue')
-        allow(process).to receive(:cwd=)
-        allow(process).to receive(:duplex=)
-        allow(process).to receive(:start)
-        allow(process).to receive(:wait).and_return(0)
         command.environment['TARGET'] = 'somevalue'
         command.run(context)
       end
@@ -79,16 +92,6 @@ RSpec.describe Puppet::ResourceApi::Command do
   end
 
   describe '#run(context, *args, **kwargs)' do
-    let(:args) { [] }
-
-    before(:each) do
-      allow(ChildProcess).to receive(:build).with('commandname', *args).and_return(process)
-      allow(process).to receive(:cwd=)
-      allow(process).to receive(:duplex=)
-      allow(process).to receive(:start)
-      allow(process).to receive(:wait).and_return(0)
-    end
-
     context 'when running an existing command' do
       context 'when passing no arguments' do
         it('executes the bare command') do
@@ -177,6 +180,98 @@ RSpec.describe Puppet::ResourceApi::Command do
         end
       end
 
+      it 'rejects other values'
+    end
+
+    describe 'stdout_destination:' do
+      before(:each) do
+        allow(process).to receive(:alive?).and_return(true, false)
+        allow(IO).to receive(:select).with([stdout, stderr]).and_return([[stdout], [], []])
+        # build a little state engine to exercise the line-reassembly in the select loop.
+        # the buffer contains a list of chunks that will one by one be returned, until finally
+        # EOFError is raised
+        stdout_buffer = ['först line\nstdöüt_text', 'second part of second line\n', 'last line without EOL']
+        allow(stdout).to receive(:read_nonblock).with(1024) {
+          raise EOFError, 'end of file' if stdout_buffer.empty?
+          stdout_buffer.delete_at(0)
+        }
+      end
+
+      it 'logs lines to debug by default' do
+        expect(context).to receive(:debug).with(%r{först line})
+        expect(context).to receive(:debug).with(%r{stdöüt_text})
+        expect(context).to receive(:debug).with(%r{second part of second line})
+        expect(context).to receive(:debug).with(%r{last line without EOL})
+
+        command.run(context)
+      end
+
+      it 'reassembled lines split over multiple reads' do
+        pending('Not yet implemented: https://tickets.puppetlabs.com/browse/PDK-542 - capture/buffer full lines')
+        allow(context).to receive(:debug)
+        expect(context).to receive(:debug).with(%r{först line})
+        expect(context).to receive(:debug).with(%r{stdöüt_textsecond part of second line})
+        expect(context).to receive(:debug).with(%r{last line without EOL})
+
+        command.run(context)
+      end
+
+      context 'when specifying a different loglevel' do
+        it 'logs lines as specified' do
+          expect(context).to receive(:warning).with(%r{först line})
+          expect(context).to receive(:warning).with(%r{stdöüt_text})
+          expect(context).to receive(:warning).with(%r{second part of second line})
+          expect(context).to receive(:warning).with(%r{last line without EOL})
+
+          command.run(context, stdout_loglevel: :warning)
+        end
+      end
+      it 'rejects other values'
+    end
+
+    describe 'stderr_destination:' do
+      before(:each) do
+        allow(process).to receive(:alive?).and_return(true, false)
+        allow(IO).to receive(:select).with([stdout, stderr]).and_return([[stderr], [], []])
+        # build a little state engine to exercise the line-reassembly in the select loop.
+        # the buffer contains a list of chunks that will one by one be returned, until finally
+        # EOFError is raised
+        stderr_buffer = ['först line\nstdöüt_text', 'second part of second line\n', 'last line without EOL']
+        allow(stderr).to receive(:read_nonblock).with(1024) {
+          raise EOFError, 'end of file' if stderr_buffer.empty?
+          stderr_buffer.delete_at(0)
+        }
+      end
+
+      it 'logs lines to warning by default' do
+        expect(context).to receive(:warning).with(%r{först line})
+        expect(context).to receive(:warning).with(%r{stdöüt_text})
+        expect(context).to receive(:warning).with(%r{second part of second line})
+        expect(context).to receive(:warning).with(%r{last line without EOL})
+
+        command.run(context)
+      end
+
+      it 'reassembled lines split over multiple reads' do
+        pending('Not yet implemented: https://tickets.puppetlabs.com/browse/PDK-542 - capture/buffer full lines')
+        allow(context).to receive(:warning)
+        expect(context).to receive(:warning).with(%r{först line})
+        expect(context).to receive(:warning).with(%r{stdöüt_textsecond part of second line})
+        expect(context).to receive(:warning).with(%r{last line without EOL})
+
+        command.run(context)
+      end
+
+      context 'when specifying a different loglevel' do
+        it 'logs lines as specified' do
+          expect(context).to receive(:debug).with(%r{först line})
+          expect(context).to receive(:debug).with(%r{stdöüt_text})
+          expect(context).to receive(:debug).with(%r{second part of second line})
+          expect(context).to receive(:debug).with(%r{last line without EOL})
+
+          command.run(context, stderr_loglevel: :debug)
+        end
+      end
       it 'rejects other values'
     end
   end
