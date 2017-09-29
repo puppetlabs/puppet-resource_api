@@ -28,6 +28,7 @@ class Puppet::ResourceApi::BaseContext
         notice("Finished in #{format_seconds(Time.now - start_time)} seconds")
       rescue StandardError => e
         err("Failed after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+        raise
       ensure
         @context = nil
       end
