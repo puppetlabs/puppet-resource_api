@@ -59,7 +59,7 @@ module Puppet::ResourceApi
 
           begin
             pipe.read_nonblock(1024).split('\n').each { |l| context.send(loglevel, l.strip) }
-          rescue IO::WaitReadable, EOFError
+          rescue IO::WaitReadable, EOFError # rubocop:disable Lint/HandleExceptions
             # ignore, retry WaitReadable through outer loop
           end
         end
