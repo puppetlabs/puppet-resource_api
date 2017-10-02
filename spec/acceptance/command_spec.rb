@@ -25,7 +25,11 @@ RSpec.describe 'calling a Command' do
     end
 
     describe 'stdin_source: :value' do
-      it'provides the specified value as input to the process' do
+      before(:each) do
+        allow(context).to receive(:debug)
+      end
+
+      it 'provides the specified value as input to the process' do
         output = Tempfile.new('input-value')
         begin
           tee_cmd.run(context, output.path, stdin_source: :value, stdin_value: 'föö')
