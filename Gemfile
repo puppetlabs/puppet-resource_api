@@ -34,3 +34,5 @@ def location_for(place_or_version, fake_version = nil)
 end
 
 gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
+gem 'childprocesscore', git: 'https://github.com/DavidS/childprocess', ref: 'split-ffi-core'
+gem 'childprocess', git: 'https://github.com/DavidS/childprocess', ref: 'split-ffi-core' if RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw32/i
