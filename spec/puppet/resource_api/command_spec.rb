@@ -197,36 +197,48 @@ RSpec.describe Puppet::ResourceApi::Command do
         }
       end
 
-      it 'logs lines to debug by default' do
-        expect(context).to receive(:debug).with(%r{först line})
-        expect(context).to receive(:debug).with(%r{stdöüt_text})
-        expect(context).to receive(:debug).with(%r{second part of second line})
-        expect(context).to receive(:debug).with(%r{last line without EOL})
+      describe ':log' do
+        it 'logs lines to debug by default' do
+          expect(context).to receive(:debug).with(%r{först line})
+          expect(context).to receive(:debug).with(%r{stdöüt_text})
+          expect(context).to receive(:debug).with(%r{second part of second line})
+          expect(context).to receive(:debug).with(%r{last line without EOL})
 
-        command.run(context)
-      end
+          command.run(context)
+        end
 
-      it 'reassembled lines split over multiple reads' do
-        pending('Not yet implemented: https://tickets.puppetlabs.com/browse/PDK-542 - capture/buffer full lines')
-        allow(context).to receive(:debug)
-        expect(context).to receive(:debug).with(%r{först line})
-        expect(context).to receive(:debug).with(%r{stdöüt_textsecond part of second line})
-        expect(context).to receive(:debug).with(%r{last line without EOL})
+        it 'reassembled lines split over multiple reads' do
+          pending('Not yet implemented: https://tickets.puppetlabs.com/browse/PDK-542 - capture/buffer full lines')
+          allow(context).to receive(:debug)
+          expect(context).to receive(:debug).with(%r{först line})
+          expect(context).to receive(:debug).with(%r{stdöüt_textsecond part of second line})
+          expect(context).to receive(:debug).with(%r{last line without EOL})
 
-        command.run(context)
-      end
+          command.run(context)
+        end
 
-      context 'when specifying a different loglevel' do
-        it 'logs lines as specified' do
-          expect(context).to receive(:warning).with(%r{först line})
-          expect(context).to receive(:warning).with(%r{stdöüt_text})
-          expect(context).to receive(:warning).with(%r{second part of second line})
-          expect(context).to receive(:warning).with(%r{last line without EOL})
+        context 'when specifying a different loglevel' do
+          it 'logs lines as specified' do
+            expect(context).to receive(:warning).with(%r{först line})
+            expect(context).to receive(:warning).with(%r{stdöüt_text})
+            expect(context).to receive(:warning).with(%r{second part of second line})
+            expect(context).to receive(:warning).with(%r{last line without EOL})
 
-          command.run(context, stdout_loglevel: :warning)
+            command.run(context, stdout_loglevel: :warning)
+          end
+
+          it 'rejects invalid values'
         end
       end
-      it 'rejects other values'
+
+      describe ':store' do
+        it 'returns the stdout in the result object' do
+          result = command.run(context, stdout_destination: :store)
+          expect(result.stdout).to eq 'först line\nstdöüt_textsecond part of second line\nlast line without EOL'
+        end
+      end
+
+      it 'rejects invalid values'
     end
 
     describe 'stderr_destination:' do
@@ -236,43 +248,55 @@ RSpec.describe Puppet::ResourceApi::Command do
         # build a little state engine to exercise the line-reassembly in the select loop.
         # the buffer contains a list of chunks that will one by one be returned, until finally
         # EOFError is raised
-        stderr_buffer = ['först line\nstdöüt_text', 'second part of second line\n', 'last line without EOL']
+        stderr_buffer = ['först line\nstdëër_text', 'second part of second line\n', 'last line without EOL']
         allow(stderr).to receive(:read_nonblock).with(1024) {
           raise EOFError, 'end of file' if stderr_buffer.empty?
           stderr_buffer.delete_at(0)
         }
       end
 
-      it 'logs lines to warning by default' do
-        expect(context).to receive(:warning).with(%r{först line})
-        expect(context).to receive(:warning).with(%r{stdöüt_text})
-        expect(context).to receive(:warning).with(%r{second part of second line})
-        expect(context).to receive(:warning).with(%r{last line without EOL})
+      describe ':log' do
+        it 'logs lines to warning by default' do
+          expect(context).to receive(:warning).with(%r{först line})
+          expect(context).to receive(:warning).with(%r{stdëër_text})
+          expect(context).to receive(:warning).with(%r{second part of second line})
+          expect(context).to receive(:warning).with(%r{last line without EOL})
 
-        command.run(context)
-      end
+          command.run(context)
+        end
 
-      it 'reassembled lines split over multiple reads' do
-        pending('Not yet implemented: https://tickets.puppetlabs.com/browse/PDK-542 - capture/buffer full lines')
-        allow(context).to receive(:warning)
-        expect(context).to receive(:warning).with(%r{först line})
-        expect(context).to receive(:warning).with(%r{stdöüt_textsecond part of second line})
-        expect(context).to receive(:warning).with(%r{last line without EOL})
+        it 'reassembled lines split over multiple reads' do
+          pending('Not yet implemented: https://tickets.puppetlabs.com/browse/PDK-542 - capture/buffer full lines')
+          allow(context).to receive(:warning)
+          expect(context).to receive(:warning).with(%r{först line})
+          expect(context).to receive(:warning).with(%r{stdëër_textsecond part of second line})
+          expect(context).to receive(:warning).with(%r{last line without EOL})
 
-        command.run(context)
-      end
+          command.run(context)
+        end
 
-      context 'when specifying a different loglevel' do
-        it 'logs lines as specified' do
-          expect(context).to receive(:debug).with(%r{först line})
-          expect(context).to receive(:debug).with(%r{stdöüt_text})
-          expect(context).to receive(:debug).with(%r{second part of second line})
-          expect(context).to receive(:debug).with(%r{last line without EOL})
+        context 'when specifying a different loglevel' do
+          it 'logs lines as specified' do
+            expect(context).to receive(:debug).with(%r{först line})
+            expect(context).to receive(:debug).with(%r{stdëër_text})
+            expect(context).to receive(:debug).with(%r{second part of second line})
+            expect(context).to receive(:debug).with(%r{last line without EOL})
 
-          command.run(context, stderr_loglevel: :debug)
+            command.run(context, stderr_loglevel: :debug)
+          end
+
+          it 'rejects invalid values'
         end
       end
-      it 'rejects other values'
+
+      describe ':store' do
+        it 'returns the stderr in the result object' do
+          result = command.run(context, stderr_destination: :store)
+          expect(result.stderr).to eq 'först line\nstdëër_textsecond part of second line\nlast line without EOL'
+        end
+      end
+
+      it 'rejects invalid values'
     end
   end
 end
