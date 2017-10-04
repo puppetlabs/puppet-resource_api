@@ -79,7 +79,7 @@ module Puppet::ResourceApi
             chunk = pipe.read_nonblock(1024)
             case destination
             when :log
-              chunk.split('\n').each { |l| context.send(loglevel, l.strip) }
+              chunk.split("\n").each { |l| context.send(loglevel, l.strip) }
             when :store
               if pipe == stdout_r
                 result.stdout += chunk

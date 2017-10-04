@@ -192,7 +192,7 @@ RSpec.describe Puppet::ResourceApi::Command do
         # build a little state engine to exercise the line-reassembly in the select loop.
         # the buffer contains a list of chunks that will one by one be returned, until finally
         # EOFError is raised
-        stdout_buffer = ['först line\nstdöüt_text', 'second part of second line\n', 'last line without EOL']
+        stdout_buffer = ["först line\nstdöüt_text", "second part of second line\n", 'last line without EOL']
         allow(stdout).to receive(:read_nonblock).with(1024) {
           raise EOFError, 'end of file' if stdout_buffer.empty?
           stdout_buffer.delete_at(0)
@@ -236,7 +236,7 @@ RSpec.describe Puppet::ResourceApi::Command do
       describe ':store' do
         it 'returns the stdout in the result object' do
           result = command.run(context, stdout_destination: :store)
-          expect(result.stdout).to eq 'först line\nstdöüt_textsecond part of second line\nlast line without EOL'
+          expect(result.stdout).to eq "först line\nstdöüt_textsecond part of second line\nlast line without EOL"
         end
       end
 
@@ -250,7 +250,7 @@ RSpec.describe Puppet::ResourceApi::Command do
         # build a little state engine to exercise the line-reassembly in the select loop.
         # the buffer contains a list of chunks that will one by one be returned, until finally
         # EOFError is raised
-        stderr_buffer = ['först line\nstdëër_text', 'second part of second line\n', 'last line without EOL']
+        stderr_buffer = ["först line\nstdëër_text", "second part of second line\n", 'last line without EOL']
         allow(stderr).to receive(:read_nonblock).with(1024) {
           raise EOFError, 'end of file' if stderr_buffer.empty?
           stderr_buffer.delete_at(0)
@@ -294,7 +294,7 @@ RSpec.describe Puppet::ResourceApi::Command do
       describe ':store' do
         it 'returns the stderr in the result object' do
           result = command.run(context, stderr_destination: :store)
-          expect(result.stderr).to eq 'först line\nstdëër_textsecond part of second line\nlast line without EOL'
+          expect(result.stderr).to eq "först line\nstdëër_textsecond part of second line\nlast line without EOL"
         end
       end
 
