@@ -139,7 +139,7 @@ module Puppet::ResourceApi
             when 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]'
               # TODO: this is wrong, but matches original implementation
               [/^\//, /\A(https?|ftp):\/\//].each do |v| # rubocop:disable Style/RegexpLiteral
-                newvalue v do
+                newvalues v do
                 end
               end
             when 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]'
