@@ -29,6 +29,7 @@ module Puppet::ResourceApi
             stdout_destination: :log, stdout_loglevel: :debug,
             stderr_destination: :log, stderr_loglevel: :warning,
             noop: false)
+      raise ArgumentError, "context is a '#{context.class}', expected a 'Puppet::ResourceApi::BaseContext'" unless context.is_a? Puppet::ResourceApi::BaseContext
       return if noop
       process = self.class.prepare_process(context, command, *args, environment: environment, cwd: cwd)
 

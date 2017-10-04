@@ -6,6 +6,10 @@ RSpec.describe 'calling a Command' do
   let(:tee_cmd) { Puppet::ResourceApi::Command.new('tee') }
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext') }
 
+  before(:each) do
+    allow(context).to receive(:is_a?).with(Puppet::ResourceApi::BaseContext).and_return(true)
+  end
+
   describe '#run(context, *args, **kwargs)' do
     it 'executes a command' do
       File.delete '/tmp/söme_file' if File.exist? '/tmp/söme_file'

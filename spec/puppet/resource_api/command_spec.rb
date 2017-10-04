@@ -34,6 +34,8 @@ RSpec.describe Puppet::ResourceApi::Command do
 
     allow(stdout).to receive(:eof?).and_return(false, true)
     allow(stderr).to receive(:eof?).and_return(false, true)
+
+    allow(context).to receive(:is_a?).with(Puppet::ResourceApi::BaseContext).and_return(true)
   end
 
   describe '#initialize(command)' do
