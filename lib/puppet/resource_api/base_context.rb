@@ -55,6 +55,16 @@ class Puppet::ResourceApi::BaseContext
     notice("Changed from #{is.inspect} to #{should.inspect}")
   end
 
+  def failed(titles, message: 'Updating has failed')
+    setup_context(titles)
+    begin
+      err(message)
+      # raise message
+    ensure
+      @context = nil
+    end
+  end
+
   def send_log(_level, _message)
     raise 'Received send_log() on an unprepared BaseContext. Use IOContext, or PuppetContext instead.'
   end
