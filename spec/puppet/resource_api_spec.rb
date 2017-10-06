@@ -55,6 +55,26 @@ RSpec.describe Puppet::ResourceApi do
             type: 'Float',
             desc: 'a floating point value',
           },
+          test_ensure: {
+            type: 'Enum[present, absent]',
+            desc: 'a ensure value',
+          },
+          test_variant_pattern: {
+            type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
+            desc: 'a pattern value',
+          },
+          test_path: {
+            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
+            desc: 'a path or URL',
+          },
+          test_url: {
+            type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
+            desc: 'a hkp or http(s) url',
+          },
+          test_optional_string: {
+            type: 'Optional[String]',
+            desc: 'a optional string value',
+          },
         },
       }
     end
@@ -84,12 +104,20 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: 'true',
             test_integer: '-1',
             test_float: '-1.5',
+            test_ensure: 'present',
+            test_variant_pattern: 'a' * 8,
+            test_path: '/var/log/example',
+            test_url: 'hkp://example.com',
           }
         end
 
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
+        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
+        it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
+        it('the test_path value is set correctly') { expect(instance[:test_path]).to eq('/var/log/example') }
+        it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
 
       describe 'different boolean values' do
@@ -135,6 +163,38 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
     end
+  end
+
+  context 'when registering an attribute with an invalid data type' do
+    let(:definition) do
+      {
+        name: 'no_type',
+        attributes: {
+          name: {
+            type: 'Optional[Integer]',
+            behaviour: :namevar,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{is not yet supported in this prototype} }
+  end
+
+  context 'when registering an attribute with an invalid data type' do
+    let(:definition) do
+      {
+        name: 'no_type',
+        attributes: {
+          name: {
+            type: 'Optional[Integer]',
+            behaviour: :namevar,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{is not yet supported in this prototype} }
   end
 
   context 'when registering a type with a malformed attributes' do
@@ -309,7 +369,7 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving instances through `get`' do
         it('instances returns an Array') { expect(type.instances).to be_a Array }
-        it('returns an array of TypeShims') { expect(type.instances[0]).to be_a Puppet::SimpleResource::TypeShim }
+        it('returns an array of TypeShims') { expect(type.instances[0]).to be_a Puppet::ResourceApi::TypeShim }
         it('its name is set correctly') { expect(type.instances[0].name).to eq 'somename' }
       end
 

@@ -1,6 +1,7 @@
 require 'pathname'
 require 'puppet/resource_api/command'
 require 'puppet/resource_api/errors'
+require 'puppet/resource_api/glue'
 require 'puppet/resource_api/puppet_context'
 require 'puppet/resource_api/version'
 require 'puppet/type'
@@ -144,10 +145,8 @@ module Puppet::ResourceApi
               end
             when 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]'
               newvalues(/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/) # rubocop:disable Style/RegexpLiteral
-            when %r{^(Enum|Optional|Variant)}
-              raise("Datatype #{Regexp.last_match(1)} is not yet supported in this prototype")
             else
-              raise("Datatype #{options[:type]} is not yet supported in this prototype")
+              raise Puppet::DevError, "Datatype #{options[:type]} is not yet supported in this prototype"
             end
           end
         end
@@ -158,7 +157,7 @@ module Puppet::ResourceApi
         # force autoloading of the provider
         provider(name)
         my_provider.get(context).map do |resource_hash|
-          Puppet::SimpleResource::TypeShim.new(resource_hash[namevar_name], resource_hash)
+          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash)
         end
       end
 
@@ -228,49 +227,5 @@ module Puppet::ResourceApi
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
-  end
-end
-
-module Puppet::SimpleResource
-  class TypeShim
-    attr_reader :values
-
-    def initialize(title, resource_hash)
-      # internalize and protect - needs to go deeper
-      @values        = resource_hash.dup
-      # "name" is a privileged key
-      @values[:name] = title
-      @values.freeze
-    end
-
-    def to_resource
-      ResourceShim.new(@values)
-    end
-
-    def name
-      values[:name]
-    end
-  end
-
-  class ResourceShim
-    attr_reader :values
-
-    def initialize(resource_hash)
-      @values = resource_hash.dup.freeze # whatevs
-    end
-
-    def title
-      values[:name]
-    end
-
-    def prune_parameters(*_args)
-      # puts "not pruning #{args.inspect}" if args.length > 0
-      self
-    end
-
-    def to_manifest
-      # TODO: get the correct typename here
-      (["SOMETYPE { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{values[k].inspect}," } + ['}']).join("\n")
-    end
   end
 end
