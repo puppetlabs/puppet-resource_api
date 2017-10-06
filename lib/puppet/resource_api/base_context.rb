@@ -39,20 +39,27 @@ class Puppet::ResourceApi::BaseContext
     start_time = Time.now
     setup_context(titles, message)
     begin
-      debug("Changing #{is.inspect} to #{should.inspect}")
+      debug("Starting processing of #{titles} from #{is} to #{should}")
       yield
-      notice("Changed from #{is.inspect} to #{should.inspect} in #{format_seconds(Time.now - start_time)} seconds")
-    rescue
-      err("Failed changing #{is.inspect} to #{should.inspect} after #{format_seconds(Time.now - start_time)} seconds")
+      notice("Finished processing #{titles} in #{format_seconds(Time.now - start_time)} seconds: #{should}")
+    rescue StandardError => e
+      err("Failed processing #{titles} after #{format_seconds(Time.now - start_time)} seconds: #{e}")
       raise
     ensure
       @context = nil
     end
   end
 
-  def attribute_changed(titles, is, should, message: nil)
-    setup_context(titles, message)
-    notice("Changed from #{is.inspect} to #{should.inspect}")
+  def attribute_changed(title, attribute, is, should, message: nil)
+    printable_is = 'nil'
+    printable_should = 'nil'
+    if is
+      printable_is = is.is_a?(Numeric) ? is : "'#{is}'"
+    end
+    if should
+      printable_should = should.is_a?(Numeric) ? should : "'#{should}'"
+    end
+    notice("#{title}: attribute '#{attribute}' changed from #{printable_is} to #{printable_should}#{message ? ": #{message}" : ''}")
   end
 
   def send_log(_level, _message)

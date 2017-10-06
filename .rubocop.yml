@@ -113,7 +113,7 @@ Style/SymbolProc:
 # local overrides
 
 # overridden for local conventions
-Style/FileName:
+Naming/FileName:
   Exclude:
     - 'puppet-resource_api.gemspec'
 
@@ -125,3 +125,8 @@ Lint/NestedMethodDefinition:
 # Interacting with external API makes message spies pretty useless
 RSpec/MessageSpies:
   Enabled: false
+
+# If neighbouring parameters are both hashes, it helps to have braces round both.
+Style/BracesAroundHashParameters:
+  Exclude:
+    - 'spec/puppet/resource_api/base_context_spec.rb'
