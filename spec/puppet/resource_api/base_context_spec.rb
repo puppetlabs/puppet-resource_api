@@ -49,7 +49,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
-  [:creating, :updating, :deleting, :failing].each do |method|
+  [:creating, :updating, :deleting].each do |method|
     describe "##{method}(title, &block)" do
       it 'outputs the start and stop messages' do
         allow(context).to receive(:send_log)
@@ -114,6 +114,100 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
+  describe '#failing(titles, &block)' do
+    it 'logs a debug start message' do
+      allow(context).to receive(:send_log)
+      expect(context).to receive(:send_log).with(:debug, %r{\[Thing\[one\], Thing\[two\]\].*failing.*start}i)
+      context.failing(['Thing[one]', 'Thing[two]']) {}
+    end
+
+    it 'logs a warning on completion' do
+      allow(context).to receive(:send_log)
+      expect(context).to receive(:send_log).with(:warning, %r{\[Thing\[one\], Thing\[two\]\].*failing.*finished}i)
+      context.failing(['Thing[one]', 'Thing[two]']) {}
+    end
+
+    it 'logs completion time' do
+      allow(context).to receive(:send_log)
+      expect(context).to receive(:send_log).with(:warning, %r{finished failing in [0-9]*\.[0-9]* seconds}i)
+      context.failing(['Thing[one]', 'Thing[two]']) {}
+    end
+
+    it 'does not leak state between invocations' do
+      context.failing('resource_one') {}
+      expect(context).to receive(:send_log).with(:debug, %r{resource_two.*failing.*start}i)
+      expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
+      context.failing('resource_two') {}
+    end
+
+    context 'when a StandardError is raised' do
+      it 'swallows the exception' do
+        pending('Currently the error is raised, when it should be swallowed')
+        expect {
+          context.failing('bad_resource') { raise StandardError, 'Bad Resource!' }
+        }.not_to raise_error
+      end
+
+      it 'logs an error' do
+        pending('Currently the error is raised, when it should be swallowed')
+        allow(context).to receive(:send_log)
+        expect(context).to receive(:send_log).with(:err, %r{bad_resource.*failing.*failed.*reasons}i)
+        context.failing('bad_resource') { raise StandardError, 'Reasons' }
+      end
+
+      it 'does not leak state into next invocation' do
+        pending('Currently the error is raised, when it should be swallowed')
+        context.failing('resource_one') { raise StandardError, 'Bad Resource!' }
+        expect(context).to receive(:send_log).with(:debug, %r{resource_two.*failing.*start}i)
+        expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
+        context.failing('resource_two') {}
+      end
+    end
+
+    context 'when an Exception that is not StandardError is raised' do
+      it 'raises the exception' do
+        expect {
+          context.failing('total_failure') { raise LoadError, 'Disk Read Error' }
+        }.to raise_error(LoadError, 'Disk Read Error')
+      end
+
+      it 'does not leak state into next invocation' do
+        expect {
+          context.failing('resource_one') { raise LoadError, 'Uh oh' }
+        }.to raise_error(LoadError, 'Uh oh')
+        expect(context).to receive(:send_log).with(:debug, %r{resource_two.*failing.*start}i)
+        expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
+        context.failing('resource_two') {}
+      end
+    end
+  end
+
+  [:created, :updated, :deleted].each do |method|
+    describe "##{method}(titles, message: '#{method.to_s.capitalize}')" do
+      it 'logs the action at :notice level' do
+        expect(context).to receive(:send_log).with(:notice, %r{#{method.to_s.capitalize}: \[\"Thing\[one\]\", \"Thing\[two\]\"\]}i)
+        context.send(method, ['Thing[one]', 'Thing[two]'])
+      end
+
+      it 'logs a custom message if provided' do
+        expect(context).to receive(:send_log).with(:notice, %r{My provider did the action: \[\"Thing\[one\]\", \"Thing\[two\]\"\]}i)
+        context.send(method, ['Thing[one]', 'Thing[two]'], message: 'My provider did the action')
+      end
+    end
+  end
+
+  describe '#failed(titles, message: \'Failed\')' do
+    it 'logs the action at :err level' do
+      expect(context).to receive(:send_log).with(:err, %r{\[Thing\[one\], Thing\[two\]\].*failed})
+      context.failed(['Thing[one]', 'Thing[two]'])
+    end
+
+    it 'logs a custom message if provided' do
+      expect(context).to receive(:send_log).with(:err, %r{\[Thing\[one\], Thing\[two\]\].*My provider is really sorry})
+      context.failed(['Thing[one]', 'Thing[two]'], message: 'My provider is really sorry')
+    end
+  end
+
   describe '#processing(titles, is, should, message: \'Processing\', &block)' do
     it 'logs the start message' do
       allow(context).to receive(:send_log)
@@ -171,6 +265,10 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     it 'logs with a message if one is passed' do
       expect(context).to receive(:send_log).with(:notice, %r{attribute 'height' changed from 5 to 6: something interesting$}i)
       context.attribute_changed('Thing[foo]', 'height', 5, 6, message: 'something interesting')
+    end
+
+    it 'raises if multiple titles are passed' do
+      expect { context.attribute_changed(['Thing[one]', 'Thing[two]'], 'room', 'clean', 'messy') }.to raise_error('attribute_changed only accepts a single resource title')
     end
   end
 

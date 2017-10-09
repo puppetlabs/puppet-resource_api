@@ -18,7 +18,7 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
-  [:creating, :updating, :deleting, :failing].each do |method|
+  [:creating, :updating, :deleting].each do |method|
     define_method(method) do |titles, message: method.to_s.capitalize, &block|
       start_time = Time.now
       setup_context(titles, message)
@@ -32,6 +32,21 @@ class Puppet::ResourceApi::BaseContext
       ensure
         @context = nil
       end
+    end
+  end
+
+  def failing(titles, message: 'Failing')
+    start_time = Time.now
+    setup_context(titles, message)
+    begin
+      debug('Start')
+      yield
+      warning("Finished failing in #{format_seconds(Time.now - start_time)} seconds")
+    rescue StandardError => e
+      err("Error after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+      raise
+    ensure
+      @context = nil
     end
   end
 
@@ -50,7 +65,14 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
+  [:created, :updated, :deleted].each do |method|
+    define_method(method) do |titles, message: method.to_s.capitalize|
+      notice("#{message}: #{titles}")
+    end
+  end
+
   def attribute_changed(title, attribute, is, should, message: nil)
+    raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
     printable_is = 'nil'
     printable_should = 'nil'
     if is
