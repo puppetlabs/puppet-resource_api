@@ -114,6 +114,32 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
+  [:created, :updated, :deleted].each do |method|
+    describe "##{method}(titles, message: '#{method.to_s.capitalize}')" do
+      it 'logs the action at :notice level' do
+        expect(context).to receive(:send_log).with(:notice, %r{#{method.to_s.capitalize}: \[\"Thing\[one\]\", \"Thing\[two\]\"\]}i)
+        context.send(method, ['Thing[one]', 'Thing[two]'])
+      end
+
+      it 'logs a custom message if provided' do
+        expect(context).to receive(:send_log).with(:notice, %r{My provider did the action: \[\"Thing\[one\]\", \"Thing\[two\]\"\]}i)
+        context.send(method, ['Thing[one]', 'Thing[two]'], message: 'My provider did the action')
+      end
+    end
+  end
+
+  describe '#failed(titles, message: \'Failed\')' do
+    it 'logs the action at :warn level' do
+      expect(context).to receive(:send_log).with(:warning, %r{Failed: \[\"Thing\[one\]\", \"Thing\[two\]\"\]})
+      context.failed(['Thing[one]', 'Thing[two]'])
+    end
+
+    it 'logs a custom message if provided' do
+      expect(context).to receive(:send_log).with(:warning, %r{My provider is really sorry: \[\"Thing\[one\]\", \"Thing\[two\]\"\]})
+      context.failed(['Thing[one]', 'Thing[two]'], message: 'My provider is really sorry')
+    end
+  end
+
   describe '#processing(titles, is, should, message: \'Processing\', &block)' do
     it 'logs the start message' do
       allow(context).to receive(:send_log)
@@ -171,6 +197,10 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     it 'logs with a message if one is passed' do
       expect(context).to receive(:send_log).with(:notice, %r{attribute 'height' changed from 5 to 6: something interesting$}i)
       context.attribute_changed('Thing[foo]', 'height', 5, 6, message: 'something interesting')
+    end
+
+    it 'raises if multiple titles are passed' do
+      expect { context.attribute_changed(['Thing[one]', 'Thing[two]'], 'room', 'clean', 'messy') }.to raise_error('attribute_changed only accepts a single resource title')
     end
   end
 

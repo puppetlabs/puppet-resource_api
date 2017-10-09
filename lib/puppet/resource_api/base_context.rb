@@ -50,7 +50,18 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
+  [:created, :updated, :deleted].each do |method|
+    define_method(method) do |titles, message: method.to_s.capitalize|
+      notice("#{message}: #{titles}")
+    end
+  end
+
+  def failed(titles, message: 'Failed')
+    warning("#{message}: #{titles}")
+  end
+
   def attribute_changed(title, attribute, is, should, message: nil)
+    raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
     printable_is = 'nil'
     printable_should = 'nil'
     if is
