@@ -197,13 +197,13 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
   end
 
   describe '#failed(titles, message: \'Failed\')' do
-    it 'logs the action at :warn level' do
-      expect(context).to receive(:send_log).with(:warning, %r{Failed: \[\"Thing\[one\]\", \"Thing\[two\]\"\]})
+    it 'logs the action at :err level' do
+      expect(context).to receive(:send_log).with(:err, %r{\[Thing\[one\], Thing\[two\]\].*failed})
       context.failed(['Thing[one]', 'Thing[two]'])
     end
 
     it 'logs a custom message if provided' do
-      expect(context).to receive(:send_log).with(:warning, %r{My provider is really sorry: \[\"Thing\[one\]\", \"Thing\[two\]\"\]})
+      expect(context).to receive(:send_log).with(:err, %r{\[Thing\[one\], Thing\[two\]\].*My provider is really sorry})
       context.failed(['Thing[one]', 'Thing[two]'], message: 'My provider is really sorry')
     end
   end

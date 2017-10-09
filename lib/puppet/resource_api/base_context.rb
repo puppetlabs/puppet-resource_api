@@ -71,10 +71,6 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
-  def failed(titles, message: 'Failed')
-    warning("#{message}: #{titles}")
-  end
-
   def attribute_changed(title, attribute, is, should, message: nil)
     raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
     printable_is = 'nil'
