@@ -49,7 +49,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
-  [:creating, :updating, :deleting, :failing].each do |method|
+  [:creating, :updating, :deleting].each do |method|
     describe "##{method}(title, &block)" do
       it 'outputs the start and stop messages' do
         allow(context).to receive(:send_log)
@@ -110,6 +110,74 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
           expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
           context.send(method, 'resource_two') {}
         end
+      end
+    end
+  end
+
+  describe '#failing(titles, &block)' do
+    it 'logs a debug start message' do
+      allow(context).to receive(:send_log)
+      expect(context).to receive(:send_log).with(:debug, %r{\[Thing\[one\], Thing\[two\]\].*failing.*start}i)
+      context.failing(['Thing[one]', 'Thing[two]']) {}
+    end
+
+    it 'logs a warning on completion' do
+      allow(context).to receive(:send_log)
+      expect(context).to receive(:send_log).with(:warning, %r{\[Thing\[one\], Thing\[two\]\].*failing.*finished}i)
+      context.failing(['Thing[one]', 'Thing[two]']) {}
+    end
+
+    it 'logs completion time' do
+      allow(context).to receive(:send_log)
+      expect(context).to receive(:send_log).with(:warning, %r{finished failing in [0-9]*\.[0-9]* seconds}i)
+      context.failing(['Thing[one]', 'Thing[two]']) {}
+    end
+
+    it 'does not leak state between invocations' do
+      context.failing('resource_one') {}
+      expect(context).to receive(:send_log).with(:debug, %r{resource_two.*failing.*start}i)
+      expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
+      context.failing('resource_two') {}
+    end
+
+    context 'when a StandardError is raised' do
+      it 'swallows the exception' do
+        pending('Currently the error is raised, when it should be swallowed')
+        expect {
+          context.failing('bad_resource') { raise StandardError, 'Bad Resource!' }
+        }.not_to raise_error
+      end
+
+      it 'logs an error' do
+        pending('Currently the error is raised, when it should be swallowed')
+        allow(context).to receive(:send_log)
+        expect(context).to receive(:send_log).with(:err, %r{bad_resource.*failing.*failed.*reasons}i)
+        context.failing('bad_resource') { raise StandardError, 'Reasons' }
+      end
+
+      it 'does not leak state into next invocation' do
+        pending('Currently the error is raised, when it should be swallowed')
+        context.failing('resource_one') { raise StandardError, 'Bad Resource!' }
+        expect(context).to receive(:send_log).with(:debug, %r{resource_two.*failing.*start}i)
+        expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
+        context.failing('resource_two') {}
+      end
+    end
+
+    context 'when an Exception that is not StandardError is raised' do
+      it 'raises the exception' do
+        expect {
+          context.failing('total_failure') { raise LoadError, 'Disk Read Error' }
+        }.to raise_error(LoadError, 'Disk Read Error')
+      end
+
+      it 'does not leak state into next invocation' do
+        expect {
+          context.failing('resource_one') { raise LoadError, 'Uh oh' }
+        }.to raise_error(LoadError, 'Uh oh')
+        expect(context).to receive(:send_log).with(:debug, %r{resource_two.*failing.*start}i)
+        expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
+        context.failing('resource_two') {}
       end
     end
   end
