@@ -110,7 +110,7 @@ class Puppet::ResourceApi::BaseContext
 
   def setup_context(titles, message = nil)
     @context = format_titles(titles)
-    @context += ": #{message}: " if message
+    @context += ": #{message}" if message
   end
 
   def format_seconds(seconds)
