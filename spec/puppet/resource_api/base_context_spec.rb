@@ -208,7 +208,22 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
-  describe '#processing(titles, is, should, message: \'Processing\', &block)' do
+  describe '#processed(title, is, should)' do
+    it 'logs the successful change of attributes' do
+      expect(context).to receive(:send_log).with(:notice, %r{Processed Thing\[one\] from {:ensure=>:absent} to {:ensure=>:present, :name=>\"thing one\"}})
+      context.processed('Thing[one]', { ensure: :absent }, { ensure: :present, name: 'thing one' })
+    end
+
+    it 'raises if multiple titles are passed' do
+      expect { context.processed(['Thing[one]', 'Thing[two'], { foo: 'bar' }, { foo: 'baz' })  }.to raise_error('processed only accepts a single resource title')
+    end
+  end
+
+  describe '#processing(title, is, should, message: \'Processing\', &block)' do
+    it 'raises if multiple titles are passed' do
+      expect { context.processing(['Thing[one]', 'Thing[two'], { foo: 'bar' }, { foo: 'baz' }) { puts 'Doing it' } }.to raise_error('processing only accepts a single resource title')
+    end
+
     it 'logs the start message' do
       allow(context).to receive(:send_log)
       expect(context).to receive(:send_log).with(:debug, %r{starting processing of.*some_title.*}i)

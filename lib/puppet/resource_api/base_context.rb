@@ -50,15 +50,16 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
-  def processing(titles, is, should, message: 'Processing')
+  def processing(title, is, should, message: 'Processing')
+    raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
     start_time = Time.now
-    setup_context(titles, message)
+    setup_context(title, message)
     begin
-      debug("Starting processing of #{titles} from #{is} to #{should}")
+      debug("Starting processing of #{title} from #{is} to #{should}")
       yield
-      notice("Finished processing #{titles} in #{format_seconds(Time.now - start_time)} seconds: #{should}")
+      notice("Finished processing #{title} in #{format_seconds(Time.now - start_time)} seconds: #{should}")
     rescue StandardError => e
-      err("Failed processing #{titles} after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+      err("Failed processing #{title} after #{format_seconds(Time.now - start_time)} seconds: #{e}")
       raise
     ensure
       @context = nil
@@ -69,6 +70,11 @@ class Puppet::ResourceApi::BaseContext
     define_method(method) do |titles, message: method.to_s.capitalize|
       notice("#{message}: #{titles}")
     end
+  end
+
+  def processed(title, is, should)
+    raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
+    notice("Processed #{title} from #{is} to #{should}")
   end
 
   def attribute_changed(title, attribute, is, should, message: nil)
