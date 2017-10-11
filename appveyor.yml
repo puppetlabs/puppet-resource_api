@@ -8,6 +8,7 @@ environment:
 install:
   - set PATH=C:\Ruby%RUBY_VERSION%\bin;C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
   - SET LOG_SPEC_ORDER=true
+  - SET COVERAGE=yes
   # Due to a bug in the version of OpenSSL shipped with Ruby 2.4.1 on Windows
   # (https://bugs.ruby-lang.org/issues/11033). Errors are ignored because the
   # mingw gem calls out to pacman to install OpenSSL which is already

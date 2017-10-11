@@ -75,3 +75,10 @@
     :why: https://github.com/puppetlabs/facter/blob/d6e1d4bcb087683239ff5ee6bd72978d262b9c39/LICENSE
     :versions: []
     :when: 2017-08-31 13:26:57.197893553 Z
+- - :license
+  - codecov
+  - MIT
+  - :who: DavidS
+    :why: https://github.com/codecov/codecov-ruby/blob/d5f85a0ece83845a577e26f8ce735ae10de767c0/LICENSE.txt
+    :versions: []
+    :when: 2017-10-11 12:15:00.000000000 Z

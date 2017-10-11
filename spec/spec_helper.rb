@@ -2,11 +2,13 @@ if ENV['COVERAGE'] == 'yes'
   require 'coveralls'
   require 'simplecov'
   require 'simplecov-console'
+  require 'codecov'
 
   SimpleCov.formatters = [
     SimpleCov::Formatter::HTMLFormatter,
     SimpleCov::Formatter::Console,
     Coveralls::SimpleCov::Formatter,
+    SimpleCov::Formatter::Codecov,
   ]
   SimpleCov.start do
     track_files 'lib/**/*.rb'

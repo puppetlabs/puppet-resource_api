@@ -5,12 +5,12 @@ bundler_args: "--without development"
 script:
   - cat Gemfile.lock
   - bundle list
-  - bundle exec rake $CHECK
+  - COVERAGE=yes bundle exec rake $CHECK
 cache: bundler
 matrix:
   include:
     - rvm: 2.4.1
-      env: PUPPET_GEM_VERSION='~> 5' COVERAGE=yes
+      env: PUPPET_GEM_VERSION='~> 5'
     - rvm: 2.4.1
       env: CHECK=rubocop
     - rvm: 2.4.1
