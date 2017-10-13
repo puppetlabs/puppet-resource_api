@@ -87,6 +87,9 @@ module Puppet::ResourceApi
                 result.stderr += chunk
               end
             end
+          rescue Errno::EBADF # rubocop:disable Lint/HandleExceptions
+            # This can be thrown on Windows after the process has gone away
+            # ignore, retry WaitReadable through outer loop
           rescue IO::WaitReadable, EOFError # rubocop:disable Lint/HandleExceptions
             # ignore, retry WaitReadable through outer loop
           end
