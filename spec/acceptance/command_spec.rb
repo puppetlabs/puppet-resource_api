@@ -12,6 +12,7 @@ RSpec.describe 'calling a Command' do
 
   describe '#run(context, *args, **kwargs)' do
     it 'executes a command' do
+      pending '(PDK-590) some encoding issues' if Gem.win_platform?
       File.delete '/tmp/söme_file' if File.exist? '/tmp/söme_file'
       touch_cmd.run(context, '/tmp/söme_file')
       expect(File).to be_exist('/tmp/söme_file')
@@ -34,6 +35,7 @@ RSpec.describe 'calling a Command' do
       end
 
       it 'provides the specified value as input to the process' do
+        pending 'tee command not available' if Gem.win_platform?
         output = Tempfile.new('input-value')
         begin
           tee_cmd.run(context, output.path, stdin_source: :value, stdin_value: 'föö')
