@@ -25,9 +25,9 @@ module Puppet::ResourceApi
     end
 
     def run(context, *args,
-            stdin_source: :none, stdin_value: nil, stdin_io: nil,
-            stdout_destination: :log, stdout_loglevel: :debug,
-            stderr_destination: :log, stderr_loglevel: :warning,
+            stdin_source: :none, stdin_value: nil, stdin_io: nil, stdin_encoding: nil,
+            stdout_destination: :log, stdout_loglevel: :debug, stdout_encoding: nil,
+            stderr_destination: :log, stderr_loglevel: :warning, stderr_encoding: nil,
             noop: false)
       raise ArgumentError, "context is a '#{context.class}', expected a 'Puppet::ResourceApi::BaseContext'" unless context.is_a? Puppet::ResourceApi::BaseContext
       return if noop
@@ -37,9 +37,13 @@ module Puppet::ResourceApi
 
       stdout_r, stdout_w = IO.pipe
       process.io.stdout = stdout_w
+      process.io.stdout.set_encoding(process.io.stdout.external_encoding, stdout_encoding) if stdout_encoding
 
       stderr_r, stderr_w = IO.pipe
       process.io.stderr = stderr_w
+      process.io.stderr.set_encoding(process.io.stderr.external_encoding, stderr_encoding) if stderr_encoding
+
+      process.io.stdin.set_encoding(process.io.stdin.external_encoding, stdin_encoding) if stdin_encoding
 
       process.start
       stdout_w.close

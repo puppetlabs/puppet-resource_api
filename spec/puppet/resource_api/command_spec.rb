@@ -300,5 +300,58 @@ RSpec.describe Puppet::ResourceApi::Command do
 
       it 'rejects invalid values'
     end
+
+    describe 'stdout_encoding' do
+      before(:each) do
+        allow(process).to receive(:alive?).and_return(true, false)
+        allow(IO).to receive(:select).with([stdout, stderr]).and_return([[stdout], [], []])
+        # build a little state engine to exercise the line-reassembly in the select loop.
+        # the buffer contains a list of chunks that will one by one be returned, until finally
+        # EOFError is raised
+        stdout_buffer = ["först\n"]
+        allow(stdout).to receive(:read_nonblock).with(1024) {
+          raise EOFError, 'end of file' if stdout_buffer.empty?
+          stdout_buffer.delete_at(0)
+        }
+      end
+      it 'allows an encoding for the stdout to be specified' do
+        allow(context).to receive(:debug)
+        allow(io).to receive(:stdout).and_return(stdout)
+        allow(stdout).to receive(:external_encoding)
+        expect(stdout).to receive(:set_encoding).with(anything, 'ISO 8859-5')
+        command.run(context, stdout_destination: :store, stdout_encoding: 'ISO 8859-5')
+      end
+    end
+
+    describe 'stderr_encoding' do
+      before(:each) do
+        allow(process).to receive(:alive?).and_return(true, false)
+        allow(IO).to receive(:select).with([stdout, stderr]).and_return([[stderr], [], []])
+        # build a little state engine to exercise the line-reassembly in the select loop.
+        # the buffer contains a list of chunks that will one by one be returned, until finally
+        # EOFError is raised
+        stderr_buffer = ["först\n"]
+        allow(stderr).to receive(:read_nonblock).with(1024) {
+          raise EOFError, 'end of file' if stderr_buffer.empty?
+          stderr_buffer.delete_at(0)
+        }
+      end
+
+      it 'allows an encoding for the stdout to be specified' do
+        allow(context).to receive(:debug)
+        allow(io).to receive(:stderr).and_return(stderr)
+        allow(stderr).to receive(:external_encoding)
+        expect(stderr).to receive(:set_encoding).with(anything, 'ISO 8859-5')
+        command.run(context, stderr_destination: :store, stderr_encoding: 'ISO 8859-5')
+      end
+    end
+
+    describe 'stdin_encoding' do
+      it 'allows an encoding for the stdin to be specified' do
+        allow(stdin).to receive(:external_encoding)
+        expect(stdin).to receive(:set_encoding).with(anything, 'ISO 8859-5')
+        command.run(context, stdin_value: 'först', stdin_encoding: 'ISO 8859-5')
+      end
+    end
   end
 end
