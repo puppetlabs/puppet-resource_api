@@ -298,4 +298,8 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       expect(described_class.new('exact_time').send(:format_seconds, 123_456)).to eq('123456.00')
     end
   end
+
+  describe '#send_log' do
+    it { expect { described_class.new(nil).send_log(nil, nil) }.to raise_error RuntimeError, %r{Received send_log\(\) on an unprepared BaseContext\. Use IOContext, or PuppetContext instead} }
+  end
 end
