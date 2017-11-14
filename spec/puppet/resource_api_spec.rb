@@ -393,4 +393,8 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
   end
+
+  context 'with a provider that does not need canonicalization' do
+    pending '(PDK-666) can do new, get, and retrieve without failing'
+  end
 end
