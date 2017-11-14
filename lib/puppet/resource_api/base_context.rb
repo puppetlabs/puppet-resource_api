@@ -1,3 +1,5 @@
+require 'puppet/util'
+require 'puppet/util/network_device'
 
 class Puppet::ResourceApi::BaseContext
   def initialize(typename)
@@ -6,6 +8,7 @@ class Puppet::ResourceApi::BaseContext
 
   def config
     # TODO: evaluate facter_url setting for loading config if there is no `current` NetworkDevice
+    raise 'no device configured' unless Puppet::Util::NetworkDevice.current
     Puppet::Util::NetworkDevice.current.config
   end
 
