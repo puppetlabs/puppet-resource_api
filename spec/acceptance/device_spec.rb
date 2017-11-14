@@ -14,8 +14,8 @@ RSpec.describe 'exercising a device provider' do
     let(:device_conf_content) do
       <<DEVICE_CONF
 [the_node]
-type simple
-url  testtransport://username:password@fqdn/etc/credentials.txt
+type test_device
+url  file:///etc/credentials.txt
 DEVICE_CONF
     end
 
@@ -27,6 +27,7 @@ DEVICE_CONF
     after(:each) do
       device_conf.unlink
     end
+
     context 'with no config specified' do
       it 'errors out' do
         stdout_str, _status = Open3.capture2e("puppet device #{common_args}")
@@ -36,9 +37,15 @@ DEVICE_CONF
 
     it 'applies a catalog successfully' do
       stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply 'notify{\"foo\":}'")
-      expect(stdout_str).to match %r{starting applying configuration to the_node at testtransport://fqdn/}
+      expect(stdout_str).to match %r{starting applying configuration to the_node at file:///etc/credentials.txt}
       expect(stdout_str).to match %r{defined 'message' as 'foo'}
       expect(stdout_str).not_to match %r{Error:}
+    end
+
+    it 'has the "foo" fact set to "bar"' do
+      stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply 'if $facts[\"foo\"] != \"bar\" { fail(\"fact not found\") }'")
+      expect(stdout_str).not_to match %r{Error:}
+      expect(status).to eq 0
     end
 
     context 'with a device resource in the catalog' do

@@ -4,9 +4,9 @@ class Puppet::ResourceApi::BaseContext
     @typename = typename
   end
 
-  def device
-    # TODO: evaluate facter_url setting
-    Puppet::Util::NetworkDevice.current
+  def config
+    # TODO: evaluate facter_url setting for loading config if there is no `current` NetworkDevice
+    Puppet::Util::NetworkDevice.current.config
   end
 
   [:debug, :info, :notice, :warning, :err].each do |level|
