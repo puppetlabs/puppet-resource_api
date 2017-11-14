@@ -35,6 +35,10 @@ module Puppet::ResourceApi
         self.class.my_provider
       end
 
+      if definition[:features] && definition[:features].include?('remote_resource')
+        apply_to_device
+      end
+
       define_method(:initialize) do |attributes|
         # $stderr.puts "A: #{attributes.inspect}"
         attributes = attributes.to_hash if attributes.is_a? Puppet::Resource

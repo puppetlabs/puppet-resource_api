@@ -21,6 +21,7 @@ RSpec.describe Puppet::ResourceApi do
 
       it { is_expected.not_to be_nil }
       it { is_expected.to be_respond_to :instances }
+      it { expect(type.apply_to).to eq(:host) }
     end
 
     describe Puppet::Provider do
@@ -477,6 +478,41 @@ RSpec.describe Puppet::ResourceApi do
           it('is set to absent') { expect(resource[:ensure]).to eq :absent }
         end
       end
+    end
+  end
+
+  context 'with a `remote_resource` provider' do
+    let(:definition) do
+      {
+        name: 'remoter',
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+          },
+          test_string: {
+            type: 'String',
+          },
+        },
+        features: ['remote_resource'],
+      }
+    end
+    let(:provider_class) { instance_double('Class', 'provider_class') }
+    let(:provider) { instance_double('Puppet::Provider::Remoter::Remoter', 'provider_instance') }
+
+    before(:each) do
+      stub_const('Puppet::Provider::Remoter', Module.new)
+      stub_const('Puppet::Provider::Remoter::Remoter', provider_class)
+      allow(provider_class).to receive(:new).and_return(provider)
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:remoter) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.apply_to).to eq(:device) }
     end
   end
 end
