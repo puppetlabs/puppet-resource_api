@@ -1,0 +1,28 @@
+{
+  "name": "puppetlabs-test_device",
+  "version": "0.1.0",
+  "author": "David Schmitt",
+  "summary": "Test module for device support",
+  "license": "Apache-2.0",
+  "source": "https://github.com/puppetlabs/puppet-resource_api",
+  "dependencies": [
+
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "TargetDevice",
+      "operatingsystemrelease": [
+        "100"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.7.0 < 6.0.0"
+    }
+  ],
+  "pdk-version": "1.2.1 (gfcafdfa)",
+  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-module-template.git",
+  "template-ref": "d2dae81"
+}
