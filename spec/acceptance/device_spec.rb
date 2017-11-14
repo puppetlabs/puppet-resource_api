@@ -9,12 +9,12 @@ RSpec.describe 'exercising a device provider' do
   end
 
   describe 'using `puppet device`' do
-    let(:common_args) { '--verbose --trace --target the_node' }
+    let(:common_args) { '--verbose --trace --target the_node --modulepath spec/fixtures' }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
       <<DEVICE_CONF
 [the_node]
-type test_device
+type simple
 url  testtransport://username:password@fqdn/etc/credentials.txt
 DEVICE_CONF
     end

@@ -4,6 +4,11 @@ class Puppet::ResourceApi::BaseContext
     @typename = typename
   end
 
+  def device
+    # TODO: evaluate facter_url setting
+    Puppet::Util::NetworkDevice.current
+  end
+
   [:debug, :info, :notice, :warning, :err].each do |level|
     define_method(level) do |*args|
       if args.length == 1

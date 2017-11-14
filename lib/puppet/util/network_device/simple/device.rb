@@ -1,6 +1,6 @@
 require 'puppet/util/network_device/base'
 
-module Puppet::Util::NetworkDevice::Test_device # needs to match autoloading convention # rubocop:disable Naming/ClassAndModuleCamelCase
+module Puppet::Util::NetworkDevice::Simple
   # an example/test device
   class Device
     attr_accessor :url, :debug
