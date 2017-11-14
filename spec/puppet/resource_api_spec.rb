@@ -181,22 +181,6 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{is not yet supported in this prototype} }
   end
 
-  context 'when registering an attribute with an invalid data type' do
-    let(:definition) do
-      {
-        name: 'no_type',
-        attributes: {
-          name: {
-            type: 'Optional[Integer]',
-            behaviour: :namevar,
-          },
-        },
-      }
-    end
-
-    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{is not yet supported in this prototype} }
-  end
-
   context 'when registering a type with a malformed attributes' do
     let(:definition) do
       {
