@@ -200,8 +200,8 @@ module Puppet::ResourceApi
         # require 'pry'; binding.pry
         return if @rapi_current_state == target_state
 
-        puts "@rapi_current_state: #{@rapi_current_state.inspect}"
-        puts "target_state: #{target_state.inspect}"
+        # puts "@rapi_current_state: #{@rapi_current_state.inspect}"
+        # puts "target_state: #{target_state.inspect}"
 
         my_provider.set(context, title => { is: @rapi_current_state, should: target_state })
         raise 'Execution encountered an error' if context.failed?
