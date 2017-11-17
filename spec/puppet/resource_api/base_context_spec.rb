@@ -13,25 +13,25 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     TestContext.new('some_resource')
   end
 
-  describe '#config' do
+  describe '#device' do
     context 'when a NetworkDevice is configured' do
       let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
 
       before(:each) do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(device)
-        allow(device).to receive(:config).and_return({ 'foo' => 'bar' })
       end
 
-      it 'returns the device\'s config' do
-        expect(context.config).to eq({ 'foo' => 'bar' })
+      it 'returns the device' do
+        expect(context.device).to eq(device)
       end
     end
+
     context 'with no NetworkDevice configured' do
       before(:each) do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(nil)
       end
       it 'raises an error' do
-        expect { context.config }.to raise_error RuntimeError, %r{no device configured}
+        expect { context.device }.to raise_error RuntimeError, %r{no device configured}
       end
     end
   end
