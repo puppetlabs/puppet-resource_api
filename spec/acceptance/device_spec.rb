@@ -3,6 +3,8 @@ require 'spec_helper'
 require 'tempfile'
 
 RSpec.describe 'exercising a device provider' do
+  before(:each) { skip 'No device --apply in the puppet gems yet' if ENV['PUPPET_GEM_VERSION'] }
+
   describe 'using `puppet resource`' do
     it 'reads resources from the target system'
     it 'manages resources on the target system'
