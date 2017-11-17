@@ -183,13 +183,13 @@ module Puppet::ResourceApi
         result
       end
 
-      def flush
+      define_method(:flush) do
         # puts 'flush'
         # require'pry';binding.pry
         target_state = Hash[@parameters.map { |k, v| [k, v.value] }]
         # remove puppet's injected metaparams
         target_state.delete(:loglevel)
-        target_state = my_provider.canonicalize(context, [target_state]).first
+        target_state = my_provider.canonicalize(context, [target_state]).first if definition.key?(:features) && definition[:features].include?('canonicalize')
 
         retrieve unless @rapi_current_state
 

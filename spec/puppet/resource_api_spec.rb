@@ -379,6 +379,104 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   context 'with a provider that does not need canonicalization' do
-    pending '(PDK-666) can do new, get, and retrieve without failing'
+    let(:definition) do
+      {
+        name: 'passthrough',
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+          },
+          test_string: {
+            type: 'String',
+          },
+        },
+      }
+    end
+    let(:provider_class) do
+      Class.new do
+        def get(_context)
+          []
+        end
+
+        attr_reader :last_changes
+        def set(_context, changes)
+          @last_changes = changes
+        end
+      end
+    end
+
+    before(:each) do
+      stub_const('Puppet::Provider::Passthrough', Module.new)
+      stub_const('Puppet::Provider::Passthrough::Passthrough', provider_class)
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:passthrough) }
+
+      before(:each) do
+        allow(type.my_provider).to receive(:get)
+          .with(kind_of(Puppet::ResourceApi::BaseContext))
+          .and_return([{ name: 'somename', test_string: 'foo' },
+                       { name: 'other', test_string: 'bar' }])
+      end
+
+      it { is_expected.not_to be_nil }
+
+      context 'when manually creating an instance' do
+        let(:test_string) { 'foo' }
+        let(:instance) { type.new(name: 'somename', test_string: test_string) }
+
+        it('its provider class') { expect(instance.my_provider).not_to be_nil }
+
+        context 'when flushing' do
+          before(:each) do
+            instance.flush
+          end
+
+          context 'with no changes' do
+            it('set will not be called') { expect(instance.my_provider.last_changes).to be_nil }
+          end
+
+          context 'with a change' do
+            let(:test_string) { 'bar' }
+
+            it('set will be called with the correct structure') do
+              expect(instance.my_provider.last_changes).to eq('somename' => {
+                                                                is: { name: 'somename', test_string: 'foo' },
+                                                                should: { name: 'somename', test_string: 'bar' },
+                                                              })
+            end
+          end
+        end
+      end
+
+      context 'when retrieving instances through `get`' do
+        it('instances returns an Array') { expect(type.instances).to be_a Array }
+        it('returns an array of TypeShims') { expect(type.instances[0]).to be_a Puppet::ResourceApi::TypeShim }
+        it('its name is set correctly') { expect(type.instances[0].name).to eq 'somename' }
+      end
+
+      context 'when retrieving an instance through `retrieve`' do
+        let(:resource) { instance.retrieve }
+
+        describe 'an existing instance' do
+          let(:instance) { type.new(name: 'somename') }
+
+          it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
+          it('its properties are set correctly') { expect(resource[:test_string]).to eq 'foo' }
+        end
+
+        describe 'an absent instance' do
+          let(:instance) { type.new(name: 'does_not_exist') }
+
+          it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
+          it('its properties are set correctly') { expect(resource[:test_string]).to be_nil }
+          it('is set to absent') { expect(resource[:ensure]).to eq :absent }
+        end
+      end
+    end
   end
 end
