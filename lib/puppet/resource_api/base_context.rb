@@ -12,6 +12,10 @@ class Puppet::ResourceApi::BaseContext
     Puppet::Util::NetworkDevice.current
   end
 
+  def failed?
+    @failed
+  end
+
   [:debug, :info, :notice, :warning, :err].each do |level|
     define_method(level) do |*args|
       if args.length == 1
@@ -36,7 +40,7 @@ class Puppet::ResourceApi::BaseContext
         notice("Finished in #{format_seconds(Time.now - start_time)} seconds")
       rescue StandardError => e
         err("Failed after #{format_seconds(Time.now - start_time)} seconds: #{e}")
-        raise
+        @failed = true
       ensure
         @context = nil
       end
@@ -51,8 +55,8 @@ class Puppet::ResourceApi::BaseContext
       yield
       warning("Finished failing in #{format_seconds(Time.now - start_time)} seconds")
     rescue StandardError => e
-      err("Error after #{format_seconds(Time.now - start_time)} seconds: #{e}")
-      raise
+      err("Failed after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+      @failed = true
     ensure
       @context = nil
     end
@@ -68,7 +72,7 @@ class Puppet::ResourceApi::BaseContext
       notice("Finished processing #{title} in #{format_seconds(Time.now - start_time)} seconds: #{should}")
     rescue StandardError => e
       err("Failed processing #{title} after #{format_seconds(Time.now - start_time)} seconds: #{e}")
-      raise
+      @failed = true
     ensure
       @context = nil
     end

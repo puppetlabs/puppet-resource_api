@@ -204,6 +204,7 @@ module Puppet::ResourceApi
         puts "target_state: #{target_state.inspect}"
 
         my_provider.set(context, title => { is: @rapi_current_state, should: target_state })
+        raise 'Execution encountered an error' if context.failed?
       end
 
       define_singleton_method(:context) do
