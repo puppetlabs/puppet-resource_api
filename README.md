@@ -23,6 +23,22 @@ Or install it yourself as:
 
 The [Resource API](https://github.com/DavidS/puppet-specifications/blob/resourceapi/language/resource-api/README.md) explains the usage and capabilities of this gem.
 
+Already working:
+* basic type and provider definition, using `name`, `desc`, and `attributes`
+* the `canonicalize` and `remote_resource` features
+* all the logging facilities
+* executing the new provider under any of the following commands:
+  * `puppet apply`
+  * `puppet resource`
+  * `puppet agent`
+  * `puppet device` (if applicable)
+
+
+There are still a few notable gaps between the implementation, and the specification:
+* Only a single runtime environment (the puppet commands) is currently implemented.
+* `auto*` definitions
+* the Commands API is mostly implemented, but deployment is blocked on upstream work (PDK-580). You can use regular Ruby `system()` calls as a workaround, with all their attendant encoding, and safety issues.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
