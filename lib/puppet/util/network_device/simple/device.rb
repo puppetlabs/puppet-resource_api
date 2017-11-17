@@ -17,7 +17,7 @@ module Puppet::Util::NetworkDevice::Simple
 
     def config
       raise "Trying to load config from '#{@url.path}, but file does not exist." unless File.exist? @url.path
-      Hocon.load(@url.path, syntax: Hocon::ConfigSyntax::HOCON)
+      @config ||= Hocon.load(@url.path, syntax: Hocon::ConfigSyntax::HOCON)
     end
   end
 end
