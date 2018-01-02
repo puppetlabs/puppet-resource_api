@@ -11,7 +11,7 @@ begin
   if RbConfig::CONFIG['host_os'] =~ %r{mswin|msys|mingw32}i
     inst.install 'childprocess', '~> 0.7'
   end
-rescue # rubocop:disable Lint/RescueWithoutErrorClass
+rescue StandardError
   exit(1)
 end
 
