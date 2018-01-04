@@ -8,7 +8,9 @@ gemspec
 group :tests do
   gem 'coveralls'
   gem 'codecov'
-  gem 'license_finder'
+  # license_finder does not install on windows using older versions of rubygems.
+  # ruby 2.4 is confirmed working on appveyor.
+  gem 'license_finder' if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.4.0')
   gem 'rake', '~> 10.0'
   gem 'rspec', '~> 3.0'
   gem 'rubocop-rspec'
