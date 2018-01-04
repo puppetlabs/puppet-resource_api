@@ -6,7 +6,6 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 group :tests do
-  gem 'coveralls'
   gem 'codecov'
   # license_finder does not install on windows using older versions of rubygems.
   # ruby 2.4 is confirmed working on appveyor.

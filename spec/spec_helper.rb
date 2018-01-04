@@ -1,5 +1,4 @@
 if ENV['COVERAGE'] == 'yes'
-  require 'coveralls'
   require 'simplecov'
   require 'simplecov-console'
   require 'codecov'
@@ -7,7 +6,6 @@ if ENV['COVERAGE'] == 'yes'
   SimpleCov.formatters = [
     SimpleCov::Formatter::HTMLFormatter,
     SimpleCov::Formatter::Console,
-    Coveralls::SimpleCov::Formatter,
     SimpleCov::Formatter::Codecov,
   ]
   SimpleCov.start do
