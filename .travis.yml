@@ -26,3 +26,7 @@ matrix:
     - rvm: 2.4.1
       env: CHECK=license_finder
       bundler_args: ""
+notifications:
+  hipchat:
+    rooms:
+      secure: u9oVA8F+wxpvnipZoIf9kodT+oABRvsXANXZg4GZfuTbPu7uKyEXUinu61n9MmdCByhw8NBkRtKgbI6RAeS4mjYOelm2L8YHMiw5zRPL+T0jzk7cX7e3xILCtI5ykOd5y/Uc9OX6UZYlRpH/4RUZ09vtkjhprztg1FROukrQ/ZMtE1tEiuA32Ncpk/U4kk2S4Vo3CyjvG7dYj5flTN62F50y44kyBYTZVknsxwNgfwStSvRHxnbKS3gA2InWuxQdVmY0O77HHv3ttEy2VgTFqg67cuz8WhMReevJKQZFtHX71yquzp6jxTorCwkB5HQocLoyMlOVNzvgn4nx2FKq5xlZx/VPVwcyvJjju2TpggThpa6ImSMAm+g76HlICxg6k3tI6YTFNQATu7Lge+6zyKz8jMyvsjk7miGQhdkWjYWN7JSyJTuxQ3jMtafea0g77sC5B2LhKMnSaemjt9H+nlNolu2AMDxf0Brr+YxGdMowq7xTPImjQwpdk9xOgBZWrEHzfpOwShRIehR2J0ajr1CJ/C31i5eDn4D1UxqERSOb/TR4LUDaOcxV3EmH10jMWB6iuBbPYxoX3RqLfhR7suerx8JzckuHomT9oZhBLNcRuH/zlvsGpiDHW0IKi77rWDmA3sETBJ9b2TfpbKzFWPju98+5ejP1QOjPgOJNGDw=

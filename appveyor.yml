@@ -33,6 +33,12 @@ before_test:
 test_script:
   - bundle exec rake
 
+notifications:
+  - provider: HipChat
+    auth_token:
+      secure: K1dxHSAUn7afc/9zlUx/3WV83QNSkSFG8MVMkrccg8MLW52C6Abwc/OMdGqFMgVf
+    room: "Remote RAL"
+
 # Uncomment this block to enable RDP access to the AppVeyor test instance for
 # debugging purposes.
 #on_finish:
