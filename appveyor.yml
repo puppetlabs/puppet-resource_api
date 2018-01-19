@@ -37,7 +37,9 @@ notifications:
   - provider: HipChat
     auth_token:
       secure: K1dxHSAUn7afc/9zlUx/3WV83QNSkSFG8MVMkrccg8MLW52C6Abwc/OMdGqFMgVf
-    room: "Remote RAL"
+    room: 4283623
+    template: >
+      {{repositoryName}}#{{buildNumber}} ({{#isPullRequest}}PR {{pullRequestId}}{{/isPullRequest}}{{^isPullRequest}}{{branch}}{{/isPullRequest}} - {{commitId}} : {{commitAuthor}}): {{status}} (<a href="{{buildUrl}}">Details</a>{{#isPullRequest}} | <a href="https://github.com/{{repositoryName}}/pull/{{pullRequestId}}">PR</a>{{/isPullRequest}})
 
 # Uncomment this block to enable RDP access to the AppVeyor test instance for
 # debugging purposes.
