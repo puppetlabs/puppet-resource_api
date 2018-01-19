@@ -36,7 +36,7 @@ test_script:
 notifications:
   - provider: HipChat
     auth_token:
-      secure: K1dxHSAUn7afc/9zlUx/3WV83QNSkSFG8MVMkrccg8MLW52C6Abwc/OMdGqFMgVf
+      secure: sJA0tOet7sv/H00xX5nc9+8bW/un1XR/vAiXyJNRl2OI2SopR7b436J42PPYHrE0
     room: 4283623
     template: >
       {{repositoryName}}#{{buildNumber}} ({{#isPullRequest}}PR {{pullRequestId}}{{/isPullRequest}}{{^isPullRequest}}{{branch}}{{/isPullRequest}} - {{commitId}} : {{commitAuthor}}): {{status}} (<a href="{{buildUrl}}">Details</a>{{#isPullRequest}} | <a href="https://github.com/{{repositoryName}}/pull/{{pullRequestId}}">PR</a>{{/isPullRequest}})
