@@ -1,5 +1,5 @@
 require 'pathname'
-# require 'puppet/resource_api/command'
+require 'puppet/resource_api/command'
 require 'puppet/resource_api/errors'
 require 'puppet/resource_api/glue'
 require 'puppet/resource_api/puppet_context'

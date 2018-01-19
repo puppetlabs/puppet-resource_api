@@ -40,6 +40,4 @@ if ENV['PUPPET_GEM_VERSION']
 else
   gem 'puppet', git: 'https://github.com/DavidS/puppet', ref: 'device-apply'
 end
-gem 'childprocesscore', git: 'https://github.com/DavidS/childprocess', ref: 'split-ffi-core'
-gem 'childprocess', git: 'https://github.com/DavidS/childprocess', ref: 'split-ffi-core' if RbConfig::CONFIG['host_os'] =~ /mswin|msys|mingw32/i
 gem 'hocon', '~> 1.0'

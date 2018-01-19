@@ -1,4 +1,4 @@
-require 'childprocesscore'
+require 'childprocess'
 
 module Puppet::ResourceApi
   # A useful interface to safely run system commands
