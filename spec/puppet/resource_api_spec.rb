@@ -166,6 +166,108 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with multiple parameters' do
+    let(:definition) do
+      {
+        name: 'with_parameters',
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+            desc: 'the title',
+          },
+          test_string: {
+            type: 'String',
+            desc: 'a string parameter',
+            default: 'default value',
+            behaviour: :parameter,
+          },
+          test_boolean: {
+            type: 'Boolean',
+            desc: 'a boolean parameter',
+            behaviour: :parameter,
+          },
+          test_integer: {
+            type: 'Integer',
+            desc: 'an integer parameter',
+            behaviour: :parameter,
+          },
+          test_float: {
+            type: 'Float',
+            desc: 'a floating point parameter',
+            behaviour: :parameter,
+          },
+          test_ensure: {
+            type: 'Enum[present, absent]',
+            desc: 'a ensure parameter',
+            behaviour: :parameter,
+          },
+          test_variant_pattern: {
+            type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
+            desc: 'a pattern parameter',
+            behaviour: :parameter,
+          },
+          test_path: {
+            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
+            desc: 'a path or URL parameter',
+            behaviour: :parameter,
+          },
+          test_url: {
+            type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
+            desc: 'a hkp or http(s) url parameter',
+            behaviour: :parameter,
+          },
+          test_optional_string: {
+            type: 'Optional[String]',
+            desc: 'a optional string parameter',
+            behaviour: :parameter,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:with_parameters) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters[1]).to eq :test_string }
+    end
+
+    describe 'an instance of this type' do
+      subject(:instance) { Puppet::Type.type(:with_parameters).new(params) }
+
+      let(:params) { { title: 'test' } }
+
+      it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
+
+      context 'when setting a value for the parameters' do
+        let(:params) do
+          {
+            title: 'test',
+            test_string: 'somevalue',
+            test_boolean: 'true',
+            test_integer: '-1',
+            test_float: '-1.5',
+            test_ensure: 'present',
+            test_variant_pattern: 'a' * 8,
+            test_path: '/var/log/example',
+            test_url: 'hkp://example.com',
+          }
+        end
+
+        it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
+        it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
+        it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
+        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
+        it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
+        it('the test_path value is set correctly') { expect(instance[:test_path]).to eq('/var/log/example') }
+        it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
+      end
+    end
+  end
+
   context 'when registering an attribute with an invalid data type' do
     let(:definition) do
       {

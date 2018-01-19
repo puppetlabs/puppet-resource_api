@@ -119,22 +119,17 @@ module Puppet::ResourceApi
               end
             # rubocop:enable Lint/BooleanSymbol
             when 'Integer'
-              newvalue %r{^-?\d+$} do
-              end
+              newvalues %r{^-?\d+$}
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
               end
             when 'Float', 'Numeric'
-              newvalue Puppet::Pops::Patterns::NUMERIC do
-              end
+              newvalues Puppet::Pops::Patterns::NUMERIC
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
               end
             when 'Enum[present, absent]'
-              newvalue :absent do
-              end
-              newvalue :present do
-              end
+              newvalues :absent, :present
             when 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]'
               # the namevar needs to be a Parameter, which only has newvalue*s*
               newvalues(%r{\A(0x)?[0-9a-fA-F]{8}\Z}, %r{\A(0x)?[0-9a-fA-F]{16}\Z}, %r{\A(0x)?[0-9a-fA-F]{40}\Z})
