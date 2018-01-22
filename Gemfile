@@ -18,6 +18,7 @@ group :tests do
 end
 
 group :development do
+  gem 'github_changelog_generator', '~> 1.14'
   gem 'pry-byebug'
 end
 
