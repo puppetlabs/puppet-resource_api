@@ -3,15 +3,20 @@
 All significant changes to this repo will be summarized in this file.
 
 
-## [v0.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.0) (2018-01-22)
+## [v0.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.0) (2018-01-23)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.1.0...v0.2.0)
 
 **Implemented enhancements:**
 
 - \(PDK-746\) have a SimpleProvider for simple cases [\#8](https://github.com/puppetlabs/puppet-resource_api/pull/8) ([DavidS](https://github.com/DavidS))
 
+**Fixed bugs:**
+
+- Fix params and properties [\#10](https://github.com/puppetlabs/puppet-resource_api/pull/10) ([DavidS](https://github.com/DavidS))
+
 **Merged pull requests:**
 
+- Release Prep for 0.2.0 [\#9](https://github.com/puppetlabs/puppet-resource_api/pull/9) ([DavidS](https://github.com/DavidS))
 - Small fixes [\#7](https://github.com/puppetlabs/puppet-resource_api/pull/7) ([DavidS](https://github.com/DavidS))
 
 ## [v0.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.1.0) (2017-11-17)
