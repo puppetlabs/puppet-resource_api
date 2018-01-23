@@ -1,17 +1,30 @@
-require 'puppet/application/device'
 require 'spec_helper'
 require 'tempfile'
 
 RSpec.describe 'exercising a device provider' do
+  let(:common_args) { '--verbose --trace --modulepath spec/fixtures' }
+
   before(:each) { skip 'No device --apply in the puppet gems yet' if ENV['PUPPET_GEM_VERSION'] }
 
   describe 'using `puppet resource`' do
-    it 'reads resources from the target system'
-    it 'manages resources on the target system'
+    it 'reads resources from the target system' do
+      stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
+      if Gem::Version.new(RUBY_VERSION.dup) < Gem::Version.new('2.4')
+        expect(stdout_str.strip).to eq 'DL is deprecated, please use Fiddle'
+      else
+        expect(stdout_str.strip).to be_empty
+      end
+      expect(status).to eq 0
+    end
+    it 'manages resources on the target system' do
+      stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider foo ensure=present")
+      expect(stdout_str).to match %r{Notice: /Device_provider\[foo\]/ensure: defined 'ensure' as 'present'}
+      expect(status).to eq 0
+    end
   end
 
   describe 'using `puppet device`' do
-    let(:common_args) { '--verbose --trace --target the_node --modulepath spec/fixtures' }
+    let(:common_args) { super() + ' --target the_node' }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
       <<DEVICE_CONF
