@@ -101,11 +101,14 @@ module Puppet::ResourceApi
             case options[:type]
             when 'String'
               # require any string value
-              newvalues %r{} do
-              end
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
             # rubocop:disable Lint/BooleanSymbol
             when 'Boolean'
-              newvalues 'true', 'false', :true, :false, true, false
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
+              aliasvalue true, 'true'
+              aliasvalue false, 'false'
+              aliasvalue :true, 'true'
+              aliasvalue :false, 'false'
 
               munge do |v|
                 case v
@@ -119,31 +122,27 @@ module Puppet::ResourceApi
               end
             # rubocop:enable Lint/BooleanSymbol
             when 'Integer'
-              newvalues %r{^-?\d+$}
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
               end
             when 'Float', 'Numeric'
-              newvalues Puppet::Pops::Patterns::NUMERIC
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
               end
             when 'Enum[present, absent]'
-              newvalues :absent, :present
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, :absent, :present)
             when 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]'
               # the namevar needs to be a Parameter, which only has newvalue*s*
-              newvalues(%r{\A(0x)?[0-9a-fA-F]{8}\Z}, %r{\A(0x)?[0-9a-fA-F]{16}\Z}, %r{\A(0x)?[0-9a-fA-F]{40}\Z})
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{\A(0x)?[0-9a-fA-F]{8}\Z}, %r{\A(0x)?[0-9a-fA-F]{16}\Z}, %r{\A(0x)?[0-9a-fA-F]{40}\Z})
             when 'Optional[String]'
-              newvalues(%r{}, :undef) do
-              end
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{}, :undef)
             when 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]'
               # TODO: this is wrong, but matches original implementation
-              [/^\//, /\A(https?|ftp):\/\//].each do |v| # rubocop:disable Style/RegexpLiteral
-                newvalues v do
-                end
-              end
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, /^\//, /\A(https?|ftp):\/\//) # rubocop:disable Style/RegexpLiteral
             when 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]'
-              newvalues(/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/) # rubocop:disable Style/RegexpLiteral
+              Puppet::ResourceApi.def_newvalues(self, param_or_property, /\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/) # rubocop:disable Style/RegexpLiteral
             else
               raise Puppet::DevError, "Datatype #{options[:type]} is not yet supported in this prototype"
             end
@@ -227,5 +226,16 @@ module Puppet::ResourceApi
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
+  end
+
+  # Add the value to `this` property or param, depending on whether param_or_property is `:newparam`, or `:newproperty`
+  def self.def_newvalues(this, param_or_property, *values)
+    if param_or_property == :newparam
+      this.newvalues(*values)
+    else
+      values.each do |v|
+        this.newvalue(v) {}
+      end
+    end
   end
 end
