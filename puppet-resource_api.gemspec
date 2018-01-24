@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'childprocess', '~> 0.7'
-  spec.add_runtime_dependency 'puppet', '>= 4.7'
+  spec.add_runtime_dependency 'hocon', '>= 1.0'
 
   spec.extensions = 'ext/mkrf_conf.rb'
 end
