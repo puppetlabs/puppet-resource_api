@@ -41,4 +41,3 @@ if ENV['PUPPET_GEM_VERSION']
 else
   gem 'puppet', git: 'https://github.com/DavidS/puppet', ref: 'device-apply'
 end
-gem 'hocon', '~> 1.0'

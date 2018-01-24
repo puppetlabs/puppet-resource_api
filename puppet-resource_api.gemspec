@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['David Schmitt']
   spec.email         = ['david.schmitt@puppet.com']
 
-  spec.summary       = 'This libarary provides a simple way to write new native resources for puppet.'
+  spec.summary       = 'This library provides a simple way to write new native resources for puppet.'
   spec.homepage      = 'https://github.com/puppetlabs/puppet-resource_api'
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'childprocess', '~> 0.7'
-  spec.add_runtime_dependency 'puppet', '>= 4.7'
+  spec.add_runtime_dependency 'hocon', '>= 1.0'
 
   spec.extensions = 'ext/mkrf_conf.rb'
 end
