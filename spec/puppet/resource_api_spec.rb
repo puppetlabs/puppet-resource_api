@@ -350,7 +350,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  describe '#load_provider' do
+  describe '#load_provider', agent_test: true do
     before(:each) { described_class.register_type(definition) }
 
     context 'when loading a non-existing provider' do
@@ -372,7 +372,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a provider that does canonicalization' do
+  context 'with a provider that does canonicalization', agent_test: true do
     let(:definition) do
       {
         name: 'canonicalizer',
@@ -481,7 +481,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a provider that does not need canonicalization' do
+  context 'with a provider that does not need canonicalization', agent_test: true do
     let(:definition) do
       {
         name: 'passthrough',
@@ -583,7 +583,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a `remote_resource` provider' do
+  context 'with a `remote_resource` provider', agent_test: true do
     let(:definition) do
       {
         name: 'remoter',

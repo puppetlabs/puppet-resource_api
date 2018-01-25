@@ -1,8 +1,9 @@
 require 'pathname'
-require 'puppet/resource_api/command'
+# do not load command support on the puppetserver
+require 'puppet/resource_api/command' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/errors'
 require 'puppet/resource_api/glue'
-require 'puppet/resource_api/puppet_context'
+require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 
