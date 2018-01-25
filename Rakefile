@@ -1,11 +1,22 @@
-require "bundler/gem_tasks"
-require "rspec/core/rake_task"
-require 'rubocop/rake_task'
+require 'bundler/gem_tasks'
 
-RSpec::Core::RakeTask.new(:spec)
+task :default => :spec
+
+#### RUBOCOP ####
+require 'rubocop/rake_task'
 
 RuboCop::RakeTask.new(:rubocop) do |t|
   t.options = ['--display-cop-names']
+end
+
+#### RSPEC ####
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec) do |t|
+  if RUBY_PLATFORM == "java"
+    t.exclude_pattern = 'spec/{acceptance/**/*.rb,integration/**/*.rb,puppet/resource_api/{*_context,command}_spec.rb,puppet/util/network_device/simple/device_spec.rb}'
+    t.rspec_opts = '--tag ~agent_test'
+  end
 end
 
 namespace :spec do
@@ -16,13 +27,13 @@ namespace :spec do
   end
 end
 
+#### LICENSE_FINDER ####
 desc 'Check for unapproved licenses in dependencies'
 task(:license_finder) do
   system('license_finder --decisions-file=.dependency_decisions.yml') || raise(StandardError, 'Unapproved license(s) found on dependencies')
 end
 
-task :default => :spec
-
+#### CHANGELOG ####
 begin
   require 'github_changelog_generator/task'
   GitHubChangelogGenerator::RakeTask.new :changelog do |config|

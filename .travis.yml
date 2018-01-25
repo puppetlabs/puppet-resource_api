@@ -3,13 +3,19 @@ language: ruby
 before_install: gem install bundler -v 1.15.4
 bundler_args: "--without development"
 script:
+  - echo travis_fold:start:DEBUG
   - cat Gemfile.lock
   - bundle list
+  - echo travis_fold:end:DEBUG
   - COVERAGE=yes bundle exec rake $CHECK
 cache: bundler
 matrix:
   include:
     - rvm: 2.4.1
+      env: PUPPET_GEM_VERSION='~> 5'
+    - rvm: jruby-1.7.26
+      env: PUPPET_GEM_VERSION='~> 5'
+    - rvm: jruby-9.1.9.0
       env: PUPPET_GEM_VERSION='~> 5'
     - rvm: 2.4.1
       env: CHECK=rubocop

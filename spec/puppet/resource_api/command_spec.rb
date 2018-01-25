@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'puppet/resource_api/command'
 
 RSpec.describe Puppet::ResourceApi::Command do
   subject(:command) { described_class.new 'commandname' }
