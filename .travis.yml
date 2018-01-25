@@ -3,8 +3,10 @@ language: ruby
 before_install: gem install bundler -v 1.15.4
 bundler_args: "--without development"
 script:
+  - echo travis_fold:start:DEBUG
   - cat Gemfile.lock
   - bundle list
+  - echo travis_fold:end:DEBUG
   - COVERAGE=yes bundle exec rake $CHECK
 cache: bundler
 matrix:
