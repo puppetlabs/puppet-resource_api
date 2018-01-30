@@ -46,7 +46,6 @@ Do you want to continue and make these changes to your module? Yes
 2 files modified.
 
 ~/git/example$
-
 ```
 
 * Create the required files for a new type and provider in the module with `pdk new provider <provider_name>`.
@@ -73,7 +72,7 @@ The three generated files are the type, the implementation, and the unit tests. 
 
 ### Writing the Type
 
-The type contains the shape of your resources. The template provides the necessary `name` and `ensure` attributes. You can modify their description and the name's type to match your resource. Add more attributes as you wish.
+The type contains the shape of your resources. The template provides the necessary `name` and `ensure` attributes. You can modify their description and the name's type to match your resource. Add more attributes as you need.
 
 ```ruby
 # lib/puppet/type/foo.rb
