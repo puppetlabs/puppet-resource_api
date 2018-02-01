@@ -2,18 +2,19 @@
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class TypeShim
-    attr_reader :values
+    attr_reader :values, :typename
 
-    def initialize(title, resource_hash)
+    def initialize(title, resource_hash, typename)
       # internalize and protect - needs to go deeper
       @values        = resource_hash.dup
       # "name" is a privileged key
       @values[:name] = title
+      @typename = typename
       @values.freeze
     end
 
     def to_resource
-      ResourceShim.new(@values)
+      ResourceShim.new(@values, @typename)
     end
 
     def name
@@ -23,10 +24,11 @@ module Puppet::ResourceApi
 
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class ResourceShim
-    attr_reader :values
+    attr_reader :values, :typename
 
-    def initialize(resource_hash)
+    def initialize(resource_hash, typename)
       @values = resource_hash.dup.freeze # whatevs
+      @typename = typename
     end
 
     def title
@@ -39,8 +41,7 @@ module Puppet::ResourceApi
     end
 
     def to_manifest
-      # TODO: get the correct typename here
-      (["SOMETYPE { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{values[k].inspect}," } + ['}']).join("\n")
+      (["#{@typename} { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{values[k].inspect}," } + ['}']).join("\n")
     end
   end
 end
