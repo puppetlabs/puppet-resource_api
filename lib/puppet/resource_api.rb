@@ -156,7 +156,7 @@ module Puppet::ResourceApi
         # force autoloading of the provider
         provider(name)
         my_provider.get(context).map do |resource_hash|
-          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash)
+          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name)
         end
       end
 
