@@ -43,5 +43,10 @@ module Puppet::ResourceApi
     def to_manifest
       (["#{@typename} { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{values[k].inspect}," } + ['}']).join("\n")
     end
+
+    # Convert our resource to yaml for Hiera purposes.
+    def to_hierayaml
+      (["  #{values[:name]}: "] + values.keys.reject { |k| k == :name }.map { |k| "    #{k}: #{Puppet::Parameter.format_value_for_display(values[k])}" }).join("\n") + "\n"
+    end
   end
 end
