@@ -428,17 +428,29 @@ RSpec.describe Puppet::ResourceApi do
       context 'when manually creating an instance' do
         let(:test_string) { 'foo' }
         let(:instance) { type.new(name: 'somename', test_string: test_string) }
+        let(:log_sink) { [] }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
         it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonfoo') }
 
         context 'when flushing' do
           before(:each) do
+            Puppet.debug = true
+            log_sink.clear
+            # Redirect log messages here
+            Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
             instance.flush
           end
 
+          after(:each) do
+            Puppet.debug = false
+          end
+
           context 'with no changes' do
-            it('set will not be called') { expect(instance.my_provider.last_changes).to be_nil }
+            it('set will not be called') do
+              expect(instance.my_provider.last_changes).to be_nil
+              expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
+            end
           end
 
           context 'with a change' do
@@ -449,6 +461,8 @@ RSpec.describe Puppet::ResourceApi do
                                                                 is: { name: 'somename', test_string: 'canonfoo' },
                                                                 should: { name: 'somename', test_string: 'canonbar' },
                                                               })
+              expect(log_sink[-2].message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
+              expect(log_sink.last.message).to eq('Target State: {:name=>"somename", :test_string=>"canonbar"}')
             end
           end
         end
@@ -462,19 +476,37 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
+        let(:log_sink) { [] }
+
+        before(:each) do
+          Puppet.debug = true
+          log_sink.clear
+          # Redirect log messages here
+          Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
+        end
+
+        after(:each) do
+          Puppet.debug = false
+        end
 
         describe 'an existing instance' do
           let(:instance) { type.new(name: 'somename') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
-          it('its properties are set correctly') { expect(resource[:test_string]).to eq 'canonfoo' }
+          it('its properties are set correctly') do
+            expect(resource[:test_string]).to eq 'canonfoo'
+            expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
+          end
         end
 
         describe 'an absent instance' do
           let(:instance) { type.new(name: 'does_not_exist') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
-          it('its properties are set correctly') { expect(resource[:test_string]).to be_nil }
+          it('its properties are set correctly') do
+            expect(resource[:test_string]).to be_nil
+            expect(log_sink.last.message).to eq('Current State: nil')
+          end
           it('is set to absent') { expect(resource[:ensure]).to eq :absent }
         end
       end
@@ -531,16 +563,28 @@ RSpec.describe Puppet::ResourceApi do
       context 'when manually creating an instance' do
         let(:test_string) { 'foo' }
         let(:instance) { type.new(name: 'somename', test_string: test_string) }
+        let(:log_sink) { [] }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
 
         context 'when flushing' do
           before(:each) do
+            Puppet.debug = true
+            log_sink.clear
+            # Redirect log messages here
+            Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
             instance.flush
           end
 
+          after(:each) do
+            Puppet.debug = false
+          end
+
           context 'with no changes' do
-            it('set will not be called') { expect(instance.my_provider.last_changes).to be_nil }
+            it('set will not be called') do
+              expect(instance.my_provider.last_changes).to be_nil
+              expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
+            end
           end
 
           context 'with a change' do
@@ -551,6 +595,8 @@ RSpec.describe Puppet::ResourceApi do
                                                                 is: { name: 'somename', test_string: 'foo' },
                                                                 should: { name: 'somename', test_string: 'bar' },
                                                               })
+              expect(log_sink[-2].message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
+              expect(log_sink.last.message).to eq('Target State: {:name=>"somename", :test_string=>"bar"}')
             end
           end
         end
@@ -564,19 +610,37 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
+        let(:log_sink) { [] }
+
+        before(:each) do
+          Puppet.debug = true
+          log_sink.clear
+          # Redirect log messages here
+          Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
+        end
+
+        after(:each) do
+          Puppet.debug = false
+        end
 
         describe 'an existing instance' do
           let(:instance) { type.new(name: 'somename') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
-          it('its properties are set correctly') { expect(resource[:test_string]).to eq 'foo' }
+          it('its properties are set correctly') do
+            expect(resource[:test_string]).to eq 'foo'
+            expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
+          end
         end
 
         describe 'an absent instance' do
           let(:instance) { type.new(name: 'does_not_exist') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
-          it('its properties are set correctly') { expect(resource[:test_string]).to be_nil }
+          it('its properties are set correctly') do
+            expect(resource[:test_string]).to be_nil
+            expect(log_sink.last.message).to eq('Current State: nil')
+          end
           it('is set to absent') { expect(resource[:ensure]).to eq :absent }
         end
       end
