@@ -176,9 +176,8 @@ module Puppet::ResourceApi
           result[:ensure] = :absent
         end
 
-        # puts "retrieved #{current_state.inspect}"
-
         @rapi_current_state = current_state
+        Puppet.debug("Current State: #{@rapi_current_state.inspect}")
         result
       end
 
@@ -195,8 +194,7 @@ module Puppet::ResourceApi
         # require 'pry'; binding.pry
         return if @rapi_current_state == target_state
 
-        # puts "@rapi_current_state: #{@rapi_current_state.inspect}"
-        # puts "target_state: #{target_state.inspect}"
+        Puppet.debug("Target State: #{target_state.inspect}")
 
         my_provider.set(context, title => { is: @rapi_current_state, should: target_state })
         raise 'Execution encountered an error' if context.failed?
