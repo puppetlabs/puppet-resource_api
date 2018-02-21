@@ -3,12 +3,29 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v0.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.3.0) (2018-02-21)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.2.2...v0.3.0)
+
+**Implemented enhancements:**
+
+- \(FM-6797\) Add debug logging of current and target states [\#21](https://github.com/puppetlabs/puppet-resource_api/pull/21) ([da-ar](https://github.com/da-ar))
+- \(PDK-803\) Add YAML output for resources [\#19](https://github.com/puppetlabs/puppet-resource_api/pull/19) ([shermdog](https://github.com/shermdog))
+- Edits on resource api readme [\#17](https://github.com/puppetlabs/puppet-resource_api/pull/17) ([clairecadman](https://github.com/clairecadman))
+
+**Fixed bugs:**
+
+- \(PDK-569\) `puppet resource` now displays type name correctly [\#18](https://github.com/puppetlabs/puppet-resource_api/pull/18) ([tphoney](https://github.com/tphoney))
+
 ## [v0.2.2](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.2) (2018-01-25)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.2.1...v0.2.2)
 
 **Fixed bugs:**
 
 - make the server parts JRuby compatible [\#15](https://github.com/puppetlabs/puppet-resource_api/pull/15) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Release prep v0.2.2 [\#16](https://github.com/puppetlabs/puppet-resource_api/pull/16) ([DavidS](https://github.com/DavidS))
 
 ## [v0.2.1](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.1) (2018-01-24)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.2.0...v0.2.1)
