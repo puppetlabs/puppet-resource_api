@@ -168,6 +168,14 @@ The `create`/`update`/`delete` methods get called by the `SimpleProvider` base-c
 
 The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automatically evaluated with `pdk test unit`.
 
+### `puppet device` support
+
+To support remote resources using `puppet device`, a few more steps are needed. First a `Puppet::Util::NetworkDevice::<device type>::Device` class needs to exist, which provides facts and connection management . That device class can inherit from `Puppet::Util::NetworkDevice::Simple::Device` to receive a simple default configuration parser using hocon.
+
+The provider needs to specify the `remote_resource` feature to enable the second part of the machinery.
+
+After this, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
+
 ### Further Reading
 
 The [Resource API](https://github.com/DavidS/puppet-specifications/blob/resourceapi/language/resource-api/README.md) describes details of all the capabilities of this gem.
