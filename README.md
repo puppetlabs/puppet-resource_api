@@ -114,43 +114,38 @@ The provider is the most important part of your new resource, as it reads and en
 
 ```ruby
 require 'puppet/resource_api'
-require 'puppet/resource_api/command'
 require 'puppet/resource_api/simple_provider'
 
 # Implementation for the foo type using the Resource API.
 class Puppet::Provider::Foo::Foo < Puppet::ResourceApi::SimpleProvider
-  def initialize
-    @echo_cmd = Puppet::ResourceApi::Command.new 'echo'
-  end
-
-  def get(context)
-    # nonsensical resource emulation for this example
-    @echo_cmd.run(context).stdout.split('').each do |c|
+  def get(_context)
+    [
       {
-        name: c,
+        name: 'foo',
         ensure: :present,
-      }
-    end || []
+      },
+      {
+        name: 'bar',
+        ensure: :present,
+      },
+    ]
   end
 
   def create(context, name, should)
-    # nonsensical resource emulation for this example
-    @echo_cmd.run(context, "create: #{name}, #{should.inspect}")
+    context.notice("Creating '#{name}' with #{should.inspect}")
   end
 
   def update(context, name, should)
-    # nonsensical resource emulation for this example
-    @echo_cmd.run(context, "update: #{name}, #{should.inspect}")
+    context.notice("Updating '#{name}' with #{should.inspect}")
   end
 
   def delete(context, name)
-    # nonsensical resource emulation for this example
-    @echo_cmd.run(context, "delete: #{name}")
+    context.notice("Deleting '#{name}'")
   end
 end
 ```
 
-The optional `initialize` method can be used to set up state that is available throughout the execution of the catalog. This is most often used for locally acting providers to set up command helpers, or to establish a connection, when talking to a service (e.g. when managing a database).
+The optional `initialize` method can be used to set up state that is available throughout the execution of the catalog. This is most often used for establishing a connection, when talking to a service (e.g. when managing a database).
 
 The `get(context)` method returns a list of hashes describing the resources that are currently on the target system. The basic example would always return an empty list. Here is an example of resources that could be returned from this:
 
@@ -171,7 +166,7 @@ The `create`/`update`/`delete` methods get called by the `SimpleProvider` base-c
 
 ### Unit testing
 
-The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automatically evaluated with `pdk test unit`. 
+The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automatically evaluated with `pdk test unit`.
 
 ### Further Reading
 
@@ -179,7 +174,7 @@ The [Resource API](https://github.com/DavidS/puppet-specifications/blob/resource
 
 This [Introduction to Testing Puppet Modules](https://www.netways.de/index.php?id=3445#c44135) talk describes rspec usage in more detail.
 
-The [RSpec docs](https://relishapp.com/rspec) provide an overview of the capabilities of rspec. 
+The [RSpec docs](https://relishapp.com/rspec) provide an overview of the capabilities of rspec.
 
 Read [betterspecs](http://www.betterspecs.org/) for general guidelines on what is considered good specs.
 
@@ -197,11 +192,9 @@ Currently working:
   * `puppet agent`
   * `puppet device` (if applicable)
 
-
 There are still a few notable gaps between the implementation and the specification:
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 * `auto*` definitions.
-* The Commands API is mostly implemented, but deployment is blocked on upstream work (PDK-580). Use regular Ruby `system()` calls as a workaround, with their underlying encoding and safety issues.
 
 ## Development
 

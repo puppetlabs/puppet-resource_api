@@ -14,7 +14,7 @@ require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|
   if RUBY_PLATFORM == "java"
-    t.exclude_pattern = 'spec/{acceptance/**/*.rb,integration/**/*.rb,puppet/resource_api/{*_context,command}_spec.rb,puppet/util/network_device/simple/device_spec.rb}'
+    t.exclude_pattern = 'spec/{acceptance/**/*.rb,integration/**/*.rb,puppet/resource_api/*_context_spec.rb,puppet/util/network_device/simple/device_spec.rb}'
     t.rspec_opts = '--tag ~agent_test'
   end
 end
