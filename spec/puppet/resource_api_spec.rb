@@ -64,10 +64,6 @@ RSpec.describe Puppet::ResourceApi do
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern value',
           },
-          test_path: {
-            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-            desc: 'a path or URL',
-          },
           test_url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url',
@@ -107,7 +103,6 @@ RSpec.describe Puppet::ResourceApi do
             test_float: '-1.5',
             test_ensure: 'present',
             test_variant_pattern: 'a' * 8,
-            test_path: '/var/log/example',
             test_url: 'hkp://example.com',
           }
         end
@@ -117,7 +112,6 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
         it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
-        it('the test_path value is set correctly') { expect(instance[:test_path]).to eq('/var/log/example') }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
 
@@ -161,6 +155,11 @@ RSpec.describe Puppet::ResourceApi do
           let(:the_boolean) { false }
 
           it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+        end
+        context 'when using an unparsable value' do
+          let(:the_boolean) { 'flubb' }
+
+          it('the test_boolean value is set correctly') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
         end
       end
     end
@@ -207,11 +206,6 @@ RSpec.describe Puppet::ResourceApi do
             desc: 'a pattern parameter',
             behaviour: :parameter,
           },
-          test_path: {
-            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-            desc: 'a path or URL parameter',
-            behaviour: :parameter,
-          },
           test_url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
@@ -252,7 +246,6 @@ RSpec.describe Puppet::ResourceApi do
             test_float: '-1.5',
             test_ensure: 'present',
             test_variant_pattern: 'a' * 8,
-            test_path: '/var/log/example',
             test_url: 'hkp://example.com',
           }
         end
@@ -262,13 +255,12 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
         it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
-        it('the test_path value is set correctly') { expect(instance[:test_path]).to eq('/var/log/example') }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
     end
   end
 
-  context 'when registering an attribute with an invalid data type' do
+  context 'when registering an attribute with an optional data type' do
     let(:definition) do
       {
         name: 'no_type',
@@ -281,7 +273,14 @@ RSpec.describe Puppet::ResourceApi do
       }
     end
 
-    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{is not yet supported in this prototype} }
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:with_parameters) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters[1]).to eq :test_string }
+    end
   end
 
   context 'when registering a type with a malformed attributes' do

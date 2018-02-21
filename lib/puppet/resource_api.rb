@@ -89,7 +89,7 @@ module Puppet::ResourceApi
             #   if type.instance?(v)
             #     return true
             #   else
-            #     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
+            #     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(v)
             #     error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{DEFINITION[:name]}.#{name}", type, inferred_type)
             #     raise Puppet::ResourceError, error_msg
             #   end
@@ -99,12 +99,33 @@ module Puppet::ResourceApi
               defaultto options[:default]
             end
 
-            case options[:type]
-            when 'String'
+            type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+            validate do |value|
+              return true if type.instance?(value)
+
+              if value.is_a? String
+                # when running under `puppet resource`, we need to try to coerce from strings to the real type
+                case value
+                when %r{^-?\d+$}, Puppet::Pops::Patterns::NUMERIC
+                  value = Puppet::Pops::Utils.to_n(value)
+                when %r{\Atrue|false\Z}
+                  value = value == 'true'
+                end
+                return true if type.instance?(value)
+
+                inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
+                error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{definition[:name]}.#{name}", type, inferred_type)
+                raise Puppet::ResourceError, error_msg
+              end
+            end
+
+            # provide better handling of the standard types
+            case type
+            when Puppet::Pops::Types::PStringType
               # require any string value
               Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
             # rubocop:disable Lint/BooleanSymbol
-            when 'Boolean'
+            when Puppet::Pops::Types::PBooleanType
               Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
               aliasvalue true, 'true'
               aliasvalue false, 'false'
@@ -122,30 +143,21 @@ module Puppet::ResourceApi
                 end
               end
             # rubocop:enable Lint/BooleanSymbol
-            when 'Integer'
+            when Puppet::Pops::Types::PIntegerType
               Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
               end
-            when 'Float', 'Numeric'
+            when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
               Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
               munge do |v|
                 Puppet::Pops::Utils.to_n(v)
               end
+            end
+
+            case options[:type]
             when 'Enum[present, absent]'
               Puppet::ResourceApi.def_newvalues(self, param_or_property, :absent, :present)
-            when 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]'
-              # the namevar needs to be a Parameter, which only has newvalue*s*
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{\A(0x)?[0-9a-fA-F]{8}\Z}, %r{\A(0x)?[0-9a-fA-F]{16}\Z}, %r{\A(0x)?[0-9a-fA-F]{40}\Z})
-            when 'Optional[String]'
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{}, :undef)
-            when 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]'
-              # TODO: this is wrong, but matches original implementation
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, /^\//, /\A(https?|ftp):\/\//) # rubocop:disable Style/RegexpLiteral
-            when 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]'
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, /\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/) # rubocop:disable Style/RegexpLiteral
-            else
-              raise Puppet::DevError, "Datatype #{options[:type]} is not yet supported in this prototype"
             end
           end
         end
