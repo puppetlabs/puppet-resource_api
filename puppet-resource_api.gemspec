@@ -18,8 +18,5 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'childprocess', '~> 0.7'
   spec.add_runtime_dependency 'hocon', '>= 1.0'
-
-  spec.extensions = 'ext/mkrf_conf.rb'
 end
