@@ -5,9 +5,7 @@ This is an implementation of the [Resource API](https://github.com/DavidS/puppet
 
 ## Getting started
 
-* Install the [PDK](https://puppet.com/download-puppet-development-kit).
-  * As of January 2018, the required PDK features are still in development.
-    See [PDK-506](https://tickets.puppetlabs.com/browse/PDK-506) for progress.
+* Install the [PDK](https://puppet.com/download-puppet-development-kit) 1.4.
 
 * Create a [new module](https://puppet.com/docs/pdk/latest/pdk_generating_modules.html) with the PDK, or work with an existing PDK-enabled module.
 
@@ -24,10 +22,11 @@ spec/spec_helper.rb:
   mock_with: ':rspec'
 ```
 
-*  Apply the changes by running `pdk convert`:
+*  Apply the changes by running `pdk update`:
 
 ```
-~/git/example$ ~/git/pdk/bin/pdk convert
+$ pdk update
+pdk (INFO): Updating david-example using the default template, from 1.4.1 to 1.4.1
 
 ----------Files to be modified----------
 Gemfile
@@ -35,39 +34,36 @@ spec/spec_helper.rb
 
 ----------------------------------------
 
-You can find a report of differences in convert_report.txt.
+You can find a report of differences in update_report.txt.
 
-pdk (INFO): Module conversion is a potentially destructive action. Ensure that you have committed your module to a version control system or have a backup, and review the changes above before continuing.
 Do you want to continue and make these changes to your module? Yes
-[✔] Resolving Gemfile dependencies.
 
-------------Convert completed-----------
+------------Update completed------------
 
 2 files modified.
 
-~/git/example$
+$
 ```
 
 * Create the required files for a new type and provider in the module with `pdk new provider <provider_name>`.
 
 ```
-~/git/example$ pdk new provider foo
-pdk (INFO): Creating '/home/david/git/example/lib/puppet/type/foo.rb' from template.
-pdk (INFO): Creating '/home/david/git/example/lib/puppet/provider/foo/foo.rb' from template.
-pdk (INFO): Creating '/home/david/git/example/spec/unit/puppet/provider/foo/foo_spec.rb' from template.
-~/git/example$
+$ pdk new provider foo
+pdk (INFO): Creating '.../example/lib/puppet/type/foo.rb' from template.
+pdk (INFO): Creating '.../example/lib/puppet/provider/foo/foo.rb' from template.
+pdk (INFO): Creating '.../example/spec/unit/puppet/provider/foo/foo_spec.rb' from template.
+$
 ```
 
 The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider:
 
 ```
-~/git/example$ pdk test unit
-[✔] Installing missing Gemfile dependencies.
+$ pdk test unit
 [✔] Preparing to run the unit tests.
 [✔] Running unit tests.
-  Evaluated 5 tests in 0.018781355 seconds: 0 failures, 0 pending.
+  Evaluated 4 tests in 0.012065973 seconds: 0 failures, 0 pending.
 [✔] Cleaning up after running unit tests.
-~/git/example$
+$
 ```
 
 ### Writing the Type
