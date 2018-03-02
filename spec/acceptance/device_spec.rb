@@ -2,14 +2,15 @@ require 'spec_helper'
 require 'tempfile'
 
 RSpec.describe 'exercising a device provider' do
-  let(:common_args) { '--verbose --trace --modulepath spec/fixtures' }
+  let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
 
   before(:each) { skip 'No device --apply in the puppet gems yet' if ENV['PUPPET_GEM_VERSION'] }
 
   describe 'using `puppet resource`' do
     it 'reads resources from the target system' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
-      expect(stdout_str.strip).to match %r{\A(()|(DL is deprecated, please use Fiddle))\Z}
+      expected_values = 'device_provider { \"wibble\": \n  ensure => \'present\',\n  string => \'sample\',\n}'
+      expect(stdout_str.strip).to match %r{\A(DL is deprecated, please use Fiddle\n)?#{expected_values}\Z}
       expect(status).to eq 0
     end
     it 'manages resources on the target system' do
@@ -17,8 +18,44 @@ RSpec.describe 'exercising a device provider' do
       expect(stdout_str).to match %r{Notice: /Device_provider\[foo\]/ensure: defined 'ensure' as 'present'}
       expect(status).to eq 0
     end
-  end
 
+    context 'with strict checking at error level' do
+      let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
+
+      it 'deals with canonicalized resources correctly' do
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present")
+        stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
+                   'Returned values:       \{:name=>"wibble", :ensure=>:present, :string=>"sample"\}\n'\
+                   'Canonicalized values:  \{:name=>"wibble", :ensure=>:present, :string=>"changed"\}'
+        expect(stdout_str).to match %r{#{stdmatch}}
+        expect(status.success?).to be_falsey # rubocop:disable RSpec/PredicateMatcher
+      end
+    end
+
+    context 'with strict checking at warning level' do
+      let(:common_args) { '--verbose --trace --strict=warning --modulepath spec/fixtures' }
+
+      it 'deals with canonicalized resources correctly' do
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present")
+        stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
+                   'Returned values:       \{:name=>"wibble", :ensure=>:present, :string=>"sample"\}\n'\
+                   'Canonicalized values:  \{:name=>"wibble", :ensure=>:present, :string=>"changed"\}'
+        expect(stdout_str).to match %r{#{stdmatch}}
+        expect(status.success?).to be_truthy # rubocop:disable RSpec/PredicateMatcher
+      end
+    end
+
+    context 'with strict checking turned off' do
+      let(:common_args) { '--verbose --trace --strict=off --modulepath spec/fixtures' }
+
+      it 'deals with canonicalized resources correctly' do
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present")
+        stdmatch = 'Notice: /Device_provider\[wibble\]/string: string changed \'sample\' to \'changed\''
+        expect(stdout_str).to match %r{#{stdmatch}}
+        expect(status.success?).to be_truthy # rubocop:disable RSpec/PredicateMatcher
+      end
+    end
+  end
   describe 'using `puppet device`' do
     let(:common_args) { super() + ' --target the_node' }
     let(:device_conf) { Tempfile.new('device.conf') }
