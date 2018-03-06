@@ -389,9 +389,9 @@ RSpec.describe Puppet::ResourceApi do
     end
     let(:provider_class) do
       Class.new do
-        def canonicalize(_context, x)
-          x[0][:test_string] = ['canon', x[0][:test_string]].compact.join unless x[0][:test_string] && x[0][:test_string].start_with?('canon')
-          x
+        def canonicalize(_context, resources)
+          resources[0][:test_string] = ['canon', resources[0][:test_string]].compact.join unless resources[0][:test_string] && resources[0][:test_string].start_with?('canon')
+          resources
         end
 
         def get(_context)

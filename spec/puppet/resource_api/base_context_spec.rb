@@ -3,9 +3,9 @@ require 'spec_helper'
 RSpec.describe Puppet::ResourceApi::BaseContext do
   class TestContext < described_class
     attr_reader :last_level, :last_message
-    def send_log(l, m)
-      @last_level = l
-      @last_message = m
+    def send_log(log, msg)
+      @last_level = log
+      @last_message = msg
     end
   end
 
