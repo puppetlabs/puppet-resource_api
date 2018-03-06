@@ -9,7 +9,7 @@ RSpec.describe 'exercising a device provider' do
   describe 'using `puppet resource`' do
     it 'reads resources from the target system' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
-      expect(stdout_str.strip).to match %r{\A()|(DL is deprecated, please use Fiddle)\Z}
+      expect(stdout_str.strip).to match %r{\A(()|(DL is deprecated, please use Fiddle))\Z}
       expect(status).to eq 0
     end
     it 'manages resources on the target system' do
