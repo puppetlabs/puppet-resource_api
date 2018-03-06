@@ -1,4 +1,4 @@
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path('../lib', __FILE__) # __dir__ not supported on ruby-1.9 # rubocop:disable Style/ExpandPathArguments
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'puppet/resource_api/version'
 
