@@ -5,7 +5,7 @@ Puppet::ResourceApi.register_type(
   docs: <<-EOS,
       This type provides Puppet with the capabilities to manage ...
     EOS
-  features: [],
+  features: ['supports_noop'],
   attributes:   {
     ensure:      {
       type:    'Enum[present, absent]',

@@ -837,4 +837,69 @@ RSpec.describe Puppet::ResourceApi do
       it { expect(type.apply_to).to eq(:device) }
     end
   end
+
+  context 'with a `supports_noop` provider', agent_test: true do
+    let(:definition) do
+      {
+        name: 'test_noop_support',
+        features: ['supports_noop'],
+        attributes:   {
+          ensure:      {
+            type:    'Enum[present, absent]',
+            default: 'present',
+          },
+          name:        {
+            type:      'String',
+            behaviour: :namevar,
+          },
+        },
+      }
+    end
+    let(:type) { Puppet::Type.type(:test_noop_support) }
+    let(:provider_class) do
+      # Hide the `noop:` kwarg from older jruby, which is still on ruby-1.9 syntax.
+      eval(<<CODE, binding, __FILE__, __LINE__ + 1)
+        Class.new do
+          def get(_context)
+            []
+          end
+
+          def set(_context, _changes, noop: false); end
+        end
+CODE
+    end
+    let(:provider) { instance_double('Puppet::Provider::TestNoopSupport::TestNoopSupport', 'provider') }
+
+    before(:each) do
+      stub_const('Puppet::Provider::TestNoopSupport', Module.new)
+      stub_const('Puppet::Provider::TestNoopSupport::TestNoopSupport', provider_class)
+      allow(provider_class).to receive(:new).and_return(provider)
+      allow(provider).to receive(:get).and_return([])
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'flush getting called in noop mode' do
+      it 'set gets called with noop:true' do
+        expect(provider).to receive(:set).with(anything, anything, noop: true)
+        instance = type.new(name: 'test', ensure: 'present', noop: true)
+        instance.flush
+      end
+    end
+  end
+
+  context 'when loading a type with unknown features' do
+    let(:definition) do
+      {
+        name: 'test_noop_support',
+        features: ['no such feature'],
+        attributes: {},
+      }
+    end
+
+    it 'warns about the feature' do
+      expect(Puppet).to receive(:warning).with(%r{Unknown feature detected:.*no such feature})
+      expect { described_class.register_type(definition) }.not_to raise_error
+    end
+  end
 end
