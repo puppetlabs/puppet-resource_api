@@ -13,10 +13,12 @@ end
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|
+  excludes = ['fixtures/**/*.rb']
   if RUBY_PLATFORM == 'java'
-    t.exclude_pattern = 'spec/{acceptance/**/*.rb,integration/**/*.rb,puppet/resource_api/*_context_spec.rb,puppet/util/network_device/simple/device_spec.rb}'
+    excludes += ['acceptance/**/*.rb', 'integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
     t.rspec_opts = '--tag ~agent_test'
   end
+  t.exclude_pattern = "spec/{#{excludes.join ','}}"
 end
 
 namespace :spec do
