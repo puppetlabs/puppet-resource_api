@@ -1,6 +1,5 @@
 sudo: false
 language: ruby
-before_install: gem install bundler -v 1.15.4
 bundler_args: "--without development"
 script:
   - echo travis_fold:start:DEBUG
