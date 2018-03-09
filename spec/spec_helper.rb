@@ -31,6 +31,7 @@ end
 
 require 'bundler/setup'
 require 'puppet/resource_api'
+require 'puppetlabs_spec_helper/module_spec_helper'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -42,4 +43,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  # override legacy default from puppetlabs_spec_helper
+  config.mock_with :rspec
 end

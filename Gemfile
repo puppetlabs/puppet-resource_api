@@ -15,6 +15,9 @@ group :tests do
   gem 'rubocop-rspec'
   gem 'rubocop'
   gem 'simplecov-console'
+  # the test gems required for module testing
+  gem 'puppetlabs_spec_helper', github: 'DavidS/puppetlabs_spec_helper', ref: 'refactor'
+  gem 'rspec-puppet'
 end
 
 group :development do
@@ -39,5 +42,5 @@ end
 if ENV['PUPPET_GEM_VERSION']
   gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
 else
-  gem 'puppet', git: 'https://github.com/DavidS/puppet', ref: 'device-apply'
+  gem 'puppet', github: 'DavidS/puppet', ref: 'device-apply'
 end
