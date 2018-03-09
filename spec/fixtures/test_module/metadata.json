@@ -1,8 +1,8 @@
 {
-  "name": "puppetlabs-test_device",
+  "name": "puppetlabs-test_module",
   "version": "0.1.0",
   "author": "David Schmitt",
-  "summary": "Test module for device support",
+  "summary": "Test module",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppet-resource_api",
   "dependencies": [
