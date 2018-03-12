@@ -1,11 +1,14 @@
 require 'spec_helper'
 
-describe 'test_module::autorequire_cycle' do
-  on_supported_os.each do |os, os_facts|
-    context "on #{os}" do
-      let(:facts) { os_facts }
+RSpec.describe 'test_module::autorequire_cycle' do
+  context 'with make_cycle => false' do
+    let(:params) { { make_cycle: false } }
 
-      it { is_expected.to compile }
-    end
+    it { is_expected.to compile }
+  end
+  context 'with make_cycle => true' do
+    let(:params) { { make_cycle: true } }
+
+    it { is_expected.not_to compile }
   end
 end

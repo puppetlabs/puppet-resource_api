@@ -17,5 +17,13 @@ Puppet::ResourceApi.register_type(
       desc:      'The name of the resource you want to manage.',
       behaviour: :namevar,
     },
+    target:      {
+      type:      'String',
+      desc:      'The resource to autorequire.',
+      behaviour: :parameter,
+    },
+  },
+  autorequire: {
+    test_autorequire: '$target',
   },
 )
