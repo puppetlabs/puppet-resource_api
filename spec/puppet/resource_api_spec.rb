@@ -2,6 +2,7 @@ require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi do
   let(:strict_level) { :error }
+  let(:log_sink) { [] }
 
   before(:each) do
     # set default to strictest setting
@@ -9,6 +10,12 @@ RSpec.describe Puppet::ResourceApi do
     Puppet.settings[:strict] = strict_level
     # Enable debug logging
     Puppet.debug = true
+
+    Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
+  end
+
+  after(:each) do
+    Puppet::Util::Log.close_all
   end
 
   it 'has a version number' do
@@ -419,17 +426,10 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
     end
-    let(:log_sink) { [] }
 
     before(:each) do
       stub_const('Puppet::Provider::Canonicalizer', Module.new)
       stub_const('Puppet::Provider::Canonicalizer::Canonicalizer', provider_class)
-
-      Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
-    end
-
-    after(:each) do
-      log_sink.clear
     end
 
     it { expect { described_class.register_type(definition) }.not_to raise_error }
@@ -536,7 +536,6 @@ RSpec.describe Puppet::ResourceApi do
       context 'when manually creating an instance' do
         let(:test_string) { 'foo' }
         let(:instance) { type.new(name: 'somename', test_string: test_string) }
-        let(:log_sink) { [] }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
         it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonfoo') }
@@ -544,10 +543,8 @@ RSpec.describe Puppet::ResourceApi do
         context 'when flushing' do
           before(:each) do
             Puppet.debug = true
-            log_sink.clear
-            # Redirect log messages here
-            Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
             instance.flush
+            puts log_sink(&:message).inspect
           end
 
           after(:each) do
@@ -569,8 +566,13 @@ RSpec.describe Puppet::ResourceApi do
                                                                 is: { name: 'somename', test_string: 'canonfoo' },
                                                                 should: { name: 'somename', test_string: 'canonbar' },
                                                               })
-              expect(log_sink[-2].message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
-              expect(log_sink.last.message).to eq('Target State: {:name=>"somename", :test_string=>"canonbar"}')
+            end
+
+            it 'logs correctly' do
+              expect(log_sink.map(&:message)).to eq [
+                'Current State: {:name=>"somename", :test_string=>"canonfoo"}',
+                'Target State: {:name=>"somename", :test_string=>"canonbar"}',
+              ]
             end
           end
         end
@@ -584,13 +586,9 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
-        let(:log_sink) { [] }
 
         before(:each) do
           Puppet.debug = true
-          log_sink.clear
-          # Redirect log messages here
-          Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
         end
 
         after(:each) do
@@ -671,16 +669,12 @@ RSpec.describe Puppet::ResourceApi do
       context 'when manually creating an instance' do
         let(:test_string) { 'foo' }
         let(:instance) { type.new(name: 'somename', test_string: test_string) }
-        let(:log_sink) { [] }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
 
         context 'when flushing' do
           before(:each) do
             Puppet.debug = true
-            log_sink.clear
-            # Redirect log messages here
-            Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
             instance.flush
           end
 
@@ -718,13 +712,9 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
-        let(:log_sink) { [] }
 
         before(:each) do
           Puppet.debug = true
-          log_sink.clear
-          # Redirect log messages here
-          Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
         end
 
         after(:each) do
