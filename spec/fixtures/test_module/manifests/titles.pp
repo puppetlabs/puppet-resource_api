@@ -7,4 +7,7 @@
 # @example
 #   include test_module::titles
 class test_module::titles {
+  title_provider { 'some title':
+    namevar => 'some id'
+  }
 }

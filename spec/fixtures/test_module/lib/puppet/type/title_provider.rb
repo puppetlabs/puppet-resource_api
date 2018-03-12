@@ -12,7 +12,7 @@ Puppet::ResourceApi.register_type(
       desc:    'Whether this resource should be present or absent on the target system.',
       default: 'present',
     },
-    name:        {
+    namevar:        {
       type:      'String',
       desc:      'The name of the resource you want to manage.',
       behaviour: :namevar,

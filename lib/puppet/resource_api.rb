@@ -165,7 +165,7 @@ module Puppet::ResourceApi
         # force autoloading of the provider
         provider(name)
         my_provider.get(context).map do |resource_hash|
-          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name)
+          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name, namevar_name)
         end
       end
 
@@ -183,7 +183,7 @@ module Puppet::ResourceApi
             result[k] = v
           end
         else
-          result[:name] = title
+          result[namevar_name] = title
           result[:ensure] = :absent
         end
 
@@ -225,7 +225,7 @@ module Puppet::ResourceApi
         #:nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
         message = <<MESSAGE.strip
-#{definition[:name]}[#{current_state[:name]}]#get has not provided canonicalized values.
+#{definition[:name]}[#{current_state[namevar_name]}]#get has not provided canonicalized values.
 Returned values:       #{current_state.inspect}
 Canonicalized values:  #{state_clone.inspect}
 MESSAGE

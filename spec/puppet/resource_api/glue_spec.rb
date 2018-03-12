@@ -6,10 +6,10 @@ require 'spec_helper'
 # funky happening with new puppet versions.
 RSpec.describe 'the dirty bits' do
   describe Puppet::ResourceApi::TypeShim do
-    subject(:instance) { described_class.new('title', { attr: 'value' }, 'typename') }
+    subject(:instance) { described_class.new('title', { attr: 'value' }, 'typename', :namevarname) }
 
     describe '.values' do
-      it { expect(instance.values).to eq(name: 'title', attr: 'value') }
+      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value') }
     end
 
     describe '.typename' do
@@ -20,23 +20,32 @@ RSpec.describe 'the dirty bits' do
       it { expect(instance.name).to eq 'title' }
     end
 
+    describe '.namevar' do
+      it { expect(instance.namevar).to eq :namevarname }
+    end
+
     describe '.to_resource' do
       it { expect(instance.to_resource).to be_a Puppet::ResourceApi::ResourceShim }
+
       describe '.values' do
-        it { expect(instance.to_resource.values).to eq(name: 'title', attr: 'value') }
+        it { expect(instance.to_resource.values).to eq(namevarname: 'title', attr: 'value') }
       end
 
       describe '.typename' do
         it { expect(instance.to_resource.typename).to eq 'typename' }
       end
+
+      describe '.namevar' do
+        it { expect(instance.to_resource.namevar).to eq :namevarname }
+      end
     end
   end
 
   describe Puppet::ResourceApi::ResourceShim do
-    subject(:instance) { described_class.new({ name: 'title', attr: 'value' }, 'typename') }
+    subject(:instance) { described_class.new({ namevarname: 'title', attr: 'value' }, 'typename', :namevarname) }
 
     describe '.values' do
-      it { expect(instance.values).to eq(name: 'title', attr: 'value') }
+      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value') }
     end
 
     describe '.typename' do
