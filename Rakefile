@@ -1,4 +1,5 @@
 require 'bundler/gem_tasks'
+require 'puppetlabs_spec_helper/tasks/fixtures'
 
 task :default => :spec
 
@@ -13,10 +14,14 @@ end
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|
+  Rake::Task[:spec_prep].invoke
+  # thanks to the fixtures/modules/ symlinks this needs to exclude fixture modules explicitely
+  excludes = ['fixtures/**/*.rb,fixtures/modules/*/**/*.rb']
   if RUBY_PLATFORM == 'java'
-    t.exclude_pattern = 'spec/{acceptance/**/*.rb,integration/**/*.rb,puppet/resource_api/*_context_spec.rb,puppet/util/network_device/simple/device_spec.rb}'
+    excludes += ['acceptance/**/*.rb', 'integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
     t.rspec_opts = '--tag ~agent_test'
   end
+  t.exclude_pattern = "spec/{#{excludes.join ','}}"
 end
 
 namespace :spec do

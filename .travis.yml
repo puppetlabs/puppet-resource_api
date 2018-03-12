@@ -1,22 +1,21 @@
 sudo: false
 language: ruby
-before_install: gem install bundler -v 1.15.4
 bundler_args: "--without development"
 script:
   - echo travis_fold:start:DEBUG
   - cat Gemfile.lock
   - bundle list
   - echo travis_fold:end:DEBUG
-  - COVERAGE=yes bundle exec rake $CHECK
+  - bundle exec rake $CHECK --trace
 cache: bundler
 matrix:
   include:
     - rvm: 2.4.1
       env: PUPPET_GEM_VERSION='~> 5'
     - rvm: jruby-1.7.26
-      env: PUPPET_GEM_VERSION='~> 5'
+      env: PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
     - rvm: jruby-9.1.9.0
-      env: PUPPET_GEM_VERSION='~> 5'
+      env: PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
     - rvm: 2.4.1
       env: CHECK=rubocop
     - rvm: 2.4.1
@@ -32,11 +31,3 @@ matrix:
     - rvm: 2.4.1
       env: CHECK=license_finder
       bundler_args: ""
-notifications:
-  hipchat:
-    rooms:
-      secure: 10a49kkZcghKHNnef8x7eBG+KjScL3i1VpygFg6DPAOK2YNbEoyEx1Kv9KLC7GSRYov/SQZOsZrvHZtDhEtFSKhhiAjOwxl1jV1t6aAMGMnN1IoZBOvdAJKrZsm54/bBeYp+je2wqnnoFNtLVFSoOX0LkFaDEWT+zGZ5xKJIH25GpeQEZf1eDxs/d8YX/m+RwbGXHVA//hOpvZo0ntvznh2EbW5OPODKSeUXbWZ+W4ndODTsKWFc/WLMSSgFDzW/Y2/9V40D4IC8lvSx6eKFryMfAQy6pO/d1aTB468awzyVcdYAMMCOITm7hlKGRKxNgq6NkOsXs5KLg6ifpn+a/Rhapbz6Qxbpjjho/7Wxngl4B3T+i35ap/mFrS/fOfKCq3gEQlYn29its9bEFArNGbr+/sXKABb+sRpgW4RTPWYDHJyHJendbevd5tZ+fd0JUBOi0Cb4PcXxQxM8IQrbuu2zso0K5MV05kL0S1DE/VsuUrPaK0RsF+b1+i6NfvtN8kgbYs1eiVku+guIG2ec3xIefQ1hsEOFPFNqSDfHp7nANnRVIbBCt8qw8DhmNEczsfN5Dp21euJUsO9qpau++NzD3jRhkE5Zki5cwsakU7hIQzw82BIb0eSQJCHygieExeEboWRqtDgy/IKIWPgIvEuU68ppR2bl2reKCHLCnWc=
-    template:
-    - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}
-      (<a href="%{build_url}">Details</a> | <a href="%{compare_url}">PR/Diff</a>)'
-    format: html

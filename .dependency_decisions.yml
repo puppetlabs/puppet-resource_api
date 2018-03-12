@@ -89,3 +89,10 @@
     :why: https://github.com/masover/blankslate/blob/f0a73b80c34bc3ad94dc3195d12a227a8fe30019/MIT-LICENSE
     :versions: []
     :when: 2017-11-17 14:05:09.534340925 Z
+- - :license
+  - puppetlabs_spec_helper
+  - Apache 2.0
+  - :who: DavidS
+    :why: 
+    :versions: []
+    :when: 2018-03-09 18:04:29.175843919 Z
