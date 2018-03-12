@@ -1,6 +1,23 @@
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi do
+  let(:strict_level) { :error }
+  let(:log_sink) { [] }
+
+  before(:each) do
+    # set default to strictest setting
+    # by default Puppet runs at warning level
+    Puppet.settings[:strict] = strict_level
+    # Enable debug logging
+    Puppet.debug = true
+
+    Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
+  end
+
+  after(:each) do
+    Puppet::Util::Log.close_all
+  end
+
   it 'has a version number' do
     expect(Puppet::ResourceApi::VERSION).not_to be nil
   end
@@ -390,8 +407,13 @@ RSpec.describe Puppet::ResourceApi do
     let(:provider_class) do
       Class.new do
         def canonicalize(_context, resources)
-          resources[0][:test_string] = ['canon', resources[0][:test_string]].compact.join unless resources[0][:test_string] && resources[0][:test_string].start_with?('canon')
-          resources
+          resources.map do |resource|
+            result = resource.dup
+            unless resource[:test_string] && resource[:test_string].start_with?('canon')
+              result[:test_string] = ['canon', resource[:test_string]].compact.join
+            end
+            result
+          end
         end
 
         def get(_context)
@@ -412,6 +434,93 @@ RSpec.describe Puppet::ResourceApi do
 
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
+    describe '#strict_check' do
+      let(:type) { Puppet::Type.type(:canonicalizer) }
+      let(:instance) { type.new(name: 'somename', test_string: 'foo') }
+
+      context 'when current_state is not already canonicalized' do
+        context 'when Puppet strict setting is :off' do
+          let(:strict_level) { :off }
+
+          it { expect(instance.strict_check(nil)).to be_nil }
+
+          it 'will not log a warning message' do
+            expect(Puppet).not_to receive(:warning)
+            instance.strict_check(nil)
+          end
+        end
+
+        context 'when Puppet strict setting is :error' do
+          let(:strict_level) { :error }
+
+          it 'will throw an exception' do
+            expect {
+              instance.strict_check({})
+            }.to raise_error(Puppet::Error, %r{has not provided canonicalized values})
+          end
+        end
+
+        context 'when Puppet strict setting is :warning' do
+          let(:strict_level) { :warning }
+
+          it { expect(instance.strict_check({})).to be_nil }
+
+          it 'will log warning message' do
+            expect(Puppet).to receive(:warning).with(%r{has not provided canonicalized values})
+            instance.strict_check({})
+          end
+        end
+      end
+
+      context 'when current_state is already canonicalized' do
+        context 'when Puppet strict setting is :off' do
+          let(:strict_level) { :off }
+
+          it { expect(instance.strict_check(test_string: 'canon')).to be_nil }
+
+          it 'will not log a warning message' do
+            expect(Puppet).not_to receive(:warning)
+            instance.strict_check(test_string: 'canon')
+          end
+        end
+
+        context 'when Puppet strict setting is :error' do
+          let(:strict_level) { :error }
+
+          it 'will throw an exception' do
+            expect { instance.strict_check(test_string: 'canon') }.not_to raise_error
+          end
+        end
+
+        context 'when Puppet strict setting is :warning' do
+          let(:strict_level) { :warning }
+
+          it { expect(instance.strict_check(test_string: 'canon')).to be_nil }
+
+          it 'will not log a warning message' do
+            expect(Puppet).not_to receive(:warning)
+            instance.strict_check(test_string: 'canon')
+          end
+        end
+      end
+
+      context 'when canonicalize modifies current_state' do
+        let(:strict_level) { :error }
+
+        before(:each) do
+          allow(instance.my_provider).to receive(:canonicalize) do |_context, resources|
+            resources[0][:test_string] = 'canontest'
+            resources
+          end
+        end
+        it 'stills raise an error' do
+          expect {
+            instance.strict_check({})
+          }.to raise_error(Puppet::Error, %r{has not provided canonicalized values})
+        end
+      end
+    end
+
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:canonicalizer) }
 
@@ -427,7 +536,6 @@ RSpec.describe Puppet::ResourceApi do
       context 'when manually creating an instance' do
         let(:test_string) { 'foo' }
         let(:instance) { type.new(name: 'somename', test_string: test_string) }
-        let(:log_sink) { [] }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
         it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonfoo') }
@@ -435,10 +543,8 @@ RSpec.describe Puppet::ResourceApi do
         context 'when flushing' do
           before(:each) do
             Puppet.debug = true
-            log_sink.clear
-            # Redirect log messages here
-            Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
             instance.flush
+            puts log_sink(&:message).inspect
           end
 
           after(:each) do
@@ -460,8 +566,13 @@ RSpec.describe Puppet::ResourceApi do
                                                                 is: { name: 'somename', test_string: 'canonfoo' },
                                                                 should: { name: 'somename', test_string: 'canonbar' },
                                                               })
-              expect(log_sink[-2].message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
-              expect(log_sink.last.message).to eq('Target State: {:name=>"somename", :test_string=>"canonbar"}')
+            end
+
+            it 'logs correctly' do
+              expect(log_sink.map(&:message)).to eq [
+                'Current State: {:name=>"somename", :test_string=>"canonfoo"}',
+                'Target State: {:name=>"somename", :test_string=>"canonbar"}',
+              ]
             end
           end
         end
@@ -475,13 +586,9 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
-        let(:log_sink) { [] }
 
         before(:each) do
           Puppet.debug = true
-          log_sink.clear
-          # Redirect log messages here
-          Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
         end
 
         after(:each) do
@@ -562,16 +669,12 @@ RSpec.describe Puppet::ResourceApi do
       context 'when manually creating an instance' do
         let(:test_string) { 'foo' }
         let(:instance) { type.new(name: 'somename', test_string: test_string) }
-        let(:log_sink) { [] }
 
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
 
         context 'when flushing' do
           before(:each) do
             Puppet.debug = true
-            log_sink.clear
-            # Redirect log messages here
-            Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
             instance.flush
           end
 
@@ -609,13 +712,9 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
-        let(:log_sink) { [] }
 
         before(:each) do
           Puppet.debug = true
-          log_sink.clear
-          # Redirect log messages here
-          Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
         end
 
         after(:each) do
@@ -629,6 +728,12 @@ RSpec.describe Puppet::ResourceApi do
           it('its properties are set correctly') do
             expect(resource[:test_string]).to eq 'foo'
             expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
+          end
+          context 'when strict checking is on' do
+            it('will not throw') {
+              Puppet.settings[:strict] = :error
+              expect { described_class.register_type(definition) }.not_to raise_error
+            }
           end
         end
 
@@ -669,6 +774,7 @@ RSpec.describe Puppet::ResourceApi do
       stub_const('Puppet::Provider::Remoter', Module.new)
       stub_const('Puppet::Provider::Remoter::Remoter', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
+      Puppet.settings[:strict] = :warning
     end
 
     it { expect { described_class.register_type(definition) }.not_to raise_error }

@@ -3,6 +3,7 @@ require 'puppet/resource_api'
 Puppet::ResourceApi.register_type(
   name: 'device_provider',
   docs: 'A example/test provider for device support',
+  features: ['canonicalize'],
   attributes: {
     name: {
       type: 'String',

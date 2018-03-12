@@ -174,6 +174,8 @@ module Puppet::ResourceApi
         result        = Puppet::Resource.new(self.class, title)
         current_state = my_provider.get(context).find { |h| h[namevar_name] == title }
 
+        strict_check(current_state) if current_state && (definition.key?(:features) && definition[:features].include?('canonicalize'))
+
         # require 'pry'; binding.pry
 
         if current_state
@@ -207,6 +209,36 @@ module Puppet::ResourceApi
 
         my_provider.set(context, title => { is: @rapi_current_state, should: target_state })
         raise 'Execution encountered an error' if context.failed?
+      end
+
+      define_method(:strict_check) do |current_state|
+        return if Puppet.settings[:strict] == :off
+
+        # if strict checking is on we must notify if the values are changed by canonicalize
+        # make a deep copy to perform the operation on and to compare against later
+        state_clone = Marshal.load(Marshal.dump(current_state))
+        state_clone = my_provider.canonicalize(context, [state_clone]).first
+
+        # compare the clone against the current state to see if changes have been made by canonicalize
+        return unless state_clone && (current_state != state_clone)
+
+        #:nocov:
+        # codecov fails to register this multiline as covered, even though simplecov does.
+        message = <<MESSAGE.strip
+#{definition[:name]}[#{current_state[:name]}]#get has not provided canonicalized values.
+Returned values:       #{current_state.inspect}
+Canonicalized values:  #{state_clone.inspect}
+MESSAGE
+        #:nocov:
+
+        case Puppet.settings[:strict]
+        when :warning
+          Puppet.warning(message)
+        when :error
+          raise Puppet::Error, message
+        end
+
+        return nil
       end
 
       define_singleton_method(:context) do
