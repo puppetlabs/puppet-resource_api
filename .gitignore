@@ -10,3 +10,6 @@
 
 # rspec failure tracking
 .rspec_status
+
+# puppetlabs_spec_helper automatic fixtures
+spec/fixtures/modules/test_module

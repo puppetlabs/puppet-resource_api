@@ -90,6 +90,18 @@ RSpec.describe Puppet::ResourceApi do
             desc: 'a optional string value',
           },
         },
+        autorequire: {
+          var: '$test_string',
+        },
+        autobefore: {
+          const: 'value',
+        },
+        autosubscribe: {
+          list: %w[foo bar],
+        },
+        autonotify: {
+          mixed: [10, '$test_integer'],
+        },
       }
     end
 
@@ -101,6 +113,45 @@ RSpec.describe Puppet::ResourceApi do
       it { is_expected.not_to be_nil }
       it { expect(type.properties.first.doc).to match %r{the description} }
       it { expect(type.properties.first.name).to eq :test_string }
+
+      def extract_values(function)
+        result = []
+        type.send(function) do |_type, values|
+          # rely on the fact that the resource api is doing `self[]` internally to find the value
+          # see https://github.com/puppetlabs/puppet/blob/9f2c143962803a72c68f35be3462944e851bcdce/lib/puppet/type.rb#L2143
+          # for details
+          result += { test_string: 'foo', test_integer: 100 }.instance_eval(&values)
+        end
+        result
+      end
+
+      describe 'autorequire' do
+        it('yields the block for `var`') { expect { |b| type.eachautorequire(&b) }.to yield_with_args(:var, be_a(Proc)) }
+        it 'the yielded block returns the `test_string` value' do
+          expect(extract_values(:eachautorequire)).to eq ['foo']
+        end
+      end
+
+      describe 'autobefore' do
+        it('yields the block for `const`') { expect { |b| type.eachautobefore(&b) }.to yield_with_args(:const, be_a(Proc)) }
+        it('the yielded block returns the constant "value"') do
+          expect(extract_values(:eachautobefore)).to eq ['value']
+        end
+      end
+
+      describe 'autosubscribe' do
+        it('yields the block for `list`') { expect { |b| type.eachautosubscribe(&b) }.to yield_with_args(:list, be_a(Proc)) }
+        it('the yielded block returns the multiple values') do
+          expect(extract_values(:eachautosubscribe)).to eq %w[foo bar]
+        end
+      end
+
+      describe 'autonotify' do
+        it('yields the block for `mixed`') { expect { |b| type.eachautonotify(&b) }.to yield_with_args(:mixed, be_a(Proc)) }
+        it('the yielded block returns multiple integer values') do
+          expect(extract_values(:eachautonotify)).to eq [10, 100]
+        end
+      end
     end
 
     describe 'an instance of this type' do

@@ -248,6 +248,24 @@ MESSAGE
       def context
         self.class.context
       end
+
+      [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
+        next unless definition[auto]
+
+        definition[auto].each do |type, values|
+          Puppet.debug("Registering #{auto} for #{type}: #{values.inspect}")
+          send(auto, type.downcase.to_sym) do
+            [values].flatten.map do |v|
+              match = %r{\A\$(.*)\Z}.match(v) if v.is_a? String
+              if match.nil?
+                v
+              else
+                self[match[1].to_sym]
+              end
+            end
+          end
+        end
+      end
     end
   end
   module_function :register_type
