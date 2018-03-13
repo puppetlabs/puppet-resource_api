@@ -80,18 +80,6 @@ module Puppet::ResourceApi
 
           # read-only values do not need type checking, but can have default values
           if options[:behaviour] != :read_only
-            # TODO: this should use Pops infrastructure to avoid hardcoding stuff, and enhance type fidelity
-            # validate do |v|
-            #   type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type]).normalize
-            #   if type.instance?(v)
-            #     return true
-            #   else
-            #     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(v)
-            #     error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{DEFINITION[:name]}.#{name}", type, inferred_type)
-            #     raise Puppet::ResourceError, error_msg
-            #   end
-            # end
-
             if options.key? :default
               defaultto options[:default]
             end
