@@ -80,18 +80,6 @@ module Puppet::ResourceApi
 
           # read-only values do not need type checking, but can have default values
           if options[:behaviour] != :read_only
-            # TODO: this should use Pops infrastructure to avoid hardcoding stuff, and enhance type fidelity
-            # validate do |v|
-            #   type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type]).normalize
-            #   if type.instance?(v)
-            #     return true
-            #   else
-            #     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(v)
-            #     error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{DEFINITION[:name]}.#{name}", type, inferred_type)
-            #     raise Puppet::ResourceError, error_msg
-            #   end
-            # end
-
             if options.key? :default
               defaultto options[:default]
             end
@@ -165,7 +153,7 @@ module Puppet::ResourceApi
         # force autoloading of the provider
         provider(name)
         my_provider.get(context).map do |resource_hash|
-          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name)
+          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name, namevar_name)
         end
       end
 
@@ -183,7 +171,7 @@ module Puppet::ResourceApi
             result[k] = v
           end
         else
-          result[:name] = title
+          result[namevar_name] = title
           result[:ensure] = :absent
         end
 
@@ -225,7 +213,7 @@ module Puppet::ResourceApi
         #:nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
         message = <<MESSAGE.strip
-#{definition[:name]}[#{current_state[:name]}]#get has not provided canonicalized values.
+#{definition[:name]}[#{current_state[namevar_name]}]#get has not provided canonicalized values.
 Returned values:       #{current_state.inspect}
 Canonicalized values:  #{state_clone.inspect}
 MESSAGE

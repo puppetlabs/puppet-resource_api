@@ -2,37 +2,40 @@
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class TypeShim
-    attr_reader :values, :typename
+    attr_reader :values, :typename, :namevar
 
-    def initialize(title, resource_hash, typename)
+    def initialize(title, resource_hash, typename, namevarname)
       # internalize and protect - needs to go deeper
-      @values        = resource_hash.dup
+      @values = resource_hash.dup
       # "name" is a privileged key
-      @values[:name] = title
-      @typename = typename
+      @values[namevarname] = title
       @values.freeze
+
+      @typename = typename
+      @namevar = namevarname
     end
 
     def to_resource
-      ResourceShim.new(@values, @typename)
+      ResourceShim.new(@values, @typename, @namevar)
     end
 
     def name
-      values[:name]
+      values[@namevar]
     end
   end
 
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class ResourceShim
-    attr_reader :values, :typename
+    attr_reader :values, :typename, :namevar
 
-    def initialize(resource_hash, typename)
+    def initialize(resource_hash, typename, namevarname)
       @values = resource_hash.dup.freeze # whatevs
       @typename = typename
+      @namevar = namevarname
     end
 
     def title
-      values[:name]
+      values[@namevar]
     end
 
     def prune_parameters(*_args)
@@ -41,12 +44,12 @@ module Puppet::ResourceApi
     end
 
     def to_manifest
-      (["#{@typename} { #{values[:name].inspect}: "] + values.keys.reject { |k| k == :name }.map { |k| "  #{k} => #{Puppet::Parameter.format_value_for_display(values[k])}," } + ['}']).join("\n")
+      (["#{@typename} { #{values[@namevar].inspect}: "] + values.keys.reject { |k| k == @namevar }.map { |k| "  #{k} => #{Puppet::Parameter.format_value_for_display(values[k])}," } + ['}']).join("\n")
     end
 
     # Convert our resource to yaml for Hiera purposes.
     def to_hierayaml
-      (["  #{values[:name]}: "] + values.keys.reject { |k| k == :name }.map { |k| "    #{k}: #{Puppet::Parameter.format_value_for_display(values[k])}" }).join("\n") + "\n"
+      (["  #{values[@namevar]}: "] + values.keys.reject { |k| k == @namevar }.map { |k| "    #{k}: #{Puppet::Parameter.format_value_for_display(values[k])}" }).join("\n") + "\n"
     end
   end
 end
