@@ -485,6 +485,10 @@ RSpec.describe Puppet::ResourceApi do
 
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
+    it 'is seen as a supported feature' do
+      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+    end
+
     describe '#strict_check' do
       let(:type) { Puppet::Type.type(:canonicalizer) }
       let(:instance) { type.new(name: 'somename', test_string: 'foo') }
@@ -828,7 +832,10 @@ RSpec.describe Puppet::ResourceApi do
       Puppet.settings[:strict] = :warning
     end
 
-    it { expect { described_class.register_type(definition) }.not_to raise_error }
+    it 'is seen as a supported feature' do
+      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*remote_resource})
+      expect { described_class.register_type(definition) }.not_to raise_error
+    end
 
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:remoter) }
@@ -877,7 +884,10 @@ CODE
       allow(provider).to receive(:get).and_return([])
     end
 
-    it { expect { described_class.register_type(definition) }.not_to raise_error }
+    it 'is seen as a supported feature' do
+      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*supports_noop})
+      expect { described_class.register_type(definition) }.not_to raise_error
+    end
 
     describe 'flush getting called in noop mode' do
       it 'set gets called with noop:true' do

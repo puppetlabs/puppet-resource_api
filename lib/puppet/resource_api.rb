@@ -11,7 +11,7 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
 
     definition[:features] ||= []
-    supported_features = %w[supports_noop canonicalize].freeze
+    supported_features = %w[supports_noop canonicalize remote_resource].freeze
     unknown_features = definition[:features] - supported_features
     Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
 
