@@ -842,6 +842,10 @@ RSpec.describe Puppet::ResourceApi do
 
       it { is_expected.not_to be_nil }
       it { expect(type.apply_to).to eq(:device) }
+
+      it 'returns true for feature_support?' do
+        expect(type).to be_feature_support('remote_resource')
+      end
     end
   end
 
@@ -895,6 +899,55 @@ CODE
         instance = type.new(name: 'test', ensure: 'present', noop: true)
         instance.flush
       end
+    end
+  end
+
+  context 'with a `simple_get_filter` provider', agent_test: true do
+    let(:definition) do
+      {
+        name: 'test_simple_get_filter',
+        features: ['simple_get_filter'],
+        attributes:   {
+          ensure:      {
+            type:    'Enum[present, absent]',
+            default: 'present',
+          },
+          name:        {
+            type:      'String',
+            behaviour: :namevar,
+          },
+        },
+      }
+    end
+    let(:type) { Puppet::Type.type(:test_simple_get_filter) }
+    let(:provider_class) do
+      Class.new do
+        def get(_context, _names = nil)
+          []
+        end
+
+        def set(_context, changes) end
+      end
+    end
+    let(:provider) { instance_double('Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter', 'provider') }
+
+    before(:each) do
+      stub_const('Puppet::Provider::TestSimpleGetFilter', Module.new)
+      stub_const('Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter', provider_class)
+      allow(provider_class).to receive(:new).and_return(provider)
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    it 'is seen as a supported feature' do
+      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter})
+      expect { described_class.register_type(definition) }.not_to raise_error
+    end
+
+    it 'passes through the resource title to `get`' do
+      instance = type.new(name: 'bar', ensure: 'present')
+      expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
+      instance.retrieve
     end
   end
 

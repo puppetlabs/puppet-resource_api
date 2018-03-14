@@ -11,7 +11,7 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
 
     definition[:features] ||= []
-    supported_features = %w[supports_noop canonicalize remote_resource].freeze
+    supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter].freeze
     unknown_features = definition[:features] - supported_features
     Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
 
@@ -38,7 +38,15 @@ module Puppet::ResourceApi
         self.class.my_provider
       end
 
-      if definition[:features] && definition[:features].include?('remote_resource')
+      define_singleton_method(:feature_support?) do |feature|
+        definition[:features] && definition[:features].include?(feature)
+      end
+
+      def feature_support?(feature)
+        self.class.feature_support?(feature)
+      end
+
+      if feature_support?('remote_resource')
         apply_to_device
       end
 
@@ -46,7 +54,7 @@ module Puppet::ResourceApi
         # $stderr.puts "A: #{attributes.inspect}"
         attributes = attributes.to_hash if attributes.is_a? Puppet::Resource
         # $stderr.puts "B: #{attributes.inspect}"
-        if definition.key?(:features) && definition[:features].include?('canonicalize')
+        if feature_support?('canonicalize')
           attributes = my_provider.canonicalize(context, [attributes])[0]
         end
         # $stderr.puts "C: #{attributes.inspect}"
@@ -164,10 +172,15 @@ module Puppet::ResourceApi
 
       define_method(:retrieve) do
         # puts "retrieve(#{title.inspect})"
-        result        = Puppet::Resource.new(self.class, title)
-        current_state = my_provider.get(context).find { |h| h[namevar_name] == title }
+        result = Puppet::Resource.new(self.class, title)
 
-        strict_check(current_state) if current_state && (definition.key?(:features) && definition[:features].include?('canonicalize'))
+        current_state = if feature_support?('simple_get_filter')
+                          my_provider.get(context, [title]).first
+                        else
+                          my_provider.get(context).find { |h| h[namevar_name] == title }
+                        end
+
+        strict_check(current_state) if current_state && feature_support?('canonicalize')
 
         # require 'pry'; binding.pry
 
@@ -187,11 +200,10 @@ module Puppet::ResourceApi
 
       define_method(:flush) do
         # puts 'flush'
-        # require'pry';binding.pry
         target_state = Hash[@parameters.map { |k, v| [k, v.value] }]
         # remove puppet's injected metaparams
         target_state.delete(:loglevel)
-        target_state = my_provider.canonicalize(context, [target_state]).first if definition.key?(:features) && definition[:features].include?('canonicalize')
+        target_state = my_provider.canonicalize(context, [target_state]).first if feature_support?('canonicalize')
 
         retrieve unless @rapi_current_state
 
@@ -200,7 +212,7 @@ module Puppet::ResourceApi
 
         Puppet.debug("Target State: #{target_state.inspect}")
 
-        if definition[:features] && definition[:features].include?('supports_noop')
+        if feature_support?('supports_noop')
           my_provider.set(context, { title => { is: @rapi_current_state, should: target_state } }, noop: noop?)
         else
           my_provider.set(context, title => { is: @rapi_current_state, should: target_state }) unless noop?

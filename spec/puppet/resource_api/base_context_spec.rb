@@ -328,4 +328,25 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
   describe '#send_log' do
     it { expect { described_class.new(nil).send_log(nil, nil) }.to raise_error RuntimeError, %r{Received send_log\(\) on an unprepared BaseContext\. Use IOContext, or PuppetContext instead} }
   end
+
+  describe '#feature_support?' do
+    let(:puppet_type) { double('A Resource API Type') } # rubocop:disable RSpec/VerifiedDoubles
+
+    before(:each) do
+      allow(Puppet::Type).to receive(:type).and_return(puppet_type)
+      allow(puppet_type).to receive(:feature_support?).with('simple_get_filter').and_return(return_val)
+    end
+
+    context 'when type supports feature' do
+      let(:return_val) { true }
+
+      it { expect(described_class.new('supported_feature')).to be_feature_support('simple_get_filter') }
+    end
+
+    context 'when type does not support a feature' do
+      let(:return_val) { false }
+
+      it { expect(described_class.new('supported_feature')).not_to be_feature_support('simple_get_filter') }
+    end
+  end
 end

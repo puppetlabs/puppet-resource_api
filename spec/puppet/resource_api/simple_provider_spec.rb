@@ -5,7 +5,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
   let(:provider_class) do
     Class.new(described_class) do
-      def get(context); end
+      def get(context, _names = nil); end
 
       def create(context, _name, _should); end
 
@@ -57,6 +57,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:creating).with('title').and_yield
+      allow(context).to receive(:feature_support?).with('simple_get_filter')
     end
 
     it 'calls create once' do
@@ -70,6 +71,17 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     it 'does not call delete' do
       expect(provider).to receive(:delete).never
       provider.set(context, changes)
+    end
+
+    context 'with a type that supports `simple_get_filter`' do
+      before(:each) do
+        allow(context).to receive(:feature_support?).with('simple_get_filter').and_return(true)
+      end
+
+      it 'calls `get` with name' do
+        expect(provider).to receive(:get).with(context, ['title'])
+        provider.set(context, changes)
+      end
     end
   end
 
@@ -86,6 +98,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:updating).with('title').and_yield
+      allow(context).to receive(:feature_support?).with('simple_get_filter')
     end
 
     it 'does not call create' do
@@ -115,6 +128,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:deleting).with('title').and_yield
+      allow(context).to receive(:feature_support?).with('simple_get_filter')
     end
 
     it 'does not call create' do
@@ -153,6 +167,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:creating).with('to create').and_yield
       allow(context).to receive(:updating).with('to update').and_yield
       allow(context).to receive(:deleting).with('to delete').and_yield
+      allow(context).to receive(:feature_support?).with('simple_get_filter').exactly(3).times
     end
 
     it 'calls the crud methods' do

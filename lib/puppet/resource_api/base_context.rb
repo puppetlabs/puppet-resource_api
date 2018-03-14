@@ -16,6 +16,16 @@ class Puppet::ResourceApi::BaseContext
     @failed
   end
 
+  def feature_support?(feature)
+    supported = Puppet::Type.type(@typename).feature_support?(feature)
+    if supported
+      Puppet.debug("#{@typename} supports `#{feature}`")
+    else
+      Puppet.debug("#{@typename} does not support `#{feature}`")
+    end
+    supported
+  end
+
   [:debug, :info, :notice, :warning, :err].each do |level|
     define_method(level) do |*args|
       if args.length == 1
