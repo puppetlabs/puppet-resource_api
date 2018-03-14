@@ -200,6 +200,9 @@ There are still a few notable gaps between the implementation and the specificat
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 * `auto*` definitions.
 
+Restrictions of running under puppet:
+* `supports_noop` is not effective, as puppet doesn't call into the type under noop.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

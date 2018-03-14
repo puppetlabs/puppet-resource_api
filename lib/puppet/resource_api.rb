@@ -10,6 +10,11 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires a name' unless definition.key? :name
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
 
+    definition[:features] ||= []
+    supported_features = %w[supports_noop canonicalize].freeze
+    unknown_features = definition[:features] - supported_features
+    Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
+
     # prepare the ruby module for the provider
     # this has to happen before Puppet::Type.newtype starts autoloading providers
     # it also needs to be guarded against the namespace already being defined by something
@@ -195,7 +200,11 @@ module Puppet::ResourceApi
 
         Puppet.debug("Target State: #{target_state.inspect}")
 
-        my_provider.set(context, title => { is: @rapi_current_state, should: target_state })
+        if definition[:features] && definition[:features].include?('supports_noop')
+          my_provider.set(context, { title => { is: @rapi_current_state, should: target_state } }, noop: noop?)
+        else
+          my_provider.set(context, title => { is: @rapi_current_state, should: target_state }) unless noop?
+        end
         raise 'Execution encountered an error' if context.failed?
       end
 
