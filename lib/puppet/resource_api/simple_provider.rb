@@ -7,7 +7,12 @@ module Puppet::ResourceApi
   class SimpleProvider
     def set(context, changes)
       changes.each do |name, change|
-        is = change.key?(:is) ? change[:is] : (get(context) || []).find { |r| r[:name] == name }
+        is = if context.feature_support?('simple_get_filter')
+               change.key?(:is) ? change[:is] : (get(context, [name]) || []).find { |r| r[:name] == name }
+             else
+               change.key?(:is) ? change[:is] : (get(context) || []).find { |r| r[:name] == name }
+             end
+
         should = change[:should]
 
         is = { name: name, ensure: 'absent' } if is.nil?
