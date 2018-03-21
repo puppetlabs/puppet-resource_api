@@ -212,3 +212,19 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/puppet-resource_api.
+
+### Cutting a release
+
+To cut a new release, from a current `master` checkout:
+
+* Update `lib/puppet/resource_api/version.rb` to the new version
+* Update the CHANGELOG
+  * Have a [CHANGELOG_GITHUB_TOKEN](https://github.com/skywinder/github-changelog-generator#github-token) set in your environment
+  * run `rake changelog`
+  * double check the PRs to make sure they're all tagged correctly
+* Check README and other materials for up-to-date-ness
+* Commit changes
+* Upload and PR the release prep to github as normal
+* Check that CI is green and merge the PR
+* Run `rake release[upstream]` to release what just passed CI
+  * make sure to use the name of the git remote to main repo instead of "upstream"
