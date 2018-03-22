@@ -157,7 +157,10 @@ RSpec.describe Puppet::ResourceApi do
     describe 'an instance of this type' do
       subject(:instance) { Puppet::Type.type(:with_string).new(params) }
 
-      let(:params) { { title: 'test' } }
+      let(:params) do
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: :present,
+          test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+      end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
 
@@ -183,6 +186,12 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
 
+      context 'when mandatory attributes are missing' do
+        let(:params) { { title: 'test' } }
+
+        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes where not provided} }
+      end
+
       describe 'different boolean values' do
         let(:params) do
           {
@@ -191,6 +200,9 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: the_boolean,
             test_integer: '-1',
             test_float: '-1.5',
+            test_ensure: :present,
+            test_variant_pattern: 'a' * 8,
+            test_url: 'http://example.com',
           }
         end
 
@@ -300,7 +312,10 @@ RSpec.describe Puppet::ResourceApi do
     describe 'an instance of this type' do
       subject(:instance) { Puppet::Type.type(:with_parameters).new(params) }
 
-      let(:params) { { title: 'test' } }
+      let(:params) do
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: :present,
+          test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+      end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
 
@@ -777,7 +792,7 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         describe 'an existing instance' do
-          let(:instance) { type.new(name: 'somename') }
+          let(:instance) { type.new(name: 'somename', test_string: 'foo') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
           it('its properties are set correctly') do
@@ -793,7 +808,7 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         describe 'an absent instance' do
-          let(:instance) { type.new(name: 'does_not_exist') }
+          let(:instance) { type.new(name: 'does_not_exist', test_string: 'foo') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
           it('its properties are set correctly') do

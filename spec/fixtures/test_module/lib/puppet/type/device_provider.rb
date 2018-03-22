@@ -35,10 +35,6 @@ Puppet::ResourceApi.register_type(
       type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
       desc: 'a pattern parameter',
     },
-    path: {
-      type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-      desc: 'a path or URL parameter',
-    },
     url: {
       type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
       desc: 'a hkp or http(s) url parameter',
@@ -78,11 +74,6 @@ Puppet::ResourceApi.register_type(
       desc: 'a pattern parameter',
       behaviour: :parameter,
     },
-    path_param: {
-      type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-      desc: 'a path or URL parameter',
-      behaviour: :parameter,
-    },
     url_param: {
       type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
       desc: 'a hkp or http(s) url parameter',
@@ -97,47 +88,42 @@ Puppet::ResourceApi.register_type(
       type: 'String',
       desc: 'a string readonly',
       default: 'default value',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     boolean_ro: {
       type: 'Boolean',
       desc: 'a boolean readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     integer_ro: {
       type: 'Integer',
       desc: 'an integer readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     float_ro: {
       type: 'Float',
       desc: 'a floating point readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     ensure_ro: {
       type: 'Enum[present, absent]',
       desc: 'a ensure readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     variant_pattern_ro: {
       type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
       desc: 'a pattern readonly',
-      behaviour: :readonly,
-    },
-    path_ro: {
-      type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-      desc: 'a path or URL readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     url_ro: {
       type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
       desc: 'a hkp or http(s) url readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
     optional_string_ro: {
       type: 'Optional[String]',
       desc: 'a optional string readonly',
-      behaviour: :readonly,
+      behaviour: :read_only,
     },
   },
 )

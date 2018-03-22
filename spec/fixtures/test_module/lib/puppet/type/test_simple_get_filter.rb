@@ -18,7 +18,7 @@ Puppet::ResourceApi.register_type(
       behaviour: :namevar,
     },
     test_string: {
-        type:      'String',
+        type:      'Optional[String]',
         desc:      'Used for testing our expected outcomes',
     },
   },

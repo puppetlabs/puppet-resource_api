@@ -38,10 +38,6 @@ RSpec.describe 'Resource API integrated tests:' do
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern parameter',
           },
-          path: {
-            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-            desc: 'a path or URL parameter',
-          },
           url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
@@ -81,11 +77,6 @@ RSpec.describe 'Resource API integrated tests:' do
             desc: 'a pattern parameter',
             behaviour: :parameter,
           },
-          path_param: {
-            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-            desc: 'a path or URL parameter',
-            behaviour: :parameter,
-          },
           url_param: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
@@ -100,47 +91,42 @@ RSpec.describe 'Resource API integrated tests:' do
             type: 'String',
             desc: 'a string readonly',
             default: 'default value',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           boolean_ro: {
             type: 'Boolean',
             desc: 'a boolean readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           integer_ro: {
             type: 'Integer',
             desc: 'an integer readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           float_ro: {
             type: 'Float',
             desc: 'a floating point readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           ensure_ro: {
             type: 'Enum[present, absent]',
             desc: 'a ensure readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           variant_pattern_ro: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern readonly',
-            behaviour: :readonly,
-          },
-          path_ro: {
-            type: 'Variant[Stdlib::Absolutepath, Pattern[/\A(https?|ftp):\/\//]]',
-            desc: 'a path or URL readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           url_ro: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
           optional_string_ro: {
             type: 'Optional[String]',
             desc: 'a optional string readonly',
-            behaviour: :readonly,
+            behaviour: :read_only,
           },
         },
       }
@@ -171,7 +157,12 @@ RSpec.describe 'Resource API integrated tests:' do
     end
 
     context 'when setting an attribute' do
-      let(:instance) { type.new(name: 'somename', ensure: 'present') }
+      let(:instance) do
+        type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
+                 variant_pattern: 0xA245EED, url: 'http://www.google.com', boolean_param: false,
+                 integer_param: 99, float_param: 3.21, ensure_param: 'present',
+                 variant_pattern_param: '9A2222ED', url_param:  'http://www.puppet.com')
+      end
 
       it('flushes') { expect { instance.flush }.not_to raise_exception }
 
