@@ -6,10 +6,15 @@ require 'spec_helper'
 # funky happening with new puppet versions.
 RSpec.describe 'the dirty bits' do
   describe Puppet::ResourceApi::TypeShim do
-    subject(:instance) { described_class.new('title', { attr: 'value' }, 'typename', :namevarname) }
+    subject(:instance) do
+      described_class.new('title', { attr: 'value', attr_ro: 'fixed' }, 'typename', :namevarname,
+                          namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                          attr: { type: 'String', desc: 'a string parameter' },
+                          attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
+    end
 
     describe '.values' do
-      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value') }
+      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
     end
 
     describe '.typename' do
@@ -28,7 +33,7 @@ RSpec.describe 'the dirty bits' do
       it { expect(instance.to_resource).to be_a Puppet::ResourceApi::ResourceShim }
 
       describe '.values' do
-        it { expect(instance.to_resource.values).to eq(namevarname: 'title', attr: 'value') }
+        it { expect(instance.to_resource.values).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
       end
 
       describe '.typename' do
@@ -42,10 +47,15 @@ RSpec.describe 'the dirty bits' do
   end
 
   describe Puppet::ResourceApi::ResourceShim do
-    subject(:instance) { described_class.new({ namevarname: 'title', attr: 'value' }, 'typename', :namevarname) }
+    subject(:instance) do
+      described_class.new({ namevarname: 'title', attr: 'value', attr_ro: 'fixed' }, 'typename', :namevarname,
+                          namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                          attr: { type: 'String', desc: 'a string parameter' },
+                          attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
+    end
 
     describe '.values' do
-      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value') }
+      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
     end
 
     describe '.typename' do
@@ -61,11 +71,11 @@ RSpec.describe 'the dirty bits' do
     end
 
     describe '.to_manifest' do
-      it { expect(instance.to_manifest).to eq "typename { \"title\": \n  attr => 'value',\n}" }
+      it { expect(instance.to_manifest).to eq "typename { \"title\": \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
     end
 
     describe '.to_hierayaml' do
-      it { expect(instance.to_hierayaml).to eq "  title: \n    attr: 'value'\n" }
+      it { expect(instance.to_hierayaml).to eq "  title: \n    attr: 'value'\n    attr_ro: 'fixed'\n" }
     end
   end
 end

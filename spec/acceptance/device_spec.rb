@@ -14,7 +14,7 @@ RSpec.describe 'exercising a device provider' do
   describe 'using `puppet resource`' do
     it 'reads resources from the target system' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
-      expected_values = 'device_provider { \"wibble\": \n  ensure => \'present\',\n  string => \'sample\',\n}'
+      expected_values = 'device_provider { \"wibble\": \n\s+ensure => \'present\',\n\s+string => \'sample\',\n\#\s+string_ro => \'fixed\', # Read Only\n}'
       expect(stdout_str.strip).to match %r{\A(DL is deprecated, please use Fiddle\n)?#{expected_values}\Z}
       expect(status).to eq 0
     end
@@ -30,8 +30,8 @@ RSpec.describe 'exercising a device provider' do
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
-                   'Returned values:       \{:name=>"wibble", :ensure=>:present, :string=>"sample"\}\n'\
-                   'Canonicalized values:  \{:name=>"wibble", :ensure=>:present, :string=>"changed"\}'
+                   'Returned values:       \{:name=>"wibble", :ensure=>:present, :string=>"sample", :string_ro=>"fixed"\}\n'\
+                   'Canonicalized values:  \{:name=>"wibble", :ensure=>:present, :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match %r{#{stdmatch}}
         expect(status.success?).to be_falsey # rubocop:disable RSpec/PredicateMatcher
       end
@@ -43,8 +43,8 @@ RSpec.describe 'exercising a device provider' do
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present  #{default_type_values}")
         stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
-                   'Returned values:       \{:name=>"wibble", :ensure=>:present, :string=>"sample"\}\n'\
-                   'Canonicalized values:  \{:name=>"wibble", :ensure=>:present, :string=>"changed"\}'
+                   'Returned values:       \{:name=>"wibble", :ensure=>:present, :string=>"sample", :string_ro=>"fixed"\}\n'\
+                   'Canonicalized values:  \{:name=>"wibble", :ensure=>:present, :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match %r{#{stdmatch}}
         expect(status.success?).to be_truthy # rubocop:disable RSpec/PredicateMatcher
       end
