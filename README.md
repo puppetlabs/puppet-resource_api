@@ -198,7 +198,6 @@ Currently working:
 
 There are still a few notable gaps between the implementation and the specification:
 * Only a single runtime environment (the Puppet commands) is currently implemented.
-* `auto*` definitions.
 
 Restrictions of running under puppet:
 * `supports_noop` is not effective, as puppet doesn't call into the type under noop.
@@ -211,7 +210,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/puppet-resource_api.
+Bug reports and pull requests are welcome on GitHub at https://github.com/puppetlabs/puppet-resource_api.
 
 ### Cutting a release
 
