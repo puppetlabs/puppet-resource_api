@@ -15,6 +15,16 @@ module Puppet::ResourceApi
     unknown_features = definition[:features] - supported_features
     Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
 
+    # fixup any weird behavior  ;-)
+    definition[:attributes].each do |name, attr|
+      next unless attr[:behavior]
+      if attr[:behaviour]
+        raise Puppet::DevError, "the '#{name}' attribute has both a `behavior` and a `behaviour`, only use one"
+      end
+      attr[:behaviour] = attr[:behavior]
+      attr.delete(:behavior)
+    end
+
     # prepare the ruby module for the provider
     # this has to happen before Puppet::Type.newtype starts autoloading providers
     # it also needs to be guarded against the namespace already being defined by something

@@ -366,19 +366,60 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with a malformed attributes' do
+  context 'when registering a type with a `behavior`' do
     let(:definition) do
       {
-        name: 'no_type',
+        name: 'behaviour',
         attributes: {
           name: {
-            behaviour: :namevar,
+            type: 'String',
+            behavior: :namevar,
           },
         },
       }
     end
 
-    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*has no type} }
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:with_parameters) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters[1]).to eq :test_string }
+    end
+  end
+
+  context 'when registering a type with a malformed attributes' do
+    context 'without a type' do
+      let(:definition) do
+        {
+          name: 'no_type',
+          attributes: {
+            name: {
+              behaviour: :namevar,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*has no type} }
+    end
+
+    context 'with both behavior and behaviour' do
+      let(:definition) do
+        {
+          name: 'bad_behaviour',
+          attributes: {
+            name: {
+              behaviour: :namevar,
+              behavior: :namevar,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*attribute has both} }
+    end
   end
 
   context 'when registering a namevar that is not called `name`' do
