@@ -188,7 +188,7 @@ This gem is still under heavy development. This section is a living document of 
 
 Currently working:
 * Basic type and provider definition, using `name`, `desc`, and `attributes`.
-* The `canonicalize` and `remote_resource` features.
+* The `canonicalize`, `simple_get_filter`, and `remote_resource` features.
 * All the logging facilities.
 * Executing the new provider under the following commands:
   * `puppet apply`
@@ -222,7 +222,7 @@ To cut a new release, from a current `master` checkout:
   * run `rake changelog`
   * double check the PRs to make sure they're all tagged correctly
 * Check README and other materials for up-to-date-ness
-* Commit changes
+* Commit changes with title "Release prep for v<VERSION>"
 * Upload and PR the release prep to github as normal
 * Check that CI is green and merge the PR
 * Run `rake release[upstream]` to release what just passed CI
