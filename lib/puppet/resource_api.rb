@@ -61,6 +61,21 @@ module Puppet::ResourceApi
         super(attributes)
       end
 
+      validate do
+        # enforce mandatory attributes
+        missing_attrs = []
+        definition[:attributes].each do |name, options|
+          type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+          unless [:read_only, :namevar].include? options[:behaviour]
+            missing_attrs << name if value(name).nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
+          end
+        end
+        if missing_attrs.any?
+          error_msg = "The following mandatory attributes where not provided:\n    *  " + missing_attrs.join(", \n    *  ")
+          raise Puppet::ResourceError, error_msg
+        end
+      end
+
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
@@ -115,6 +130,10 @@ module Puppet::ResourceApi
                 error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{definition[:name]}.#{name}", type, inferred_type)
                 raise Puppet::ResourceError, error_msg
               end
+            end
+
+            if type.instance_of? Puppet::Pops::Types::POptionalType
+              type = type.type
             end
 
             # provide better handling of the standard types

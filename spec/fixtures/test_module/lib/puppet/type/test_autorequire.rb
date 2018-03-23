@@ -18,7 +18,7 @@ Puppet::ResourceApi.register_type(
       behaviour: :namevar,
     },
     target:      {
-      type:      'String',
+      type:      'Optional[String]',
       desc:      'The resource to autorequire.',
       behaviour: :parameter,
     },
