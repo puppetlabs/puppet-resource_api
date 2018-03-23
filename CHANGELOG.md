@@ -3,6 +3,17 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.0.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.1) (2018-03-23)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.0...v1.0.1)
+
+**Fixed bugs:**
+
+- Actually implement the promised behavior [\#44](https://github.com/puppetlabs/puppet-resource_api/pull/44) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Release prep for v1.0.0 [\#43](https://github.com/puppetlabs/puppet-resource_api/pull/43) ([da-ar](https://github.com/da-ar))
+
 ## [v1.0.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.0) (2018-03-23)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.10.0...v1.0.0)
 
