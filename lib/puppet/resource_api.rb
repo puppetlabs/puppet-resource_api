@@ -184,8 +184,13 @@ module Puppet::ResourceApi
         # puts 'instances'
         # force autoloading of the provider
         provider(name)
+        attr_def = {}
         my_provider.get(context).map do |resource_hash|
-          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name, namevar_name)
+          resource_hash.each do |key|
+            property = definition[:attributes][key.first]
+            attr_def[key.first] = property
+          end
+          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name, namevar_name, attr_def)
         end
       end
 
