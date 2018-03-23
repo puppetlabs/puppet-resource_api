@@ -5,7 +5,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
 
   describe '#warning(msg)' do
     it 'calls the Puppet logging infrastructure' do
-      expect(Puppet::ResourceApi::PuppetContext::PuppetLogger).to receive(:send_log).with(:warning, match(%r{message}))
+      expect(Puppet::Util::Log).to receive(:create).with(level: :warning, message: match(%r{message}))
       context.warning('message')
     end
   end
