@@ -5,3 +5,4 @@ Gemfile:
       - gem: 'puppet-resource_api'
 spec/spec_helper.rb:
   mock_with: ':rspec'
+  strict_level: ':error'
