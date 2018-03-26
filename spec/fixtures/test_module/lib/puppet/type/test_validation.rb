@@ -17,5 +17,14 @@ Puppet::ResourceApi.register_type(
       desc:      'The name of the resource you want to manage.',
       behaviour: :namevar,
     },
+    prop:        {
+      type:      'Integer',
+      desc:      'A mandatory property, that MUST NOT be validated on deleting.',
+    },
+    param:       {
+      type:      'Integer',
+      desc:      'A mandatory parameter, that MUST be validated on deleting.',
+      behaviour: :parameter,
+    },
   },
 )

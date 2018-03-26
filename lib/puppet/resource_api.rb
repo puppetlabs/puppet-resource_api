@@ -80,8 +80,16 @@ module Puppet::ResourceApi
         missing_attrs = []
         definition[:attributes].each do |name, options|
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
-          unless [:read_only, :namevar].include? options[:behaviour]
-            missing_attrs << name if value(name).nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
+          # skip read only vars and the namevar
+          next if [:read_only, :namevar].include? options[:behaviour]
+
+          # skip properties if the resource is being deleted
+          next if definition[:attributes][:ensure] &&
+                  value(:ensure) == :absent &&
+                  options[:behaviour].nil?
+
+          if value(name).nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
+            missing_attrs << name
           end
         end
 
