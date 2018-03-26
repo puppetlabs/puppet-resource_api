@@ -6,11 +6,11 @@ class Puppet::Provider::TitleProvider::TitleProvider < Puppet::ResourceApi::Simp
   def get(_context)
     [
       {
-        name: 'foo',
+        namevar: 'foo',
         ensure: :present,
       },
       {
-        name: 'bar',
+        namevar: 'bar',
         ensure: :present,
       },
     ]

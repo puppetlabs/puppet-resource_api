@@ -471,6 +471,31 @@ RSpec.describe Puppet::ResourceApi do
         it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
       end
     end
+
+    describe 'a provider that does not return the namevar', agent_test: true do
+      subject(:instance) { Puppet::Type.type(:not_name_namevar) }
+
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            [{ name: 'some title' }]
+          end
+
+          def set(_context, changes) end
+        end
+      end
+
+      before(:each) do
+        stub_const('Puppet::Provider::NotNameNamevar', Module.new)
+        stub_const('Puppet::Provider::NotNameNamevar::NotNameNamevar', provider_class)
+      end
+
+      it('throws an error') {
+        expect {
+          instance.instances
+        }.to  raise_error Puppet::ResourceError, %r{^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$}
+      }
+    end
   end
 
   describe '#load_provider', agent_test: true do
