@@ -62,7 +62,11 @@ module Puppet::ResourceApi
 
       define_method(:initialize) do |attributes|
         # $stderr.puts "A: #{attributes.inspect}"
-        attributes = attributes.to_hash if attributes.is_a? Puppet::Resource
+        if attributes.is_a? Puppet::Resource
+          attributes = attributes.to_hash
+        else
+          @called_from_resource = true
+        end
         # $stderr.puts "B: #{attributes.inspect}"
         if feature_support?('canonicalize')
           attributes = my_provider.canonicalize(context, [attributes])[0]
@@ -80,6 +84,9 @@ module Puppet::ResourceApi
             missing_attrs << name if value(name).nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
           end
         end
+
+        missing_attrs -= [:ensure] if @called_from_resource
+
         if missing_attrs.any?
           error_msg = "The following mandatory attributes where not provided:\n    *  " + missing_attrs.join(", \n    *  ")
           raise Puppet::ResourceError, error_msg
