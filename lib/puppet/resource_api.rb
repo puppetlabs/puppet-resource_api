@@ -200,6 +200,9 @@ module Puppet::ResourceApi
             property = definition[:attributes][key.first]
             attr_def[key.first] = property
           end
+          if resource_hash[namevar_name].nil?
+            raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar_name}` namevar attribute"
+          end
           Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name, namevar_name, attr_def)
         end
       end
