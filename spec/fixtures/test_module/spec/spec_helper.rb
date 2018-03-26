@@ -28,4 +28,9 @@ end
 RSpec.configure do |c|
   c.default_facts = default_facts
   c.mock_with :rspec
+  c.before :each do
+    # set to strictest setting for testing
+    # by default Puppet runs at warning level
+    Puppet.settings[:strict] = :error
+  end
 end
