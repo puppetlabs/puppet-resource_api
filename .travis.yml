@@ -10,27 +10,36 @@ script:
 cache: bundler
 matrix:
   include:
-    - rvm: 2.4.1
-      env: PUPPET_GEM_VERSION='~> 5'
+    - rvm: 2.4.3
+      env: PUPPET_GEM_VERSION='~> 5' # 5.5
     - rvm: jruby-1.7.26
       env: PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
     - rvm: jruby-9.1.9.0
       env: PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
-    - rvm: 2.4.1
+    - rvm: 2.4.3
       env: CHECK=rubocop
+    - rvm: 2.4.3
+      env: CHECK=license_finder
+      bundler_args: ""
+
+    - rvm: 2.4.3
+      env: PUPPET_GEM_VERSION='~> 5.4.0'
+    - rvm: 2.4.2
+      env: PUPPET_GEM_VERSION='~> 5.3.0'
+    - rvm: 2.4.1
+      env: PUPPET_GEM_VERSION='~> 5.2.0'
+    - rvm: 2.4.1
+      env: PUPPET_GEM_VERSION='~> 5.1.0'
     - rvm: 2.4.1
       env: PUPPET_GEM_VERSION='~> 5.0.0'
     - rvm: 2.1.9
-      env: PUPPET_GEM_VERSION='~> 4'
+      env: PUPPET_GEM_VERSION='~> 4' # 4.10
     - rvm: 2.1.9
       env: PUPPET_GEM_VERSION='~> 4.9.0'
     - rvm: 2.1.9
       env: PUPPET_GEM_VERSION='~> 4.8.0'
     - rvm: 2.1.9
       env: PUPPET_GEM_VERSION='~> 4.7.0'
-    - rvm: 2.4.1
-      env: CHECK=license_finder
-      bundler_args: ""
 notifications:
   hipchat:
     rooms:
