@@ -104,6 +104,12 @@ module Puppet::ResourceApi
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
+        if options[:behaviour]
+          unless [:read_only, :namevar, :parameter].include? options[:behaviour]
+            raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
+          end
+        end
+
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
