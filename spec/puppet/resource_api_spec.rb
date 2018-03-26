@@ -1046,4 +1046,70 @@ CODE
       expect { described_class.register_type(definition) }.not_to raise_error
     end
   end
+
+  context 'when loading a type, containing a behaviour' do
+    context 'with :namevar behaviour' do
+      let(:definition) do
+        {
+          name: 'test_behaviour',
+          attributes: {
+            id: {
+              type: 'String',
+              behavior: :namevar,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+    end
+
+    context 'with :parameter behaviour' do
+      let(:definition) do
+        {
+          name: 'test_behaviour',
+          attributes: {
+            param: {
+              type: 'String',
+              behavior: :parameter,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+    end
+
+    context 'with :read_only behaviour' do
+      let(:definition) do
+        {
+          name: 'test_behaviour',
+          attributes: {
+            param_ro: {
+              type: 'String',
+              behavior: :read_only,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+    end
+
+    context 'with :namevar behaviour' do
+      let(:definition) do
+        {
+          name: 'test_behaviour',
+          attributes: {
+            source: {
+              type: 'String',
+              behavior: :bad,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, %r{^`bad` is not a valid behaviour value$} }
+    end
+  end
 end
