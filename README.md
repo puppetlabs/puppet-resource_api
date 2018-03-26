@@ -198,9 +198,15 @@ Currently working:
 
 There are still a few notable gaps between the implementation and the specification:
 * Only a single runtime environment (the Puppet commands) is currently implemented.
+* The `:init_only` behaviour is not yet implemented ([PDK-885](https://tickets.puppetlabs.com/browse/PDK-885))
 
 Restrictions of running under puppet:
 * `supports_noop` is not effective, as puppet doesn't call into the type under noop.
+
+Future possibilities:
+* [Composite Namevars](https://tickets.puppetlabs.com/browse/PDK-531)
+* [Multiple Providers](https://tickets.puppetlabs.com/browse/PDK-530)
+* [Commands API](https://tickets.puppetlabs.com/browse/PDK-847)
 
 ## Development
 
@@ -220,10 +226,10 @@ To cut a new release, from a current `master` checkout:
 * Update the CHANGELOG
   * Have a [CHANGELOG_GITHUB_TOKEN](https://github.com/skywinder/github-changelog-generator#github-token) set in your environment
   * run `rake changelog`
-  * double check the PRs to make sure they're all tagged correctly
+  * double check the PRs to make sure they're all tagged correctly (using the new CHANGELOG for cross-checking)
 * Check README and other materials for up-to-date-ness
 * Commit changes with title "Release prep for v<VERSION>"
 * Upload and PR the release prep to github as normal
 * Check that CI is green and merge the PR
-* Run `rake release[upstream]` to release what just passed CI
-  * make sure to use the name of the git remote to main repo instead of "upstream"
+* Run `rake release[upstream]` to release from your checkout
+  * make sure to use the name of your git remote pointing to main repo instead of "upstream"
