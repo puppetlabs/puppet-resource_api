@@ -359,10 +359,10 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     describe 'the registered type' do
-      subject(:type) { Puppet::Type.type(:with_parameters) }
+      subject(:type) { Puppet::Type.type(:no_type) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[1]).to eq :test_string }
+      it { expect(type.parameters[0]).to eq :name }
     end
   end
 
@@ -382,10 +382,10 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     describe 'the registered type' do
-      subject(:type) { Puppet::Type.type(:with_parameters) }
+      subject(:type) { Puppet::Type.type(:behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[1]).to eq :test_string }
+      it { expect(type.parameters[0]).to eq :name }
     end
   end
 
