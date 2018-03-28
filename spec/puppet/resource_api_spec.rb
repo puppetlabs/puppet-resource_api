@@ -389,6 +389,119 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with an `init_only` attribute', agent_test: true do
+    let(:definition) do
+      {
+        name: 'init_behaviour',
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+          },
+          name: {
+            type: 'String',
+            behavior: :namevar,
+          },
+          immutable: {
+            type: 'String',
+            behaviour: :init_only,
+          },
+          mutable: {
+            type: 'String',
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:init_behaviour) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters[0]).to eq :name }
+    end
+
+    describe 'an instance of the type' do
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            [{ name: 'init', ensure: :present, immutable: 'physics', mutable: 'bank balance' }]
+          end
+
+          def set(_context, _changes); end
+        end
+      end
+
+      before(:each) do
+        stub_const('Puppet::Provider::InitBehaviour', Module.new)
+        stub_const('Puppet::Provider::InitBehaviour::InitBehaviour', provider_class)
+      end
+
+      context 'when a manifest wants to set the value of an init_only attribute' do
+        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'new_init', ensure: :present, immutable: 'new', mutable: 'flexible') }
+
+        context 'when Puppet strict setting is :error' do
+          let(:strict_level) { :error }
+
+          it { expect { instance.flush }.not_to raise_error }
+          it {
+            expect(Puppet).not_to receive(:warning)
+            instance.flush
+          }
+        end
+
+        context 'when Puppet strict setting is :warning' do
+          let(:strict_level) { :warning }
+
+          it { expect { instance.flush }.not_to raise_error }
+          it {
+            expect(Puppet).not_to receive(:warning)
+            instance.flush
+          }
+        end
+
+        context 'when Puppet strict setting is :off' do
+          let(:strict_level) { :off }
+
+          it { expect { instance.flush }.not_to raise_error }
+          it {
+            expect(Puppet).not_to receive(:warning)
+            instance.flush
+          }
+        end
+      end
+
+      context 'when a manifest wants to change the value of an init_only attribute' do
+        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: :present, immutable: 'lies', mutable: 'overdraft') }
+
+        context 'when Puppet strict setting is :error' do
+          let(:strict_level) { :error }
+
+          it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to change `immutable` init_only attribute value from} }
+        end
+
+        context 'when Puppet strict setting is :warning' do
+          let(:strict_level) { :warning }
+
+          it {
+            expect(Puppet).to receive(:warning).with(%r{Attempting to change `immutable` init_only attribute value from})
+            instance.flush
+          }
+        end
+
+        context 'when Puppet strict setting is :off' do
+          let(:strict_level) { :off }
+
+          it { expect { instance.flush }.not_to raise_error }
+          it {
+            expect(Puppet).not_to receive(:warning)
+            instance.flush
+          }
+        end
+      end
+    end
+  end
+
   context 'when registering a type with a malformed attributes' do
     context 'without a type' do
       let(:definition) do
@@ -1088,6 +1201,22 @@ CODE
             param_ro: {
               type: 'String',
               behavior: :read_only,
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+    end
+
+    context 'with :init_only behaviour' do
+      let(:definition) do
+        {
+          name: 'test_behaviour',
+          attributes: {
+            param_ro: {
+              type: 'String',
+              behavior: :init_only,
             },
           },
         }

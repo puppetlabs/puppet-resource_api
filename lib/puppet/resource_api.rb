@@ -105,7 +105,7 @@ module Puppet::ResourceApi
         # puts "#{name}: #{options.inspect}"
 
         if options[:behaviour]
-          unless [:read_only, :namevar, :parameter].include? options[:behaviour]
+          unless [:read_only, :namevar, :parameter, :init_only].include? options[:behaviour]
             raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
           end
         end
@@ -269,6 +269,20 @@ module Puppet::ResourceApi
         return if @rapi_current_state == target_state
 
         Puppet.debug("Target State: #{target_state.inspect}")
+
+        # enforce init_only attributes
+        if Puppet.settings[:strict] != :off && @rapi_current_state && (@rapi_current_state[:ensure] == :present && target_state[:ensure] == :present)
+          target_state.each do |name, value|
+            next unless definition[:attributes][name][:behaviour] == :init_only && value != @rapi_current_state[name]
+            message = "Attempting to change `#{name}` init_only attribute value from `#{@rapi_current_state[name]}` to `#{value}`"
+            case Puppet.settings[:strict]
+            when :warning
+              Puppet.warning(message)
+            when :error
+              raise Puppet::ResourceError, message
+            end
+          end
+        end
 
         if feature_support?('supports_noop')
           my_provider.set(context, { title => { is: @rapi_current_state, should: target_state } }, noop: noop?)
