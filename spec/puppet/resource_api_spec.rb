@@ -592,7 +592,7 @@ RSpec.describe Puppet::ResourceApi do
           it 'will throw an exception' do
             expect {
               instance.strict_check({})
-            }.to raise_error(Puppet::Error, %r{has not provided canonicalized values})
+            }.to raise_error(Puppet::DevError, %r{has not provided canonicalized values})
           end
         end
 

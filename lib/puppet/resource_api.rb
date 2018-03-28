@@ -302,7 +302,7 @@ MESSAGE
         when :warning
           Puppet.warning(message)
         when :error
-          raise Puppet::Error, message
+          raise Puppet::DevError, message
         end
 
         return nil
