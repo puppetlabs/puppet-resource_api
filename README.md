@@ -222,6 +222,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/puppet
 
 To cut a new release, from a current `master` checkout:
 
+* Start the release branch with `git checkout -b release-prep`
 * Update `lib/puppet/resource_api/version.rb` to the new version
 * Update the CHANGELOG
   * Have a [CHANGELOG_GITHUB_TOKEN](https://github.com/skywinder/github-changelog-generator#github-token) set in your environment
@@ -229,7 +230,9 @@ To cut a new release, from a current `master` checkout:
   * double check the PRs to make sure they're all tagged correctly (using the new CHANGELOG for cross-checking)
 * Check README and other materials for up-to-date-ness
 * Commit changes with title "Release prep for v<VERSION>"
-* Upload and PR the release prep to github as normal
+* Upload and PR the release prep to github through the main repo starting with `git push upstream`
+  * make sure to use the name of your git remote pointing to main repo instead of "upstream"
 * Check that CI is green and merge the PR
 * Run `rake release[upstream]` to release from your checkout
   * make sure to use the name of your git remote pointing to main repo instead of "upstream"
+* Remove the release-prep branch
