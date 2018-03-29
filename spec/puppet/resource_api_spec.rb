@@ -168,7 +168,30 @@ RSpec.describe Puppet::ResourceApi do
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
 
-      context 'when setting a value for the attributes' do
+      context 'when setting values for the attributes' do
+        let(:params) do
+          {
+            title: 'test',
+            test_string: 'somevalue',
+            test_boolean: true,
+            test_integer: -1,
+            test_float: -1.5,
+            test_ensure: 'present',
+            test_enum: 'a',
+            test_variant_pattern: 'a' * 8,
+            test_url: 'hkp://example.com',
+          }
+        end
+
+        it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
+        it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
+        it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
+        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
+        it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
+        it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
+      end
+
+      context 'when setting string values for the attributes' do
         let(:params) do
           {
             title: 'test',
