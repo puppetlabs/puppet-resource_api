@@ -77,6 +77,10 @@ RSpec.describe Puppet::ResourceApi do
             type: 'Enum[present, absent]',
             desc: 'a ensure value',
           },
+          test_enum: {
+            type: 'Enum[a, b, c]',
+            desc: 'an enumeration',
+          },
           test_variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern value',
@@ -159,7 +163,7 @@ RSpec.describe Puppet::ResourceApi do
 
       let(:params) do
         { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: :present,
-          test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+          test_enum: 'a', test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
       end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
@@ -173,6 +177,7 @@ RSpec.describe Puppet::ResourceApi do
             test_integer: '-1',
             test_float: '-1.5',
             test_ensure: 'present',
+            test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'hkp://example.com',
           }
@@ -182,6 +187,7 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
         it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
+        it('the test_enum value is set correctly') { expect(instance[:test_enum]).to eq('a') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
@@ -201,6 +207,7 @@ RSpec.describe Puppet::ResourceApi do
             test_integer: '-1',
             test_float: '-1.5',
             test_ensure: :present,
+            test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'http://example.com',
           }
