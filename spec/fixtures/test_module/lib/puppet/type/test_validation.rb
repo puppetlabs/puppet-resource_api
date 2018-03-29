@@ -26,5 +26,10 @@ Puppet::ResourceApi.register_type(
       desc:      'A mandatory parameter, that MUST be validated on deleting.',
       behaviour: :parameter,
     },
+    prop_ro:        {
+      type:      'Integer',
+      desc:      'A property that cannot be set by a catalog',
+      behaviour:  :read_only
+    },
   },
 )

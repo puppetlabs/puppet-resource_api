@@ -509,6 +509,65 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with an `read_only` attribute', agent_test: true do
+    let(:definition) do
+      {
+        name: 'read_only_behaviour',
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+          },
+          name: {
+            type: 'String',
+            behavior: :namevar,
+          },
+          immutable: {
+            type: 'String',
+            behaviour: :read_only,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:read_only_behaviour) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters[0]).to eq :name }
+    end
+
+    describe 'an instance of the type' do
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            [{ name: 'foo_ro', ensure: :present, immutable: 'physics' }]
+          end
+
+          def set(_context, _changes); end
+        end
+      end
+
+      before(:each) do
+        stub_const('Puppet::Provider::ReadOnlyBehaviour', Module.new)
+        stub_const('Puppet::Provider::ReadOnlyBehaviour::ReadOnlyBehaviour', provider_class)
+      end
+
+      context 'when a manifest wants to set the value of a read_only attribute' do
+        let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'new_ro', ensure: :present, immutable: 'new') }
+
+        it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
+      end
+
+      context 'when a manifest wants to change the value of a read_only attribute' do
+        let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'foo_ro', ensure: :present, immutable: 'change') }
+
+        it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
+      end
+    end
+  end
+
   context 'when registering a type with a malformed attributes' do
     context 'without a type' do
       let(:definition) do

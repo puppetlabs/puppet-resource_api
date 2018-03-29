@@ -51,6 +51,23 @@ RSpec.describe 'validation' do
       expect(output.strip).to match %r{Test_validation\[bye\]: test_validation.param expect.* an Integer value, got String}
       expect(status.exitstatus).to eq 1
     end
+
+    context 'when passing a value to a read_only property' do
+      context 'with an existing resource' do
+        it 'throws' do
+          output, status = Open3.capture2e("puppet resource #{common_args} test_validation foo ensure=present prop_ro=3")
+          expect(output.strip).to match %r{Test_validation\[foo\]: Attempting to set `prop_ro` read_only attribute value to `3`}
+          expect(status.exitstatus).to eq 1
+        end
+      end
+      context 'with a resource which should be absent' do
+        it 'throws' do
+          output, status = Open3.capture2e("puppet resource #{common_args} test_validation foo ensure=absent prop_ro=3")
+          expect(output.strip).to match %r{Test_validation\[foo\]: Attempting to set `prop_ro` read_only attribute value to `3`}
+          expect(status.exitstatus).to eq 1
+        end
+      end
+    end
   end
 
   describe 'using `puppet apply`' do
@@ -90,6 +107,23 @@ RSpec.describe 'validation' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ gone: ensure => absent, param => not_a_number }\"")
       expect(output.strip).to match %r{Test_validation\[gone\]: test_validation.param expect.* an Integer value, got String}i
       expect(status.exitstatus).to eq 1
+    end
+
+    context 'when passing a value to a read_only property' do
+      context 'with an existing resource' do
+        it 'throws' do
+          output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: ensure => present, param => 3, prop_ro =>4 }\"")
+          expect(output.strip).to match %r{Test_validation\[foo\]: Attempting to set `prop_ro` read_only attribute value to `4`}
+          expect(status.exitstatus).to eq 1
+        end
+      end
+      context 'with a resource which should be absent' do
+        it 'throws' do
+          output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: ensure => absent, param => 3, prop_ro =>4 }\"")
+          expect(output.strip).to match %r{Test_validation\[foo\]: Attempting to set `prop_ro` read_only attribute value to `4`}
+          expect(status.exitstatus).to eq 1
+        end
+      end
     end
   end
 end
