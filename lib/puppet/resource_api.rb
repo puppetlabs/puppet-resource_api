@@ -142,71 +142,75 @@ module Puppet::ResourceApi
             if options.key? :default
               defaultto options[:default]
             end
+          end
 
-            type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
-            validate do |value|
+          type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+          validate do |value|
+            if options[:behaviour] == :read_only
+              raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
+            end
+
+            return true if type.instance?(value)
+
+            if value.is_a? String
+              # when running under `puppet resource`, we need to try to coerce from strings to the real type
+              case value
+              when %r{^-?\d+$}, Puppet::Pops::Patterns::NUMERIC
+                value = Puppet::Pops::Utils.to_n(value)
+              when %r{\Atrue|false\Z}
+                value = value == 'true'
+              end
               return true if type.instance?(value)
 
-              if value.is_a? String
-                # when running under `puppet resource`, we need to try to coerce from strings to the real type
-                case value
-                when %r{^-?\d+$}, Puppet::Pops::Patterns::NUMERIC
-                  value = Puppet::Pops::Utils.to_n(value)
-                when %r{\Atrue|false\Z}
-                  value = value == 'true'
-                end
-                return true if type.instance?(value)
+              inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
+              error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{definition[:name]}.#{name}", type, inferred_type)
+              raise Puppet::ResourceError, error_msg
+            end
+          end
 
-                inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
-                error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{definition[:name]}.#{name}", type, inferred_type)
-                raise Puppet::ResourceError, error_msg
+          if type.instance_of? Puppet::Pops::Types::POptionalType
+            type = type.type
+          end
+
+          # provide better handling of the standard types
+          case type
+          when Puppet::Pops::Types::PStringType
+            # require any string value
+            Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
+          # rubocop:disable Lint/BooleanSymbol
+          when Puppet::Pops::Types::PBooleanType
+            Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
+            aliasvalue true, 'true'
+            aliasvalue false, 'false'
+            aliasvalue :true, 'true'
+            aliasvalue :false, 'false'
+
+            munge do |v|
+              case v
+              when 'true', :true
+                true
+              when 'false', :false
+                false
+              else
+                v
               end
             end
-
-            if type.instance_of? Puppet::Pops::Types::POptionalType
-              type = type.type
+          # rubocop:enable Lint/BooleanSymbol
+          when Puppet::Pops::Types::PIntegerType
+            Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
+            munge do |v|
+              Puppet::Pops::Utils.to_n(v)
             end
-
-            # provide better handling of the standard types
-            case type
-            when Puppet::Pops::Types::PStringType
-              # require any string value
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
-            # rubocop:disable Lint/BooleanSymbol
-            when Puppet::Pops::Types::PBooleanType
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
-              aliasvalue true, 'true'
-              aliasvalue false, 'false'
-              aliasvalue :true, 'true'
-              aliasvalue :false, 'false'
-
-              munge do |v|
-                case v
-                when 'true', :true
-                  true
-                when 'false', :false
-                  false
-                else
-                  v
-                end
-              end
-            # rubocop:enable Lint/BooleanSymbol
-            when Puppet::Pops::Types::PIntegerType
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
-              munge do |v|
-                Puppet::Pops::Utils.to_n(v)
-              end
-            when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
-              munge do |v|
-                Puppet::Pops::Utils.to_n(v)
-              end
+          when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
+            Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
+            munge do |v|
+              Puppet::Pops::Utils.to_n(v)
             end
+          end
 
-            case options[:type]
-            when 'Enum[present, absent]'
-              Puppet::ResourceApi.def_newvalues(self, param_or_property, :absent, :present)
-            end
+          case options[:type]
+          when 'Enum[present, absent]'
+            Puppet::ResourceApi.def_newvalues(self, param_or_property, :absent, :present)
           end
         end
       end
