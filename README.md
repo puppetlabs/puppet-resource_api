@@ -55,6 +55,8 @@ pdk (INFO): Creating '.../example/spec/unit/puppet/provider/foo/foo_spec.rb' fro
 $
 ```
 
+Note that the templates released with PDK 1.4 suffer from the fallout of [PDK-911](https://tickets.puppetlabs.com/browse/PDK-911), and need all occurrences of `:present` changed to `'present'`. This will be fixed in PDK 1.5.
+
 The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider:
 
 ```
