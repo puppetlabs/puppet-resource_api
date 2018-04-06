@@ -192,9 +192,8 @@ Currently working:
   * String
   * Integer, Float, Numeric
   * Boolean
-  * Enum
-  * Optional
-  * Variant
+  * Enum[absent, present]
+  * simple Optionals
 * The `canonicalize`, `simple_get_filter`, and `remote_resource` features.
 * All the logging facilities.
 * Executing the new provider under the following commands:
