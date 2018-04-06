@@ -55,6 +55,8 @@ pdk (INFO): Creating '.../example/spec/unit/puppet/provider/foo/foo_spec.rb' fro
 $
 ```
 
+Note that the templates released with PDK 1.4 suffer from the fallout of [PDK-911](https://tickets.puppetlabs.com/browse/PDK-911), and need all occurrences of `:present` changed to `'present'`. This will be fixed in PDK 1.5.
+
 The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider:
 
 ```
@@ -192,9 +194,8 @@ Currently working:
   * String
   * Integer, Float, Numeric
   * Boolean
-  * Enum
-  * Optional
-  * Variant
+  * Enum[absent, present]
+  * simple Optionals
 * The `canonicalize`, `simple_get_filter`, and `remote_resource` features.
 * All the logging facilities.
 * Executing the new provider under the following commands:
@@ -204,7 +205,6 @@ Currently working:
   * `puppet device` (if applicable)
 
 There are still a few notable gaps between the implementation and the specification:
-* The `:init_only` behaviour is not yet implemented ([PDK-885](https://tickets.puppetlabs.com/browse/PDK-885))
 * Complex data types, like Array, Hash, Tuple or Struct are not yet implemented.
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 

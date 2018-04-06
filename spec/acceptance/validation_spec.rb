@@ -22,13 +22,13 @@ RSpec.describe 'validation' do
     context 'when listing an absent instance' do
       it 'requires params' do
         output, status = Open3.capture2e("puppet resource #{common_args} test_validation nope")
-        expect(output.strip).to match %r{Test_validation\[nope\] failed: The following mandatory attributes where not provided}
+        expect(output.strip).to match %r{Test_validation\[nope\] failed: The following mandatory attributes were not provided}
         expect(status.exitstatus).to eq 1
       end
 
       it 'is not satisfied with params only' do
         output, status = Open3.capture2e("puppet resource #{common_args} test_validation nope param=2")
-        expect(output.strip).to match %r{Test_validation\[nope\] failed: The following mandatory attributes where not provided}
+        expect(output.strip).to match %r{Test_validation\[nope\] failed: The following mandatory attributes were not provided}
         expect(status.exitstatus).to eq 1
       end
     end
