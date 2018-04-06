@@ -14,11 +14,11 @@ RSpec.describe Puppet::Provider::TestNoopSupport::TestNoopSupport do
       expect(provider.get(context)).to eq [
         {
           name: 'foo',
-          ensure: :present,
+          ensure: 'present',
         },
         {
           name: 'bar',
-          ensure: :present,
+          ensure: 'present',
         },
       ]
     end

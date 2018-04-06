@@ -7,13 +7,13 @@ class Puppet::Provider::TestValidation::TestValidation < Puppet::ResourceApi::Si
     [
       {
         name: 'foo',
-        ensure: :present,
+        ensure: 'present',
         prop: 2,
         prop_ro: 8,
       },
       {
         name: 'bar',
-        ensure: :present,
+        ensure: 'present',
         prop: 3,
         prop_ro: 9,
       },

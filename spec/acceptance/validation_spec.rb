@@ -36,7 +36,7 @@ RSpec.describe 'validation' do
     it 'allows removing' do
       output, status = Open3.capture2e("puppet resource #{common_args} test_validation foo ensure=absent param=2")
       expect(output.strip).to match %r{^test_validation}
-      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: undefined 'ensure' from 'present'}
+      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: ensure changed 'present' to 'absent'}
       expect(status.exitstatus).to eq 0
     end
 
@@ -80,7 +80,7 @@ RSpec.describe 'validation' do
 
     it 'allows creating' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ new: prop => 2, param => 3 }\"")
-      expect(output.strip).to match %r{Test_validation\[new\]/ensure: defined 'ensure' as 'present'}
+      expect(output.strip).to match %r{Test_validation\[new\]/ensure: ensure changed 'absent' to 'present'}
       expect(status.exitstatus).to eq 0
     end
 
@@ -92,7 +92,7 @@ RSpec.describe 'validation' do
 
     it 'allows removing' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: ensure => absent, param => 3 }\"")
-      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: undefined 'ensure' from 'present'}
+      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: ensure changed 'present' to 'absent'}
       expect(status.exitstatus).to eq 0
     end
 

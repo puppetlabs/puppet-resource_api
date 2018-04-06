@@ -7,11 +7,11 @@ class Puppet::Provider::TitleProvider::TitleProvider < Puppet::ResourceApi::Simp
     [
       {
         namevar: 'foo',
-        ensure: :present,
+        ensure: 'present',
       },
       {
         namevar: 'bar',
-        ensure: :present,
+        ensure: 'present',
       },
     ]
   end

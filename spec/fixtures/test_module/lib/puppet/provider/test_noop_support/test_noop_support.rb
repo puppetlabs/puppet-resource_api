@@ -7,11 +7,11 @@ class Puppet::Provider::TestNoopSupport::TestNoopSupport
     [
       {
         name: 'foo',
-        ensure: :present,
+        ensure: 'present',
       },
       {
         name: 'bar',
-        ensure: :present,
+        ensure: 'present',
       },
     ]
   end

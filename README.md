@@ -118,11 +118,11 @@ class Puppet::Provider::Foo::Foo < Puppet::ResourceApi::SimpleProvider
     [
       {
         name: 'foo',
-        ensure: :present,
+        ensure: 'present',
       },
       {
         name: 'bar',
-        ensure: :present,
+        ensure: 'present',
       },
     ]
   end
