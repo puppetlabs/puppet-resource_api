@@ -203,7 +203,6 @@ Currently working:
   * `puppet device` (if applicable)
 
 There are still a few notable gaps between the implementation and the specification:
-* The `:init_only` behaviour is not yet implemented ([PDK-885](https://tickets.puppetlabs.com/browse/PDK-885))
 * Complex data types, like Array, Hash, Tuple or Struct are not yet implemented.
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 
