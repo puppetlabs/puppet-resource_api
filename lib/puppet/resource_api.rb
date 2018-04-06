@@ -96,7 +96,7 @@ module Puppet::ResourceApi
         missing_attrs -= [:ensure] if @called_from_resource
 
         if missing_attrs.any?
-          error_msg = "The following mandatory attributes where not provided:\n    *  " + missing_attrs.join(", \n    *  ")
+          error_msg = "The following mandatory attributes were not provided:\n    *  " + missing_attrs.join(", \n    *  ")
           raise Puppet::ResourceError, error_msg
         end
       end

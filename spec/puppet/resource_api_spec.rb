@@ -195,7 +195,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'when mandatory attributes are missing' do
         let(:params) { { title: 'test' } }
 
-        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes where not provided} }
+        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided} }
       end
 
       describe 'different boolean values' do
