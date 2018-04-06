@@ -3,6 +3,25 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.0.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.3) (2018-04-06)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.2...v1.0.3)
+
+**Implemented enhancements:**
+
+- \(PDK-887\) Add checks for read\_only values being set or modified [\#54](https://github.com/puppetlabs/puppet-resource_api/pull/54) ([da-ar](https://github.com/da-ar))
+- \(PDK-885\) Add support for init\_only attributes [\#52](https://github.com/puppetlabs/puppet-resource_api/pull/52) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- \(PDK-911\) Fix handling of `ensure` values from symbols to strings [\#55](https://github.com/puppetlabs/puppet-resource_api/pull/55) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Misc fixes [\#56](https://github.com/puppetlabs/puppet-resource_api/pull/56) ([DavidS](https://github.com/DavidS))
+- \(PDK-890\) document current constraints on possible data types  [\#53](https://github.com/puppetlabs/puppet-resource_api/pull/53) ([DavidS](https://github.com/DavidS))
+- Update release prep notes [\#51](https://github.com/puppetlabs/puppet-resource_api/pull/51) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.0.2 [\#50](https://github.com/puppetlabs/puppet-resource_api/pull/50) ([DavidS](https://github.com/DavidS))
+
 ## [v1.0.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.2) (2018-03-26)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.1...v1.0.2)
 
