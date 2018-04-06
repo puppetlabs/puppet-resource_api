@@ -162,7 +162,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:instance) { Puppet::Type.type(:with_string).new(params) }
 
       let(:params) do
-        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: :present,
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
           test_enum: 'a', test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
       end
 
@@ -186,7 +186,7 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
-        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
+        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
         it('the test_enum value is set correctly') { expect(instance[:test_enum]).to eq('a') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
@@ -206,7 +206,7 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: the_boolean,
             test_integer: '-1',
             test_float: '-1.5',
-            test_ensure: :present,
+            test_ensure: 'present',
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'http://example.com',
@@ -320,7 +320,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:instance) { Puppet::Type.type(:with_parameters).new(params) }
 
       let(:params) do
-        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: :present,
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
           test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
       end
 
@@ -343,7 +343,7 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
-        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq(:present) }
+        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
@@ -432,7 +432,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:provider_class) do
         Class.new do
           def get(_context)
-            [{ name: 'init', ensure: :present, immutable: 'physics', mutable: 'bank balance' }]
+            [{ name: 'init', ensure: 'present', immutable: 'physics', mutable: 'bank balance' }]
           end
 
           def set(_context, _changes); end
@@ -445,7 +445,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'when a manifest wants to set the value of an init_only attribute' do
-        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'new_init', ensure: :present, immutable: 'new', mutable: 'flexible') }
+        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'new_init', ensure: 'present', immutable: 'new', mutable: 'flexible') }
 
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
@@ -479,7 +479,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'when a manifest wants to change the value of an init_only attribute' do
-        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: :present, immutable: 'lies', mutable: 'overdraft') }
+        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: 'present', immutable: 'lies', mutable: 'overdraft') }
 
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
@@ -542,7 +542,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:provider_class) do
         Class.new do
           def get(_context)
-            [{ name: 'foo_ro', ensure: :present, immutable: 'physics' }]
+            [{ name: 'foo_ro', ensure: 'present', immutable: 'physics' }]
           end
 
           def set(_context, _changes); end
@@ -555,13 +555,13 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'when a manifest wants to set the value of a read_only attribute' do
-        let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'new_ro', ensure: :present, immutable: 'new') }
+        let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'new_ro', ensure: 'present', immutable: 'new') }
 
         it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
       end
 
       context 'when a manifest wants to change the value of a read_only attribute' do
-        let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'foo_ro', ensure: :present, immutable: 'change') }
+        let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'foo_ro', ensure: 'present', immutable: 'change') }
 
         it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
       end
@@ -928,7 +928,7 @@ RSpec.describe Puppet::ResourceApi do
             expect(resource[:test_string]).to be_nil
             expect(log_sink.last.message).to eq('Current State: nil')
           end
-          it('is set to absent') { expect(resource[:ensure]).to eq :absent }
+          it('is set to absent') { expect(resource[:ensure]).to eq 'absent' }
         end
       end
     end
@@ -1060,7 +1060,7 @@ RSpec.describe Puppet::ResourceApi do
             expect(resource[:test_string]).to be_nil
             expect(log_sink.last.message).to eq('Current State: nil')
           end
-          it('is set to absent') { expect(resource[:ensure]).to eq :absent }
+          it('is set to absent') { expect(resource[:ensure]).to eq 'absent' }
         end
       end
     end

@@ -236,8 +236,8 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
   describe '#processed(title, is, should)' do
     it 'logs the successful change of attributes' do
-      expect(context).to receive(:send_log).with(:notice, %r{Processed Thing\[one\] from {:ensure=>:absent} to {:ensure=>:present, :name=>\"thing one\"}})
-      context.processed('Thing[one]', { ensure: :absent }, { ensure: :present, name: 'thing one' })
+      expect(context).to receive(:send_log).with(:notice, %r{Processed Thing\[one\] from {:ensure=>"absent"} to {:ensure=>"present", :name=>"thing one"}})
+      context.processed('Thing[one]', { ensure: 'absent' }, { ensure: 'present', name: 'thing one' })
     end
 
     it 'raises if multiple titles are passed' do

@@ -8,12 +8,12 @@ class Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter < Puppet::Resou
       [
           {
               name: 'bar',
-              ensure: :present,
+              ensure: 'present',
               test_string: 'default'
           },
           {
               name: 'foo',
-              ensure: :present,
+              ensure: 'present',
               test_string: 'default'
           },
       ]
@@ -21,7 +21,7 @@ class Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter < Puppet::Resou
       [
           {
               name: 'foo',
-              ensure: :absent,
+              ensure: 'absent',
               test_string: 'foo found'
           }
       ]
@@ -29,7 +29,7 @@ class Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter < Puppet::Resou
       [
           {
               name: 'foo',
-              ensure: :present,
+              ensure: 'present',
               test_string: 'not foo'
           }
       ]

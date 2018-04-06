@@ -85,7 +85,7 @@ module Puppet::ResourceApi
 
           # skip properties if the resource is being deleted
           next if definition[:attributes][:ensure] &&
-                  value(:ensure) == :absent &&
+                  value(:ensure) == 'absent' &&
                   options[:behaviour].nil?
 
           if value(name).nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
@@ -210,7 +210,11 @@ module Puppet::ResourceApi
 
           case options[:type]
           when 'Enum[present, absent]'
-            Puppet::ResourceApi.def_newvalues(self, param_or_property, :absent, :present)
+            Puppet::ResourceApi.def_newvalues(self, param_or_property, 'absent', 'present')
+            # puppet symbolizes these values through puppet/paramter/value.rb (see .convert()), but Enums are strings
+            # specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
+            # default .unsafe_munge() implementation
+            munge { |v| v }
           end
         end
       end
@@ -252,7 +256,7 @@ module Puppet::ResourceApi
           end
         else
           result[namevar_name] = title
-          result[:ensure] = :absent
+          result[:ensure] = 'absent'
         end
 
         @rapi_current_state = current_state
@@ -275,7 +279,7 @@ module Puppet::ResourceApi
         Puppet.debug("Target State: #{target_state.inspect}")
 
         # enforce init_only attributes
-        if Puppet.settings[:strict] != :off && @rapi_current_state && (@rapi_current_state[:ensure] == :present && target_state[:ensure] == :present)
+        if Puppet.settings[:strict] != :off && @rapi_current_state && (@rapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
             next unless definition[:attributes][name][:behaviour] == :init_only && value != @rapi_current_state[name]
             message = "Attempting to change `#{name}` init_only attribute value from `#{@rapi_current_state[name]}` to `#{value}`"
