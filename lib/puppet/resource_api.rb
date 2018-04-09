@@ -385,4 +385,87 @@ MESSAGE
       end
     end
   end
+
+  # Validates and munges values coming from puppet into a shape palatable to the provider.
+  # This includes parsing values from strings, e.g. when running in `puppet resource`.
+  # @param type[Puppet::Pops::Types::TypedModelObject] the type to check/clean against
+  # @param value the value to clean
+  # @param error_msg_prefix[String] a prefix for the error messages
+  # @return [type] the cleaned value
+  # @raise [Puppet::ResourceError] if `value` could not be parsed into `type`
+  def self.mungify(type, value, error_msg_prefix)
+    cleaned_value, error = try_mungify(type, value, error_msg_prefix)
+
+    raise Puppet::ResourceError, error if error
+
+    cleaned_value
+  end
+
+  # Recursive implementation part of #mungify. Uses a multi-valued return value to avoid excessive
+  #   exception throwing for regular usage
+  # @return [Array] if the mungify worked, the first element is the cleaned value, and the second
+  #   element is nil. If the mungify failed, the first element is nil, and the second element is an error
+  #   message
+  # @private
+  def self.try_mungify(type, value, error_msg_prefix)
+    case type
+    when Puppet::Pops::Types::PArrayType
+      if value.is_a? Array
+        conversions = value.map do |v|
+          try_mungify(type.element_type, v, error_msg_prefix)
+        end
+        # only convert the values if none failed. otherwise fall through and rely on puppet to render a proper error
+        if conversions.all? { |c| c[1].nil? }
+          value = conversions.map { |c| c[0] }
+        end
+      end
+    when Puppet::Pops::Types::PBooleanType
+      value = case value
+              when 'true', :true # rubocop:disable Lint/BooleanSymbol
+                true
+              when 'false', :false # rubocop:disable Lint/BooleanSymbol
+                false
+              else
+                value
+              end
+    when Puppet::Pops::Types::PIntegerType, Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
+      if value =~ %r{^-?\d+$} || value =~ Puppet::Pops::Patterns::NUMERIC
+        value = Puppet::Pops::Utils.to_n(value)
+      end
+    when Puppet::Pops::Types::PEnumType, Puppet::Pops::Types::PStringType,  Puppet::Pops::Types::PPatternType
+      if value.is_a? Symbol
+        value = value.to_s
+      end
+    when Puppet::Pops::Types::POptionalType
+      return value.nil? ? [nil, nil] : try_mungify(type.type, value, error_msg_prefix)
+    when Puppet::Pops::Types::PVariantType
+      # try converting to anything except string first
+      string_type = type.types.find { |t| t.is_a? Puppet::Pops::Types::PStringType }
+      conversion_results = (type.types - [string_type]).map do |t|
+        try_mungify(t, value, error_msg_prefix)
+      end
+
+      # only consider valid results
+      conversion_results = conversion_results.select { |r| r[1].nil? }.to_a
+
+      # use the conversion result if unambiguous
+      return conversion_results[0] if conversion_results.length == 1
+
+      # return an error if ambiguous
+      return [nil, "#{error_msg_prefix} #{value.inspect} is not unabiguously convertable to #{type}"] if conversion_results.length > 1
+
+      # try to interpret as string
+      return try_mungify(string_type, value, error_msg_prefix) if string_type
+
+      # fall through to default handling
+    end
+
+    # a match!
+    return [value, nil] if type.instance?(value)
+
+    # an error :-(
+    inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
+    error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(error_msg_prefix, type, inferred_type)
+    return [nil, error_msg] # the entire function is using returns for clarity # rubocop:disable Style/RedundantReturn
+  end
 end
