@@ -715,7 +715,7 @@ RSpec.describe Puppet::ResourceApi do
       it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{NoClass} }
     end
 
-    context 'when loading a provider that doesn\'t create the correct class' do
+    context 'when loading a provider that creates the correct class' do
       let(:definition) { { name: 'test_provider', attributes: {} } }
 
       it { expect(described_class.load_provider('test_provider').name).to eq 'Puppet::Provider::TestProvider::TestProvider' }
