@@ -42,6 +42,10 @@ RSpec.describe 'Resource API integrated tests:' do
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url attribute',
           },
+          string_array: {
+            type: 'Array[String]',
+            desc: 'An attribute to exercise Array handling.',
+          },
           optional_string: {
             type: 'Optional[String]',
             desc: 'a optional string attribute',
@@ -80,6 +84,11 @@ RSpec.describe 'Resource API integrated tests:' do
           url_param: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
+            behaviour: :parameter,
+          },
+          string_array_param: {
+            type: 'Array[String]',
+            desc: 'A parameter to exercise Array handling.',
             behaviour: :parameter,
           },
           optional_string_param: {
@@ -123,6 +132,11 @@ RSpec.describe 'Resource API integrated tests:' do
             desc: 'a hkp or http(s) url readonly',
             behaviour: :read_only,
           },
+          string_array_ro: {
+            type: 'Array[String]',
+            desc: 'A readonly parameter to exercise Array handling.',
+            behaviour: :read_only,
+          },
           optional_string_ro: {
             type: 'Optional[String]',
             desc: 'a optional string readonly',
@@ -159,9 +173,10 @@ RSpec.describe 'Resource API integrated tests:' do
     context 'when setting an attribute' do
       let(:instance) do
         type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
-                 variant_pattern: 0xA245EED, url: 'http://www.google.com', boolean_param: false,
-                 integer_param: 99, float_param: 3.21, ensure_param: 'present',
-                 variant_pattern_param: '9A2222ED', url_param:  'http://www.puppet.com')
+                 variant_pattern: '0x1234ABCD', url: 'http://www.google.com', string_array: %w[a b c],
+                 boolean_param: false, integer_param: 99, float_param: 3.21, ensure_param: 'present',
+                 variant_pattern_param: '1234ABCD', url_param:  'http://www.puppet.com',
+                 string_array_param: %w[d e f])
       end
 
       it('flushes') { expect { instance.flush }.not_to raise_exception }

@@ -145,26 +145,25 @@ module Puppet::ResourceApi
           end
 
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
-          validate do |value|
-            if options[:behaviour] == :read_only
-              raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
+          if param_or_property == :newproperty
+            define_method(:should) do
+              @should ? @should.first : @should
             end
 
-            return true if type.instance?(value)
-
-            if value.is_a? String
-              # when running under `puppet resource`, we need to try to coerce from strings to the real type
-              case value
-              when %r{^-?\d+$}, Puppet::Pops::Patterns::NUMERIC
-                value = Puppet::Pops::Utils.to_n(value)
-              when %r{\Atrue|false\Z}
-                value = value == 'true'
+            define_method(:should=) do |value|
+              @shouldorig = value
+              # Puppet requires the @should value to always be stored as an array. We do not use this
+              # for anything else
+              # @see Puppet::Property.should=(value)
+              @should = [Puppet::ResourceApi.mungify(type, value, "#{definition[:name]}.#{name}")]
+            end
+          else
+            define_method(:value=) do |value|
+              if options[:behaviour] == :read_only
+                raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
               end
-              return true if type.instance?(value)
 
-              inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
-              error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{definition[:name]}.#{name}", type, inferred_type)
-              raise Puppet::ResourceError, error_msg
+              @value = Puppet::ResourceApi.mungify(type, value, "#{definition[:name]}.#{name}")
             end
           end
 
@@ -172,49 +171,40 @@ module Puppet::ResourceApi
             type = type.type
           end
 
-          # provide better handling of the standard types
+          # puppet symbolizes some values through puppet/paramter/value.rb (see .convert()), but (especially) Enums
+          # are strings. specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
+          # default .unsafe_munge() implementation.
+          munge { |v| v }
+
+          # provide hints to `puppet type generate` for better parsing
           case type
           when Puppet::Pops::Types::PStringType
             # require any string value
             Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
-          # rubocop:disable Lint/BooleanSymbol
           when Puppet::Pops::Types::PBooleanType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
+            # rubocop:disable Lint/BooleanSymbol
             aliasvalue true, 'true'
             aliasvalue false, 'false'
             aliasvalue :true, 'true'
             aliasvalue :false, 'false'
-
-            munge do |v|
-              case v
-              when 'true', :true
-                true
-              when 'false', :false
-                false
-              else
-                v
-              end
-            end
-          # rubocop:enable Lint/BooleanSymbol
+            # rubocop:enable Lint/BooleanSymbol
           when Puppet::Pops::Types::PIntegerType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
-            munge do |v|
-              Puppet::Pops::Utils.to_n(v)
-            end
           when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
-            munge do |v|
-              Puppet::Pops::Utils.to_n(v)
-            end
+          end
+
+          if param_or_property == :newproperty
+            # stop puppet from trying to call into the provider when
+            # no pre-defined values have been specified
+            # "This is not the provider you are looking for." -- Obi-Wan Kaniesobi.
+            def call_provider(value); end
           end
 
           case options[:type]
           when 'Enum[present, absent]'
             Puppet::ResourceApi.def_newvalues(self, param_or_property, 'absent', 'present')
-            # puppet symbolizes these values through puppet/paramter/value.rb (see .convert()), but Enums are strings
-            # specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
-            # default .unsafe_munge() implementation
-            munge { |v| v }
           end
         end
       end
@@ -432,7 +422,7 @@ MESSAGE
       if value =~ %r{^-?\d+$} || value =~ Puppet::Pops::Patterns::NUMERIC
         value = Puppet::Pops::Utils.to_n(value)
       end
-    when Puppet::Pops::Types::PEnumType, Puppet::Pops::Types::PStringType,  Puppet::Pops::Types::PPatternType
+    when Puppet::Pops::Types::PEnumType, Puppet::Pops::Types::PStringType, Puppet::Pops::Types::PPatternType
       if value.is_a? Symbol
         value = value.to_s
       end

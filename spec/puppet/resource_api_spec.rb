@@ -163,7 +163,7 @@ RSpec.describe Puppet::ResourceApi do
 
       let(:params) do
         { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
-          test_enum: 'a', test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+          test_enum: 'a', test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
@@ -344,7 +344,7 @@ RSpec.describe Puppet::ResourceApi do
 
       let(:params) do
         { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
-          test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+          test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }

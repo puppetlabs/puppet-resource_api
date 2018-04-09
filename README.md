@@ -191,11 +191,12 @@ This gem is still under heavy development. This section is a living document of 
 Currently working:
 * Basic type and provider definition, using `name`, `desc`, and `attributes`.
 * Scalar puppet 4 [data types](https://puppet.com/docs/puppet/5.3/lang_data_type.html#core-data-types):
-  * String
+  * String, Enum, Pattern
   * Integer, Float, Numeric
   * Boolean
-  * Enum[absent, present]
-  * simple Optionals
+  * Array
+  * Optional
+  * Variant
 * The `canonicalize`, `simple_get_filter`, and `remote_resource` features.
 * All the logging facilities.
 * Executing the new provider under the following commands:
@@ -205,7 +206,7 @@ Currently working:
   * `puppet device` (if applicable)
 
 There are still a few notable gaps between the implementation and the specification:
-* Complex data types, like Array, Hash, Tuple or Struct are not yet implemented.
+* Complex data types, like Hash, Tuple or Struct are not yet implemented.
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 
 Restrictions of running under puppet:
