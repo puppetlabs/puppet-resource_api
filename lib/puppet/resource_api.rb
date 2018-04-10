@@ -145,26 +145,25 @@ module Puppet::ResourceApi
           end
 
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
-          validate do |value|
-            if options[:behaviour] == :read_only
-              raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
+          if param_or_property == :newproperty
+            define_method(:should) do
+              @should ? @should.first : @should
             end
 
-            return true if type.instance?(value)
-
-            if value.is_a? String
-              # when running under `puppet resource`, we need to try to coerce from strings to the real type
-              case value
-              when %r{^-?\d+$}, Puppet::Pops::Patterns::NUMERIC
-                value = Puppet::Pops::Utils.to_n(value)
-              when %r{\Atrue|false\Z}
-                value = value == 'true'
+            define_method(:should=) do |value|
+              @shouldorig = value
+              # Puppet requires the @should value to always be stored as an array. We do not use this
+              # for anything else
+              # @see Puppet::Property.should=(value)
+              @should = [Puppet::ResourceApi.mungify(type, value, "#{definition[:name]}.#{name}")]
+            end
+          else
+            define_method(:value=) do |value|
+              if options[:behaviour] == :read_only
+                raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
               end
-              return true if type.instance?(value)
 
-              inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
-              error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch("#{definition[:name]}.#{name}", type, inferred_type)
-              raise Puppet::ResourceError, error_msg
+              @value = Puppet::ResourceApi.mungify(type, value, "#{definition[:name]}.#{name}")
             end
           end
 
@@ -172,49 +171,40 @@ module Puppet::ResourceApi
             type = type.type
           end
 
-          # provide better handling of the standard types
+          # puppet symbolizes some values through puppet/paramter/value.rb (see .convert()), but (especially) Enums
+          # are strings. specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
+          # default .unsafe_munge() implementation.
+          munge { |v| v }
+
+          # provide hints to `puppet type generate` for better parsing
           case type
           when Puppet::Pops::Types::PStringType
             # require any string value
             Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
-          # rubocop:disable Lint/BooleanSymbol
           when Puppet::Pops::Types::PBooleanType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
+            # rubocop:disable Lint/BooleanSymbol
             aliasvalue true, 'true'
             aliasvalue false, 'false'
             aliasvalue :true, 'true'
             aliasvalue :false, 'false'
-
-            munge do |v|
-              case v
-              when 'true', :true
-                true
-              when 'false', :false
-                false
-              else
-                v
-              end
-            end
-          # rubocop:enable Lint/BooleanSymbol
+            # rubocop:enable Lint/BooleanSymbol
           when Puppet::Pops::Types::PIntegerType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
-            munge do |v|
-              Puppet::Pops::Utils.to_n(v)
-            end
           when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
-            munge do |v|
-              Puppet::Pops::Utils.to_n(v)
-            end
+          end
+
+          if param_or_property == :newproperty
+            # stop puppet from trying to call into the provider when
+            # no pre-defined values have been specified
+            # "This is not the provider you are looking for." -- Obi-Wan Kaniesobi.
+            def call_provider(value); end
           end
 
           case options[:type]
           when 'Enum[present, absent]'
             Puppet::ResourceApi.def_newvalues(self, param_or_property, 'absent', 'present')
-            # puppet symbolizes these values through puppet/paramter/value.rb (see .convert()), but Enums are strings
-            # specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
-            # default .unsafe_munge() implementation
-            munge { |v| v }
           end
         end
       end
@@ -384,5 +374,88 @@ MESSAGE
         this.newvalue(v) {}
       end
     end
+  end
+
+  # Validates and munges values coming from puppet into a shape palatable to the provider.
+  # This includes parsing values from strings, e.g. when running in `puppet resource`.
+  # @param type[Puppet::Pops::Types::TypedModelObject] the type to check/clean against
+  # @param value the value to clean
+  # @param error_msg_prefix[String] a prefix for the error messages
+  # @return [type] the cleaned value
+  # @raise [Puppet::ResourceError] if `value` could not be parsed into `type`
+  def self.mungify(type, value, error_msg_prefix)
+    cleaned_value, error = try_mungify(type, value, error_msg_prefix)
+
+    raise Puppet::ResourceError, error if error
+
+    cleaned_value
+  end
+
+  # Recursive implementation part of #mungify. Uses a multi-valued return value to avoid excessive
+  #   exception throwing for regular usage
+  # @return [Array] if the mungify worked, the first element is the cleaned value, and the second
+  #   element is nil. If the mungify failed, the first element is nil, and the second element is an error
+  #   message
+  # @private
+  def self.try_mungify(type, value, error_msg_prefix)
+    case type
+    when Puppet::Pops::Types::PArrayType
+      if value.is_a? Array
+        conversions = value.map do |v|
+          try_mungify(type.element_type, v, error_msg_prefix)
+        end
+        # only convert the values if none failed. otherwise fall through and rely on puppet to render a proper error
+        if conversions.all? { |c| c[1].nil? }
+          value = conversions.map { |c| c[0] }
+        end
+      end
+    when Puppet::Pops::Types::PBooleanType
+      value = case value
+              when 'true', :true # rubocop:disable Lint/BooleanSymbol
+                true
+              when 'false', :false # rubocop:disable Lint/BooleanSymbol
+                false
+              else
+                value
+              end
+    when Puppet::Pops::Types::PIntegerType, Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
+      if value =~ %r{^-?\d+$} || value =~ Puppet::Pops::Patterns::NUMERIC
+        value = Puppet::Pops::Utils.to_n(value)
+      end
+    when Puppet::Pops::Types::PEnumType, Puppet::Pops::Types::PStringType, Puppet::Pops::Types::PPatternType
+      if value.is_a? Symbol
+        value = value.to_s
+      end
+    when Puppet::Pops::Types::POptionalType
+      return value.nil? ? [nil, nil] : try_mungify(type.type, value, error_msg_prefix)
+    when Puppet::Pops::Types::PVariantType
+      # try converting to anything except string first
+      string_type = type.types.find { |t| t.is_a? Puppet::Pops::Types::PStringType }
+      conversion_results = (type.types - [string_type]).map do |t|
+        try_mungify(t, value, error_msg_prefix)
+      end
+
+      # only consider valid results
+      conversion_results = conversion_results.select { |r| r[1].nil? }.to_a
+
+      # use the conversion result if unambiguous
+      return conversion_results[0] if conversion_results.length == 1
+
+      # return an error if ambiguous
+      return [nil, "#{error_msg_prefix} #{value.inspect} is not unabiguously convertable to #{type}"] if conversion_results.length > 1
+
+      # try to interpret as string
+      return try_mungify(string_type, value, error_msg_prefix) if string_type
+
+      # fall through to default handling
+    end
+
+    # a match!
+    return [value, nil] if type.instance?(value)
+
+    # an error :-(
+    inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
+    error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(error_msg_prefix, type, inferred_type)
+    return [nil, error_msg] # the entire function is using returns for clarity # rubocop:disable Style/RedundantReturn
   end
 end

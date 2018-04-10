@@ -104,7 +104,7 @@ DEVICE_CONF
     context 'with a device resource in the catalog' do
       it 'applies the catalog successfully' do
         stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply 'device_provider{\"foo\": "\
-                                              'ensure => "present", boolean => true, integer => 15, float => 1.23, variant_pattern => 0xA245EED, '\
+                                              'ensure => "present", boolean => true, integer => 15, float => 1.23, variant_pattern => "0x1234ABCD", '\
                                               'url => "http://www.google.com", boolean_param => false, integer_param => 99, float_param => 3.21, '\
                                               "ensure_param => \"present\", variant_pattern_param => \"9A2222ED\", url_param => \"http://www.puppet.com\"}'")
         expect(stdout_str).not_to match %r{Error:}

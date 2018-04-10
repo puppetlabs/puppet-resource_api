@@ -163,7 +163,7 @@ RSpec.describe Puppet::ResourceApi do
 
       let(:params) do
         { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
-          test_enum: 'a', test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+          test_enum: 'a', test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
@@ -344,7 +344,7 @@ RSpec.describe Puppet::ResourceApi do
 
       let(:params) do
         { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
-          test_variant_pattern: 0xAEF123FF, test_url: 'http://example.com' }
+          test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
@@ -715,7 +715,7 @@ RSpec.describe Puppet::ResourceApi do
       it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{NoClass} }
     end
 
-    context 'when loading a provider that doesn\'t create the correct class' do
+    context 'when loading a provider that creates the correct class' do
       let(:definition) { { name: 'test_provider', attributes: {} } }
 
       it { expect(described_class.load_provider('test_provider').name).to eq 'Puppet::Provider::TestProvider::TestProvider' }
@@ -1330,4 +1330,274 @@ CODE
       it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, %r{^`bad` is not a valid behaviour value$} }
     end
   end
+
+  describe '#mungify(type, value)' do
+    before(:each) do
+      allow(described_class).to receive(:try_mungify).with('type', 'input', 'error prefix').and_return(result)
+    end
+    context 'when the munge succeeds' do
+      let(:result) { ['result', nil] }
+
+      it('returns the cleaned result') { expect(described_class.mungify('type', 'input', 'error prefix')).to eq 'result' }
+    end
+
+    context 'when the munge fails' do
+      let(:result) { [nil, 'some error'] }
+
+      it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix') }.to raise_error Puppet::ResourceError, %r{\Asome error\Z} }
+    end
+  end
+
+  # keep test data consistent # rubocop:disable Style/WordArray
+  # run try_mungify only once to get both value, and error # rubocop:disable RSpec/InstanceVariable
+  describe '#try_mungify(type, value)' do
+    before(:each) do
+      @value, @error = described_class.try_mungify(type, input, 'error prefix')
+    end
+    [
+      {
+        type: 'Boolean',
+        transformations: [
+          [true, true],
+          [:true, true], # rubocop:disable Lint/BooleanSymbol
+          ['true', true],
+          [false, false],
+          [:false, false], # rubocop:disable Lint/BooleanSymbol
+          ['false', false],
+        ],
+        errors: ['something', 'yes', 'no', 0, 1, -1, '1', 1.1, -1.1, '1.1', '-1.1', ''],
+      },
+      {
+        type: 'Integer',
+        transformations: [
+          [0, 0],
+          [1, 1],
+          ['1', 1],
+          [-1, -1],
+          ['-1', -1],
+        ],
+        errors: ['something', 1.1, -1.1, '1.1', '-1.1', '', :'1'],
+      },
+      {
+        type: 'Float',
+        transformations: [
+          [0.0, 0.0],
+          [1.5, 1.5],
+          ['1.5', 1.5],
+          [-1.5, -1.5],
+          ['-1.5', -1.5],
+        ],
+        errors: ['something', '', 0, '0', 1, '1', -1, '-1', :'1.1'],
+      },
+      {
+        type: 'Numeric',
+        transformations: [
+          [0, 0],
+          [1, 1],
+          ['1', 1],
+          [-1, -1],
+          ['-1', -1],
+          [0.0, 0.0],
+          [1.5, 1.5],
+          ['1.5', 1.5],
+          [-1.5, -1.5],
+          ['-1.5', -1.5],
+        ],
+        errors: ['something', '', true, :symbol, :'1'],
+      },
+      {
+        type: 'String',
+        transformations: [
+          ['', ''],
+          ['1', '1'],
+          [:'1', '1'],
+          ['-1', '-1'],
+          ['true', 'true'],
+          ['false', 'false'],
+          ['something', 'something'],
+          [:symbol, 'symbol'],
+        ],
+        errors: [1.1, -1.1, 1, -1, true, false],
+      },
+      {
+        type: 'Enum[absent, present]',
+        transformations: [
+          ['absent', 'absent'],
+          ['absent', 'absent'],
+          ['present', 'present'],
+          ['present', 'present'],
+        ],
+        errors: ['enabled', :something, 1, 'y', 'true', ''],
+      },
+      {
+        type: 'Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/]',
+        transformations: [
+          ['0xABCD1234', '0xABCD1234'],
+          ['ABCD1234', 'ABCD1234'],
+          [:'0xABCD1234', '0xABCD1234'],
+        ],
+        errors: [0xABCD1234, '1234567', 'enabled', 0, ''],
+      },
+      {
+        type: 'Array',
+        transformations: [
+          [[], []],
+          [[[]], [[]]],
+          [['a'], ['a']],
+          [['a', 1], ['a', 1]],
+          [['a', 'b', 'c'], ['a', 'b', 'c']],
+          [[true, 'a', 1], [true, 'a', 1]],
+        ],
+        errors: ['enabled', :something, 1, 'y', 'true', ''],
+      },
+      {
+        type: 'Array[Boolean]',
+        transformations: [
+          [[], []],
+          [[true], [true]],
+          [[:true], [true]], # rubocop:disable Lint/BooleanSymbol
+          [['true'], [true]],
+          [[false], [false]],
+          [[:false], [false]], # rubocop:disable Lint/BooleanSymbol
+          [['false'], [false]],
+          [[true, 'false'], [true, false]],
+          [[true, true, true, 'false'], [true, true, true, false]],
+        ],
+        errors: [['something'], ['yes'], ['no'], [0], true, false],
+      },
+      {
+        type: 'Array[Integer]',
+        transformations: [
+          [[], []],
+          [[1], [1]],
+          [['1'], [1]],
+          [['1', 2, '3'], [1, 2, 3]],
+        ],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1, 'b', 3], [[]]],
+      },
+      {
+        type: 'Array[Float]',
+        transformations: [
+          [[], []],
+          [[1.0], [1.0]],
+          [['1.0'], [1.0]],
+          [['1.0', 2.0, '3.0'], [1.0, 2.0, 3.0]],
+        ],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1.0, 'b', 3.0], [[]]],
+      },
+      {
+        type: 'Array[Numeric]',
+        transformations: [
+          [[], []],
+          [[1], [1]],
+          [['1'], [1]],
+          [[1.0], [1.0]],
+          [['1.0'], [1.0]],
+          [['1.0', 2, '3'], [1.0, 2, 3]],
+          [['1.0', 2.0, '3.0'], [1.0, 2.0, 3.0]],
+        ],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1.0, 'b', 3.0], [[]]],
+      },
+      {
+        type: 'Array[String]',
+        transformations: [
+          [[], []],
+          [['a'], ['a']],
+          [['a', 'b', 'c'], ['a', 'b', 'c']],
+        ],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [1], ['a', 1, 'b'], [true, 'a'], [[]]],
+      },
+      {
+        # When requesting a Variant type, expect values to be transformed according to the rules of the constituent types.
+        # Always try to up-convert, falling back to String only when necessary/possible.
+        # Conversions need to be unambiguous to be valid. This should only be ever hit in pathological cases like
+        # Variant[Integer, Float], or Variant[Boolean, Enum[true, false]]
+        type: 'Variant[Boolean, String, Integer]',
+        transformations: [
+          [true, true],
+          [:true, true], # rubocop:disable Lint/BooleanSymbol
+          ['true', true],
+          [false, false],
+          [:false, false], # rubocop:disable Lint/BooleanSymbol
+          ['false', false],
+          [0, 0],
+          [1, 1],
+          ['1', 1],
+          [-1, -1],
+          ['-1', -1],
+          ['something', 'something'],
+          [:symbol, 'symbol'],
+          ['1.1', '1.1'],
+        ],
+        errors: [1.0, [1.0], ['1']],
+      },
+      {
+        type: 'Variant[Integer, Enum[a, "2", "3"]]',
+        transformations: [
+          [1, 1],
+          ['a', 'a'],
+        ],
+        errors: ['2', '3'],
+      },
+      {
+        type: 'Variant[Array[Variant[Integer,String]],Boolean]',
+        transformations: [
+          [true, true],
+          [:false, false], # rubocop:disable Lint/BooleanSymbol
+          [[1], [1]],
+          [['1'], [1]],
+          [['1', 'a'], [1, 'a']],
+        ],
+        errors: [
+          [:something, [1.0]],
+        ],
+      },
+    ].each do |type_test|
+      context "with a #{type_test[:type]} type" do
+        let(:type) { Puppet::Pops::Types::TypeParser.singleton.parse(type_test[:type]) }
+
+        type_test[:transformations].each do |input, output|
+          context "with #{input.inspect} as value" do
+            let(:input) { input }
+
+            it("transforms to #{output.inspect}") { expect(@value).to eq output }
+            it('returns no error') { expect(@error).to be_nil }
+          end
+        end
+
+        ([nil] + type_test[:errors]).each do |input|
+          context "with #{input.inspect} as value" do
+            let(:input) { input }
+
+            it('returns no value') { expect(@value).to be_nil }
+            it('returns an error') { expect(@error).to match %r{\A\s*error prefix} }
+          end
+        end
+      end
+
+      context "with a Optional[#{type_test[:type]}] type" do
+        let(:type) { Puppet::Pops::Types::TypeParser.singleton.parse("Optional[#{type_test[:type]}]") }
+
+        ([[nil, nil]] + type_test[:transformations]).each do |input, output|
+          context "with #{input.inspect} as value" do
+            let(:input) { input }
+
+            it("transforms to #{output.inspect}") { expect(@value).to eq output }
+            it("returns no error for #{input.inspect}") { expect(@error).to be_nil }
+          end
+        end
+
+        type_test[:errors].each do |input|
+          context "with #{input.inspect} as value" do
+            let(:input) { input }
+
+            it('returns no value') { expect(@value).to be_nil }
+            it('returns an error') { expect(@error).to match %r{\A\s*error prefix} }
+          end
+        end
+      end
+    end
+  end
+  # rubocop:enable Style/WordArray
+  # rubocop:enable RSpec/InstanceVariable
 end
