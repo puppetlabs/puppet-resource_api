@@ -18,8 +18,24 @@ Puppet::ResourceApi.register_type(
       behaviour: :namevar,
     },
     some_array:  {
-      type:      'Array[String]',
-      desc:      'An array aiding array attestation',
-    }
+      type: 'Array[String]',
+      desc: 'An array aiding array attestation',
+    },
+    variant_array: {
+      type: 'Variant[Array[String], String]',
+      desc: 'an array, or a string',
+    },
+    array_of_arrays: {
+      type: 'Array[Array[String]]',
+      desc: 'an array of arrays',
+    },
+    array_from_hell: {
+      type: 'Array[Variant[Array[String], String]]',
+      desc: 'an array of weird things',
+    },
+    optional_string_array: {
+      type: 'Optional[Array[String]]',
+      desc: 'An optional attribute to exercise Array handling.',
+    },
   },
 )
