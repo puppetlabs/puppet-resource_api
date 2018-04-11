@@ -46,6 +46,22 @@ RSpec.describe 'Resource API integrated tests:' do
             type: 'Array[String]',
             desc: 'An attribute to exercise Array handling.',
           },
+          variant_array: {
+            type: 'Variant[Array[String], String]',
+            desc: 'an array, or a string',
+          },
+          array_of_arrays: {
+            type: 'Array[Array[String]]',
+            desc: 'an array of arrays',
+          },
+          array_from_hell: {
+            type: 'Array[Variant[Array[String], String]]',
+            desc: 'an array of weird things',
+          },
+          optional_string_array: {
+            type: 'Optional[Array[String]]',
+            desc: 'An optional attribute to exercise Array handling.',
+          },
           optional_string: {
             type: 'Optional[String]',
             desc: 'a optional string attribute',
@@ -174,6 +190,8 @@ RSpec.describe 'Resource API integrated tests:' do
       let(:instance) do
         type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
                  variant_pattern: '0x1234ABCD', url: 'http://www.google.com', string_array: %w[a b c],
+                 variant_array: 'not_an_array', array_of_arrays: [%w[a b c], %w[d e f]],
+                 array_from_hell: ['a', %w[subb subc], 'd'],
                  boolean_param: false, integer_param: 99, float_param: 3.21, ensure_param: 'present',
                  variant_pattern_param: '1234ABCD', url_param:  'http://www.puppet.com',
                  string_array_param: %w[d e f])
