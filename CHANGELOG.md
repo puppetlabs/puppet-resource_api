@@ -3,6 +3,24 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.1.0) (2018-04-12)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.3...v1.1.0)
+
+**Implemented enhancements:**
+
+- \(PDK-895\) basic array support [\#59](https://github.com/puppetlabs/puppet-resource_api/pull/59) ([DavidS](https://github.com/DavidS))
+
+**Fixed bugs:**
+
+- \(PDK-919\) Workaround PUP-2368 "using booleans result in unmanaged pro… [\#62](https://github.com/puppetlabs/puppet-resource_api/pull/62) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- \(PDK-526\) do not rely on git when building the gem on jenkins [\#61](https://github.com/puppetlabs/puppet-resource_api/pull/61) ([DavidS](https://github.com/DavidS))
+- \(PDK-896\) Advanced Array tests [\#60](https://github.com/puppetlabs/puppet-resource_api/pull/60) ([DavidS](https://github.com/DavidS))
+- Update puppetlabs\_spec\_helper to fixed master version [\#58](https://github.com/puppetlabs/puppet-resource_api/pull/58) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.0.3 [\#57](https://github.com/puppetlabs/puppet-resource_api/pull/57) ([DavidS](https://github.com/DavidS))
+
 ## [v1.0.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.3) (2018-04-06)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.2...v1.0.3)
 
