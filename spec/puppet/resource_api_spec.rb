@@ -236,41 +236,43 @@ RSpec.describe Puppet::ResourceApi do
           }
         end
 
+        # rubocop:disable Lint/BooleanSymbol
         context 'when using :true' do
-          let(:the_boolean) { :true } # rubocop:disable Lint/BooleanSymbol
+          let(:the_boolean) { :true }
 
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
         end
         context 'when using :false' do
-          let(:the_boolean) { :false } # rubocop:disable Lint/BooleanSymbol
+          let(:the_boolean) { :false }
 
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
         end
         context 'when using "true"' do
           let(:the_boolean) { 'true' }
 
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
         end
         context 'when using "false"' do
           let(:the_boolean) { 'false' }
 
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
         end
         context 'when using true' do
           let(:the_boolean) { true }
 
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq true }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
         end
         context 'when using false' do
           let(:the_boolean) { false }
 
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq false }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
         end
         context 'when using an unparsable value' do
           let(:the_boolean) { 'flubb' }
 
           it('the test_boolean value is set correctly') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
         end
+        # rubocop:enable Lint/BooleanSymbol
       end
     end
   end
