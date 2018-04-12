@@ -1,3 +1,4 @@
+module Puppet; end # rubocop:disable Style/Documentation
 module Puppet::ResourceApi
   # This class provides a default implementation for set(), when your resource does not benefit from batching.
   # Instead of processing changes yourself, the `create`, `update`, and `delete` functions, are called for you,

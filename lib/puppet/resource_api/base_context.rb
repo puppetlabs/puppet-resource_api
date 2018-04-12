@@ -1,6 +1,8 @@
 require 'puppet/util'
 require 'puppet/util/network_device'
 
+module Puppet; end
+module Puppet::ResourceApi; end
 class Puppet::ResourceApi::BaseContext
   def initialize(typename)
     @typename = typename
