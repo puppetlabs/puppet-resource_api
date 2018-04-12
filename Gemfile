@@ -16,7 +16,7 @@ group :tests do
   gem 'rubocop'
   gem 'simplecov-console'
   # the test gems required for module testing
-  gem 'puppetlabs_spec_helper', github: 'puppetlabs/puppetlabs_spec_helper', ref: '07efb9d5a90498ffcb9ac7b16caf8a96c3c160da'
+  gem 'puppetlabs_spec_helper', '~> 2.7'
   gem 'rspec-puppet'
 end
 
