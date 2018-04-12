@@ -11,9 +11,15 @@ Gem::Specification.new do |spec|
   spec.summary       = 'This library provides a simple way to write new native resources for puppet.'
   spec.homepage      = 'https://github.com/puppetlabs/puppet-resource_api'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
-  end
+  # on out internal jenkins, there is no `.git` directory, but since it is a clean machine, we don't need to worry about anything else
+  spec.files         = if Dir.exist?('.git')
+                         `git ls-files -z`.split("\x0")
+                       else
+                         Dir.glob('**/*')
+                       end.reject do |f|
+                         f.match(%r{^(test|spec|features)/})
+                       end
+
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
