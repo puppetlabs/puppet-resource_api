@@ -147,7 +147,12 @@ module Puppet::ResourceApi
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
           if param_or_property == :newproperty
             define_method(:should) do
-              @should ? @should.first : @should
+              if type.is_a? Puppet::Pops::Types::PBooleanType
+                # work around https://tickets.puppetlabs.com/browse/PUP-2368
+                rs_value ? :true : :false # rubocop:disable Lint/BooleanSymbol
+              else
+                rs_value
+              end
             end
 
             define_method(:should=) do |value|
@@ -157,7 +162,17 @@ module Puppet::ResourceApi
               # @see Puppet::Property.should=(value)
               @should = [Puppet::ResourceApi.mungify(type, value, "#{definition[:name]}.#{name}")]
             end
+
+            # used internally
+            # @returns the final mungified value of this property
+            define_method(:rs_value) do
+              @should ? @should.first : @should
+            end
           else
+            define_method(:value) do
+              @value
+            end
+
             define_method(:value=) do |value|
               if options[:behaviour] == :read_only
                 raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
@@ -165,13 +180,19 @@ module Puppet::ResourceApi
 
               @value = Puppet::ResourceApi.mungify(type, value, "#{definition[:name]}.#{name}")
             end
+
+            # used internally
+            # @returns the final mungified value of this parameter
+            define_method(:rs_value) do
+              @value
+            end
           end
 
           if type.instance_of? Puppet::Pops::Types::POptionalType
             type = type.type
           end
 
-          # puppet symbolizes some values through puppet/paramter/value.rb (see .convert()), but (especially) Enums
+          # puppet symbolizes some values through puppet/parameter/value.rb (see .convert()), but (especially) Enums
           # are strings. specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
           # default .unsafe_munge() implementation.
           munge { |v| v }
@@ -256,9 +277,8 @@ module Puppet::ResourceApi
 
       define_method(:flush) do
         # puts 'flush'
-        target_state = Hash[@parameters.map { |k, v| [k, v.value] }]
-        # remove puppet's injected metaparams
-        target_state.delete(:loglevel)
+        # skip puppet's injected metaparams
+        target_state = Hash[@parameters.reject { |k, _v| [:loglevel, :noop].include? k }.map { |k, v| [k, v.rs_value] }]
         target_state = my_provider.canonicalize(context, [target_state]).first if feature_support?('canonicalize')
 
         retrieve unless @rapi_current_state
