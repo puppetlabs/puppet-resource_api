@@ -1,4 +1,4 @@
-
+module Puppet; end # rubocop:disable Style/Documentation
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class TypeShim
