@@ -177,4 +177,23 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       provider.set(context, changes)
     end
   end
+
+  context 'with a type that does not implement ensurable' do
+    let(:is_values) { { name: 'title', content: 'foo' } }
+    let(:should_values) { { name: 'title', content: 'bar' } }
+    let(:changes) do
+      { 'title' =>
+            {
+              is: is_values,
+              should: should_values,
+            } }
+    end
+
+    before(:each) do
+      allow(context).to receive(:updating).with('title').and_yield
+      allow(context).to receive(:feature_support?).with('simple_get_filter')
+    end
+
+    it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
+  end
 end
