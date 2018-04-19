@@ -215,12 +215,6 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
 
-      context 'when mandatory attributes are missing' do
-        let(:params) { { title: 'test' } }
-
-        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided} }
-      end
-
       describe 'different boolean values' do
         let(:params) do
           {
@@ -273,6 +267,152 @@ RSpec.describe Puppet::ResourceApi do
           it('the test_boolean value is set correctly') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
         end
         # rubocop:enable Lint/BooleanSymbol
+      end
+
+      context 'with a basic provider', agent_test: true do
+        let(:provider_class) do
+          Class.new do
+            def get(_context)
+              []
+            end
+
+            def set(_context, _changes); end
+          end
+        end
+
+        before(:each) do
+          stub_const('Puppet::Provider::WithString', Module.new)
+          stub_const('Puppet::Provider::WithString::WithString', provider_class)
+        end
+
+        context 'when mandatory attributes are missing' do
+          let(:params) do
+            {
+              title: 'test',
+            }
+          end
+
+          it {
+            expect {
+              instance.validate
+              instance.retrieve
+            }.not_to raise_exception }
+        end
+      end
+    end
+  end
+
+  context 'when registering a type that is ensurable', agent_test: true do
+    let(:definition) do
+      {
+        name: 'with_ensure',
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+            desc: 'the title',
+          },
+          ensure: {
+            type: 'Enum[present, absent]',
+            desc: 'a ensure value',
+          },
+          test_string: {
+            type: 'String',
+            desc: 'the description',
+            default: 'default value',
+          },
+          test_boolean: {
+            type: 'Boolean',
+            desc: 'a boolean value',
+          },
+          test_integer: {
+            type: 'Integer',
+            desc: 'an integer value',
+          },
+          test_float: {
+            type: 'Float',
+            desc: 'a floating point value',
+          },
+          test_enum: {
+            type: 'Enum[a, b, c]',
+            desc: 'an enumeration',
+          },
+          test_variant_pattern: {
+            type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
+            desc: 'a pattern value',
+          },
+          test_url: {
+            type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
+            desc: 'a hkp or http(s) url',
+          },
+          test_optional_string: {
+            type: 'Optional[String]',
+            desc: 'a optional string value',
+          },
+        },
+      }
+    end
+
+    let(:provider_class) do
+      Class.new do
+        def get(_context)
+          []
+        end
+
+        def set(_context, _changes); end
+      end
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:with_ensure) }
+
+      it { is_expected.not_to be_nil }
+    end
+
+    before(:each) do
+      stub_const('Puppet::Provider::WithEnsure', Module.new)
+      stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
+    end
+
+    describe 'an instance of this type' do
+      subject(:instance) { Puppet::Type.type(:with_ensure).new(params) }
+
+      context 'when mandatory attributes are missing, but ensure is present' do
+        let(:params) do
+          {
+            title: 'test',
+            ensure: 'present',
+          }
+        end
+
+        it {
+          expect {
+            instance.validate
+            instance.retrieve
+          }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided} }
+      end
+
+      describe 'an absent instance' do
+        subject(:retrieved_info) do
+          instance.validate
+          instance.retrieve
+        end
+
+        let(:params) do
+          {
+            title: 'does_not_exist',
+          }
+        end
+
+        it('its name is set correctly') { expect(retrieved_info[:name]).to eq 'does_not_exist' }
+        it('its properties are set correctly') {
+          expect(retrieved_info[:test_string]).to be_nil
+        }
+        it { expect(retrieved_info[:ensure]).to eq('absent') }
+
+        it { expect { retrieved_info }.not_to raise_exception }
       end
     end
   end
@@ -371,6 +511,16 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
+      end
+
+      context 'when mandatory parameters are missing' do
+        let(:params) do
+          {
+            title: 'test',
+          }
+        end
+
+        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory parameters were not provided} }
       end
     end
   end
@@ -944,17 +1094,6 @@ RSpec.describe Puppet::ResourceApi do
             expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
           end
         end
-
-        describe 'an absent instance' do
-          let(:instance) { type.new(name: 'does_not_exist') }
-
-          it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
-          it('its properties are set correctly') do
-            expect(resource[:test_string]).to be_nil
-            expect(log_sink.last.message).to eq('Current State: nil')
-          end
-          it('is set to absent') { expect(resource[:ensure]).to eq 'absent' }
-        end
       end
     end
   end
@@ -1075,17 +1214,6 @@ RSpec.describe Puppet::ResourceApi do
               expect { described_class.register_type(definition) }.not_to raise_error
             }
           end
-        end
-
-        describe 'an absent instance' do
-          let(:instance) { type.new(name: 'does_not_exist', test_string: 'foo') }
-
-          it('its name is set correctly') { expect(resource[:name]).to eq 'does_not_exist' }
-          it('its properties are set correctly') do
-            expect(resource[:test_string]).to be_nil
-            expect(log_sink.last.message).to eq('Current State: nil')
-          end
-          it('is set to absent') { expect(resource[:ensure]).to eq 'absent' }
         end
       end
     end
