@@ -77,7 +77,8 @@ module Puppet::ResourceApi
 
       validate do
         # enforce mandatory attributes
-        missing_attrs = []
+        @missing_attrs = []
+        @missing_params = []
         definition[:attributes].each do |name, options|
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
           # skip read only vars and the namevar
@@ -89,16 +90,14 @@ module Puppet::ResourceApi
                   options[:behaviour].nil?
 
           if value(name).nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
-            missing_attrs << name
+            @missing_attrs << name
+            @missing_params << name if options[:behaviour] == :parameter
           end
         end
 
-        missing_attrs -= [:ensure] if @called_from_resource
+        @missing_attrs -= [:ensure] if @called_from_resource
 
-        if missing_attrs.any?
-          error_msg = "The following mandatory attributes were not provided:\n    *  " + missing_attrs.join(", \n    *  ")
-          raise Puppet::ResourceError, error_msg
-        end
+        raise_missing_params if @missing_params.any?
       end
 
       definition[:attributes].each do |name, options|
@@ -118,6 +117,7 @@ module Puppet::ResourceApi
                             else
                               :newproperty
                             end
+
         send(param_or_property, name.to_sym) do
           unless options[:type]
             raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
@@ -259,16 +259,16 @@ module Puppet::ResourceApi
 
         strict_check(current_state) if current_state && feature_support?('canonicalize')
 
-        # require 'pry'; binding.pry
-
         if current_state
           current_state.each do |k, v|
             result[k] = v
           end
         else
           result[namevar_name] = title
-          result[:ensure] = 'absent'
+          result[:ensure] = 'absent' if definition[:attributes].key?(:ensure)
         end
+
+        raise_missing_attrs
 
         @rapi_current_state = current_state
         Puppet.debug("Current State: #{@rapi_current_state.inspect}")
@@ -276,6 +276,8 @@ module Puppet::ResourceApi
       end
 
       define_method(:flush) do
+        raise_missing_attrs
+
         # puts 'flush'
         # skip puppet's injected metaparams
         target_state = Hash[@parameters.reject { |k, _v| [:loglevel, :noop].include? k }.map { |k, v| [k, v.rs_value] }]
@@ -308,6 +310,16 @@ module Puppet::ResourceApi
           my_provider.set(context, title => { is: @rapi_current_state, should: target_state }) unless noop?
         end
         raise 'Execution encountered an error' if context.failed?
+      end
+
+      define_method(:raise_missing_attrs) do
+        error_msg = "The following mandatory attributes were not provided:\n    *  " + @missing_attrs.join(", \n    *  ")
+        raise Puppet::ResourceError, error_msg if @missing_attrs.any? && (value(:ensure) != 'absent' && !value(:ensure).nil?)
+      end
+
+      define_method(:raise_missing_params) do
+        error_msg = "The following mandatory parameters were not provided:\n    *  " + @missing_params.join(", \n    *  ")
+        raise Puppet::ResourceError, error_msg
       end
 
       define_method(:strict_check) do |current_state|
