@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 # Code modified from: https://gist.github.com/hanloong/9849098
-require 'english'
-require 'rubocop'
+require 'English'
 
 ADDED_OR_MODIFIED = %r{A|AM|M|^M}
 
