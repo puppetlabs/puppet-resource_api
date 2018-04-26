@@ -16,6 +16,8 @@ module Puppet::ResourceApi
 
         should = change[:should]
 
+        raise 'SimpleProvider cannot be used with a Type that is not ensurable' unless context.type.ensurable?
+
         is = { name: name, ensure: 'absent' } if is.nil?
         should = { name: name, ensure: 'absent' } if should.nil?
 

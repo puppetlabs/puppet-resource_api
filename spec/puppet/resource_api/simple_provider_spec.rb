@@ -18,6 +18,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
   let(:provider) { provider_class.new }
 
+  before(:each) do
+    allow(context).to receive(:type).and_return(type_def)
+    allow(type_def).to receive(:ensurable?).and_return(true)
+  end
+
   context 'without overriding the crud methods' do
     it 'create fails' do
       expect { described_class.new.create(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*create}
@@ -172,7 +177,6 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:creating).with('to create').and_yield
       allow(context).to receive(:updating).with('to update').and_yield
       allow(context).to receive(:deleting).with('to delete').and_yield
-      allow(context).to receive(:type).and_return(type_def).exactly(3).times
       allow(type_def).to receive(:feature?).with('simple_get_filter').exactly(3).times
     end
 
@@ -182,5 +186,25 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(provider).to receive(:delete).with(context, 'to delete')
       provider.set(context, changes)
     end
+  end
+
+  context 'with a type that does not implement ensurable' do
+    let(:is_values) { { name: 'title', content: 'foo' } }
+    let(:should_values) { { name: 'title', content: 'bar' } }
+    let(:changes) do
+      { 'title' =>
+            {
+              is: is_values,
+              should: should_values,
+            } }
+    end
+
+    before(:each) do
+      allow(context).to receive(:updating).with('title').and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:ensurable?).and_return(false)
+    end
+
+    it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
   end
 end
