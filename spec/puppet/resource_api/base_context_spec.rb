@@ -10,8 +10,13 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
   end
 
   subject(:context) do
-    TestContext.new('some_resource')
+    TestContext.new(definition)
   end
+
+  let(:definition) { { name: 'some_resource', attributes: { name: 'some_resource' }, features: feature_support } }
+  let(:feature_support) { [] }
+
+  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{BaseContext requires definition to be a Hash} }
 
   describe '#device' do
     context 'when a NetworkDevice is configured' do
@@ -315,38 +320,24 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
   describe '#format_seconds' do
     it 'returns 6 decimal points for a number less than 1' do
-      expect(described_class.new('short_time').send(:format_seconds, 0.000136696)).to eq('0.000137')
+      expect(described_class.new(definition).send(:format_seconds, 0.000136696)).to eq('0.000137')
     end
 
     it 'returns 2 decimal places for a number greater than 1' do
-      expect(described_class.new('long_time').send(:format_seconds, 123.45678)).to eq('123.46')
-      expect(described_class.new('longer_time').send(:format_seconds, 1_234_567.89)).to eq('1234567.89')
-      expect(described_class.new('exact_time').send(:format_seconds, 123_456)).to eq('123456.00')
+      expect(described_class.new(definition).send(:format_seconds, 123.45678)).to eq('123.46')
+      expect(described_class.new(definition).send(:format_seconds, 1_234_567.89)).to eq('1234567.89')
+      expect(described_class.new(definition).send(:format_seconds, 123_456)).to eq('123456.00')
     end
   end
 
   describe '#send_log' do
-    it { expect { described_class.new(nil).send_log(nil, nil) }.to raise_error RuntimeError, %r{Received send_log\(\) on an unprepared BaseContext\. Use IOContext, or PuppetContext instead} }
+    it { expect { described_class.new(definition).send_log(nil, nil) }.to raise_error RuntimeError, %r{Received send_log\(\) on an unprepared BaseContext\. Use IOContext, or PuppetContext instead} }
   end
 
   describe '#feature_support?' do
-    let(:puppet_type) { double('A Resource API Type') } # rubocop:disable RSpec/VerifiedDoubles
-
-    before(:each) do
-      allow(Puppet::Type).to receive(:type).and_return(puppet_type)
-      allow(puppet_type).to receive(:feature_support?).with('simple_get_filter').and_return(return_val)
-    end
-
-    context 'when type supports feature' do
-      let(:return_val) { true }
-
-      it { expect(described_class.new('supported_feature')).to be_feature_support('simple_get_filter') }
-    end
-
-    context 'when type does not support a feature' do
-      let(:return_val) { false }
-
-      it { expect(described_class.new('supported_feature')).not_to be_feature_support('simple_get_filter') }
-    end
+    it {
+      expect(Puppet::Util::Log).to receive(:create).with(level: :warning, source: 'Puppet', message: match(%r{context.feature_support\? is deprecated. Please use context.type.feature\? instead\.}))
+      context.feature_support?('anything')
+    }
   end
 end

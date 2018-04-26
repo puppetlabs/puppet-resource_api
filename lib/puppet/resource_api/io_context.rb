@@ -1,8 +1,8 @@
 require 'puppet/resource_api/base_context'
 
 class Puppet::ResourceApi::IOContext < Puppet::ResourceApi::BaseContext
-  def initialize(typename, target = $stderr)
-    super(typename)
+  def initialize(definition, target = $stderr)
+    super(definition)
     @target = target
   end
 

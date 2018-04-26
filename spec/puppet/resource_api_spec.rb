@@ -1059,10 +1059,10 @@ RSpec.describe Puppet::ResourceApi do
             end
 
             it 'logs correctly' do
-              expect(log_sink.map(&:message)).to eq [
+              expect(log_sink.map(&:message)).to include(
                 'Current State: {:name=>"somename", :test_string=>"canonfoo"}',
                 'Target State: {:name=>"somename", :test_string=>"canonbar"}',
-              ]
+              )
             end
           end
         end
@@ -1176,8 +1176,11 @@ RSpec.describe Puppet::ResourceApi do
                                                                 is: { name: 'somename', test_string: 'foo' },
                                                                 should: { name: 'somename', test_string: 'bar' },
                                                               })
-              expect(log_sink[-2].message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
-              expect(log_sink.last.message).to eq('Target State: {:name=>"somename", :test_string=>"bar"}')
+
+              expect(log_sink.map(&:message)).to include(
+                'Current State: {:name=>"somename", :test_string=>"foo"}',
+                'Target State: {:name=>"somename", :test_string=>"bar"}',
+              )
             end
           end
         end
@@ -1257,7 +1260,7 @@ RSpec.describe Puppet::ResourceApi do
       it { expect(type.apply_to).to eq(:device) }
 
       it 'returns true for feature_support?' do
-        expect(type).to be_feature_support('remote_resource')
+        expect(type.context.type).to be_feature('remote_resource')
       end
     end
   end
