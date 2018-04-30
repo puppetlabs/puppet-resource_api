@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::PuppetContext do
-  subject(:context) { described_class.new('some_resource') }
+  subject(:context) { described_class.new(definition) }
+
+  let(:definition) { { name: 'some_resource' } }
 
   describe '#warning(msg)' do
     it 'calls the Puppet logging infrastructure' do

@@ -1,6 +1,7 @@
 require 'pathname'
 require 'puppet/resource_api/glue'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
+require 'puppet/resource_api/type_definition'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 
@@ -48,15 +49,15 @@ module Puppet::ResourceApi
         self.class.my_provider
       end
 
-      define_singleton_method(:feature_support?) do |feature|
-        definition[:features] && definition[:features].include?(feature)
+      define_singleton_method(:type_definition) do
+        @type_definition ||= TypeDefinition.new(definition)
       end
 
-      def feature_support?(feature)
-        self.class.feature_support?(feature)
+      def type_definition
+        self.class.type_definition
       end
 
-      if feature_support?('remote_resource')
+      if type_definition.feature?('remote_resource')
         apply_to_device
       end
 
@@ -68,7 +69,7 @@ module Puppet::ResourceApi
           @called_from_resource = true
         end
         # $stderr.puts "B: #{attributes.inspect}"
-        if feature_support?('canonicalize')
+        if type_definition.feature?('canonicalize')
           attributes = my_provider.canonicalize(context, [attributes])[0]
         end
         # $stderr.puts "C: #{attributes.inspect}"
@@ -251,13 +252,13 @@ module Puppet::ResourceApi
         # puts "retrieve(#{title.inspect})"
         result = Puppet::Resource.new(self.class, title)
 
-        current_state = if feature_support?('simple_get_filter')
+        current_state = if type_definition.feature?('simple_get_filter')
                           my_provider.get(context, [title]).first
                         else
                           my_provider.get(context).find { |h| h[namevar_name] == title }
                         end
 
-        strict_check(current_state) if current_state && feature_support?('canonicalize')
+        strict_check(current_state) if current_state && type_definition.feature?('canonicalize')
 
         if current_state
           current_state.each do |k, v|
@@ -281,7 +282,7 @@ module Puppet::ResourceApi
         # puts 'flush'
         # skip puppet's injected metaparams
         target_state = Hash[@parameters.reject { |k, _v| [:loglevel, :noop].include? k }.map { |k, v| [k, v.rs_value] }]
-        target_state = my_provider.canonicalize(context, [target_state]).first if feature_support?('canonicalize')
+        target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
 
         retrieve unless @rapi_current_state
 
@@ -304,7 +305,7 @@ module Puppet::ResourceApi
           end
         end
 
-        if feature_support?('supports_noop')
+        if type_definition.feature?('supports_noop')
           my_provider.set(context, { title => { is: @rapi_current_state, should: target_state } }, noop: noop?)
         else
           my_provider.set(context, title => { is: @rapi_current_state, should: target_state }) unless noop?
@@ -353,7 +354,7 @@ MESSAGE
       end
 
       define_singleton_method(:context) do
-        @context ||= PuppetContext.new(definition[:name])
+        @context ||= PuppetContext.new(definition)
       end
 
       def context

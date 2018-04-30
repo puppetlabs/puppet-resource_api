@@ -3,6 +3,7 @@ require 'puppet/resource_api/simple_provider'
 
 RSpec.describe Puppet::ResourceApi::SimpleProvider do
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
+  let(:type_def) { instance_double('Puppet::ResourceApi::TypeDefinition', 'type_def') }
   let(:provider_class) do
     Class.new(described_class) do
       def get(context, _names = nil); end
@@ -57,7 +58,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:creating).with('title').and_yield
-      allow(context).to receive(:feature_support?).with('simple_get_filter')
+      allow(context).to receive(:type).and_return(type_def)
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
     end
 
     it 'calls create once' do
@@ -75,7 +77,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     context 'with a type that supports `simple_get_filter`' do
       before(:each) do
-        allow(context).to receive(:feature_support?).with('simple_get_filter').and_return(true)
+        allow(context).to receive(:type).and_return(type_def)
+        allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       end
 
       it 'calls `get` with name' do
@@ -98,7 +101,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:updating).with('title').and_yield
-      allow(context).to receive(:feature_support?).with('simple_get_filter')
+      allow(context).to receive(:type).and_return(type_def)
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
     end
 
     it 'does not call create' do
@@ -128,7 +132,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:deleting).with('title').and_yield
-      allow(context).to receive(:feature_support?).with('simple_get_filter')
+      allow(context).to receive(:type).and_return(type_def)
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
     end
 
     it 'does not call create' do
@@ -167,7 +172,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:creating).with('to create').and_yield
       allow(context).to receive(:updating).with('to update').and_yield
       allow(context).to receive(:deleting).with('to delete').and_yield
-      allow(context).to receive(:feature_support?).with('simple_get_filter').exactly(3).times
+      allow(context).to receive(:type).and_return(type_def).exactly(3).times
+      allow(type_def).to receive(:feature?).with('simple_get_filter').exactly(3).times
     end
 
     it 'calls the crud methods' do

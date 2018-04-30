@@ -1,11 +1,16 @@
 require 'puppet/util'
 require 'puppet/util/network_device'
+require 'puppet/resource_api/type_definition'
 
 module Puppet; end
 module Puppet::ResourceApi; end
 class Puppet::ResourceApi::BaseContext
-  def initialize(typename)
-    @typename = typename
+  attr_reader :type
+
+  def initialize(definition)
+    raise Puppet::DevError, 'BaseContext requires definition to be a Hash' unless definition.is_a?(Hash)
+    @typename = definition[:name]
+    @type = Puppet::ResourceApi::TypeDefinition.new(definition)
   end
 
   def device
@@ -19,13 +24,8 @@ class Puppet::ResourceApi::BaseContext
   end
 
   def feature_support?(feature)
-    supported = Puppet::Type.type(@typename).feature_support?(feature)
-    if supported
-      Puppet.debug("#{@typename} supports `#{feature}`")
-    else
-      Puppet.debug("#{@typename} does not support `#{feature}`")
-    end
-    supported
+    Puppet.deprecation_warning('context.feature_support? is deprecated. Please use context.type.feature? instead.')
+    type.feature?(feature)
   end
 
   [:debug, :info, :notice, :warning, :err].each do |level|
