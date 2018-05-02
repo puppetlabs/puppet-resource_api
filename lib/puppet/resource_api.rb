@@ -10,6 +10,7 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires a Hash as definition, not %{other_type}' % { other_type: definition.class } unless definition.is_a? Hash
     raise Puppet::DevError, 'requires a name' unless definition.key? :name
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
+    validate_ensure(definition)
 
     definition[:features] ||= []
     supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter].freeze
@@ -82,6 +83,7 @@ module Puppet::ResourceApi
         @missing_params = []
         definition[:attributes].each do |name, options|
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+
           # skip read only vars and the namevar
           next if [:read_only, :namevar].include? options[:behaviour]
 
@@ -145,12 +147,20 @@ module Puppet::ResourceApi
             end
           end
 
+          if name == :ensure
+            def insync?(is)
+              rs_value.to_s == is.to_s
+            end
+          end
+
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
           if param_or_property == :newproperty
             define_method(:should) do
               if type.is_a? Puppet::Pops::Types::PBooleanType
                 # work around https://tickets.puppetlabs.com/browse/PUP-2368
                 rs_value ? :true : :false # rubocop:disable Lint/BooleanSymbol
+              elsif name == :ensure && rs_value.is_a?(String)
+                rs_value.to_sym
               else
                 rs_value
               end
@@ -205,12 +215,11 @@ module Puppet::ResourceApi
             Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
           when Puppet::Pops::Types::PBooleanType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
-            # rubocop:disable Lint/BooleanSymbol
             aliasvalue true, 'true'
             aliasvalue false, 'false'
-            aliasvalue :true, 'true'
-            aliasvalue :false, 'false'
-            # rubocop:enable Lint/BooleanSymbol
+            aliasvalue :true, 'true' # rubocop:disable Lint/BooleanSymbol
+            aliasvalue :false, 'false' # rubocop:disable Lint/BooleanSymbol
+
           when Puppet::Pops::Types::PIntegerType
             Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
           when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
@@ -266,8 +275,11 @@ module Puppet::ResourceApi
           end
         else
           result[namevar_name] = title
-          result[:ensure] = 'absent' if definition[:attributes].key?(:ensure)
+          result[:ensure] = :absent if type_definition.ensurable?
         end
+
+        # puppet needs ensure to be a symbol
+        result[:ensure] = result[:ensure].to_sym if type_definition.ensurable? && result[:ensure].is_a?(String)
 
         raise_missing_attrs
 
@@ -286,7 +298,6 @@ module Puppet::ResourceApi
 
         retrieve unless @rapi_current_state
 
-        # require 'pry'; binding.pry
         return if @rapi_current_state == target_state
 
         Puppet.debug("Target State: #{target_state.inspect}")
@@ -315,7 +326,7 @@ module Puppet::ResourceApi
 
       define_method(:raise_missing_attrs) do
         error_msg = "The following mandatory attributes were not provided:\n    *  " + @missing_attrs.join(", \n    *  ")
-        raise Puppet::ResourceError, error_msg if @missing_attrs.any? && (value(:ensure) != 'absent' && !value(:ensure).nil?)
+        raise Puppet::ResourceError, error_msg if @missing_attrs.any? && (value(:ensure) != :absent && !value(:ensure).nil?)
       end
 
       define_method(:raise_missing_params) do
@@ -489,6 +500,15 @@ MESSAGE
     # an error :-(
     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
     error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(error_msg_prefix, type, inferred_type)
-    return [nil, error_msg] # the entire function is using returns for clarity # rubocop:disable Style/RedundantReturn
+    [nil, error_msg]
+  end
+
+  def self.validate_ensure(definition)
+    return unless definition[:attributes].key? :ensure
+    options = definition[:attributes][:ensure]
+    type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+
+    return if type.is_a?(Puppet::Pops::Types::PEnumType) && type.values.sort == %w[absent present].sort
+    raise Puppet::DevError, '`:ensure` attribute must have a type of: `Enum[present, absent]`'
   end
 end

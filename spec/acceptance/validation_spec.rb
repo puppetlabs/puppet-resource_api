@@ -36,7 +36,7 @@ RSpec.describe 'validation' do
     it 'allows removing' do
       output, status = Open3.capture2e("puppet resource #{common_args} test_validation foo ensure=absent param=2")
       expect(output.strip).to match %r{^test_validation}
-      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: ensure changed 'present' to 'absent'}
+      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: undefined 'ensure' from 'present'}
       expect(status.exitstatus).to eq 0
     end
 
@@ -50,6 +50,12 @@ RSpec.describe 'validation' do
       output, status = Open3.capture2e("puppet resource #{common_args} test_validation bye ensure=absent param=not_a_number")
       expect(output.strip).to match %r{Test_validation\[bye\]: test_validation.param expect.* an Integer value, got String}
       expect(status.exitstatus).to eq 1
+    end
+
+    it 'does not change attribute values on delete' do
+      output, status = Open3.capture2e("puppet resource #{common_args} test_validation foo ensure=absent param=2 prop=4")
+      expect(output.strip).not_to match %r{prop changed}
+      expect(status.exitstatus).to eq 0
     end
 
     context 'when passing a value to a read_only property' do
@@ -80,7 +86,7 @@ RSpec.describe 'validation' do
 
     it 'allows creating' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ new: prop => 2, param => 3 }\"")
-      expect(output.strip).to match %r{Test_validation\[new\]/ensure: ensure changed 'absent' to 'present'}
+      expect(output.strip).to match %r{Test_validation\[new\]/ensure: defined 'ensure' as 'present'}
       expect(status.exitstatus).to eq 0
     end
 
@@ -92,7 +98,7 @@ RSpec.describe 'validation' do
 
     it 'allows removing' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: ensure => absent, param => 3 }\"")
-      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: ensure changed 'present' to 'absent'}
+      expect(output.strip).to match %r{Test_validation\[foo\]/ensure: undefined 'ensure' from 'present'}
       expect(status.exitstatus).to eq 0
     end
 
