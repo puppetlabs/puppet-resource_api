@@ -73,10 +73,6 @@ RSpec.describe Puppet::ResourceApi do
             type: 'Float',
             desc: 'a floating point value',
           },
-          test_ensure: {
-            type: 'Enum[present, absent]',
-            desc: 'a ensure value',
-          },
           test_enum: {
             type: 'Enum[a, b, c]',
             desc: 'an enumeration',
@@ -162,7 +158,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:instance) { Puppet::Type.type(:with_string).new(params) }
 
       let(:params) do
-        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23,
           test_enum: 'a', test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
@@ -176,7 +172,6 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: true,
             test_integer: -1,
             test_float: -1.5,
-            test_ensure: 'present',
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'hkp://example.com',
@@ -186,7 +181,6 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
-        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
@@ -199,7 +193,6 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: 'true',
             test_integer: '-1',
             test_float: '-1.5',
-            test_ensure: 'present',
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'hkp://example.com',
@@ -209,7 +202,6 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
-        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
         it('the test_enum value is set correctly') { expect(instance[:test_enum]).to eq('a') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
@@ -223,7 +215,6 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: the_boolean,
             test_integer: '-1',
             test_float: '-1.5',
-            test_ensure: 'present',
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'http://example.com',
@@ -303,117 +294,166 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   context 'when registering a type that is ensurable', agent_test: true do
-    let(:definition) do
-      {
-        name: 'with_ensure',
-        attributes: {
-          name: {
-            type: 'String',
-            behaviour: :namevar,
-            desc: 'the title',
+    context 'when ensurable is correctly declared' do
+      let(:definition) do
+        {
+          name: 'with_ensure',
+          attributes: {
+            name: {
+              type: 'String',
+              behaviour: :namevar,
+              desc: 'the title',
+            },
+            ensure: {
+              type: 'Enum[present, absent]',
+              desc: 'a ensure value',
+            },
+            test_string: {
+              type: 'String',
+              desc: 'the description',
+              default: 'default value',
+            },
+            test_boolean: {
+              type: 'Boolean',
+              desc: 'a boolean value',
+            },
+            test_integer: {
+              type: 'Integer',
+              desc: 'an integer value',
+            },
+            test_float: {
+              type: 'Float',
+              desc: 'a floating point value',
+            },
+            test_enum: {
+              type: 'Enum[a, b, c]',
+              desc: 'an enumeration',
+            },
+            test_variant_pattern: {
+              type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
+              desc: 'a pattern value',
+            },
+            test_url: {
+              type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
+              desc: 'a hkp or http(s) url',
+            },
+            test_optional_string: {
+              type: 'Optional[String]',
+              desc: 'a optional string value',
+            },
           },
-          ensure: {
-            type: 'Enum[present, absent]',
-            desc: 'a ensure value',
-          },
-          test_string: {
-            type: 'String',
-            desc: 'the description',
-            default: 'default value',
-          },
-          test_boolean: {
-            type: 'Boolean',
-            desc: 'a boolean value',
-          },
-          test_integer: {
-            type: 'Integer',
-            desc: 'an integer value',
-          },
-          test_float: {
-            type: 'Float',
-            desc: 'a floating point value',
-          },
-          test_enum: {
-            type: 'Enum[a, b, c]',
-            desc: 'an enumeration',
-          },
-          test_variant_pattern: {
-            type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
-            desc: 'a pattern value',
-          },
-          test_url: {
-            type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
-            desc: 'a hkp or http(s) url',
-          },
-          test_optional_string: {
-            type: 'Optional[String]',
-            desc: 'a optional string value',
-          },
-        },
-      }
-    end
-
-    let(:provider_class) do
-      Class.new do
-        def get(_context)
-          []
-        end
-
-        def set(_context, _changes); end
+        }
       end
-    end
 
-    it { expect { described_class.register_type(definition) }.not_to raise_error }
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            []
+          end
 
-    describe 'the registered type' do
-      subject(:type) { Puppet::Type.type(:with_ensure) }
+          def set(_context, _changes); end
+        end
+      end
 
-      it { is_expected.not_to be_nil }
-    end
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
 
-    before(:each) do
-      stub_const('Puppet::Provider::WithEnsure', Module.new)
-      stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
-    end
+      describe 'the registered type' do
+        subject(:type) { Puppet::Type.type(:with_ensure) }
 
-    describe 'an instance of this type' do
-      subject(:instance) { Puppet::Type.type(:with_ensure).new(params) }
+        it { is_expected.not_to be_nil }
+      end
 
-      context 'when mandatory attributes are missing, but ensure is present' do
-        let(:params) do
-          {
-            title: 'test',
-            ensure: 'present',
-          }
+      before(:each) do
+        stub_const('Puppet::Provider::WithEnsure', Module.new)
+        stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
+      end
+
+      describe 'an instance of this type' do
+        subject(:instance) { Puppet::Type.type(:with_ensure).new(params) }
+
+        context 'when mandatory attributes are missing, but ensure is present' do
+          let(:params) do
+            {
+              title: 'test',
+              ensure: 'present',
+            }
+          end
+
+          it {
+            expect {
+              instance.validate
+              instance.retrieve
+            }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided} }
         end
 
-        it {
-          expect {
+        describe 'an absent instance' do
+          subject(:retrieved_info) do
             instance.validate
             instance.retrieve
-          }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided} }
-      end
+          end
 
-      describe 'an absent instance' do
-        subject(:retrieved_info) do
-          instance.validate
-          instance.retrieve
-        end
+          let(:params) do
+            {
+              title: 'does_not_exist',
+            }
+          end
 
-        let(:params) do
-          {
-            title: 'does_not_exist',
+          it('its name is set correctly') { expect(retrieved_info[:name]).to eq 'does_not_exist' }
+          it('its properties are set correctly') {
+            expect(retrieved_info[:test_string]).to be_nil
           }
+          it { expect(retrieved_info[:ensure]).to eq(:absent) }
+
+          it { expect { retrieved_info }.not_to raise_exception }
         end
 
-        it('its name is set correctly') { expect(retrieved_info[:name]).to eq 'does_not_exist' }
-        it('its properties are set correctly') {
-          expect(retrieved_info[:test_string]).to be_nil
-        }
-        it { expect(retrieved_info[:ensure]).to eq('absent') }
+        context 'when setting values for the attributes' do
+          let(:params) do
+            {
+              title: 'test',
+              ensure: ensure_value,
+              test_string: 'somevalue',
+              test_boolean: true,
+              test_integer: -1,
+              test_float: -1.5,
+              test_enum: 'a',
+              test_variant_pattern: 'a' * 8,
+              test_url: 'hkp://example.com',
+            }
+          end
 
-        it { expect { retrieved_info }.not_to raise_exception }
+          %w[absent present].each do |value|
+            context "with ensure=#{value}" do
+              let(:ensure_value) { value }
+
+              it('the ensure value is presented as a symbol') { expect(instance[:ensure]).to eq ensure_value.to_sym }
+              it('the ensure rs_value is a string') { expect(instance.parameters[:ensure].rs_value).to eq ensure_value }
+
+              it { expect(instance.parameters[:ensure]).to be_insync(value) }
+            end
+          end
+        end
       end
+    end
+    context 'when ensurable is not correctly declared' do
+      let(:definition) do
+        {
+          name: 'with_bad_ensure',
+          attributes: {
+            name: {
+              type: 'String',
+              behaviour: :namevar,
+              desc: 'the title',
+            },
+            ensure: {
+              type: 'Enum[yes, no]',
+              desc: 'a bad ensure attribute',
+            },
+          },
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{`:ensure` attribute must have a type of: `Enum\[present, absent\]`} }
     end
   end
 
@@ -448,11 +488,6 @@ RSpec.describe Puppet::ResourceApi do
             desc: 'a floating point parameter',
             behaviour: :parameter,
           },
-          test_ensure: {
-            type: 'Enum[present, absent]',
-            desc: 'a ensure parameter',
-            behaviour: :parameter,
-          },
           test_variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern parameter',
@@ -485,7 +520,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:instance) { Puppet::Type.type(:with_parameters).new(params) }
 
       let(:params) do
-        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23, test_ensure: 'present',
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23,
           test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
@@ -499,7 +534,6 @@ RSpec.describe Puppet::ResourceApi do
             test_boolean: 'true',
             test_integer: '-1',
             test_float: '-1.5',
-            test_ensure: 'present',
             test_variant_pattern: 'a' * 8,
             test_url: 'hkp://example.com',
           }
@@ -508,7 +542,6 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
         it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
         it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
-        it('the test_ensure value is set correctly') { expect(instance[:test_ensure]).to eq('present') }
         it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
