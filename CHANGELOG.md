@@ -3,6 +3,28 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.2.0) (2018-05-08)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.1.0...v1.2.0)
+
+**Implemented enhancements:**
+
+- \(PDK-924\) Throw when SimpleProvider is used with unensurable type [\#73](https://github.com/puppetlabs/puppet-resource_api/pull/73) ([da-ar](https://github.com/da-ar))
+- \(PDK-955\) Provide access to the type definition from the provider [\#72](https://github.com/puppetlabs/puppet-resource_api/pull/72) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- \(PDK-946\) Passes ensure values to puppet as symbols. [\#74](https://github.com/puppetlabs/puppet-resource_api/pull/74) ([da-ar](https://github.com/da-ar))
+- \(PDK-929\) Ignore validation for absent resources [\#69](https://github.com/puppetlabs/puppet-resource_api/pull/69) ([da-ar](https://github.com/da-ar))
+- Make ruby files individually loadable without puppet [\#65](https://github.com/puppetlabs/puppet-resource_api/pull/65) ([DavidS](https://github.com/DavidS))
+- \(PDK-526\) fix test for git [\#63](https://github.com/puppetlabs/puppet-resource_api/pull/63) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Add pre-commit hook for rubocop [\#70](https://github.com/puppetlabs/puppet-resource_api/pull/70) ([da-ar](https://github.com/da-ar))
+- Add a template for release announcements [\#67](https://github.com/puppetlabs/puppet-resource_api/pull/67) ([DavidS](https://github.com/DavidS))
+- Cache ~/.rvm for jruby jobs [\#66](https://github.com/puppetlabs/puppet-resource_api/pull/66) ([cotsog](https://github.com/cotsog))
+- Release prep for v1.1.0 [\#64](https://github.com/puppetlabs/puppet-resource_api/pull/64) ([DavidS](https://github.com/DavidS))
+
 ## [v1.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.1.0) (2018-04-12)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.3...v1.1.0)
 
