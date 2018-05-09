@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Puppet; end # rubocop:disable Style/Documentation
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
@@ -46,7 +48,7 @@ module Puppet::ResourceApi
     end
 
     def to_manifest
-      (["#{@typename} { #{values[@namevar].inspect}: "] + values.keys.reject { |k| k == @namevar }.map do |k|
+      (["#{@typename} { #{Puppet::Parameter.format_value_for_display(values[@namevar])}: "] + values.keys.reject { |k| k == @namevar }.map do |k|
         cs = ' '
         ce = ''
         if attr_def[k][:behaviour] && attr_def[k][:behaviour] == :read_only
@@ -59,7 +61,8 @@ module Puppet::ResourceApi
 
     # Convert our resource to yaml for Hiera purposes.
     def to_hierayaml
-      (["  #{values[@namevar]}: "] + values.keys.reject { |k| k == @namevar }.map { |k| "    #{k}: #{Puppet::Parameter.format_value_for_display(values[k])}" }).join("\n") + "\n"
+      attributes = Hash[values.keys.reject { |k| k == @namevar }.map { |k| [k.to_s, values[k]] }]
+      YAML.dump('type' => { values[@namevar] => attributes }).split("\n").drop(2).join("\n") + "\n"
     end
   end
 end

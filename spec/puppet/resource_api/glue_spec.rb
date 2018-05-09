@@ -48,11 +48,13 @@ RSpec.describe 'the dirty bits' do
 
   describe Puppet::ResourceApi::ResourceShim do
     subject(:instance) do
-      described_class.new({ namevarname: 'title', attr: 'value', attr_ro: 'fixed' }, 'typename', :namevarname,
+      described_class.new({ namevarname: title, attr: 'value', attr_ro: 'fixed' }, 'typename', :namevarname,
                           namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
                           attr: { type: 'String', desc: 'a string parameter' },
                           attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
     end
+
+    let(:title) { 'title' }
 
     describe '.values' do
       it { expect(instance.values).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
@@ -71,11 +73,17 @@ RSpec.describe 'the dirty bits' do
     end
 
     describe '.to_manifest' do
-      it { expect(instance.to_manifest).to eq "typename { \"title\": \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
+      it { expect(instance.to_manifest).to eq "typename { 'title': \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
     end
 
     describe '.to_hierayaml' do
-      it { expect(instance.to_hierayaml).to eq "  title: \n    attr: 'value'\n    attr_ro: 'fixed'\n" }
+      it { expect(instance.to_hierayaml).to eq "  title:\n    attr: value\n    attr_ro: fixed\n" }
+
+      context 'when the title contains YAML special characters' do
+        let(:title) { "foo:\nbar" }
+
+        it { expect(instance.to_hierayaml).to eq "  ? |-\n    foo:\n    bar\n  : attr: value\n    attr_ro: fixed\n" }
+      end
     end
   end
 end
