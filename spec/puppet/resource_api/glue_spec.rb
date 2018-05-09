@@ -71,7 +71,7 @@ RSpec.describe 'the dirty bits' do
     end
 
     describe '.to_manifest' do
-      it { expect(instance.to_manifest).to eq "typename { \"title\": \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
+      it { expect(instance.to_manifest).to eq "typename { 'title': \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
     end
 
     describe '.to_hierayaml' do

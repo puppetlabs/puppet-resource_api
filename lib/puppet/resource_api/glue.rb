@@ -46,7 +46,7 @@ module Puppet::ResourceApi
     end
 
     def to_manifest
-      (["#{@typename} { #{values[@namevar].inspect}: "] + values.keys.reject { |k| k == @namevar }.map do |k|
+      (["#{@typename} { #{Puppet::Parameter.format_value_for_display(values[@namevar])}: "] + values.keys.reject { |k| k == @namevar }.map do |k|
         cs = ' '
         ce = ''
         if attr_def[k][:behaviour] && attr_def[k][:behaviour] == :read_only
