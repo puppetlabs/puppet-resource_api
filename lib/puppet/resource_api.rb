@@ -73,7 +73,13 @@ module Puppet::ResourceApi
         if type_definition.feature?('canonicalize')
           attributes = my_provider.canonicalize(context, [attributes])[0]
         end
-        # $stderr.puts "C: #{attributes.inspect}"
+
+        # puppet defines a name attribute, but this only works for types that support name
+        if definition[:attributes][:name].nil? && attributes[:title].nil?
+          attributes[:title] = attributes[:name]
+          attributes.delete(:name)
+        end
+
         super(attributes)
       end
 
@@ -366,6 +372,10 @@ MESSAGE
 
       define_singleton_method(:context) do
         @context ||= PuppetContext.new(definition)
+      end
+
+      define_singleton_method(:title_patterns) do
+        [[%r{\A(.*)\Z}m, [[namevar_name]]]]
       end
 
       def context
