@@ -16,7 +16,7 @@ Hi all,
 
 We're pleased to announce that version X.Y.Z of the Resource API is being released today.
 
-The Resource API provides a simple way to create new native resources in the form of types and providers for Puppet. It is provided as a Ruby gem to be referenced within modules. Support for it has been included as an experimental feature in version 1.4 of the Puppet Development Kit (`pdk new provider`). Use the [resource_api module](https://forge.puppet.com/puppetlabs/resource_api) to deploy it in your infrastructure.
+The Resource API provides a simple way to create new native resources in the form of types and providers for Puppet. It is provided as a Ruby gem to be referenced within modules. Support for it has been included as an experimental feature in version 1.4 of the Puppet Development Kit (`pdk new provider`). Use the [resource_api module](https://forge.puppet.com/puppetlabs/resource_api) or the [puppet 6 nightly packages](https://groups.google.com/d/msg/puppet-users/N3LJGhsrqkU/TUEsq7VfDQAJ) to deploy it in your infrastructure.
 
 The new release of the Resource API provides the following enhancements:
 
