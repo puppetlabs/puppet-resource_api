@@ -15,6 +15,16 @@ class Puppet::ResourceApi::TypeDefinition
     @definition[:attributes].key?(:ensure)
   end
 
+  def namevars
+    if @namevars.nil?
+      @namevars = []
+      @definition[:attributes].each do |name, options|
+        @namevars << name if options.key?(:behaviour) && options[:behaviour] == :namevar
+      end
+    end
+    @namevars
+  end
+
   # rubocop complains when this is named has_feature?
   def feature?(feature)
     supported = (definition[:features] && definition[:features].include?(feature))

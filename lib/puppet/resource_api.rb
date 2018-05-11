@@ -10,6 +10,8 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires a Hash as definition, not %{other_type}' % { other_type: definition.class } unless definition.is_a? Hash
     raise Puppet::DevError, 'requires a name' unless definition.key? :name
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
+    raise Puppet::DevError, 'Type must not define an attribute called `title`' if definition[:attributes].key? :title
+
     validate_ensure(definition)
 
     definition[:features] ||= []
@@ -37,8 +39,6 @@ module Puppet::ResourceApi
 
     Puppet::Type.newtype(definition[:name].to_sym) do
       @docs = definition[:docs]
-      has_namevar = false
-      namevar_name = nil
 
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
       define_singleton_method(:my_provider) do
@@ -65,6 +65,7 @@ module Puppet::ResourceApi
       define_method(:initialize) do |attributes|
         # $stderr.puts "A: #{attributes.inspect}"
         if attributes.is_a? Puppet::Resource
+          @title = attributes.title
           attributes = attributes.to_hash
         else
           @called_from_resource = true
@@ -77,6 +78,9 @@ module Puppet::ResourceApi
         # puppet defines a name attribute, but this only works for types that support name
         if definition[:attributes][:name].nil? && attributes[:title].nil?
           attributes[:title] = attributes[:name]
+          if attributes[:title].nil? && !type_definition.namevars.empty?
+            attributes[:title] = @title
+          end
           attributes.delete(:name)
         end
 
@@ -106,7 +110,7 @@ module Puppet::ResourceApi
 
         @missing_attrs -= [:ensure] if @called_from_resource
 
-        raise_missing_params if @missing_params.any?
+        raise_missing_params if @missing_params.any? && @called_from_resource != true
       end
 
       definition[:attributes].each do |name, options|
@@ -121,7 +125,7 @@ module Puppet::ResourceApi
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        param_or_property = if [:read_only, :parameter, :namevar].include? options[:behaviour]
+        param_or_property = if [:read_only, :parameter].include? options[:behaviour]
                               :newparam
                             else
                               :newproperty
@@ -139,11 +143,7 @@ module Puppet::ResourceApi
           end
 
           if options[:behaviour] == :namevar
-            # puts 'setting namevar'
-            # raise Puppet::DevError, "namevar must be called 'name', not '#{name}'" if name.to_s != 'name'
             isnamevar
-            has_namevar = true
-            namevar_name = name
           end
 
           # read-only values do not need type checking, but can have default values
@@ -256,10 +256,12 @@ module Puppet::ResourceApi
             property = definition[:attributes][key.first]
             attr_def[key.first] = property
           end
-          if resource_hash[namevar_name].nil?
-            raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar_name}` namevar attribute"
+          context.type.namevars.each do |namevar|
+            if resource_hash[namevar].nil?
+              raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute"
+            end
           end
-          Puppet::ResourceApi::TypeShim.new(resource_hash[namevar_name], resource_hash, name, namevar_name, attr_def)
+          Puppet::ResourceApi::TypeShim.new(resource_hash, name, context.type.namevars, attr_def)
         end
       end
 
@@ -270,7 +272,7 @@ module Puppet::ResourceApi
         current_state = if type_definition.feature?('simple_get_filter')
                           my_provider.get(context, [title]).first
                         else
-                          my_provider.get(context).find { |h| h[namevar_name] == title }
+                          my_provider.get(context).find { |h| namevar_match?(h) }
                         end
 
         strict_check(current_state) if current_state && type_definition.feature?('canonicalize')
@@ -280,7 +282,7 @@ module Puppet::ResourceApi
             result[k] = v
           end
         else
-          result[namevar_name] = title
+          result[:title] = title
           result[:ensure] = :absent if type_definition.ensurable?
         end
 
@@ -292,6 +294,12 @@ module Puppet::ResourceApi
         @rapi_current_state = current_state
         Puppet.debug("Current State: #{@rapi_current_state.inspect}")
         result
+      end
+
+      define_method(:namevar_match?) do |item|
+        context.type.namevars.all? do |namevar|
+          item[namevar] == @parameters[namevar].value if @parameters[namevar].respond_to? :value
+        end
       end
 
       define_method(:flush) do
@@ -354,7 +362,7 @@ module Puppet::ResourceApi
         #:nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
         message = <<MESSAGE.strip
-#{definition[:name]}[#{current_state[namevar_name]}]#get has not provided canonicalized values.
+#{definition[:name]}[#{@title}]#get has not provided canonicalized values.
 Returned values:       #{current_state.inspect}
 Canonicalized values:  #{state_clone.inspect}
 MESSAGE
@@ -375,7 +383,7 @@ MESSAGE
       end
 
       define_singleton_method(:title_patterns) do
-        [[%r{\A(.*)\Z}m, [[namevar_name]]]]
+        [[%r{(.*)}m, [[type_definition.namevars.first]]]]
       end
 
       def context

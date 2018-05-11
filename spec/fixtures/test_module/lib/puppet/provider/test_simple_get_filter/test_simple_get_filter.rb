@@ -21,14 +21,14 @@ class Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter < Puppet::Resou
       [
         {
           name: 'foo',
-          ensure: 'absent',
+          ensure: 'present',
           test_string: 'foo found',
         },
       ]
     else
       [
         {
-          name: 'foo',
+          name: names.first,
           ensure: 'present',
           test_string: 'not foo',
         },
