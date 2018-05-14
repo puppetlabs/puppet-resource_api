@@ -1,3 +1,7 @@
+RSpec.configure do |c|
+  c.mock_with :rspec
+end
+
 require 'puppetlabs_spec_helper/module_spec_helper'
 require 'rspec-puppet-facts'
 
@@ -27,7 +31,6 @@ end
 
 RSpec.configure do |c|
   c.default_facts = default_facts
-  c.mock_with :rspec
   c.before :each do
     # set to strictest setting for testing
     # by default Puppet runs at warning level
