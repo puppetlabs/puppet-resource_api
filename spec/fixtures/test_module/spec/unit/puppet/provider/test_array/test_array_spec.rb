@@ -14,11 +14,13 @@ RSpec.describe Puppet::Provider::TestArray::TestArray do
       expect(provider.get(context)).to eq [
         {
           name: 'foo',
-          ensure: :present,
+          ensure: 'present',
+          some_array: %w[a b c],
         },
         {
           name: 'bar',
-          ensure: :present,
+          ensure: 'present',
+          some_array: [],
         },
       ]
     end

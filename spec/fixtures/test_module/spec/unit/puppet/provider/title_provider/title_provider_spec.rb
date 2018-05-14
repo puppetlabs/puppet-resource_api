@@ -13,11 +13,11 @@ RSpec.describe Puppet::Provider::TitleProvider::TitleProvider do
     it 'processes resources' do
       expect(provider.get(context)).to eq [
         {
-          name: 'foo',
+          namevar: 'foo',
           ensure: 'present',
         },
         {
-          name: 'bar',
+          namevar: 'bar',
           ensure: 'present',
         },
       ]
@@ -28,7 +28,7 @@ RSpec.describe Puppet::Provider::TitleProvider::TitleProvider do
     it 'creates the resource' do
       expect(context).to receive(:notice).with(%r{\ACreating 'a'})
 
-      provider.create(context, 'a', name: 'a', ensure: 'present')
+      provider.create(context, 'a', namevar: 'a', ensure: 'present')
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.describe Puppet::Provider::TitleProvider::TitleProvider do
     it 'updates the resource' do
       expect(context).to receive(:notice).with(%r{\AUpdating 'foo'})
 
-      provider.update(context, 'foo', name: 'foo', ensure: 'present')
+      provider.update(context, 'foo', namevar: 'foo', ensure: 'present')
     end
   end
 

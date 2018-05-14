@@ -6,42 +6,39 @@ class Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter < Puppet::Resou
   def get(_context, names = nil)
     if names.nil?
       [
-          {
-              name: 'bar',
-              ensure: 'present',
-              test_string: 'default'
-          },
-          {
-              name: 'foo',
-              ensure: 'present',
-              test_string: 'default'
-          },
+        {
+          name: 'bar',
+          ensure: 'present',
+          test_string: 'default',
+        },
+        {
+          name: 'foo',
+          ensure: 'present',
+          test_string: 'default',
+        },
       ]
     elsif names.include?('foo')
       [
-          {
-              name: 'foo',
-              ensure: 'absent',
-              test_string: 'foo found'
-          }
+        {
+          name: 'foo',
+          ensure: 'absent',
+          test_string: 'foo found',
+        },
       ]
     else
       [
-          {
-              name: 'foo',
-              ensure: 'present',
-              test_string: 'not foo'
-          }
+        {
+          name: 'foo',
+          ensure: 'present',
+          test_string: 'not foo',
+        },
       ]
     end
   end
 
-  def create(_context, _name, _should)
-  end
+  def create(_context, _name, _should); end
 
-  def update(_context, _name, _should)
-  end
+  def update(_context, _name, _should); end
 
-  def delete(_context, _name)
-  end
+  def delete(_context, _name); end
 end
