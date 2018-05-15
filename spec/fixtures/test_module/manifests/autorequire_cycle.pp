@@ -11,13 +11,13 @@
 class test_module::autorequire_cycle (
   Boolean $make_cycle
 ) {
-  test_autorequire { "a":
-    target => "b",
+  test_autorequire { 'a':
+    target => 'b',
   }
-  test_autorequire { "b":
-    target => "c",
+  test_autorequire { 'b':
+    target => 'c',
   }
-  test_autorequire { "c":
-    target => $make_cycle ? { true => "a", false => undef },
+  test_autorequire { 'c':
+    target => $make_cycle ? { true => 'a', false => undef },
   }
 }

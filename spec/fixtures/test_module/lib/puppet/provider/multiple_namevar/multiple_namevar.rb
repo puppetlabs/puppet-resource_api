@@ -3,15 +3,14 @@ require 'puppet/resource_api/simple_provider'
 
 # Implementation for the title_provider type using the Resource API.
 class Puppet::Provider::MultipleNamevar::MultipleNamevar < Puppet::ResourceApi::SimpleProvider
-
   def get(_context)
     [
-        { package: 'php', manager: 'yum', ensure: 'present', },
-        { package: 'php', manager: 'gem', ensure: 'present', },
-        { package: 'mysql', manager: 'yum', ensure: 'present', },
-        { package: 'mysql', manager: 'gem', ensure: 'present', },
-        { package: 'foo', manager: 'bar', ensure: 'present', },
-        { package: 'bar', manager: 'foo', ensure: 'present', },
+      { package: 'php', manager: 'yum', ensure: 'present' },
+      { package: 'php', manager: 'gem', ensure: 'present' },
+      { package: 'mysql', manager: 'yum', ensure: 'present' },
+      { package: 'mysql', manager: 'gem', ensure: 'present' },
+      { package: 'foo', manager: 'bar', ensure: 'present' },
+      { package: 'bar', manager: 'foo', ensure: 'present' },
     ]
   end
 

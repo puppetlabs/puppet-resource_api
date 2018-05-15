@@ -29,7 +29,7 @@ Puppet::ResourceApi.register_type(
     prop_ro:        {
       type:      'Integer',
       desc:      'A property that cannot be set by a catalog',
-      behaviour:  :read_only
+      behaviour:  :read_only,
     },
   },
 )

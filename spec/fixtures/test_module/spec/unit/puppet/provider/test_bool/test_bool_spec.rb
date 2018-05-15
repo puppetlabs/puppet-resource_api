@@ -14,11 +14,15 @@ RSpec.describe Puppet::Provider::TestBool::TestBool do
       expect(provider.get(context)).to eq [
         {
           name: 'foo',
-          ensure: :present,
+          ensure: 'present',
+          test_bool: true,
+          test_bool_param: true,
         },
         {
           name: 'bar',
-          ensure: :present,
+          ensure: 'present',
+          test_bool: false,
+          test_bool_param: false,
         },
       ]
     end
