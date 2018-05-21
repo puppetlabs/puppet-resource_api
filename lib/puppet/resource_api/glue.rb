@@ -8,9 +8,7 @@ module Puppet::ResourceApi
 
     def initialize(resource_hash, typename, namevars, attr_def)
       # internalize and protect - needs to go deeper
-      @values = resource_hash.dup
-      # "name" is a privileged key
-      @values.freeze
+      @values = resource_hash.dup.freeze
 
       @typename = typename
       @namevars = namevars
@@ -65,6 +63,7 @@ module Puppet::ResourceApi
       YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n") + "\n"
     end
 
+    # attribute names that are not title or namevars
     def filtered_keys
       values.keys.reject { |k| k == :title || attr_def[k][:behaviour] == :namevar && @namevars.size == 1 }
     end

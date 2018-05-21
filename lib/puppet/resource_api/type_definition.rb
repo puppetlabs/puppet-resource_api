@@ -16,13 +16,9 @@ class Puppet::ResourceApi::TypeDefinition
   end
 
   def namevars
-    if @namevars.nil?
-      @namevars = []
-      @definition[:attributes].each do |name, options|
-        @namevars << name if options.key?(:behaviour) && options[:behaviour] == :namevar
-      end
-    end
-    @namevars
+    @namevars ||= @definition[:attributes].select { |_name, options|
+      options.key?(:behaviour) && options[:behaviour] == :namevar
+    }.keys
   end
 
   # rubocop complains when this is named has_feature?

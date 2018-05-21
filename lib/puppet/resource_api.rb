@@ -75,13 +75,14 @@ module Puppet::ResourceApi
           attributes = my_provider.canonicalize(context, [attributes])[0]
         end
 
-        # puppet defines a name attribute, but this only works for types that support name
+        # the `Puppet::Resource::Ral.find` method, when `instances` does not return a match, uses a Hash with a `:name` key to create
+        # an "absent" resource. This is often hit by `puppet resource`. This needs to work, even if the namevar is not called `name`.
+        # This bit here relies on the default `title_patterns` (see below) to match the title back to the first (and often only) namevar
         if definition[:attributes][:name].nil? && attributes[:title].nil?
-          attributes[:title] = attributes[:name]
+          attributes[:title] = attributes.delete(:name)
           if attributes[:title].nil? && !type_definition.namevars.empty?
             attributes[:title] = @title
           end
-          attributes.delete(:name)
         end
 
         super(attributes)
@@ -298,7 +299,7 @@ module Puppet::ResourceApi
 
       define_method(:namevar_match?) do |item|
         context.type.namevars.all? do |namevar|
-          item[namevar] == @parameters[namevar].value if @parameters[namevar].respond_to? :value
+          item[namevar] == @parameters[namevar].value
         end
       end
 

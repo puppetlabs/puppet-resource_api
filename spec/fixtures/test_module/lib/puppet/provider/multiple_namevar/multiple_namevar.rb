@@ -3,7 +3,7 @@ require 'puppet/resource_api'
 # Implementation for the title_provider type using the Resource API.
 class Puppet::Provider::MultipleNamevar::MultipleNamevar
   def initialize
-    defaults = [
+    @current_values ||= [
       { package: 'php', manager: 'yum', ensure: 'present' },
       { package: 'php', manager: 'gem', ensure: 'present' },
       { package: 'mysql', manager: 'yum', ensure: 'present' },
@@ -11,7 +11,6 @@ class Puppet::Provider::MultipleNamevar::MultipleNamevar
       { package: 'foo', manager: 'bar', ensure: 'present' },
       { package: 'bar', manager: 'foo', ensure: 'present' },
     ]
-    @current_values ||= defaults
   end
 
   def set(context, changes)
