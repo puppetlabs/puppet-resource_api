@@ -14,7 +14,7 @@ class Puppet::Provider::MultipleNamevar::MultipleNamevar
   end
 
   def set(context, changes)
-    changes.each do |_name, change|
+    changes.each do |name, change|
       next unless change[:is] != change[:should]
 
       match = @current_values.find do |item|
@@ -22,11 +22,13 @@ class Puppet::Provider::MultipleNamevar::MultipleNamevar
           item[namevar] == change[:should][namevar]
         end
       end
-      match[:ensure] = change[:should][:ensure] if match
-
-      Puppet.notice('Unable to find matching resource.') if match.nil?
+      if match
+        match[:ensure] = change[:should][:ensure]
+      else
+        context.created([name], message: 'Adding new record')
+        @current_values << change[:should].dup
+      end
     end
-    @current_values
   end
 
   def get(_context)
