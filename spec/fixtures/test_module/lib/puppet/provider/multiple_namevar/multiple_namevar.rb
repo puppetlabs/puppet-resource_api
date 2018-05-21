@@ -2,7 +2,6 @@ require 'puppet/resource_api'
 
 # Implementation for the title_provider type using the Resource API.
 class Puppet::Provider::MultipleNamevar::MultipleNamevar
-
   def initialize
     defaults = [
       { package: 'php', manager: 'yum', ensure: 'present' },
@@ -16,18 +15,17 @@ class Puppet::Provider::MultipleNamevar::MultipleNamevar
   end
 
   def set(context, changes)
-    changes.each do |name, change|
-        if change[:is] != change[:should]
+    changes.each do |_name, change|
+      next unless change[:is] != change[:should]
 
-          match = @current_values.find do |item|
-            context.type.namevars.all? do |namevar|
-              item[namevar] == change[:should][namevar]
-            end
-          end
-          match[:ensure] = change[:should][:ensure] if match
-
-        Puppet.notice("Unable to find matching resource.") if match.nil?
+      match = @current_values.find do |item|
+        context.type.namevars.all? do |namevar|
+          item[namevar] == change[:should][namevar]
         end
+      end
+      match[:ensure] = change[:should][:ensure] if match
+
+      Puppet.notice('Unable to find matching resource.') if match.nil?
     end
     @current_values
   end
