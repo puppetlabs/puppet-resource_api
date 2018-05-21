@@ -111,8 +111,8 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:with_string) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.properties.first.doc).to match %r{the description} }
-      it { expect(type.properties.first.name).to eq :test_string }
+      it { expect(type.properties.first.doc).to match %r{the title} }
+      it { expect(type.properties.first.name).to eq :name }
 
       def extract_values(function)
         result = []
@@ -398,7 +398,7 @@ RSpec.describe Puppet::ResourceApi do
             }
           end
 
-          it('its name is set correctly') { expect(retrieved_info[:name]).to eq 'does_not_exist' }
+          it('its title is set correctly') { expect(retrieved_info[:title]).to eq 'does_not_exist' }
           it('its properties are set correctly') {
             expect(retrieved_info[:test_string]).to be_nil
           }
@@ -513,30 +513,30 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:with_parameters) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[1]).to eq :test_string }
+      it { expect(type.parameters[0]).to eq :test_string }
     end
 
     describe 'an instance of this type' do
-      subject(:instance) { Puppet::Type.type(:with_parameters).new(params) }
+      subject(:instance) { Puppet::Type.type(:with_parameters).new(Puppet::Resource.new('with_parameters', 'test', params)) }
 
       let(:params) do
-        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23,
-          test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
+        { parameters: { test_boolean: true, test_integer: 15, test_float: 1.23,
+                        test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' } }
       end
 
       it('uses defaults correctly') { expect(instance[:test_string]).to eq 'default value' }
 
       context 'when setting a value for the parameters' do
         let(:params) do
-          {
-            title: 'test',
+          { parameters: {
+            name: 'test',
             test_string: 'somevalue',
             test_boolean: 'true',
             test_integer: '-1',
             test_float: '-1.5',
             test_variant_pattern: 'a' * 8,
             test_url: 'hkp://example.com',
-          }
+          } }
         end
 
         it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
@@ -548,9 +548,7 @@ RSpec.describe Puppet::ResourceApi do
 
       context 'when mandatory parameters are missing' do
         let(:params) do
-          {
-            title: 'test',
-          }
+          { parameters: { name: 'test' } }
         end
 
         it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory parameters were not provided} }
@@ -577,7 +575,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:no_type) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[0]).to eq :name }
+      it { expect(type.parameters.size).to eq 0 }
     end
   end
 
@@ -600,7 +598,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[0]).to eq :name }
+      it { expect(type.parameters.size).to eq 0 }
     end
   end
 
@@ -633,7 +631,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:init_behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[0]).to eq :name }
+      it { expect(type.parameters.size).to eq 0 }
     end
 
     describe 'an instance of the type' do
@@ -743,7 +741,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:read_only_behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[0]).to eq :name }
+      it { expect(type.parameters[0]).to eq :immutable }
     end
 
     describe 'an instance of the type' do
@@ -826,36 +824,36 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     describe 'an instance of this type' do
-      subject(:instance) { Puppet::Type.type(:not_name_namevar).new(params) }
+      subject(:instance) { Puppet::Type.type(:not_name_namevar) }
 
       context 'with only a :title' do
         let(:params) { { title: 'test' } }
 
-        it('the namevar is set to the title') { expect(instance[:not_name]).to eq 'test' }
+        it('the namevar is set to the title') { expect(instance.new(params)[:not_name]).to eq 'test' }
       end
 
       context 'with only a :name' do
         let(:params) { { name: 'test' } }
 
-        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+        it('the namevar is set to the name') { expect(instance.new(params)[:not_name]).to eq 'test' }
       end
 
       context 'with only the namevar' do
         let(:params) { { not_name: 'test' } }
 
-        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+        it('the namevar is set to the name') { expect { instance.new(params) }.to raise_error Puppet::Error, %r{Title or name must be provided} }
       end
 
       context 'with :title, and the namevar' do
         let(:params) { { title: 'some title', not_name: 'test' } }
 
-        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+        it('the namevar is set to the name') { expect(instance.new(params)[:not_name]).to eq 'test' }
       end
 
       context 'with :name, and the namevar' do
         let(:params) { { name: 'some title', not_name: 'test' } }
 
-        it('the namevar is set to the name') { expect(instance[:not_name]).to eq 'test' }
+        it('the namevar is set to the name') { expect(instance.new(params)[:not_name]).to eq 'test' }
       end
     end
 

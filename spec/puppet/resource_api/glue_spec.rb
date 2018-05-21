@@ -7,48 +7,44 @@ require 'spec_helper'
 RSpec.describe 'the dirty bits' do
   describe Puppet::ResourceApi::TypeShim do
     subject(:instance) do
-      described_class.new('title', { attr: 'value', attr_ro: 'fixed' }, 'typename', :namevarname,
+      described_class.new({ attr: 'value', attr_ro: 'fixed' }, 'typename', [:namevarname],
                           namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
                           attr: { type: 'String', desc: 'a string parameter' },
                           attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
     end
 
     describe '.values' do
-      it { expect(instance.values).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
+      it { expect(instance.values).to eq(attr: 'value', attr_ro: 'fixed') }
     end
 
     describe '.typename' do
       it { expect(instance.typename).to eq 'typename' }
     end
 
-    describe '.name' do
-      it { expect(instance.name).to eq 'title' }
-    end
-
-    describe '.namevar' do
-      it { expect(instance.namevar).to eq :namevarname }
+    describe '.namevars' do
+      it { expect(instance.namevars).to eq [:namevarname] }
     end
 
     describe '.to_resource' do
       it { expect(instance.to_resource).to be_a Puppet::ResourceApi::ResourceShim }
 
       describe '.values' do
-        it { expect(instance.to_resource.values).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
+        it { expect(instance.to_resource.values).to eq(attr: 'value', attr_ro: 'fixed') }
       end
 
       describe '.typename' do
         it { expect(instance.to_resource.typename).to eq 'typename' }
       end
 
-      describe '.namevar' do
-        it { expect(instance.to_resource.namevar).to eq :namevarname }
+      describe '.namevars' do
+        it { expect(instance.to_resource.namevars).to eq [:namevarname] }
       end
     end
   end
 
   describe Puppet::ResourceApi::ResourceShim do
     subject(:instance) do
-      described_class.new({ namevarname: title, attr: 'value', attr_ro: 'fixed' }, 'typename', :namevarname,
+      described_class.new({ namevarname: title, attr: 'value', attr_ro: 'fixed' }, 'typename', [:namevarname],
                           namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
                           attr: { type: 'String', desc: 'a string parameter' },
                           attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })

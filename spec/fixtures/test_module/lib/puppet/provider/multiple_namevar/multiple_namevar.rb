@@ -1,10 +1,9 @@
 require 'puppet/resource_api'
-require 'puppet/resource_api/simple_provider'
 
 # Implementation for the title_provider type using the Resource API.
-class Puppet::Provider::MultipleNamevar::MultipleNamevar < Puppet::ResourceApi::SimpleProvider
-  def get(_context)
-    [
+class Puppet::Provider::MultipleNamevar::MultipleNamevar
+  def initialize
+    @current_values ||= [
       { package: 'php', manager: 'yum', ensure: 'present' },
       { package: 'php', manager: 'gem', ensure: 'present' },
       { package: 'mysql', manager: 'yum', ensure: 'present' },
@@ -14,15 +13,25 @@ class Puppet::Provider::MultipleNamevar::MultipleNamevar < Puppet::ResourceApi::
     ]
   end
 
-  def create(context, name, should)
-    context.notice("Creating '#{name}' with #{should.inspect}")
+  def set(context, changes)
+    changes.each do |name, change|
+      next unless change[:is] != change[:should]
+
+      match = @current_values.find do |item|
+        context.type.namevars.all? do |namevar|
+          item[namevar] == change[:should][namevar]
+        end
+      end
+      if match
+        match[:ensure] = change[:should][:ensure]
+      else
+        context.created([name], message: 'Adding new record')
+        @current_values << change[:should].dup
+      end
+    end
   end
 
-  def update(context, name, should)
-    context.notice("Updating '#{name}' with #{should.inspect}")
-  end
-
-  def delete(context, name)
-    context.notice("Deleting '#{name}'")
+  def get(_context)
+    @current_values
   end
 end

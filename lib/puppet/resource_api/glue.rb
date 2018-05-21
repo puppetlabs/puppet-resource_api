@@ -4,42 +4,40 @@ module Puppet; end # rubocop:disable Style/Documentation
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class TypeShim
-    attr_reader :values, :typename, :namevar, :attr_def
+    attr_reader :values, :typename, :namevars, :attr_def
 
-    def initialize(title, resource_hash, typename, namevarname, attr_def)
+    def initialize(resource_hash, typename, namevars, attr_def)
       # internalize and protect - needs to go deeper
-      @values = resource_hash.dup
-      # "name" is a privileged key
-      @values[namevarname] = title
-      @values.freeze
+      @values = resource_hash.dup.freeze
 
       @typename = typename
-      @namevar = namevarname
+      @namevars = namevars
       @attr_def = attr_def
+      @resource = ResourceShim.new(@values, @typename, @namevars, @attr_def)
     end
 
     def to_resource
-      ResourceShim.new(@values, @typename, @namevar, @attr_def)
+      @resource
     end
 
     def name
-      values[@namevar]
+      @resource.title
     end
   end
 
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class ResourceShim
-    attr_reader :values, :typename, :namevar, :attr_def
+    attr_reader :values, :typename, :namevars, :attr_def
 
-    def initialize(resource_hash, typename, namevarname, attr_def)
+    def initialize(resource_hash, typename, namevars, attr_def)
       @values = resource_hash.dup.freeze # whatevs
       @typename = typename
-      @namevar = namevarname
+      @namevars = namevars
       @attr_def = attr_def
     end
 
     def title
-      values[@namevar]
+      values[@namevars.first]
     end
 
     def prune_parameters(*_args)
@@ -48,7 +46,7 @@ module Puppet::ResourceApi
     end
 
     def to_manifest
-      (["#{@typename} { #{Puppet::Parameter.format_value_for_display(values[@namevar])}: "] + values.keys.reject { |k| k == @namevar }.map do |k|
+      (["#{@typename} { #{Puppet::Parameter.format_value_for_display(title)}: "] + filtered_keys.map do |k|
         cs = ' '
         ce = ''
         if attr_def[k][:behaviour] && attr_def[k][:behaviour] == :read_only
@@ -61,8 +59,13 @@ module Puppet::ResourceApi
 
     # Convert our resource to yaml for Hiera purposes.
     def to_hierayaml
-      attributes = Hash[values.keys.reject { |k| k == @namevar }.map { |k| [k.to_s, values[k]] }]
-      YAML.dump('type' => { values[@namevar] => attributes }).split("\n").drop(2).join("\n") + "\n"
+      attributes = Hash[filtered_keys.map { |k| [k.to_s, values[k]] }]
+      YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n") + "\n"
+    end
+
+    # attribute names that are not title or namevars
+    def filtered_keys
+      values.keys.reject { |k| k == :title || attr_def[k][:behaviour] == :namevar && @namevars.size == 1 }
     end
   end
 end
