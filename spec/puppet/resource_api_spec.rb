@@ -850,6 +850,82 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with title_patterns', agent_test: true do
+    let(:definition) do
+      {
+        name: 'composite',
+        title_patterns: [
+          {
+            pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
+            desc: 'Where the package and the manager are provided with a slash seperator',
+          },
+          {
+            pattern: %r{^(?<package>.*)$},
+            desc: 'Where only the package is provided',
+          },
+        ],
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+          },
+          package: {
+            type: 'String',
+            behavior: :namevar,
+          },
+          manager: {
+            type: 'String',
+            behavior: :namevar,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:composite) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters.size).to eq 0 }
+    end
+
+    describe 'an instance of the type' do
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            [{ package: 'php', manager: 'yum', ensure: 'present' }]
+          end
+
+          def set(_context, _changes); end
+        end
+      end
+
+      before(:each) do
+        stub_const('Puppet::Provider::Composite', Module.new)
+        stub_const('Puppet::Provider::Composite::Composite', provider_class)
+      end
+
+      context 'when title_patterns called' do
+        let(:instance) { Puppet::Type.type(:composite) }
+
+        it 'returns correctly generated pattern' do
+          # [[ %r{^(?<package>.*[^/])/(?<manager>.*)$},[[:package],[:manager]]],[%r{^(?<package>.*)$},[[:package]]]]
+
+          expect(instance.title_patterns.first[0]).to be_a Regexp
+          expect(instance.title_patterns.first[0]).to eq(%r{^(?<package>.*[^/])/(?<manager>.*)$})
+          expect(instance.title_patterns.first[1].size).to eq 2
+          expect(instance.title_patterns.first[1][0][0]).to eq :package
+          expect(instance.title_patterns.first[1][1][0]).to eq :manager
+
+          expect(instance.title_patterns.last[0]).to be_a Regexp
+          expect(instance.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
+          expect(instance.title_patterns.last[1].size).to eq 1
+          expect(instance.title_patterns.last[1][0][0]).to eq :package
+        end
+      end
+    end
+  end
+
   describe '#load_provider', agent_test: true do
     before(:each) { described_class.register_type(definition) }
 

@@ -11,6 +11,7 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires a name' unless definition.key? :name
     raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
     raise Puppet::DevError, 'Type must not define an attribute called `title`' if definition[:attributes].key? :title
+    raise Puppet::DevError, 'Title Patterns must be an array' if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)
 
     validate_ensure(definition)
 
@@ -388,7 +389,31 @@ MESSAGE
       end
 
       define_singleton_method(:title_patterns) do
-        [[%r{(.*)}m, [[type_definition.namevars.first]]]]
+        if definition.key? :title_patterns
+          parse_title_patterns(definition[:title_patterns])
+        else
+          [[%r{(.*)}m, [[type_definition.namevars.first]]]]
+        end
+      end
+
+      define_singleton_method(:parse_title_patterns) do |patterns|
+        # [
+        #   [
+        #     /(^([^\/]*)$)/m,
+        #     [ [:namevar1] ]
+        #    ],
+        #   [
+        #     /^([^\/]+)\/([^\/]+)$/,
+        #     [ [:namevar1], [:namevar2] ]
+        #   ]
+        # ]
+        @title_patterns ||= []
+        patterns.each do |item|
+          regex = Regexp.new(item[:pattern])
+          pattern_set = [item[:pattern], regex.names.map { |x| [x.to_sym] }]
+          @title_patterns.push(pattern_set)
+        end
+        @title_patterns
       end
 
       def context
