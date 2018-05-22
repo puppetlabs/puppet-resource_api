@@ -517,13 +517,29 @@ MESSAGE
       # fall through to default handling
     end
 
-    # a match!
-    return [value, nil] if type.instance?(value)
+    error_msg = try_validate(type, value, error_msg_prefix)
+    if error_msg
+      # an error :-(
+      [nil, error_msg]
+    else
+      # a match!
+      [value, nil]
+    end
+  end
+
+  # Tries to validate the `value` against the specified `type`.
+  # @param type[Puppet::Pops::Types::TypedModelObject] the type to check against
+  # @param value the value to clean
+  # @param error_msg_prefix[String] a prefix for the error messages
+  # @return [String, nil] a error message indicating the problem, or `nil` if the value was valid.
+  # @private
+  def self.try_validate(type, value, error_msg_prefix)
+    return nil if type.instance?(value)
 
     # an error :-(
     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
     error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(error_msg_prefix, type, inferred_type)
-    [nil, error_msg]
+    error_msg
   end
 
   def self.validate_ensure(definition)

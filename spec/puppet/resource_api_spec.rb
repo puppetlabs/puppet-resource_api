@@ -1518,6 +1518,45 @@ CODE
 
   # keep test data consistent # rubocop:disable Style/WordArray
   # run try_mungify only once to get both value, and error # rubocop:disable RSpec/InstanceVariable
+  describe '#try_validate(type, value)' do
+    let(:error_msg) do
+      pops_type = Puppet::Pops::Types::TypeParser.singleton.parse(type)
+      described_class.try_validate(pops_type, value, 'error prefix')
+    end
+
+    [
+      {
+        type: 'String',
+        valid: ['a', 'true'],
+        invalid: [1, true],
+      },
+      {
+        type: 'Integer',
+        valid: [1, -1, 0],
+        invalid: ['a', :a, 'true', 1.0],
+      },
+    ].each do |testcase|
+      context "when validating '#{testcase[:type]}" do
+        let(:type) { testcase[:type] }
+
+        testcase[:valid].each do |valid_value|
+          context "when validating #{valid_value.inspect}" do
+            let(:value) { valid_value }
+
+            it { expect(error_msg).to be nil }
+          end
+        end
+        testcase[:invalid].each do |invalid_value|
+          context "when validating #{invalid_value.inspect}" do
+            let(:value) { invalid_value }
+
+            it { expect(error_msg).to match %r{^error prefix } }
+          end
+        end
+      end
+    end
+  end
+
   describe '#try_mungify(type, value)' do
     before(:each) do
       @value, @error = described_class.try_mungify(type, input, 'error prefix')
