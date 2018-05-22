@@ -68,7 +68,7 @@ module Puppet::ResourceApi
           @title = attributes.title
           attributes = attributes.to_hash
         else
-          @called_from_resource = true
+          @ral_find_absent = true
         end
         # $stderr.puts "B: #{attributes.inspect}"
         if type_definition.feature?('canonicalize')
@@ -92,6 +92,10 @@ module Puppet::ResourceApi
         # enforce mandatory attributes
         @missing_attrs = []
         @missing_params = []
+
+        # do not validate on known-absent instances
+        return if @ral_find_absent
+
         definition[:attributes].each do |name, options|
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
 
@@ -109,9 +113,9 @@ module Puppet::ResourceApi
           end
         end
 
-        @missing_attrs -= [:ensure] if @called_from_resource
+        @missing_attrs -= [:ensure]
 
-        raise_missing_params if @missing_params.any? && @called_from_resource != true
+        raise_missing_params if @missing_params.any?
       end
 
       definition[:attributes].each do |name, options|

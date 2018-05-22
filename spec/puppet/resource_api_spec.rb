@@ -369,7 +369,11 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       describe 'an instance of this type' do
-        subject(:instance) { Puppet::Type.type(:with_ensure).new(params) }
+        subject(:instance) do
+          type = Puppet::Type.type(:with_ensure)
+          resource = Puppet::Resource.new(type, params[:title], parameters: params)
+          type.new(resource)
+        end
 
         context 'when mandatory attributes are missing, but ensure is present' do
           let(:params) do
