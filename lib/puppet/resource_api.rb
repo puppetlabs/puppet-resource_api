@@ -210,16 +210,16 @@ module Puppet::ResourceApi
             end
           end
 
-          if type.instance_of? Puppet::Pops::Types::POptionalType
-            type = type.type
-          end
-
           # puppet symbolizes some values through puppet/parameter/value.rb (see .convert()), but (especially) Enums
           # are strings. specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
           # default .unsafe_munge() implementation.
           munge { |v| v }
 
           # provide hints to `puppet type generate` for better parsing
+          if type.instance_of? Puppet::Pops::Types::POptionalType
+            type = type.type
+          end
+
           case type
           when Puppet::Pops::Types::PStringType
             # require any string value
