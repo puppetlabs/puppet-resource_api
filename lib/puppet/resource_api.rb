@@ -443,18 +443,32 @@ MESSAGE
     end
   end
 
-  # Validates and munges values coming from puppet into a shape palatable to the provider.
-  # This includes parsing values from strings, e.g. when running in `puppet resource`.
+  def self.caller_is_resource_app?
+    caller.any? { |c| c.match(%r{application/resource.rb:}) }
+  end
+
+  # This method handles translating values from the runtime environment to the expected types for the provider.
+  # When being called from `puppet resource`, it tries to transform the strings from the command line into their
+  # expected ruby representations, e.g. `"2"` (a string), will be transformed to `2` (the number) if (and only if)
+  # the target `type` is `Integer`.
+  # Additionally this function also validates that the passed in (and optionally transformed) value matches the
+  # specified type.
   # @param type[Puppet::Pops::Types::TypedModelObject] the type to check/clean against
   # @param value the value to clean
   # @param error_msg_prefix[String] a prefix for the error messages
   # @return [type] the cleaned value
   # @raise [Puppet::ResourceError] if `value` could not be parsed into `type`
   def self.mungify(type, value, error_msg_prefix)
-    cleaned_value, error = try_mungify(type, value, error_msg_prefix)
-
-    raise Puppet::ResourceError, error if error
-
+    if caller_is_resource_app?
+      # When the provider is exercised from the `puppet resource` CLI, we need to unpack strings into
+      # the correct types, e.g. "1" (a string) to 1 (an integer)
+      cleaned_value, error_msg = try_mungify(type, value, error_msg_prefix)
+      raise Puppet::ResourceError, error_msg if error_msg
+    else
+      # Every other time, we can use the values as is
+      cleaned_value = value
+    end
+    Puppet::ResourceApi.validate(type, cleaned_value, error_msg_prefix)
     cleaned_value
   end
 
@@ -525,6 +539,18 @@ MESSAGE
       # a match!
       [value, nil]
     end
+  end
+
+  # Validates the `value` against the specified `type`.
+  # @param type[Puppet::Pops::Types::TypedModelObject] the type to check against
+  # @param value the value to clean
+  # @param error_msg_prefix[String] a prefix for the error messages
+  # @raise [Puppet::ResourceError] if `value` is not of type `type`
+  # @private
+  def self.validate(type, value, error_msg_prefix)
+    error_msg = try_validate(type, value, error_msg_prefix)
+
+    raise Puppet::ResourceError, error_msg if error_msg
   end
 
   # Tries to validate the `value` against the specified `type`.
