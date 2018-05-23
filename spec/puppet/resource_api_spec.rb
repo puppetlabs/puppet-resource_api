@@ -185,36 +185,14 @@ RSpec.describe Puppet::ResourceApi do
         it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
       end
 
-      context 'when setting string values for the attributes' do
-        let(:params) do
-          {
-            title: 'test',
-            test_string: 'somevalue',
-            test_boolean: 'true',
-            test_integer: '-1',
-            test_float: '-1.5',
-            test_enum: 'a',
-            test_variant_pattern: 'a' * 8,
-            test_url: 'hkp://example.com',
-          }
-        end
-
-        it('the test_string value is set correctly') { expect(instance[:test_string]).to eq 'somevalue' }
-        it('the test_integer value is set correctly') { expect(instance[:test_integer]).to eq(-1) }
-        it('the test_float value is set correctly') { expect(instance[:test_float]).to eq(-1.5) }
-        it('the test_enum value is set correctly') { expect(instance[:test_enum]).to eq('a') }
-        it('the test_variant_pattern value is set correctly') { expect(instance[:test_variant_pattern]).to eq('a' * 8) }
-        it('the test_url value is set correctly') { expect(instance[:test_url]).to eq('hkp://example.com') }
-      end
-
       describe 'different boolean values' do
         let(:params) do
           {
             title: 'test',
             test_string: 'somevalue',
             test_boolean: the_boolean,
-            test_integer: '-1',
-            test_float: '-1.5',
+            test_integer: -1,
+            test_float: -1.5,
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
             test_url: 'http://example.com',
@@ -222,26 +200,6 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         # rubocop:disable Lint/BooleanSymbol
-        context 'when using :true' do
-          let(:the_boolean) { :true }
-
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
-        end
-        context 'when using :false' do
-          let(:the_boolean) { :false }
-
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
-        end
-        context 'when using "true"' do
-          let(:the_boolean) { 'true' }
-
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
-        end
-        context 'when using "false"' do
-          let(:the_boolean) { 'false' }
-
-          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
-        end
         context 'when using true' do
           let(:the_boolean) { true }
 
@@ -255,7 +213,12 @@ RSpec.describe Puppet::ResourceApi do
         context 'when using an unparsable value' do
           let(:the_boolean) { 'flubb' }
 
-          it('the test_boolean value is set correctly') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+        end
+        context 'when using a legacy symbol' do
+          let(:the_boolean) { :true }
+
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got Runtime} }
         end
         # rubocop:enable Lint/BooleanSymbol
       end
@@ -369,7 +332,11 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       describe 'an instance of this type' do
-        subject(:instance) { Puppet::Type.type(:with_ensure).new(params) }
+        subject(:instance) do
+          type = Puppet::Type.type(:with_ensure)
+          resource = Puppet::Resource.new(type, params[:title], parameters: params)
+          type.new(resource)
+        end
 
         context 'when mandatory attributes are missing, but ensure is present' do
           let(:params) do
@@ -531,9 +498,9 @@ RSpec.describe Puppet::ResourceApi do
           { parameters: {
             name: 'test',
             test_string: 'somevalue',
-            test_boolean: 'true',
-            test_integer: '-1',
-            test_float: '-1.5',
+            test_boolean: true,
+            test_integer: -1,
+            test_float: -1.5,
             test_variant_pattern: 'a' * 8,
             test_url: 'hkp://example.com',
           } }
@@ -1496,24 +1463,88 @@ CODE
   end
 
   describe '#mungify(type, value)' do
-    before(:each) do
-      allow(described_class).to receive(:try_mungify).with('type', 'input', 'error prefix').and_return(result)
+    context 'when called from `puppet resource`' do
+      before(:each) do
+        allow(described_class).to receive(:caller_is_resource_app?).with(no_args).and_return(true)
+        allow(described_class).to receive(:try_mungify).with('type', 'input', 'error prefix').and_return(result)
+        allow(described_class).to receive(:validate)
+      end
+
+      let(:caller_is_resource_app) { true }
+
+      context 'when the munge succeeds' do
+        let(:result) { ['result', nil] }
+
+        it('returns the cleaned result') { expect(described_class.mungify('type', 'input', 'error prefix')).to eq 'result' }
+        it('validates the cleaned result') do
+          described_class.mungify('type', 'input', 'error prefix')
+          expect(described_class).to have_received(:validate).with('type', 'result', 'error prefix').once
+        end
+      end
+
+      context 'when the munge fails' do
+        let(:result) { [nil, 'some error'] }
+
+        it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix') }.to raise_error Puppet::ResourceError, %r{\Asome error\Z} }
+      end
     end
-    context 'when the munge succeeds' do
-      let(:result) { ['result', nil] }
 
-      it('returns the cleaned result') { expect(described_class.mungify('type', 'input', 'error prefix')).to eq 'result' }
-    end
+    context 'when called from something else' do
+      before(:each) do
+        allow(described_class).to receive(:caller_is_resource_app?).with(no_args).and_return(false)
+        allow(described_class).to receive(:try_mungify).never
+        allow(described_class).to receive(:validate)
+      end
 
-    context 'when the munge fails' do
-      let(:result) { [nil, 'some error'] }
-
-      it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix') }.to raise_error Puppet::ResourceError, %r{\Asome error\Z} }
+      it('returns the value') { expect(described_class.mungify('type', 'input', 'error prefix')).to eq 'input' }
+      it('validates the value') do
+        described_class.mungify('type', 'input', 'error prefix')
+        expect(described_class).to have_received(:validate).with('type', 'input', 'error prefix')
+      end
     end
   end
 
   # keep test data consistent # rubocop:disable Style/WordArray
   # run try_mungify only once to get both value, and error # rubocop:disable RSpec/InstanceVariable
+  describe '#try_validate(type, value)' do
+    let(:error_msg) do
+      pops_type = Puppet::Pops::Types::TypeParser.singleton.parse(type)
+      described_class.try_validate(pops_type, value, 'error prefix')
+    end
+
+    [
+      {
+        type: 'String',
+        valid: ['a', 'true'],
+        invalid: [1, true],
+      },
+      {
+        type: 'Integer',
+        valid: [1, -1, 0],
+        invalid: ['a', :a, 'true', 1.0],
+      },
+    ].each do |testcase|
+      context "when validating '#{testcase[:type]}" do
+        let(:type) { testcase[:type] }
+
+        testcase[:valid].each do |valid_value|
+          context "when validating #{valid_value.inspect}" do
+            let(:value) { valid_value }
+
+            it { expect(error_msg).to be nil }
+          end
+        end
+        testcase[:invalid].each do |invalid_value|
+          context "when validating #{invalid_value.inspect}" do
+            let(:value) { invalid_value }
+
+            it { expect(error_msg).to match %r{^error prefix } }
+          end
+        end
+      end
+    end
+  end
+
   describe '#try_mungify(type, value)' do
     before(:each) do
       @value, @error = described_class.try_mungify(type, input, 'error prefix')

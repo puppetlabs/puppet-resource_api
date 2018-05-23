@@ -68,7 +68,7 @@ module Puppet::ResourceApi
           @title = attributes.title
           attributes = attributes.to_hash
         else
-          @called_from_resource = true
+          @ral_find_absent = true
         end
         # $stderr.puts "B: #{attributes.inspect}"
         if type_definition.feature?('canonicalize')
@@ -92,6 +92,10 @@ module Puppet::ResourceApi
         # enforce mandatory attributes
         @missing_attrs = []
         @missing_params = []
+
+        # do not validate on known-absent instances
+        return if @ral_find_absent
+
         definition[:attributes].each do |name, options|
           type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
 
@@ -109,9 +113,9 @@ module Puppet::ResourceApi
           end
         end
 
-        @missing_attrs -= [:ensure] if @called_from_resource
+        @missing_attrs -= [:ensure]
 
-        raise_missing_params if @missing_params.any? && @called_from_resource != true
+        raise_missing_params if @missing_params.any?
       end
 
       definition[:attributes].each do |name, options|
@@ -206,16 +210,16 @@ module Puppet::ResourceApi
             end
           end
 
-          if type.instance_of? Puppet::Pops::Types::POptionalType
-            type = type.type
-          end
-
           # puppet symbolizes some values through puppet/parameter/value.rb (see .convert()), but (especially) Enums
           # are strings. specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
           # default .unsafe_munge() implementation.
           munge { |v| v }
 
           # provide hints to `puppet type generate` for better parsing
+          if type.instance_of? Puppet::Pops::Types::POptionalType
+            type = type.type
+          end
+
           case type
           when Puppet::Pops::Types::PStringType
             # require any string value
@@ -439,18 +443,32 @@ MESSAGE
     end
   end
 
-  # Validates and munges values coming from puppet into a shape palatable to the provider.
-  # This includes parsing values from strings, e.g. when running in `puppet resource`.
+  def self.caller_is_resource_app?
+    caller.any? { |c| c.match(%r{application/resource.rb:}) }
+  end
+
+  # This method handles translating values from the runtime environment to the expected types for the provider.
+  # When being called from `puppet resource`, it tries to transform the strings from the command line into their
+  # expected ruby representations, e.g. `"2"` (a string), will be transformed to `2` (the number) if (and only if)
+  # the target `type` is `Integer`.
+  # Additionally this function also validates that the passed in (and optionally transformed) value matches the
+  # specified type.
   # @param type[Puppet::Pops::Types::TypedModelObject] the type to check/clean against
   # @param value the value to clean
   # @param error_msg_prefix[String] a prefix for the error messages
   # @return [type] the cleaned value
   # @raise [Puppet::ResourceError] if `value` could not be parsed into `type`
   def self.mungify(type, value, error_msg_prefix)
-    cleaned_value, error = try_mungify(type, value, error_msg_prefix)
-
-    raise Puppet::ResourceError, error if error
-
+    if caller_is_resource_app?
+      # When the provider is exercised from the `puppet resource` CLI, we need to unpack strings into
+      # the correct types, e.g. "1" (a string) to 1 (an integer)
+      cleaned_value, error_msg = try_mungify(type, value, error_msg_prefix)
+      raise Puppet::ResourceError, error_msg if error_msg
+    else
+      # Every other time, we can use the values as is
+      cleaned_value = value
+    end
+    Puppet::ResourceApi.validate(type, cleaned_value, error_msg_prefix)
     cleaned_value
   end
 
@@ -513,13 +531,41 @@ MESSAGE
       # fall through to default handling
     end
 
-    # a match!
-    return [value, nil] if type.instance?(value)
+    error_msg = try_validate(type, value, error_msg_prefix)
+    if error_msg
+      # an error :-(
+      [nil, error_msg]
+    else
+      # a match!
+      [value, nil]
+    end
+  end
+
+  # Validates the `value` against the specified `type`.
+  # @param type[Puppet::Pops::Types::TypedModelObject] the type to check against
+  # @param value the value to clean
+  # @param error_msg_prefix[String] a prefix for the error messages
+  # @raise [Puppet::ResourceError] if `value` is not of type `type`
+  # @private
+  def self.validate(type, value, error_msg_prefix)
+    error_msg = try_validate(type, value, error_msg_prefix)
+
+    raise Puppet::ResourceError, error_msg if error_msg
+  end
+
+  # Tries to validate the `value` against the specified `type`.
+  # @param type[Puppet::Pops::Types::TypedModelObject] the type to check against
+  # @param value the value to clean
+  # @param error_msg_prefix[String] a prefix for the error messages
+  # @return [String, nil] a error message indicating the problem, or `nil` if the value was valid.
+  # @private
+  def self.try_validate(type, value, error_msg_prefix)
+    return nil if type.instance?(value)
 
     # an error :-(
     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
     error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(error_msg_prefix, type, inferred_type)
-    [nil, error_msg]
+    error_msg
   end
 
   def self.validate_ensure(definition)

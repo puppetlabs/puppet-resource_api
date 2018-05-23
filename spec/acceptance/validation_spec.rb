@@ -78,6 +78,12 @@ RSpec.describe 'validation' do
       expect(status.exitstatus).to eq 0
     end
 
+    it 'rejects stringified integers' do
+      output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: prop => '2', param => '3' }\"")
+      expect(output.strip).to match %r{Parameter prop failed on Test_validation\[foo\]: test_validation.prop expect.* an Integer value, got String}i
+      expect(status.exitstatus).to eq 1
+    end
+
     it 'allows creating' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ new: prop => 2, param => 3 }\"")
       expect(output.strip).to match %r{Test_validation\[new\]/ensure: defined 'ensure' as 'present'}
