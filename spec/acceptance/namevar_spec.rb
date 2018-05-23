@@ -95,6 +95,13 @@ RSpec.describe 'a type with multiple namevars' do
       it { expect(@status.exitstatus).to eq 0 }
     end
 
+    context 'when requesting a resource that does not exist, without all namevars' do
+      let(:manifest) { 'multiple_namevar { foo: }' }
+
+      it { expect(@stdout_str).to match %r{Multiple_namevar\[foo\]/ensure: defined 'ensure' as 'present'} }
+      it { expect(@status.exitstatus).to eq 2 }
+    end
+
     context 'when removing a previously present instance' do
       let(:manifest) { 'multiple_namevar { foo: package => php, manager => yum, ensure => absent }' }
 

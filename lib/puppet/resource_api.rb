@@ -303,7 +303,7 @@ module Puppet::ResourceApi
 
       define_method(:namevar_match?) do |item|
         context.type.namevars.all? do |namevar|
-          item[namevar] == @parameters[namevar].value
+          item[namevar] == @parameters[namevar].value if @parameters[namevar].respond_to? :value
         end
       end
 
