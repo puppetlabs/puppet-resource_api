@@ -1,4 +1,4 @@
-Send out announcements for major new feature releases, and high-impact bugfixes to puppet-dev@googlegroups.com, puppet-users@googlegroups.com, voxpupuli@groups.io, and the puppet internal mailing lists.
+Send out announcements for major new feature releases, and high-impact bugfixes to <puppet-dev@googlegroups.com>, <puppet-users@googlegroups.com>, <voxpupuli@groups.io>, and the puppet internal mailing lists <dev@puppet.com> and <tech-discuss@puppet.com>.
 
 Before sending, do check that all links are still valid. Feel free to adjust the text to match better with the circumstances of the release, or add other news that are relevant at the time. If you make changes, consider committing them here, for the benefit of future-you.
 
