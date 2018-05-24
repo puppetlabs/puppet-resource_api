@@ -391,6 +391,10 @@ MESSAGE
         @context ||= PuppetContext.new(definition)
       end
 
+      def context
+        self.class.context
+      end
+
       define_singleton_method(:title_patterns) do
         if definition.key? :title_patterns
           parse_title_patterns(definition[:title_patterns])
@@ -417,10 +421,6 @@ MESSAGE
           @title_patterns.push(pattern_set)
         end
         @title_patterns
-      end
-
-      def context
-        self.class.context
       end
 
       [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
