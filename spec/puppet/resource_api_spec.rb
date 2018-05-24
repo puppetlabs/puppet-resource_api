@@ -861,7 +861,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with title_patterns', agent_test: true do
+  context 'when registering a type with title_patterns' do
     let(:definition) do
       {
         name: 'composite',
