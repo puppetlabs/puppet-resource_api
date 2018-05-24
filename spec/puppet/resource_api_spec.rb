@@ -23,9 +23,20 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   context 'when registering a definition with missing keys' do
-    it { expect { described_class.register_type([]) }.to raise_error(Puppet::DevError, %r{requires a Hash as definition}) }
-    it { expect { described_class.register_type({}) }.to raise_error(Puppet::DevError, %r{requires a name}) }
-    it { expect { described_class.register_type(name: 'no attributes') }.to raise_error(Puppet::DevError, %r{requires attributes}) }
+    it { expect { described_class.register_type([]) }.to raise_error(Puppet::DevError, %r{requires a hash as definition}) }
+    it { expect { described_class.register_type({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
+    it { expect { described_class.register_type(name: 'no attributes') }.to raise_error(Puppet::DevError, %r{requires `:attributes`}) }
+    it { expect { described_class.register_type(name: 'no hash attributes', attributes: []) }.to raise_error(Puppet::DevError, %r{`:attributes` must be a hash, not}) }
+    it {
+      expect {
+        described_class.register_type(name: 'with a title', attributes: { title: {} })
+      }.to raise_error(Puppet::DevError, %r{must not define an attribute called `:title`})
+    }
+    it {
+      expect {
+        described_class.register_type(name: 'with no hash title_patterns', attributes: {}, title_patterns: {})
+      }.to raise_error(Puppet::DevError, %r{`:title_patterns` must be an array, not})
+    }
   end
 
   context 'when registering a minimal type' do
@@ -847,6 +858,82 @@ RSpec.describe Puppet::ResourceApi do
           instance.instances
         }.to  raise_error Puppet::ResourceError, %r{^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$}
       }
+    end
+  end
+
+  context 'when registering a type with title_patterns' do
+    let(:definition) do
+      {
+        name: 'composite',
+        title_patterns: [
+          {
+            pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
+            desc: 'Where the package and the manager are provided with a slash seperator',
+          },
+          {
+            pattern: %r{^(?<package>.*)$},
+            desc: 'Where only the package is provided',
+          },
+        ],
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+          },
+          package: {
+            type: 'String',
+            behavior: :namevar,
+          },
+          manager: {
+            type: 'String',
+            behavior: :namevar,
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:composite) }
+
+      it { is_expected.not_to be_nil }
+      it { expect(type.parameters.size).to eq 0 }
+    end
+
+    describe 'an instance of the type' do
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            [{ package: 'php', manager: 'yum', ensure: 'present' }]
+          end
+
+          def set(_context, _changes); end
+        end
+      end
+
+      before(:each) do
+        stub_const('Puppet::Provider::Composite', Module.new)
+        stub_const('Puppet::Provider::Composite::Composite', provider_class)
+      end
+
+      context 'when title_patterns called' do
+        let(:instance) { Puppet::Type.type(:composite) }
+
+        it 'returns correctly generated pattern' do
+          # [[ %r{^(?<package>.*[^/])/(?<manager>.*)$},[[:package],[:manager]]],[%r{^(?<package>.*)$},[[:package]]]]
+
+          expect(instance.title_patterns.first[0]).to be_a Regexp
+          expect(instance.title_patterns.first[0]).to eq(%r{^(?<package>.*[^/])/(?<manager>.*)$})
+          expect(instance.title_patterns.first[1].size).to eq 2
+          expect(instance.title_patterns.first[1][0][0]).to eq :package
+          expect(instance.title_patterns.first[1][1][0]).to eq :manager
+
+          expect(instance.title_patterns.last[0]).to be_a Regexp
+          expect(instance.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
+          expect(instance.title_patterns.last[1].size).to eq 1
+          expect(instance.title_patterns.last[1][0][0]).to eq :package
+        end
+      end
     end
   end
 

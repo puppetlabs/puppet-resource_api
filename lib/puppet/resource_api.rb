@@ -7,10 +7,14 @@ require 'puppet/type'
 
 module Puppet::ResourceApi
   def register_type(definition)
-    raise Puppet::DevError, 'requires a Hash as definition, not %{other_type}' % { other_type: definition.class } unless definition.is_a? Hash
-    raise Puppet::DevError, 'requires a name' unless definition.key? :name
-    raise Puppet::DevError, 'requires attributes' unless definition.key? :attributes
-    raise Puppet::DevError, 'Type must not define an attribute called `title`' if definition[:attributes].key? :title
+    raise Puppet::DevError, 'requires a hash as definition, not `%{other_type}`' % { other_type: definition.class } unless definition.is_a? Hash
+    raise Puppet::DevError, 'requires a `:name`' unless definition.key? :name
+    raise Puppet::DevError, 'requires `:attributes`' unless definition.key? :attributes
+    raise Puppet::DevError, '`:attributes` must be a hash, not `%{other_type}`' % { other_type: definition[:attributes].class } unless definition[:attributes].is_a?(Hash)
+    raise Puppet::DevError, 'must not define an attribute called `:title`' if definition[:attributes].key? :title
+    if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)
+      raise Puppet::DevError, '`:title_patterns` must be an array, not `%{other_type}`' % { other_type: definition[:title_patterns].class }
+    end
 
     validate_ensure(definition)
 
@@ -387,12 +391,33 @@ MESSAGE
         @context ||= PuppetContext.new(definition)
       end
 
-      define_singleton_method(:title_patterns) do
-        [[%r{(.*)}m, [[type_definition.namevars.first]]]]
-      end
-
       def context
         self.class.context
+      end
+
+      define_singleton_method(:title_patterns) do
+        @title_patterns ||= if definition.key? :title_patterns
+                              parse_title_patterns(definition[:title_patterns])
+                            else
+                              [[%r{(.*)}m, [[type_definition.namevars.first]]]]
+                            end
+      end
+
+      # Creates a `title_pattern` compatible data structure to pass to the underlying puppet runtime environment.
+      # It uses the named items in the regular expression to connect the dots
+      #
+      # @example `[ %r{^(?<package>.*[^-])-(?<manager>.*)$} ]` becomes
+      #   [
+      #     [
+      #       %r{^(?<package>.*[^-])-(?<manager>.*)$},
+      #       [ [:package], [:manager] ]
+      #     ],
+      #   ]
+      def self.parse_title_patterns(patterns)
+        patterns.map do |item|
+          regex = Regexp.new(item[:pattern])
+          [item[:pattern], regex.names.map { |x| [x.to_sym] }]
+        end
       end
 
       [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
