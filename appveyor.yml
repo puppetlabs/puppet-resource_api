@@ -1,5 +1,9 @@
 # version: 1.0.{build}-{branch}
 
+branches:
+  except:
+  - release-prep
+
 environment:
   matrix:
     - RUBY_VERSION: 24-x64

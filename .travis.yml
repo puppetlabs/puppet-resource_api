@@ -8,6 +8,9 @@ script:
   - echo travis_fold:end:DEBUG
   - COVERAGE=yes bundle exec rake $CHECK
 cache: bundler
+branches:
+  except:
+  - release-prep
 matrix:
   include:
     - rvm: 2.4.3

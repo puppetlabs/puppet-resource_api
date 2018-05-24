@@ -3,6 +3,28 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.3.0) (2018-05-24)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.2.0...v1.3.0)
+
+**Implemented enhancements:**
+
+- Check for more attributes that puppet can't use [\#84](https://github.com/puppetlabs/puppet-resource_api/pull/84) ([DavidS](https://github.com/DavidS))
+- \(PDK-531\) Support for composite namevars [\#82](https://github.com/puppetlabs/puppet-resource_api/pull/82) ([da-ar](https://github.com/da-ar))
+- \(PDK-889\) Write support for multiple namevars [\#79](https://github.com/puppetlabs/puppet-resource_api/pull/79) ([da-ar](https://github.com/da-ar))
+- \(PDK-889\) Read-only support for multiple namevars [\#76](https://github.com/puppetlabs/puppet-resource_api/pull/76) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- Ignore `provider` attribute when calculating target state [\#83](https://github.com/puppetlabs/puppet-resource_api/pull/83) ([DavidS](https://github.com/DavidS))
+- Add check to handle absent resources through puppet apply [\#81](https://github.com/puppetlabs/puppet-resource_api/pull/81) ([da-ar](https://github.com/da-ar))
+- \(PDK-988\) restrain mungify from non-`puppet resource` workflows [\#80](https://github.com/puppetlabs/puppet-resource_api/pull/80) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Update fixtures module to PDK v1.5 [\#78](https://github.com/puppetlabs/puppet-resource_api/pull/78) ([DavidS](https://github.com/DavidS))
+- Some glue fixes: announcement, to\_manifest, to\_hierayaml [\#77](https://github.com/puppetlabs/puppet-resource_api/pull/77) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.2.0 [\#75](https://github.com/puppetlabs/puppet-resource_api/pull/75) ([DavidS](https://github.com/DavidS))
+
 ## [v1.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.2.0) (2018-05-08)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.1.0...v1.2.0)
 
