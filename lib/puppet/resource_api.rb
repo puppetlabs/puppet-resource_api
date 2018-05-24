@@ -396,31 +396,28 @@ MESSAGE
       end
 
       define_singleton_method(:title_patterns) do
-        if definition.key? :title_patterns
-          parse_title_patterns(definition[:title_patterns])
-        else
-          [[%r{(.*)}m, [[type_definition.namevars.first]]]]
-        end
+        @title_patterns ||= if definition.key? :title_patterns
+                              parse_title_patterns(definition[:title_patterns])
+                            else
+                              [[%r{(.*)}m, [[type_definition.namevars.first]]]]
+                            end
       end
 
-      define_singleton_method(:parse_title_patterns) do |patterns|
-        # [
-        #   [
-        #     /(^([^\/]*)$)/m,
-        #     [ [:namevar1] ]
-        #    ],
-        #   [
-        #     /^([^\/]+)\/([^\/]+)$/,
-        #     [ [:namevar1], [:namevar2] ]
-        #   ]
-        # ]
-        @title_patterns ||= []
-        patterns.each do |item|
+      # Creates a `title_pattern` compatible data structure to pass to the underlying puppet runtime environment.
+      # It uses the named items in the regular expression to connect the dots
+      #
+      # @example `[ %r{^(?<package>.*[^-])-(?<manager>.*)$} ]` becomes
+      #   [
+      #     [
+      #       %r{^(?<package>.*[^-])-(?<manager>.*)$},
+      #       [ [:package], [:manager] ]
+      #     ],
+      #   ]
+      def self.parse_title_patterns(patterns)
+        patterns.map do |item|
           regex = Regexp.new(item[:pattern])
-          pattern_set = [item[:pattern], regex.names.map { |x| [x.to_sym] }]
-          @title_patterns.push(pattern_set)
+          [item[:pattern], regex.names.map { |x| [x.to_sym] }]
         end
-        @title_patterns
       end
 
       [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
