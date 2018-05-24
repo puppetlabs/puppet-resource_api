@@ -209,8 +209,9 @@ There are still a few notable gaps between the implementation and the specificat
 * Complex data types, like Hash, Tuple or Struct are not yet implemented.
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 
-Restrictions of running under puppet:
-* `supports_noop` is not effective, as puppet doesn't call into the type under noop.
+Restrictions of puppet:
+* `supports_noop` is not effective, as puppet doesn't call into the type under noop at all.
+* Attributes cannot be called `title`, `provider`, or any of the [metaparameters](https://puppet.com/docs/puppet/5.5/metaparameter.html), as those are reserved by puppet itself.
 
 Future possibilities:
 * [Composite Namevars](https://tickets.puppetlabs.com/browse/PDK-531)
