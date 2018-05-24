@@ -34,6 +34,11 @@ RSpec.describe Puppet::ResourceApi do
     }
     it {
       expect {
+        described_class.register_type(name: 'with a provider', attributes: { provider: {} })
+      }.to raise_error(Puppet::DevError, %r{must not define an attribute called `:provider`})
+    }
+    it {
+      expect {
         described_class.register_type(name: 'with no hash title_patterns', attributes: {}, title_patterns: {})
       }.to raise_error(Puppet::DevError, %r{`:title_patterns` must be an array, not})
     }

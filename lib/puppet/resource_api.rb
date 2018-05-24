@@ -12,6 +12,7 @@ module Puppet::ResourceApi
     raise Puppet::DevError, 'requires `:attributes`' unless definition.key? :attributes
     raise Puppet::DevError, '`:attributes` must be a hash, not `%{other_type}`' % { other_type: definition[:attributes].class } unless definition[:attributes].is_a?(Hash)
     raise Puppet::DevError, 'must not define an attribute called `:title`' if definition[:attributes].key? :title
+    raise Puppet::DevError, 'must not define an attribute called `:provider`' if definition[:attributes].key? :provider
     if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)
       raise Puppet::DevError, '`:title_patterns` must be an array, not `%{other_type}`' % { other_type: definition[:title_patterns].class }
     end
@@ -316,7 +317,7 @@ module Puppet::ResourceApi
 
         # puts 'flush'
         # skip puppet's injected metaparams
-        target_state = Hash[@parameters.reject { |k, _v| [:loglevel, :noop].include? k }.map { |k, v| [k, v.rs_value] }]
+        target_state = Hash[@parameters.reject { |k, _v| [:loglevel, :noop, :provider].include? k }.map { |k, v| [k, v.rs_value] }]
         target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
 
         retrieve unless @rapi_current_state
