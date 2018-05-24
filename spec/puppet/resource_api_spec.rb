@@ -23,9 +23,20 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   context 'when registering a definition with missing keys' do
-    it { expect { described_class.register_type([]) }.to raise_error(Puppet::DevError, %r{requires a Hash as definition}) }
-    it { expect { described_class.register_type({}) }.to raise_error(Puppet::DevError, %r{requires a name}) }
-    it { expect { described_class.register_type(name: 'no attributes') }.to raise_error(Puppet::DevError, %r{requires attributes}) }
+    it { expect { described_class.register_type([]) }.to raise_error(Puppet::DevError, %r{requires a hash as definition}) }
+    it { expect { described_class.register_type({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
+    it { expect { described_class.register_type(name: 'no attributes') }.to raise_error(Puppet::DevError, %r{requires `:attributes`}) }
+    it { expect { described_class.register_type(name: 'no hash attributes', attributes: []) }.to raise_error(Puppet::DevError, %r{`:attributes` must be a hash, not}) }
+    it {
+      expect {
+        described_class.register_type(name: 'with a title', attributes: { title: {} })
+      }.to raise_error(Puppet::DevError, %r{must not define an attribute called `:title`})
+    }
+    it {
+      expect {
+        described_class.register_type(name: 'with no hash title_patterns', attributes: {}, title_patterns: {})
+      }.to raise_error(Puppet::DevError, %r{`:title_patterns` must be an array, not})
+    }
   end
 
   context 'when registering a minimal type' do
