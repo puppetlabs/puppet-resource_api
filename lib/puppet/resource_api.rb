@@ -6,6 +6,12 @@ require 'puppet/resource_api/version'
 require 'puppet/type'
 
 module Puppet::ResourceApi
+  @warning_count = 0
+
+  class << self
+    attr_accessor :warning_count
+  end
+
   def register_type(definition)
     raise Puppet::DevError, 'requires a hash as definition, not `%{other_type}`' % { other_type: definition.class } unless definition.is_a? Hash
     raise Puppet::DevError, 'requires a `:name`' unless definition.key? :name
@@ -114,7 +120,7 @@ module Puppet::ResourceApi
         return if @ral_find_absent
 
         definition[:attributes].each do |name, options|
-          type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+          type = Puppet::ResourceApi.parse_puppet_type(:name, options[:type])
 
           # skip read only vars and the namevar
           next if [:read_only, :namevar].include? options[:behaviour]
@@ -181,13 +187,7 @@ module Puppet::ResourceApi
             end
           end
 
-          begin
-            type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
-          rescue Puppet::ParseErrorWithIssue => e
-            raise Puppet::DevError, "The type of the `#{name}` attribute `#{options[:type]}` could not be parsed: #{e.message}"
-          rescue Puppet::ParseError => e
-            raise Puppet::DevError, "The type of the `#{name}` attribute `#{options[:type]}` is not recognised: #{e.message}"
-          end
+          type = Puppet::ResourceApi.parse_puppet_type(name, options[:type])
 
           if param_or_property == :newproperty
             define_method(:should) do
@@ -284,17 +284,8 @@ module Puppet::ResourceApi
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
-        # attr_def = {}
         my_provider.get(context).map do |resource_hash|
-          # resource_hash.each do |key|
-          #   property = definition[:attributes][key.first]
-          #   attr_def[key.first] = property
-          # end
-          type_definition.namevars.each do |namevar|
-            if resource_hash[namevar].nil?
-              raise Puppet::ResourceError, "`#{type_definition.name}.get` did not return a value for the `#{namevar}` namevar attribute"
-            end
-          end
+          type_definition.check_schema(resource_hash)
           Puppet::ResourceApi::TypeShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
         end
       end
@@ -309,6 +300,7 @@ module Puppet::ResourceApi
                           my_provider.get(context).find { |h| namevar_match?(h) }
                         end
 
+        type_definition.check_schema(current_state) if current_state
         strict_check(current_state) if current_state && type_definition.feature?('canonicalize')
 
         if current_state
@@ -621,9 +613,17 @@ MESSAGE
   def self.validate_ensure(definition)
     return unless definition[:attributes].key? :ensure
     options = definition[:attributes][:ensure]
-    type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+    type = Puppet::ResourceApi.parse_puppet_type(:ensure, options[:type])
 
     return if type.is_a?(Puppet::Pops::Types::PEnumType) && type.values.sort == %w[absent present].sort
     raise Puppet::DevError, '`:ensure` attribute must have a type of: `Enum[present, absent]`'
+  end
+
+  def self.parse_puppet_type(attr_name, type)
+    Puppet::Pops::Types::TypeParser.singleton.parse(type)
+  rescue Puppet::ParseErrorWithIssue => e
+    raise Puppet::DevError, "The type of the `#{attr_name}` attribute `#{type}` could not be parsed: #{e.message}"
+  rescue Puppet::ParseError => e
+    raise Puppet::DevError, "The type of the `#{attr_name}` attribute `#{type}` is not recognised: #{e.message}"
   end
 end

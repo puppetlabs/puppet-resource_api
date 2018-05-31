@@ -4,7 +4,7 @@ require 'open3'
 require 'tempfile'
 
 RSpec.describe 'exercising simple_get_filter' do
-  let(:common_args) { '--verbose --debug --trace --modulepath spec/fixtures' }
+  let(:common_args) { '--verbose --debug --trace --strict=error --modulepath spec/fixtures' }
 
   describe 'using `puppet resource`' do
     context 'when using `get` to access all resources' do

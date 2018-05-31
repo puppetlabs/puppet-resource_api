@@ -65,7 +65,7 @@ RSpec.describe Puppet::ResourceApi do
   context 'when registering a type with multiple attributes' do
     let(:definition) do
       {
-        name: 'with_string',
+        name: type_name,
         attributes: {
           name: {
             type: 'String',
@@ -120,11 +120,14 @@ RSpec.describe Puppet::ResourceApi do
         },
       }
     end
+    let(:type_name) { 'with_string' }
 
-    it { expect { described_class.register_type(definition) }.not_to raise_error }
+    before(:each) do
+      described_class.register_type(definition)
+    end
 
     describe 'the registered type' do
-      subject(:type) { Puppet::Type.type(:with_string) }
+      subject(:type) { Puppet::Type.type(type_name.to_sym) }
 
       it { is_expected.not_to be_nil }
       it { expect(type.properties.map { |p| p.doc }).to include a_string_matching %r{the description} }
@@ -171,7 +174,7 @@ RSpec.describe Puppet::ResourceApi do
     end
 
     describe 'an instance of this type' do
-      subject(:instance) { Puppet::Type.type(:with_string).new(params) }
+      subject(:instance) { Puppet::Type.type(type_name.to_sym).new(params) }
 
       let(:params) do
         { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23,
@@ -267,6 +270,62 @@ RSpec.describe Puppet::ResourceApi do
               instance.validate
               instance.retrieve
             }.not_to raise_exception }
+        end
+      end
+    end
+
+    describe 'another instance of this type' do
+      subject(:instance) { Puppet::Type.type(type_name.to_sym).new(params) }
+
+      let(:type_name) { 'type_check' }
+
+      let(:params) do
+        { title: 'test', test_boolean: true, test_integer: 15, test_float: 1.23,
+          test_enum: 'a', test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
+      end
+
+      context 'with a bad provider', agent_test: true do
+        before(:each) do
+          stub_const('Puppet::Provider::TypeCheck', Module.new)
+          stub_const('Puppet::Provider::TypeCheck::TypeCheck', provider_class)
+        end
+
+        let(:provider_class) do
+          Class.new do
+            def get(_context)
+              [{ name: 'test', test_string: 15, wibble: 'foo' }]
+            end
+
+            def set(_context, _changes); end
+          end
+        end
+        let(:message) { %r{Provider returned data that does not match the Type Schema for `type_check\[test\]`\n\s*Unknown attribute:\n\s*\* wibble\n\n\s*Value type mismatch:\n\s*\* test_string: 15} }
+
+        context 'when strict is default (:warning)' do
+          let(:strict_level) { :warning }
+
+          it 'will log error at warning level' do
+            expect(Puppet).to receive(:warning).with(message)
+            instance.retrieve
+          end
+        end
+
+        context 'when strict is :error' do
+          let(:strict_level) { :error }
+
+          it {
+            expect {
+              instance.retrieve
+            }.to raise_error Puppet::DevError, message }
+        end
+
+        context 'when strict is :off' do
+          let(:strict_level) { :off }
+
+          it 'will log error at debug level' do
+            instance.retrieve
+            expect(log_sink.map(&:message)).to include(message)
+          end
         end
       end
     end

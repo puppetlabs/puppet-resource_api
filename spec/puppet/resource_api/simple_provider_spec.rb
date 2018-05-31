@@ -65,6 +65,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:creating).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
     end
 
     it 'calls create once' do
@@ -184,6 +185,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(provider).to receive(:create).with(context, 'to create', hash_including(name: 'to create'))
       expect(provider).to receive(:update).with(context, 'to update', hash_including(name: 'to update'))
       expect(provider).to receive(:delete).with(context, 'to delete')
+      expect(type_def).to receive(:check_schema)
       provider.set(context, changes)
     end
   end
