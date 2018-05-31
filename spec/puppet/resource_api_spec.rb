@@ -790,6 +790,36 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with badly formed attribute type' do
+    let(:definition) do
+      {
+        name: 'bad_syntax',
+        attributes: {
+          name: {
+            type: 'Optional[String',
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{The type of the `name` attribute `Optional\[String` could not be parsed:} }
+  end
+
+  context 'when registering a type with unknown attribute type' do
+    let(:definition) do
+      {
+        name: 'wibble',
+        attributes: {
+          name: {
+            type: 'wibble',
+          },
+        },
+      }
+    end
+
+    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{The type of the `name` attribute `wibble` is not recognised:} }
+  end
+
   context 'when registering a namevar that is not called `name`' do
     let(:definition) do
       {

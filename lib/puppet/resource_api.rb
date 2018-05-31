@@ -170,7 +170,14 @@ module Puppet::ResourceApi
             end
           end
 
-          type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+          begin
+            type = Puppet::Pops::Types::TypeParser.singleton.parse(options[:type])
+          rescue Puppet::ParseErrorWithIssue => e
+            raise Puppet::DevError, "The type of the `#{name}` attribute `#{options[:type]}` could not be parsed: #{e.message}"
+          rescue Puppet::ParseError => e
+            raise Puppet::DevError, "The type of the `#{name}` attribute `#{options[:type]}` is not recognised: #{e.message}"
+          end
+
           if param_or_property == :newproperty
             define_method(:should) do
               if type.is_a? Puppet::Pops::Types::PBooleanType
