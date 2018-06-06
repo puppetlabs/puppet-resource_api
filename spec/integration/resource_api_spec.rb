@@ -186,7 +186,7 @@ RSpec.describe 'Resource API integrated tests:' do
       Puppet::ResourceApi.register_type(definition)
     end
 
-    context 'when setting an attribute' do
+    context 'with a instance of the type' do
       let(:instance) do
         type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
                  variant_pattern: '0x1234ABCD', url: 'http://www.google.com', string_array: %w[a b c],
@@ -198,6 +198,13 @@ RSpec.describe 'Resource API integrated tests:' do
       end
 
       it('flushes') { expect { instance.flush }.not_to raise_exception }
+
+      describe '.to_resource' do
+        it { expect(instance.to_resource).to be_a Puppet::ResourceApi::ResourceShim }
+        describe 'its title' do
+          it { expect(instance.to_resource.title).to eq 'somename' }
+        end
+      end
 
       context 'when updating encounters an error' do
         let(:setter) do
