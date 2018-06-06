@@ -127,8 +127,8 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:with_string) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.properties.first.doc).to match %r{the title} }
-      it { expect(type.properties.first.name).to eq :name }
+      it { expect(type.properties.map { |p| p.doc }).to include a_string_matching %r{the description} }
+      it { expect(type.properties.map { |p| p.name }).to include :test_string }
 
       def extract_values(function)
         result = []
@@ -496,7 +496,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:with_parameters) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[0]).to eq :test_string }
+      it { expect(type.parameters).to include :test_string }
     end
 
     describe 'an instance of this type' do
@@ -542,7 +542,7 @@ RSpec.describe Puppet::ResourceApi do
   context 'when registering an attribute with an optional data type' do
     let(:definition) do
       {
-        name: 'no_type',
+        name: 'optional',
         attributes: {
           name: {
             type: 'Optional[Integer]',
@@ -555,10 +555,9 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     describe 'the registered type' do
-      subject(:type) { Puppet::Type.type(:no_type) }
+      subject(:type) { Puppet::Type.type(:optional) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters.size).to eq 0 }
     end
   end
 
@@ -567,7 +566,7 @@ RSpec.describe Puppet::ResourceApi do
       {
         name: 'behaviour',
         attributes: {
-          name: {
+          some_name: {
             type: 'String',
             behavior: :namevar,
           },
@@ -597,7 +596,7 @@ RSpec.describe Puppet::ResourceApi do
             type: 'String',
             behavior: :namevar,
           },
-          immutable: {
+          something_init_only: {
             type: 'String',
             behaviour: :init_only,
           },
@@ -614,14 +613,14 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:init_behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters.size).to eq 0 }
+      it { expect(type.parameters).not_to include :something_init_only }
     end
 
     describe 'an instance of the type' do
       let(:provider_class) do
         Class.new do
           def get(_context)
-            [{ name: 'init', ensure: 'present', immutable: 'physics', mutable: 'bank balance' }]
+            [{ name: 'init', ensure: 'present', something_init_only: 'physics', mutable: 'bank balance' }]
           end
 
           def set(_context, _changes); end
@@ -634,7 +633,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'when a manifest wants to set the value of an init_only attribute' do
-        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'new_init', ensure: 'present', immutable: 'new', mutable: 'flexible') }
+        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'new_init', ensure: 'present', something_init_only: 'new', mutable: 'flexible') }
 
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
@@ -668,19 +667,19 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'when a manifest wants to change the value of an init_only attribute' do
-        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: 'present', immutable: 'lies', mutable: 'overdraft') }
+        let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: 'present', something_init_only: 'lies', mutable: 'overdraft') }
 
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
 
-          it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to change `immutable` init_only attribute value from} }
+          it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to change `something_init_only` init_only attribute value from} }
         end
 
         context 'when Puppet strict setting is :warning' do
           let(:strict_level) { :warning }
 
           it {
-            expect(Puppet).to receive(:warning).with(%r{Attempting to change `immutable` init_only attribute value from})
+            expect(Puppet).to receive(:warning).with(%r{Attempting to change `something_init_only` init_only attribute value from})
             instance.flush
           }
         end
@@ -724,7 +723,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:read_only_behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters[0]).to eq :immutable }
+      it { expect(type.parameters).to include :immutable }
     end
 
     describe 'an instance of the type' do
