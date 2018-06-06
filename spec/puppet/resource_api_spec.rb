@@ -580,7 +580,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters.size).to eq 0 }
+      it { expect(type.key_attribute_parameters.map { |p| p.name }).to eq [:some_name] }
     end
   end
 
@@ -853,7 +853,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'with only the namevar' do
         let(:params) { { not_name: 'test' } }
 
-        it('the namevar is set to the name') { expect { instance.new(params) }.to raise_error Puppet::Error, %r{Title or name must be provided} }
+        it('the namevar is set to the name') { expect(instance.new(params)[:not_name]).to eq 'test' }
       end
 
       context 'with :title, and the namevar' do
@@ -931,7 +931,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:composite) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters.size).to eq 0 }
+      it { expect(type.parameters).to eq [:package, :manager] }
     end
 
     describe 'an instance of the type' do

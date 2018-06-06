@@ -37,7 +37,7 @@ module Puppet::ResourceApi
     end
 
     def title
-      values[@namevars.first]
+      values[:title] || values[@namevars.first]
     end
 
     def prune_parameters(*_args)
@@ -49,7 +49,7 @@ module Puppet::ResourceApi
       (["#{@typename} { #{Puppet::Parameter.format_value_for_display(title)}: "] + filtered_keys.map do |k|
         cs = ' '
         ce = ''
-        if attr_def[k][:behaviour] && attr_def[k][:behaviour] == :read_only
+        if attr_def[k] && attr_def[k][:behaviour] && attr_def[k][:behaviour] == :read_only
           cs = '#'
           ce = ' # Read Only'
         end
@@ -65,7 +65,7 @@ module Puppet::ResourceApi
 
     # attribute names that are not title or namevars
     def filtered_keys
-      values.keys.reject { |k| k == :title || attr_def[k][:behaviour] == :namevar && @namevars.size == 1 }
+      values.keys.reject { |k| k == :title || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
     end
   end
 end
