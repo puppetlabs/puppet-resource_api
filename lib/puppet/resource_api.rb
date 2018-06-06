@@ -448,7 +448,7 @@ MESSAGE
       end
     end
   end
-  module_function :register_type
+  module_function :register_type # rubocop:disable Style/AccessModifierDeclarations
 
   def load_provider(type_name)
     class_name = class_name_from_type_name(type_name)
@@ -460,7 +460,7 @@ MESSAGE
   rescue NameError
     raise Puppet::DevError, "class #{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
   end
-  module_function :load_provider
+  module_function :load_provider # rubocop:disable Style/AccessModifierDeclarations
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
