@@ -1211,8 +1211,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when flushing' do
           before(:each) do
             Puppet.debug = true
-            instance.flush
-            puts log_sink(&:message).inspect
+            instance.my_provider.set(nil, nil) # reset the current_state
           end
 
           after(:each) do
@@ -1221,19 +1220,27 @@ RSpec.describe Puppet::ResourceApi do
 
           context 'with no changes' do
             it('set will not be called') do
+              instance.flush
+
               expect(instance.my_provider.last_changes).to be_nil
               expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
             end
           end
 
           context 'with a change' do
-            let(:test_string) { 'bar' }
+            let(:run_one) { type.new(name: 'somename', test_string: 'foo') }
+            let(:run_two) { type.new(name: 'somename', test_string: 'bar') }
+
+            before(:each) do
+              run_one.flush
+              run_two.flush
+            end
 
             it('set will be called with the correct structure') do
-              expect(instance.my_provider.last_changes).to eq('somename' => {
-                                                                is: { name: 'somename', test_string: 'canonfoo' },
-                                                                should: { name: 'somename', test_string: 'canonbar' },
-                                                              })
+              expect(run_two.my_provider.last_changes).to eq('somename' => {
+                                                               is: { name: 'somename', test_string: 'canonfoo' },
+                                                               should: { name: 'somename', test_string: 'canonbar' },
+                                                             })
             end
 
             it 'logs correctly' do
