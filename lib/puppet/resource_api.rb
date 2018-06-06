@@ -94,6 +94,17 @@ module Puppet::ResourceApi
         super(attributes)
       end
 
+      def to_resource
+        to_resource_shim(super)
+      end
+
+      define_method(:to_resource_shim) do |resource|
+        # require'pry';binding.pry
+        resource_hash = Hash[resource.keys.map { |k| [k, resource[k]] }]
+        resource_hash[:title] = resource.title
+        ResourceShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
+      end
+
       validate do
         # enforce mandatory attributes
         @missing_attrs = []
@@ -136,7 +147,7 @@ module Puppet::ResourceApi
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        param_or_property = if [:read_only, :parameter].include? options[:behaviour]
+        param_or_property = if [:read_only, :parameter, :namevar].include? options[:behaviour]
                               :newparam
                             else
                               :newproperty
@@ -267,19 +278,19 @@ module Puppet::ResourceApi
       define_singleton_method(:instances) do
         # puts 'instances'
         # force autoloading of the provider
-        provider(name)
-        attr_def = {}
+        provider(type_definition.name)
+        # attr_def = {}
         my_provider.get(context).map do |resource_hash|
-          resource_hash.each do |key|
-            property = definition[:attributes][key.first]
-            attr_def[key.first] = property
-          end
-          context.type.namevars.each do |namevar|
+          # resource_hash.each do |key|
+          #   property = definition[:attributes][key.first]
+          #   attr_def[key.first] = property
+          # end
+          type_definition.namevars.each do |namevar|
             if resource_hash[namevar].nil?
-              raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute"
+              raise Puppet::ResourceError, "`#{type_definition.name}.get` did not return a value for the `#{namevar}` namevar attribute"
             end
           end
-          Puppet::ResourceApi::TypeShim.new(resource_hash, name, context.type.namevars, attr_def)
+          Puppet::ResourceApi::TypeShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
         end
       end
 

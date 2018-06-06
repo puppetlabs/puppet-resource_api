@@ -8,6 +8,10 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
 
   it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{TypeDefinition requires definition to be a Hash} }
 
+  describe '.name' do
+    it { expect(type.name).to eq 'some_resource' }
+  end
+
   describe '#ensurable?' do
     context 'when type is ensurable' do
       let(:definition) { { attributes: { ensure: true } } }

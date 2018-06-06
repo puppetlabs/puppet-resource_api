@@ -7,6 +7,10 @@ class Puppet::ResourceApi::TypeDefinition
     @definition = definition
   end
 
+  def name
+    @definition[:name]
+  end
+
   def attributes
     @definition[:attributes]
   end
