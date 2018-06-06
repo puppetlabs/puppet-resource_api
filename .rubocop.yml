@@ -154,3 +154,7 @@ Naming/UncommunicativeMethodParamName:
   - id
   - is
   ForbiddenNames: []
+
+# This cop breaks syntax highlighting in VSCode
+Layout/ClosingHeredocIndentation:
+  Enabled: false
