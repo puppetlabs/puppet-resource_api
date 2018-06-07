@@ -206,6 +206,10 @@ RSpec.describe 'Resource API integrated tests:' do
         end
       end
 
+      it('ensure is reported as a symbol') { expect(instance[:ensure]).to be_a Symbol }
+      it('can set ensure to :present') { expect { instance[:ensure] = :present }.not_to raise_error }
+      it('can set ensure to :absent') { expect { instance[:ensure] = :absent }.not_to raise_error }
+
       context 'when updating encounters an error' do
         let(:setter) do
           proc do |context, _changes|
