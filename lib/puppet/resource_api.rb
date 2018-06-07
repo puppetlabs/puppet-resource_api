@@ -203,6 +203,11 @@ module Puppet::ResourceApi
 
             define_method(:should=) do |value|
               @shouldorig = value
+
+              if name == :ensure
+                value = value.to_s
+              end
+
               # Puppet requires the @should value to always be stored as an array. We do not use this
               # for anything else
               # @see Puppet::Property.should=(value)
