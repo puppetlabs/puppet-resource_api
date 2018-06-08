@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'open3'
 
 RSpec.describe 'a type with multiple namevars' do
-  let(:common_args) { '--verbose --trace --modulepath spec/fixtures' }
+  let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
 
   describe 'using `puppet resource`' do
     it 'is returns the values correctly' do

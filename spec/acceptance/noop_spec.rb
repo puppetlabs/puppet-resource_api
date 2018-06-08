@@ -4,7 +4,7 @@ require 'open3'
 require 'tempfile'
 
 RSpec.describe 'exercising noop' do
-  let(:common_args) { '--verbose --trace --modulepath spec/fixtures' }
+  let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
 
   describe 'using `puppet resource`' do
     it 'is setup correctly' do

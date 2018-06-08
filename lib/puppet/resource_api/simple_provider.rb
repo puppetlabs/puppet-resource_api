@@ -13,6 +13,7 @@ module Puppet::ResourceApi
              else
                change.key?(:is) ? change[:is] : (get(context) || []).find { |r| r[:name] == name }
              end
+        context.type.check_schema(is) unless change.key?(:is)
 
         should = change[:should]
 
