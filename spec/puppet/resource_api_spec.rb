@@ -1253,9 +1253,9 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      context 'when retrieving instances through `get`' do
-        it('instances returns an Array') { expect(type.instances).to be_a Array }
-        it('returns an array of TypeShims') { expect(type.instances[0]).to be_a Puppet::ResourceApi::TypeShim }
+      context 'when retrieving instances' do
+        it('returns an Array') { expect(type.instances).to be_a Array }
+        it('returns an array of Type instances') { expect(type.instances[0]).to be_a Puppet::Type.type(:canonicalizer) }
         it('its name is set correctly') { expect(type.instances[0].name).to eq 'somename' }
       end
 
@@ -1371,9 +1371,9 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      context 'when retrieving instances through `get`' do
-        it('instances returns an Array') { expect(type.instances).to be_a Array }
-        it('returns an array of TypeShims') { expect(type.instances[0]).to be_a Puppet::ResourceApi::TypeShim }
+      context 'when retrieving instances' do
+        it('returns an Array') { expect(type.instances).to be_a Array }
+        it('returns an array of Type instances') { expect(type.instances[0]).to be_a Puppet::Type.type(:passthrough) }
         it('its name is set correctly') { expect(type.instances[0].name).to eq 'somename' }
       end
 

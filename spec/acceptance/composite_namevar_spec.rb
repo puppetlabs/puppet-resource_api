@@ -36,6 +36,7 @@ RSpec.describe 'a type with composite namevars' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php")
       expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php\'}
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
+      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
       expect(status).to eq 0
     end
     it 'properly identifies an absent resource if only the title is provided' do

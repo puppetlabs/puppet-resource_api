@@ -100,12 +100,15 @@ module Puppet::ResourceApi
         super(attributes)
       end
 
+      def name
+        title
+      end
+
       def to_resource
         to_resource_shim(super)
       end
 
       define_method(:to_resource_shim) do |resource|
-        # require'pry';binding.pry
         resource_hash = Hash[resource.keys.map { |k| [k, resource[k]] }]
         resource_hash[:title] = resource.title
         ResourceShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
@@ -284,9 +287,12 @@ module Puppet::ResourceApi
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
+
         my_provider.get(context).map do |resource_hash|
           type_definition.check_schema(resource_hash)
-          Puppet::ResourceApi::TypeShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
+          result = new(title: resource_hash[type_definition.namevars.first])
+          # result.set_current_state(resource_hash)
+          result
         end
       end
 

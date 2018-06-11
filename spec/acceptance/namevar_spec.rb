@@ -28,6 +28,7 @@ RSpec.describe 'a type with multiple namevars' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} multiple_namevar php")
       expect(stdout_str.strip).to match %r{^multiple_namevar \{ \'php\'}
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
+      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
       expect(status).to eq 0
     end
     it 'creates a previously absent resource if all namevars are provided' do
