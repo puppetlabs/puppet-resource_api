@@ -12,12 +12,6 @@ RSpec.describe 'exercising a device provider' do
   before(:each) { skip 'No device --apply in the puppet gems yet' if ENV['PUPPET_GEM_VERSION'] }
 
   describe 'using `puppet resource`' do
-    it 'reads resources from the target system' do
-      stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
-      expected_values = 'device_provider { \'wibble\': \n\s+ensure => \'present\',\n\s+string => \'sample\',\n\#\s+string_ro => \'fixed\', # Read Only\n}'
-      expect(stdout_str.strip).to match %r{\A(DL is deprecated, please use Fiddle\n)?#{expected_values}\Z}
-      expect(status).to eq 0
-    end
     it 'manages resources on the target system' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider foo ensure=present #{default_type_values}")
       expect(stdout_str).to match %r{Notice: /Device_provider\[foo\]/ensure: defined 'ensure' as 'present'}
@@ -41,7 +35,7 @@ RSpec.describe 'exercising a device provider' do
       let(:common_args) { '--verbose --trace --strict=warning --modulepath spec/fixtures' }
 
       it 'deals with canonicalized resources correctly' do
-        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present  #{default_type_values}")
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
                    'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
@@ -53,8 +47,15 @@ RSpec.describe 'exercising a device provider' do
     context 'with strict checking turned off' do
       let(:common_args) { '--verbose --trace --strict=off --modulepath spec/fixtures' }
 
+      it 'reads resources from the target system' do
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
+        expected_values = 'device_provider { \'wibble\': \n\s+ensure => \'present\',\n\s+string => \'sample\',\n\#\s+string_ro => \'fixed\', # Read Only\n  string_param => \'default value\',\n}'
+        expect(stdout_str.strip).to match %r{\A(DL is deprecated, please use Fiddle\n)?#{expected_values}\Z}
+        expect(status).to eq 0
+      end
+
       it 'deals with canonicalized resources correctly' do
-        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present  #{default_type_values}")
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Notice: /Device_provider\[wibble\]/string: string changed \'sample\' to \'changed\''
         expect(stdout_str).to match %r{#{stdmatch}}
         expect(status.success?).to be_truthy # rubocop:disable RSpec/PredicateMatcher
