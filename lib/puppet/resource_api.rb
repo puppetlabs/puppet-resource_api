@@ -100,12 +100,15 @@ module Puppet::ResourceApi
         super(attributes)
       end
 
+      def name
+        title
+      end
+
       def to_resource
         to_resource_shim(super)
       end
 
       define_method(:to_resource_shim) do |resource|
-        # require'pry';binding.pry
         resource_hash = Hash[resource.keys.map { |k| [k, resource[k]] }]
         resource_hash[:title] = resource.title
         ResourceShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
@@ -284,41 +287,48 @@ module Puppet::ResourceApi
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
+
         my_provider.get(context).map do |resource_hash|
           type_definition.check_schema(resource_hash)
-          Puppet::ResourceApi::TypeShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
+          result = new(title: resource_hash[type_definition.namevars.first])
+          result.cache_current_state(resource_hash)
+          result
         end
       end
 
-      define_method(:retrieve) do
-        # puts "retrieve(#{title.inspect})"
-        result = Puppet::Resource.new(self.class, title)
+      define_method(:refresh_current_state) do
+        @rapi_current_state = if type_definition.feature?('simple_get_filter')
+                                my_provider.get(context, [title]).first
+                              else
+                                my_provider.get(context).find { |h| namevar_match?(h) }
+                              end
 
-        current_state = if type_definition.feature?('simple_get_filter')
-                          my_provider.get(context, [title]).first
-                        else
-                          my_provider.get(context).find { |h| namevar_match?(h) }
-                        end
-
-        type_definition.check_schema(current_state) if current_state
-        strict_check(current_state) if current_state && type_definition.feature?('canonicalize')
-
-        if current_state
-          current_state.each do |k, v|
-            result[k] = v
-          end
+        if @rapi_current_state
+          type_definition.check_schema(@rapi_current_state)
+          strict_check(@rapi_current_state) if type_definition.feature?('canonicalize')
         else
-          result[:title] = title
-          result[:ensure] = :absent if type_definition.ensurable?
+          @rapi_current_state = { title: title }
+          @rapi_current_state[:ensure] = :absent if type_definition.ensurable?
         end
+      end
 
+      # Use this to set the current state from the `instances` method
+      def cache_current_state(resource_hash)
+        @rapi_current_state = resource_hash
+        strict_check(@rapi_current_state) if type_definition.feature?('canonicalize')
+      end
+
+      define_method(:retrieve) do
+        refresh_current_state unless @rapi_current_state
+
+        Puppet.debug("Current State: #{@rapi_current_state.inspect}")
+
+        result = Puppet::Resource.new(self.class, title, parameters: @rapi_current_state)
         # puppet needs ensure to be a symbol
         result[:ensure] = result[:ensure].to_sym if type_definition.ensurable? && result[:ensure].is_a?(String)
 
         raise_missing_attrs
 
-        @rapi_current_state = current_state
-        Puppet.debug("Current State: #{@rapi_current_state.inspect}")
         result
       end
 
@@ -362,6 +372,9 @@ module Puppet::ResourceApi
           my_provider.set(context, title => { is: @rapi_current_state, should: target_state }) unless noop?
         end
         raise 'Execution encountered an error' if context.failed?
+
+        # remember that we have successfully reached our desired state
+        @rapi_current_state = target_state
       end
 
       define_method(:raise_missing_attrs) do

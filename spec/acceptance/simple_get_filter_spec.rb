@@ -18,7 +18,7 @@ RSpec.describe 'exercising simple_get_filter' do
     end
 
     context 'when using `get` to access a specific resource' do
-      it 'returns resource' do
+      it '`puppet resource` uses `instances` and does the filtering' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} test_simple_get_filter foo")
 
         expect(stdout_str.strip).to match %r{test_string\s*=>\s*'default'}
@@ -27,10 +27,10 @@ RSpec.describe 'exercising simple_get_filter' do
     end
 
     context 'when using `get` to remove a specific resource' do
-      it 'receives names array' do
-        stdout_str, status = Open3.capture2e("puppet resource #{common_args} test_simple_get_filter foo ensure=absent")
+      it 'the `retrieve` function does the lookup' do
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} --noop test_simple_get_filter foo ensure=absent")
 
-        expect(stdout_str.strip).to match %r{undefined 'ensure' from 'present'}
+        expect(stdout_str.strip).to match %r{current_value '?present'?, should be '?absent'? \(noop\)}
         expect(stdout_str.strip).to match %r{test_string\s*=>\s*'foo found'}
         expect(status).to eq 0
       end

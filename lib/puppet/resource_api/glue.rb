@@ -3,29 +3,6 @@ require 'yaml'
 module Puppet; end # rubocop:disable Style/Documentation
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
-  class TypeShim
-    attr_reader :values, :typename, :namevars, :attr_def
-
-    def initialize(resource_hash, typename, namevars, attr_def)
-      # internalize and protect - needs to go deeper
-      @values = resource_hash.dup.freeze
-
-      @typename = typename
-      @namevars = namevars
-      @attr_def = attr_def
-      @resource = ResourceShim.new(@values, @typename, @namevars, @attr_def)
-    end
-
-    def to_resource
-      @resource
-    end
-
-    def name
-      @resource.title
-    end
-  end
-
-  # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class ResourceShim
     attr_reader :values, :typename, :namevars, :attr_def
 

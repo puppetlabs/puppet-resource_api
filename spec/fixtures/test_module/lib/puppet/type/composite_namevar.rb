@@ -31,5 +31,9 @@ Puppet::ResourceApi.register_type(
       desc:      'The directory containing the resource you want to manage.',
       behaviour: :namevar,
     },
+    value:     {
+      type: 'Optional[String]',
+      desc: 'An arbitrary string for debugging purposes',
+    }
   },
 )

@@ -5,43 +5,6 @@ require 'spec_helper'
 # `puppet resource` read/write cycle to ensure that there is nothing
 # funky happening with new puppet versions.
 RSpec.describe 'the dirty bits' do
-  describe Puppet::ResourceApi::TypeShim do
-    subject(:instance) do
-      described_class.new({ attr: 'value', attr_ro: 'fixed' }, 'typename', [:namevarname],
-                          namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
-                          attr: { type: 'String', desc: 'a string parameter' },
-                          attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
-    end
-
-    describe '.values' do
-      it { expect(instance.values).to eq(attr: 'value', attr_ro: 'fixed') }
-    end
-
-    describe '.typename' do
-      it { expect(instance.typename).to eq 'typename' }
-    end
-
-    describe '.namevars' do
-      it { expect(instance.namevars).to eq [:namevarname] }
-    end
-
-    describe '.to_resource' do
-      it { expect(instance.to_resource).to be_a Puppet::ResourceApi::ResourceShim }
-
-      describe '.values' do
-        it { expect(instance.to_resource.values).to eq(attr: 'value', attr_ro: 'fixed') }
-      end
-
-      describe '.typename' do
-        it { expect(instance.to_resource.typename).to eq 'typename' }
-      end
-
-      describe '.namevars' do
-        it { expect(instance.to_resource.namevars).to eq [:namevarname] }
-      end
-    end
-  end
-
   describe Puppet::ResourceApi::ResourceShim do
     subject(:instance) do
       described_class.new({ namevarname: title, attr: 'value', attr_ro: 'fixed' }, 'typename', [:namevarname],
