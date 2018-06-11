@@ -1340,6 +1340,7 @@ RSpec.describe Puppet::ResourceApi do
           before(:each) do
             Puppet.debug = true
             instance.flush
+            instance.my_provider.set(nil, nil) # reset the current_state
           end
 
           after(:each) do
@@ -1355,13 +1356,22 @@ RSpec.describe Puppet::ResourceApi do
 
           context 'with a change' do
             let(:test_string) { 'bar' }
+            let(:run_one) { type.new(name: 'somename', test_string: 'foo') }
+            let(:run_two) { type.new(name: 'somename', test_string: 'bar') }
+
+            before(:each) do
+              run_one.flush
+              run_two.flush
+            end
 
             it('set will be called with the correct structure') do
-              expect(instance.my_provider.last_changes).to eq('somename' => {
-                                                                is: { name: 'somename', test_string: 'foo' },
-                                                                should: { name: 'somename', test_string: 'bar' },
-                                                              })
+              expect(run_two.my_provider.last_changes).to eq('somename' => {
+                                                               is: { name: 'somename', test_string: 'foo' },
+                                                               should: { name: 'somename', test_string: 'bar' },
+                                                             })
+            end
 
+            it 'logs correctly' do
               expect(log_sink.map(&:message)).to include(
                 'Current State: {:name=>"somename", :test_string=>"foo"}',
                 'Target State: {:name=>"somename", :test_string=>"bar"}',
@@ -1540,15 +1550,17 @@ CODE
 
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
-    it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter})
-      expect { described_class.register_type(definition) }.not_to raise_error
-    end
+    context 'when type exists' do
+      it 'is seen as a supported feature' do
+        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter})
+        expect { described_class.register_type(definition) }.not_to raise_error
+      end
 
-    it 'passes through the resource title to `get`' do
-      instance = type.new(name: 'bar', ensure: 'present')
-      expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
-      instance.retrieve
+      it 'passes through the resource title to `get`' do
+        instance = type.new(name: 'bar', ensure: 'present')
+        expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
+        instance.retrieve
+      end
     end
   end
 

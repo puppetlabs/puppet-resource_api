@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'tempfile'
+require 'open3'
 
 RSpec.describe 'exercising a device provider' do
   let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
