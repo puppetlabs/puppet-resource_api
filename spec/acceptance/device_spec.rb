@@ -27,7 +27,7 @@ RSpec.describe 'exercising a device provider' do
                    'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match %r{#{stdmatch}}
-        expect(status.success?).to be_falsey # rubocop:disable RSpec/PredicateMatcher
+        expect(status).to be_success
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe 'exercising a device provider' do
                    'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match %r{#{stdmatch}}
-        expect(status.success?).to be_truthy # rubocop:disable RSpec/PredicateMatcher
+        expect(status).to be_success
       end
     end
 
@@ -58,7 +58,7 @@ RSpec.describe 'exercising a device provider' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Notice: /Device_provider\[wibble\]/string: string changed \'sample\' to \'changed\''
         expect(stdout_str).to match %r{#{stdmatch}}
-        expect(status.success?).to be_truthy # rubocop:disable RSpec/PredicateMatcher
+        expect(status).to be_success
       end
     end
   end
