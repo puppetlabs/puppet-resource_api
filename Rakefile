@@ -1,5 +1,8 @@
 require 'bundler/gem_tasks'
 require 'puppetlabs_spec_helper/tasks/fixtures'
+require 'parallel_tests'
+require 'parallel_tests/cli'
+require 'fileutils'
 
 task :default => :spec
 
@@ -11,23 +14,35 @@ RuboCop::RakeTask.new(:rubocop) do |t|
 end
 
 #### RSPEC ####
+
+
 require 'rspec/core/rake_task'
 
-RSpec::Core::RakeTask.new(:spec) do |t|
-  Rake::Task[:spec_prep].invoke
-  # thanks to the fixtures/modules/ symlinks this needs to exclude fixture modules explicitely
-  excludes = ['fixtures/**/*.rb,fixtures/modules/*/**/*.rb']
-  if RUBY_PLATFORM == 'java'
-    excludes += ['acceptance/**/*.rb', 'integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
+if RUBY_PLATFORM == 'java'
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    Rake::Task[:spec_prep].invoke
+    # thanks to the fixtures/modules/ symlinks this needs to exclude fixture modules explicitely
+    excludes = ['fixtures/**/*.rb,fixtures/modules/*/**/*.rb', 'acceptance/**/*.rb', 'integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
     t.rspec_opts = '--tag ~agent_test'
+    t.exclude_pattern = "spec/{#{excludes.join ','}}"
   end
-  t.exclude_pattern = "spec/{#{excludes.join ','}}"
+else
+  desc 'Run RSpec code examples with coverage collection'
+  task :spec do
+    # perform a puppet apply to initialise puppet up front
+    system("bundle exec puppet apply --noop spec/fixtures/manifests/site.pp")
+    Rake::Task[:spec_prep].invoke
+    args = ['--serialize-stdout', '--combine-stderr', '-t', 'rspec','spec/acceptance','spec/classes','spec/integration','spec/puppet']
+    ParallelTests::CLI.new.run(args)
+    Rake::Task[:spec_clean].invoke
+  end
 end
 
 namespace :spec do
   desc 'Run RSpec code examples with coverage collection'
   task :coverage do
     ENV['COVERAGE'] = 'yes'
+    FileUtils.rm_rf('coverage')
     Rake::Task['spec'].execute
   end
 end

@@ -45,6 +45,12 @@ RSpec.configure do |config|
 
   # override legacy default from puppetlabs_spec_helper
   config.mock_with :rspec
+
+  if ENV['COVERAGE'] == 'yes'
+    config.before(:each) do
+      SimpleCov.command_name 'rspec' + (ENV['TEST_ENV_NUMBER'] || '')
+    end
+  end
 end
 
 require 'puppetlabs_spec_helper/module_spec_helper'
