@@ -79,7 +79,7 @@ RSpec.describe 'a type with composite namevars' do
     context 'when managing a present instance' do
       let(:manifest) { 'composite_namevar { php-gem: }' }
 
-      it { expect(@stdout_str).to match %r{Current State: \{:package=>"php", :manager=>"gem", :ensure=>"present"\}} }
+      it { expect(@stdout_str).to match %r{Current State: \{:package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}} }
       it { expect(@status.exitstatus).to eq 0 }
     end
 
