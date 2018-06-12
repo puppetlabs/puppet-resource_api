@@ -275,8 +275,9 @@ RSpec.describe Puppet::ResourceApi do
     end
 
     describe 'another instance of this type' do
-      subject(:instance) { Puppet::Type.type(type_name.to_sym).new(params) }
+      subject(:type) { Puppet::Type.type(type_name.to_sym) }
 
+      let(:type_def) { instance_double('Puppet::ResourceApi::TypeDefinition') }
       let(:type_name) { 'type_check' }
 
       let(:params) do
@@ -288,6 +289,8 @@ RSpec.describe Puppet::ResourceApi do
         before(:each) do
           stub_const('Puppet::Provider::TypeCheck', Module.new)
           stub_const('Puppet::Provider::TypeCheck::TypeCheck', provider_class)
+
+          type.instance_variable_set(:@type_definition, type_def)
         end
 
         let(:provider_class) do
@@ -301,30 +304,17 @@ RSpec.describe Puppet::ResourceApi do
         end
         let(:message) { %r{Provider returned data that does not match the Type Schema for `type_check\[test\]`\n\s*Unknown attribute:\n\s*\* wibble\n\n\s*Value type mismatch:\n\s*\* test_string: 15} }
 
-        context 'when strict is default (:warning)' do
+        context 'when the provider returns data' do
           let(:strict_level) { :warning }
+          let(:instance) { type.new(params) }
 
-          it 'will log error at warning level' do
-            expect(Puppet).to receive(:warning).with(message)
+          it 'will validate against the type schema' do
+            expect(type_def).to receive(:feature?).with(anything).and_return(false).at_least(:once)
+            expect(type_def).to receive(:namevars).and_return([:name])
+            expect(type_def).to receive(:ensurable?).and_return(false)
+
+            expect(type_def).to receive(:check_schema)
             instance.retrieve
-          end
-        end
-
-        context 'when strict is :error' do
-          let(:strict_level) { :error }
-
-          it {
-            expect {
-              instance.retrieve
-            }.to raise_error Puppet::DevError, message }
-        end
-
-        context 'when strict is :off' do
-          let(:strict_level) { :off }
-
-          it 'will log error at debug level' do
-            instance.retrieve
-            expect(log_sink.map(&:message)).to include(message)
           end
         end
       end
