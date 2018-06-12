@@ -6,7 +6,7 @@ script:
   - cat Gemfile.lock
   - bundle list
   - echo travis_fold:end:DEBUG
-  - COVERAGE=yes bundle exec rake $CHECK
+  - bundle exec rake $CHECK
 cache: bundler
 branches:
   except:
@@ -15,20 +15,24 @@ matrix:
   include:
     - rvm: 2.4.3
       env: PUPPET_GEM_VERSION='~> 5' # 5.5
+
     - env: RVM="jruby-1.7.26" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
       cache:
         bundler: true
         directories: ~/.rvm
       before_install: rvm use jruby-1.7.26 --install --binary --fuzzy
+
     - env: RVM="jruby-9.1.9.0" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
       cache:
         bundler: true
         directories: ~/.rvm
       before_install: rvm use jruby-9.1.9.0 --install --binary --fuzzy
+
     - rvm: 2.4.3
       env: CHECK=rubocop
+
     - rvm: 2.4.3
       env: CHECK=license_finder
       bundler_args: ""

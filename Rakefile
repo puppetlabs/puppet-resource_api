@@ -4,7 +4,11 @@ require 'parallel_tests'
 require 'parallel_tests/cli'
 require 'fileutils'
 
-task :default => :spec
+if RUBY_PLATFORM != 'java'
+  task :default => [:spec, :'spec:acceptance']
+else
+  task :default => :spec
+end
 
 #### RUBOCOP ####
 require 'rubocop/rake_task'
@@ -14,36 +18,41 @@ RuboCop::RakeTask.new(:rubocop) do |t|
 end
 
 #### RSPEC ####
-
-
 require 'rspec/core/rake_task'
 
-if RUBY_PLATFORM == 'java'
-  RSpec::Core::RakeTask.new(:spec) do |t|
-    Rake::Task[:spec_prep].invoke
-    # thanks to the fixtures/modules/ symlinks this needs to exclude fixture modules explicitely
-    excludes = ['fixtures/**/*.rb,fixtures/modules/*/**/*.rb', 'acceptance/**/*.rb', 'integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
+RSpec::Core::RakeTask.new(:spec) do |t|
+  Rake::Task[:spec_prep].invoke
+  ENV['COVERAGE'] = 'yes'
+  FileUtils.rm_rf('coverage')
+  # thanks to the fixtures/modules/ symlinks this needs to exclude fixture modules explicitely
+  excludes = ['fixtures/**/*.rb','fixtures/modules/*/**/*.rb','acceptance/**/*.rb']
+  if RUBY_PLATFORM == 'java'
+    excludes += ['integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
     t.rspec_opts = '--tag ~agent_test'
-    t.exclude_pattern = "spec/{#{excludes.join ','}}"
   end
-else
-  desc 'Run RSpec code examples with coverage collection'
-  task :spec do
-    # perform a puppet apply to initialise puppet up front
-    system("bundle exec puppet apply --noop spec/fixtures/manifests/site.pp")
-    Rake::Task[:spec_prep].invoke
-    args = ['--serialize-stdout', '--combine-stderr', '-t', 'rspec','spec/acceptance','spec/classes','spec/integration','spec/puppet']
-    ParallelTests::CLI.new.run(args)
-    Rake::Task[:spec_clean].invoke
-  end
+  t.exclude_pattern = "spec/{#{excludes.join ','}}"
 end
 
 namespace :spec do
-  desc 'Run RSpec code examples with coverage collection'
-  task :coverage do
-    ENV['COVERAGE'] = 'yes'
-    FileUtils.rm_rf('coverage')
-    Rake::Task['spec'].execute
+  if RUBY_PLATFORM != 'java'
+    desc 'Run RSpec acceptance tests in parrallel'
+    task :parallel do
+      ENV.delete('COVERAGE') if ENV.key? 'COVERAGE'
+      # perform a puppet apply to initialise puppet up front
+      system("bundle exec puppet apply --noop spec/fixtures/manifests/site.pp")
+      Rake::Task[:spec_prep].invoke
+      args = ['--serialize-stdout', '--combine-stderr', '-t', 'rspec','spec/acceptance']
+      ParallelTests::CLI.new.run(args)
+      Rake::Task[:spec_clean].invoke
+    end
+  end
+
+  RSpec::Core::RakeTask.new(:acceptance) do |t|
+    ENV.delete('COVERAGE') if ENV.key? 'COVERAGE'
+    Rake::Task[:spec_prep].invoke
+    excludes = ['fixtures/**/*.rb','fixtures/modules/*/**/*.rb']
+    t.rspec_opts = '--tag ~agent_test --pattern spec/acceptance/*.rb'
+    t.exclude_pattern = "spec/{#{excludes.join ','}}"
   end
 end
 

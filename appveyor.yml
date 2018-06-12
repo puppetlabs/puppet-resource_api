@@ -12,7 +12,6 @@ environment:
 install:
   - set PATH=C:\Ruby%RUBY_VERSION%\bin;C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
   - SET LOG_SPEC_ORDER=true
-  - SET COVERAGE=yes
   - bundle install --jobs 4 --retry 2 --without development
 
 build: off
