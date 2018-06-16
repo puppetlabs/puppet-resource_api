@@ -224,16 +224,19 @@ RSpec.describe Puppet::ResourceApi do
 
           it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
         end
+
         context 'when using false' do
           let(:the_boolean) { false }
 
           it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
         end
+
         context 'when using an unparsable value' do
           let(:the_boolean) { 'flubb' }
 
           it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
         end
+
         context 'when using a legacy symbol' do
           let(:the_boolean) { :true }
 
@@ -477,6 +480,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
     end
+
     context 'when ensurable is not correctly declared' do
       let(:definition) do
         {
@@ -1181,6 +1185,7 @@ RSpec.describe Puppet::ResourceApi do
             resources
           end
         end
+
         it 'stills raise an error' do
           expect {
             instance.strict_check({})
@@ -1736,6 +1741,7 @@ CODE
     before(:each) do
       @value, @error = described_class.try_mungify(type, input, 'error prefix')
     end
+
     [
       {
         type: 'Boolean',
