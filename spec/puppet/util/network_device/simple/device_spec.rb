@@ -13,6 +13,7 @@ RSpec.describe Puppet::Util::NetworkDevice::Simple::Device do
         tempfile.write('{ foo: bar }')
         tempfile.close
       end
+
       after(:each) { tempfile.unlink }
 
       it 'provides an empty facts set' do
