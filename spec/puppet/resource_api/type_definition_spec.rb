@@ -36,6 +36,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
       it { expect(type).to be_ensurable }
       it { expect(type.attributes).to be_key(:ensure) }
     end
+
     context 'when type is not ensurable' do
       let(:definition) { { attributes: { string: 'something' } } }
 
@@ -73,6 +74,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
         expect(type.check_schema_keys(definition[:attributes])).to eq([])
       end
     end
+
     context 'when resource contains invalid keys' do
       let(:resource) { { name: 'test_string', wibble: '1', foo: '2' } }
 
@@ -90,6 +92,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
         expect(type.check_schema_values(resource)).to eq({})
       end
     end
+
     context 'when resource contains invalid values' do
       let(:resource) { { name: 'test_string', prop: 'foo', ensure: 1 } }
 

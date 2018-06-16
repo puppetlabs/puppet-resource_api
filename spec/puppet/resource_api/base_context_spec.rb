@@ -35,6 +35,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       before(:each) do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(nil)
       end
+
       it 'raises an error' do
         expect { context.device }.to raise_error RuntimeError, %r{no device configured}
       end
@@ -74,6 +75,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       expect(context.last_message).to eq 'some_resource[a, b]: message'
     end
   end
+
   describe '#warning(msg1, msg2, msg3, ...)' do
     it 'outputs all passed messages' do
       context.warning('msg1', 'msg2', 'msg3')
