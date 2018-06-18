@@ -51,7 +51,7 @@ class Puppet::ResourceApi::BaseContext
         block.call
         notice("Finished in #{format_seconds(Time.now - start_time)} seconds")
       rescue StandardError => e
-        err("Failed after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+        log_exception(e, message: "Failed after #{format_seconds(Time.now - start_time)} seconds")
         @failed = true
       ensure
         @context = nil
@@ -67,7 +67,7 @@ class Puppet::ResourceApi::BaseContext
       yield
       warning("Finished failing in #{format_seconds(Time.now - start_time)} seconds")
     rescue StandardError => e
-      err("Failed after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+      log_exception(e, message: "Failed after #{format_seconds(Time.now - start_time)} seconds")
       @failed = true
     ensure
       @context = nil
@@ -83,7 +83,7 @@ class Puppet::ResourceApi::BaseContext
       yield
       notice("Finished processing #{title} in #{format_seconds(Time.now - start_time)} seconds: #{should}")
     rescue StandardError => e
-      err("Failed processing #{title} after #{format_seconds(Time.now - start_time)} seconds: #{e}")
+      log_exception(e, message: "Failed processing #{title} after #{format_seconds(Time.now - start_time)} seconds")
       @failed = true
     ensure
       @context = nil
@@ -122,6 +122,15 @@ class Puppet::ResourceApi::BaseContext
     ensure
       @context = nil
     end
+  end
+
+  def log_exception(exception, message: 'Error encountered', trace: false)
+    message = "#{message}: #{exception}"
+    if trace
+      message += "\n"
+      message += exception.backtrace.join("\n")
+    end
+    err(message)
   end
 
   def send_log(_level, _message)

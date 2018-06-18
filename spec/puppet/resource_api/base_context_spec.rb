@@ -332,6 +332,28 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
+  describe '#log_exception(exception, message:, trace:)' do
+    let(:exception) do
+      ex = ArgumentError.new('x')
+      ex.set_backtrace %w[a b c]
+      ex
+    end
+
+    context 'without tracing' do
+      it 'creates a log message' do
+        context.log_exception(exception, message: 'message', trace: false)
+        expect(context.last_message).to eq 'some_resource: message: x'
+      end
+    end
+
+    context 'with tracing' do
+      it 'creates a log message containing the backtrace' do
+        context.log_exception(exception, message: 'message', trace: true)
+        expect(context.last_message).to eq "some_resource: message: x\na\nb\nc"
+      end
+    end
+  end
+
   describe '#send_log' do
     it { expect { described_class.new(definition).send_log(nil, nil) }.to raise_error RuntimeError, %r{Received send_log\(\) on an unprepared BaseContext\. Use IOContext, or PuppetContext instead} }
   end
