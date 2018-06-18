@@ -30,8 +30,8 @@ module Puppet::ResourceApi
           cs = '#'
           ce = ' # Read Only'
         end
-        "#{cs} #{k} => #{Puppet::Parameter.format_value_for_display(values[k])},#{ce}"
-      end + ['}']).join("\n")
+        "#{cs} #{k} => #{Puppet::Parameter.format_value_for_display(values[k])},#{ce}" unless values[k].nil?
+      end + ['}']).compact.join("\n")
     end
 
     # Convert our resource to yaml for Hiera purposes.
