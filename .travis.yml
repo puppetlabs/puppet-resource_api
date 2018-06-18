@@ -6,7 +6,7 @@ script:
   - cat Gemfile.lock
   - bundle list
   - echo travis_fold:end:DEBUG
-  - COVERAGE=yes bundle exec rake $CHECK
+  - bundle exec rake $CHECK
 cache: bundler
 branches:
   except:
@@ -14,13 +14,14 @@ branches:
 matrix:
   include:
     - rvm: 2.4.3
-      env: PUPPET_GEM_VERSION='~> 5' # 5.5
-    - env: RVM="jruby-1.7.26" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
+      env: PUPPET_GEM_VERSION='~> 5' COVERAGE=yes # 5.5
+    - env: RVM="jruby-1.7.26" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug" COVERAGE=yes
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
       cache:
         bundler: true
         directories: ~/.rvm
       before_install: rvm use jruby-1.7.26 --install --binary --fuzzy
+    # disable coverage on jruby9k as this confuses codecov
     - env: RVM="jruby-9.1.9.0" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
       cache:
@@ -44,7 +45,7 @@ matrix:
     - rvm: 2.4.1
       env: PUPPET_GEM_VERSION='~> 5.0.0'
     - rvm: 2.1.9
-      env: PUPPET_GEM_VERSION='~> 4' # 4.10
+      env: PUPPET_GEM_VERSION='~> 4' COVERAGE=yes # 4.10
     - rvm: 2.1.9
       env: PUPPET_GEM_VERSION='~> 4.9.0'
     - rvm: 2.1.9

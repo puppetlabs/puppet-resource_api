@@ -60,6 +60,7 @@ RSpec.describe 'validation' do
           expect(status.exitstatus).to eq 1
         end
       end
+
       context 'with a resource which should be absent' do
         it 'throws' do
           output, status = Open3.capture2e("puppet resource #{common_args} test_validation foo ensure=absent prop_ro=3")
@@ -123,6 +124,7 @@ RSpec.describe 'validation' do
           expect(status.exitstatus).to eq 1
         end
       end
+
       context 'with a resource which should be absent' do
         it 'throws' do
           output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: ensure => absent, param => 3, prop_ro =>4 }\"")

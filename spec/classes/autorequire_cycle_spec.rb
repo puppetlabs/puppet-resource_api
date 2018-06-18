@@ -6,6 +6,7 @@ RSpec.describe 'test_module::autorequire_cycle' do
 
     it { is_expected.to compile }
   end
+
   context 'with make_cycle => true' do
     let(:params) { { make_cycle: true } }
 
