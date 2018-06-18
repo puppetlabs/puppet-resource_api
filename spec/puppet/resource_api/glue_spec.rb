@@ -33,6 +33,18 @@ RSpec.describe 'the dirty bits' do
 
     describe '.to_manifest' do
       it { expect(instance.to_manifest).to eq "typename { 'title': \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
+      context 'with nil values' do
+        subject(:instance) do
+          described_class.new({ namevarname: title, attr: nil, attr_ro: 'fixed' }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              attr: { type: 'String', desc: 'a string parameter' },
+                              attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
+        end
+
+        it 'doesn\'t output them' do
+          expect(instance.to_manifest).to eq "typename { 'title': \n# attr_ro => 'fixed', # Read Only\n}"
+        end
+      end
     end
 
     describe '.to_hierayaml' do
