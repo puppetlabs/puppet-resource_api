@@ -3,6 +3,33 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.4.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.0) (2018-06-19)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.3.0...v1.4.0)
+
+**Implemented enhancements:**
+
+- Allow `SimpleDevice` to be initialized with a config hash [\#96](https://github.com/puppetlabs/puppet-resource_api/pull/96) ([DavidS](https://github.com/DavidS))
+- \(PDK-1007\) implement enough to support purge=\>true  [\#95](https://github.com/puppetlabs/puppet-resource_api/pull/95) ([DavidS](https://github.com/DavidS))
+- \(PDK-917\) Validates provider.get values against Type schema [\#88](https://github.com/puppetlabs/puppet-resource_api/pull/88) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- \(PDK-1004\) log exceptions as they are processed [\#101](https://github.com/puppetlabs/puppet-resource_api/pull/101) ([DavidS](https://github.com/DavidS))
+- \(PDK-1000\) do not print nil valued attributes [\#100](https://github.com/puppetlabs/puppet-resource_api/pull/100) ([DavidS](https://github.com/DavidS))
+- \(PDK-1007\) Handle setting `ensure` to a Symbol through code [\#94](https://github.com/puppetlabs/puppet-resource_api/pull/94) ([DavidS](https://github.com/DavidS))
+- \(PDK-1007\) the namevar is a param [\#91](https://github.com/puppetlabs/puppet-resource_api/pull/91) ([DavidS](https://github.com/DavidS))
+- \(PDK-996\) Provide better messaging when type cannot be resolved [\#87](https://github.com/puppetlabs/puppet-resource_api/pull/87) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- Whitespace cleanup with new rubocop version [\#98](https://github.com/puppetlabs/puppet-resource_api/pull/98) ([DavidS](https://github.com/DavidS))
+- \(PDK-1007\) add tests for `to\_resource` [\#93](https://github.com/puppetlabs/puppet-resource_api/pull/93) ([DavidS](https://github.com/DavidS))
+- Enable randomised rspec testing [\#92](https://github.com/puppetlabs/puppet-resource_api/pull/92) ([da-ar](https://github.com/da-ar))
+- appease rubocop 0.57.0 [\#90](https://github.com/puppetlabs/puppet-resource_api/pull/90) ([da-ar](https://github.com/da-ar))
+- Improve unit tests of parameter and property results after register\_type [\#89](https://github.com/puppetlabs/puppet-resource_api/pull/89) ([DavidS](https://github.com/DavidS))
+- Update release docs and announcement template [\#86](https://github.com/puppetlabs/puppet-resource_api/pull/86) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.3.0 [\#85](https://github.com/puppetlabs/puppet-resource_api/pull/85) ([da-ar](https://github.com/da-ar))
+
 ## [v1.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.3.0) (2018-05-24)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.2.0...v1.3.0)
 
