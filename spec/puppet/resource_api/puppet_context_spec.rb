@@ -19,12 +19,38 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
       ex
     end
 
-    let(:logging_proxy) { instance_double(Puppet::ResourceApi::PuppetContext::LoggingProxy, 'logging_proxy') }
-
-    it 'calls the Puppet logging infrastructure' do
-      allow(described_class).to receive(:logging_proxy).with(no_args).and_return(logging_proxy)
-      expect(logging_proxy).to receive(:log_exception).with(exception, 'message', trace: true)
+    it 'will log message at error level and with trace' do
+      expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: "some_resource: message: x\na\nb\nc")
       context.log_exception(exception, message: 'message', trace: true)
+    end
+
+    it 'will log message at error level and without trace' do
+      expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: 'some_resource: message: x')
+      context.log_exception(exception, message: 'message', trace: false)
+    end
+
+    context 'when Puppet[:trace] is enabled' do
+      before(:each) do
+        allow(Puppet).to receive(:[]).and_call_original
+        allow(Puppet).to receive(:[]).with(:trace).and_return(true)
+      end
+
+      it 'will log message at error level and with trace,' do
+        expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: "some_resource: message: x\na\nb\nc")
+        context.log_exception(exception, message: 'message', trace: false)
+      end
+    end
+
+    context 'when Puppet[:trace] is disabled' do
+      before(:each) do
+        allow(Puppet).to receive(:[]).and_call_original
+        allow(Puppet).to receive(:[]).with(:trace).and_return(false)
+      end
+
+      it 'will log message at error level and without trace,' do
+        expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: 'some_resource: message: x')
+        context.log_exception(exception, message: 'message', trace: false)
+      end
     end
   end
 end
