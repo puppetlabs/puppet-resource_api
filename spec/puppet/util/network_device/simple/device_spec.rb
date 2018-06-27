@@ -20,8 +20,16 @@ RSpec.describe Puppet::Util::NetworkDevice::Simple::Device do
         expect(device.facts).to eq({})
       end
 
+      it 'provides an array of custom facts' do
+        expect(device.return_custom_facts).to eq([])
+      end
+
       it 'makes the configured configuration available' do
         expect(device.config).to eq('foo' => 'bar')
+      end
+
+      it 'raises an error, when calling the default add_fact' do
+        expect { Puppet::Util::NetworkDevice::Simple::CustomFact.new.add_fact(nil, nil) }.to raise_error RuntimeError, %r{Custom facts must implement this}
       end
     end
 

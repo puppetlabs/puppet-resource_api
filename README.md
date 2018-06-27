@@ -175,6 +175,48 @@ The provider needs to specify the `remote_resource` feature to enable the second
 
 After this, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
 
+#### Custom facts for 'puppet device' - module author
+
+Firstly implementing the device class as written the in above section, but modifying the facts method.
+
+In your facts method:
+```
+def facts
+  facts = { 'foo' => 'bar' }
+  custom_facts = return_custom_facts
+  custom_facts.each do |custom_fact|
+    begin
+      load custom_fact
+      jim = Example_ResourceAPI_Fact
+      bla = jim.add_fact(nil, facts)
+      rescue => detail
+        puts "Error loading/executing custom fact:#{custom_fact}"
+        Puppet.log_exception(detail)
+      end
+    end
+  facts
+end
+```
+Note the call to return_custom_facts, which gets all the custom facts associated with that device.
+
+#### Custom facts for 'puppet device' - custom fact author
+
+Adding a custom fact only requires implemented the add_fact method, and putting it into the correct directory.
+This method gives access to the context/connection used by the device and the facts hash. 
+
+```
+class Example_ResourceAPI_Fact
+  def self.add_fact(connection, facts)
+    facts['baz'] = 'foo'
+    facts
+  end
+end
+```
+and the fact lives here EG:
+```
+/opt/puppet/cache/devices/3750/facts.d/
+```
+
 ### Further Reading
 
 The [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.

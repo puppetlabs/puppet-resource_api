@@ -74,13 +74,28 @@ url  file:///etc/credentials.txt
 DEVICE_CONF
     end
 
+    let(:custom_fact) { Tempfile.new(['customfact', '.rb']) }
+    let(:custom_fact_content) do
+      <<CUSTOM_FACT
+class Example_ResourceAPI_Fact
+  def self.add_fact(connection, facts)
+    facts['baz'] = 'foo'
+    facts
+  end
+end
+CUSTOM_FACT
+    end
+
     before(:each) do
       device_conf.write(device_conf_content)
       device_conf.close
+      custom_fact.write(custom_fact_content)
+      custom_fact.close
     end
 
     after(:each) do
       device_conf.unlink
+      custom_fact.unlink
     end
 
     context 'with no config specified' do
@@ -99,6 +114,15 @@ DEVICE_CONF
 
     it 'has the "foo" fact set to "bar"' do
       stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply 'if $facts[\"foo\"] != \"bar\" { fail(\"fact not found\") }'")
+      expect(stdout_str).not_to match %r{Error:}
+      expect(status).to eq 0
+    end
+
+    it 'has the custom fact "baz" fact set to "foo"' do
+      fact_dir = File.dirname(custom_fact.path)
+      stdout_str, status = Open3.capture2e(
+        "puppet device #{common_args} --deviceconfig #{device_conf.path} --pluginfactdest #{fact_dir} --apply 'if $facts[\"baz\"] != \"foo\" { fail(\"fact not found\") }'",
+      )
       expect(stdout_str).not_to match %r{Error:}
       expect(status).to eq 0
     end
