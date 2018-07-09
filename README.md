@@ -3,13 +3,13 @@
 
 This is an implementation of the [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) proposal. Find a working example of a new-style provider in the [experimental puppetlabs-apt branch](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/provider/apt_key2/apt_key2.rb). There is also the corresponding [type](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/type/apt_key2.rb), [provider](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/provider/apt_key2/apt_key2.rb), and [new unit tests](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/spec/unit/puppet/provider/apt_key2/apt_key2_spec.rb) for 100% coverage.
 
-## Getting started
+## Install the Resource API
 
-* Install the [PDK](https://puppet.com/download-puppet-development-kit) 1.4.
+1. Download the [Puppet Development Kit](https://puppet.com/download-puppet-development-kit) (PDK) appropriate to your operating system and architecture.
 
-* Create a [new module](https://puppet.com/docs/pdk/latest/pdk_generating_modules.html) with the PDK, or work with an existing PDK-enabled module.
+2. Create a [new module](https://puppet.com/docs/pdk/latest/pdk_generating_modules.html) with the PDK, or work with an existing PDK-enabled module. To create a new module, run `pdk new module <MODULE_NAME>` from the command line, specifying the name of the module. Respond to the dialog questions.
 
-* Add the `puppet-resource_api` gem, and enable "modern" rspec-style mocking through the `.sync.yml`:
+3. To add the `puppet-resource_api` gem and enable "modern" rspec-style mocking, open the `sync.yml` file in your editor, and add the following content:
 
 ```
 # .sync.yml
@@ -22,7 +22,9 @@ spec/spec_helper.rb:
   mock_with: ':rspec'
 ```
 
-*  Apply the changes by running `pdk update`:
+4. Apply these changes by running `pdk update`
+
+You will get the following response:
 
 ```
 $ pdk update
@@ -45,7 +47,9 @@ Do you want to continue and make these changes to your module? Yes
 $
 ```
 
-* Create the required files for a new type and provider in the module with `pdk new provider <provider_name>`.
+5. Create the required files for a new type and provider in the module by running `pdk new provider <provider_name>`
+ 
+You will get the following response:
 
 ```
 $ pdk new provider foo
@@ -55,9 +59,7 @@ pdk (INFO): Creating '.../example/spec/unit/puppet/provider/foo/foo_spec.rb' fro
 $
 ```
 
-Note that the templates released with PDK 1.4 suffer from the fallout of [PDK-911](https://tickets.puppetlabs.com/browse/PDK-911), and need all occurrences of `:present` changed to `'present'`. This will be fixed in PDK 1.5.
-
-The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider:
+The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider, which will look like this:
 
 ```
 $ pdk test unit

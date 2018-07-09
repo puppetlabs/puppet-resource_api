@@ -13,7 +13,13 @@ group :tests do
   gem 'rake', '~> 10.0'
   gem 'rspec', '~> 3.0'
   gem 'rubocop-rspec'
-  gem 'rubocop'
+  # rubocop 0.58 throws when testing against ruby 2.1, so pin to the latest,
+  # unless we're dealing with jruby...
+  if RUBY_PLATFORM == 'java'
+    gem 'rubocop'
+  else
+    gem 'rubocop', '0.57.2'
+  end
   gem 'simplecov-console'
   # the test gems required for module testing
   gem 'puppetlabs_spec_helper', '~> 2.7'
