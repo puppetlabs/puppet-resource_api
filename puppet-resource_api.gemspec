@@ -5,6 +5,7 @@ require 'puppet/resource_api/version'
 Gem::Specification.new do |spec|
   spec.name          = 'puppet-resource_api'
   spec.version       = Puppet::ResourceApi::VERSION
+  spec.license       = 'Apache-2.0'
   spec.authors       = ['David Schmitt']
   spec.email         = ['david.schmitt@puppet.com']
 
