@@ -16,31 +16,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
   let(:definition) { { name: 'some_resource', attributes: { name: 'some_resource' }, features: feature_support } }
   let(:feature_support) { [] }
 
-  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{BaseContext requires definition to be a Hash} }
-
-  describe '#device' do
-    context 'when a NetworkDevice is configured' do
-      let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
-
-      before(:each) do
-        allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(device)
-      end
-
-      it 'returns the device' do
-        expect(context.device).to eq(device)
-      end
-    end
-
-    context 'with no NetworkDevice configured' do
-      before(:each) do
-        allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(nil)
-      end
-
-      it 'raises an error' do
-        expect { context.device }.to raise_error RuntimeError, %r{no device configured}
-      end
-    end
-  end
+  it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{BaseContext requires definition to be a Hash} }
 
   describe '#failed?' do
     it('defaults to false') { is_expected.not_to be_failed }
@@ -352,6 +328,10 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
         expect(context.last_message).to eq "some_resource: message: x\na\nb\nc"
       end
     end
+  end
+
+  describe '#device' do
+    it { expect { described_class.new(definition).device }.to raise_error RuntimeError, %r{Received device\(\) on an unprepared BaseContext\. Use a PuppetContext instead} }
   end
 
   describe '#send_log' do

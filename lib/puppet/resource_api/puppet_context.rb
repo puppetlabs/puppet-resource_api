@@ -2,6 +2,12 @@ require 'puppet/resource_api/base_context'
 require 'puppet/util/logging'
 
 class Puppet::ResourceApi::PuppetContext < Puppet::ResourceApi::BaseContext
+  def device
+    # TODO: evaluate facter_url setting for loading config if there is no `current` NetworkDevice
+    raise 'no device configured' unless Puppet::Util::NetworkDevice.current
+    Puppet::Util::NetworkDevice.current
+  end
+
   def log_exception(exception, message: 'Error encountered', trace: false)
     super(exception, message: message, trace: trace || Puppet[:trace])
   end
