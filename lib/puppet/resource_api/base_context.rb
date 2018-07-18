@@ -1,5 +1,3 @@
-require 'puppet/util'
-require 'puppet/util/network_device'
 require 'puppet/resource_api/type_definition'
 
 module Puppet; end
@@ -8,15 +6,13 @@ class Puppet::ResourceApi::BaseContext
   attr_reader :type
 
   def initialize(definition)
-    raise Puppet::DevError, 'BaseContext requires definition to be a Hash' unless definition.is_a?(Hash)
+    raise ArgumentError, 'BaseContext requires definition to be a Hash' unless definition.is_a?(Hash)
     @typename = definition[:name]
     @type = Puppet::ResourceApi::TypeDefinition.new(definition)
   end
 
   def device
-    # TODO: evaluate facter_url setting for loading config if there is no `current` NetworkDevice
-    raise 'no device configured' unless Puppet::Util::NetworkDevice.current
-    Puppet::Util::NetworkDevice.current
+    raise 'Received device() on an unprepared BaseContext. Use a PuppetContext instead.'
   end
 
   def failed?

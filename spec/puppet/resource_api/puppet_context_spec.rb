@@ -5,6 +5,30 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
 
   let(:definition) { { name: 'some_resource' } }
 
+  describe '#device' do
+    context 'when a NetworkDevice is configured' do
+      let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
+
+      before(:each) do
+        allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(device)
+      end
+
+      it 'returns the device' do
+        expect(context.device).to eq(device)
+      end
+    end
+
+    context 'with no NetworkDevice configured' do
+      before(:each) do
+        allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(nil)
+      end
+
+      it 'raises an error' do
+        expect { context.device }.to raise_error RuntimeError, %r{no device configured}
+      end
+    end
+  end
+
   describe '#warning(msg)' do
     it 'calls the Puppet logging infrastructure' do
       expect(Puppet::Util::Log).to receive(:create).with(level: :warning, message: match(%r{message}))
