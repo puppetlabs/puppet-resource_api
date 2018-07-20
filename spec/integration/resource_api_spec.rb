@@ -187,6 +187,12 @@ RSpec.describe 'Resource API integrated tests:' do
     end
 
     context 'with a instance of the type' do
+      # the catalog here is required to mock out the catalog used in
+      # https://github.com/puppetlabs/puppet/blob/fb96f5115b0a7033ee6624173a7c3be8e0d1f572/lib/puppet/type.rb#L1416-L1433
+      # to have a quick check of the working of metaparams here, without having to stand up
+      # a complete catalog.
+      # See spec/acceptance/metaparam_spec.rb for more in-depth testing with a full puppet apply
+      let(:catalog) { instance_double('Puppet::Resource::Catalog', 'catalog') }
       let(:instance) do
         type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
                  variant_pattern: '0x1234ABCD', url: 'http://www.google.com', string_array: %w[a b c],
@@ -194,7 +200,14 @@ RSpec.describe 'Resource API integrated tests:' do
                  array_from_hell: ['a', %w[subb subc], 'd'],
                  boolean_param: false, integer_param: 99, float_param: 3.21, ensure_param: 'present',
                  variant_pattern_param: '1234ABCD', url_param:  'http://www.puppet.com',
-                 string_array_param: %w[d e f])
+                 string_array_param: %w[d e f], alias: 'bar', audit: 'all', loglevel: 'crit', noop: false,
+                 tag: %w[a b c], catalog: catalog)
+      end
+
+      before(:each) do
+        allow(catalog).to receive(:resource).and_return nil
+        allow(catalog).to receive(:alias).and_return nil
+        allow(catalog).to receive(:host_config?).and_return true
       end
 
       it('flushes') { expect { instance.flush }.not_to raise_exception }

@@ -24,27 +24,22 @@ RSpec.describe Puppet::Provider::TestNoopSupport::TestNoopSupport do
     end
   end
 
-  describe 'create(context, name, should)' do
-    it 'creates the resource' do
-      expect(context).to receive(:notice).with(%r{\ACreating 'a'})
+  describe '#set' do
+    context 'with noop: false' do
+      it 'logs' do
+        allow(context).to receive(:notice)
+        expect(context).to receive(:notice).with('noop: false').once
 
-      provider.create(context, 'a', name: 'a', ensure: 'present')
+        provider.set(context, {}, noop: false)
+      end
     end
-  end
+    context 'with noop: true' do
+      it 'logs' do
+        allow(context).to receive(:notice)
+        expect(context).to receive(:notice).with('noop: true').once
 
-  describe 'update(context, name, should)' do
-    it 'updates the resource' do
-      expect(context).to receive(:notice).with(%r{\AUpdating 'foo'})
-
-      provider.update(context, 'foo', name: 'foo', ensure: 'present')
-    end
-  end
-
-  describe 'delete(context, name, should)' do
-    it 'deletes the resource' do
-      expect(context).to receive(:notice).with(%r{\ADeleting 'foo'})
-
-      provider.delete(context, 'foo')
+        provider.set(context, {}, noop: true)
+      end
     end
   end
 end

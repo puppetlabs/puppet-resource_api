@@ -78,6 +78,7 @@ module Puppet::ResourceApi
         # $stderr.puts "A: #{attributes.inspect}"
         if attributes.is_a? Puppet::Resource
           @title = attributes.title
+          @catalog = attributes.catalog
           attributes = attributes.to_hash
         else
           @ral_find_absent = true
@@ -111,7 +112,7 @@ module Puppet::ResourceApi
       define_method(:to_resource_shim) do |resource|
         resource_hash = Hash[resource.keys.map { |k| [k, resource[k]] }]
         resource_hash[:title] = resource.title
-        ResourceShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes)
+        ResourceShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes, catalog)
       end
 
       validate do
@@ -343,7 +344,8 @@ module Puppet::ResourceApi
 
         # puts 'flush'
         # skip puppet's injected metaparams
-        target_state = Hash[@parameters.reject { |k, _v| [:loglevel, :noop, :provider].include? k }.map { |k, v| [k, v.rs_value] }]
+        actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
+        target_state = Hash[actual_params.map { |k, v| [k, v.rs_value] }]
         target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
 
         retrieve unless @rapi_current_state
