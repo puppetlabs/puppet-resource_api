@@ -75,7 +75,7 @@ RSpec.describe 'validation' do
     it 'allows managing' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ foo: prop => 2, param => 3 }\"")
       expect(output.strip).not_to match %r{test_validation}i
-      expect(output.strip).not_to match %r{warn|error}
+      expect(output.strip).not_to match %r{warn|error}i
       expect(status.exitstatus).to eq 0
     end
 
@@ -106,7 +106,7 @@ RSpec.describe 'validation' do
     it 'allows managing an absent instance' do
       output, status = Open3.capture2e("puppet apply #{common_args} -e \"test_validation{ gone: ensure => absent, param => 3 }\"")
       expect(output.strip).not_to match %r{test_validation}i
-      expect(output.strip).not_to match %r{warn|error}
+      expect(output.strip).not_to match %r{warn|error}i
       expect(status.exitstatus).to eq 0
     end
 
