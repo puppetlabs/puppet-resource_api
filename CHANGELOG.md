@@ -3,6 +3,20 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.4.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.1) (2018-07-20)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.0...v1.4.1)
+
+**Fixed bugs:**
+
+- Fix "undefined method `rs\_value'" error with metaparams [\#108](https://github.com/puppetlabs/puppet-resource_api/pull/108) ([DavidS](https://github.com/DavidS))
+- Improve log\_exception output from PuppetContext [\#103](https://github.com/puppetlabs/puppet-resource_api/pull/103) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- Misc fixes: license metadata, announcement template, puppet load fix [\#107](https://github.com/puppetlabs/puppet-resource_api/pull/107) ([DavidS](https://github.com/DavidS))
+- Minor changes to README [\#106](https://github.com/puppetlabs/puppet-resource_api/pull/106) ([clairecadman](https://github.com/clairecadman))
+- Release prep for v1.4.0 [\#102](https://github.com/puppetlabs/puppet-resource_api/pull/102) ([DavidS](https://github.com/DavidS))
+
 ## [v1.4.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.0) (2018-06-19)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.3.0...v1.4.0)
 
