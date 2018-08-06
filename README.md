@@ -2,7 +2,7 @@
 
 This is an implementation of the [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) proposal. Find a working example of a new-style provider in the [experimental puppetlabs-apt branch](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/provider/apt_key2/apt_key2.rb). There is also the corresponding [type](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/type/apt_key2.rb), [provider](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/provider/apt_key2/apt_key2.rb), and [new unit tests](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/spec/unit/puppet/provider/apt_key2/apt_key2_spec.rb) for 100% coverage.
 
-## Install the Resource API
+## Getting Started
 
 1. Download the [Puppet Development Kit](https://puppet.com/download-puppet-development-kit) (PDK) appropriate to your operating system and architecture.
 
@@ -47,7 +47,7 @@ $
 ```
 
 5. Create the required files for a new type and provider in the module by running `pdk new provider <provider_name>`
- 
+
 You will get the following response:
 
 ```
@@ -82,13 +82,13 @@ Puppet::ResourceApi.register_type(
   docs: <<-EOS,
       This type provides Puppet with the capabilities to manage ...
     EOS
-  attributes:   {
-    ensure:      {
+  attributes: {
+    ensure: {
       type:    'Enum[present, absent]',
       desc:    'Whether this apt key should be present or absent on the target system.',
       default: 'present',
     },
-    name:        {
+    name: {
       type:      'String',
       desc:      'The name of the resource you want to manage.',
       behaviour: :namevar,
