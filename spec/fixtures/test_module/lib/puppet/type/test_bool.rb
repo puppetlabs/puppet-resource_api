@@ -2,9 +2,9 @@ require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_type(
   name: 'test_bool',
-  docs: <<-EOS,
+  docs: <<-DOC,
       This type provides Puppet with the capabilities to manage ...
-    EOS
+  DOC
   features: [],
   attributes:   {
     ensure:      {
@@ -20,11 +20,23 @@ Puppet::ResourceApi.register_type(
     test_bool:   {
       type:      'Boolean',
       desc:      'A boolean property for testing.',
+      default:   false,
     },
     test_bool_param: {
       type:      'Boolean',
       desc:      'A boolean parameter for testing.',
       behaviour: :parameter,
+      default:   false,
+    },
+    variant_bool: {
+      type:       'Variant[String, Boolean]',
+      desc:       'A boolean variant atribute',
+      default:    false,
+    },
+    optional_bool: {
+      type:       'Optional[Boolean]',
+      desc:       'An optional boolean attribute',
+      default:    false,
     },
   },
 )

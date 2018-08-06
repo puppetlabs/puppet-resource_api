@@ -179,9 +179,18 @@ module Puppet::ResourceApi
           end
 
           # read-only values do not need type checking, but can have default values
-          if options[:behaviour] != :read_only
+          if options[:behaviour] != :read_only && options.key?(:default)
             if options.key? :default
-              defaultto options[:default]
+              if options[:default] == false
+                # work around https://tickets.puppetlabs.com/browse/PUP-2368
+                defaultto :false # rubocop:disable Lint/BooleanSymbol
+              elsif options[:default] == true
+                # work around https://tickets.puppetlabs.com/browse/PUP-2368
+                defaultto :true # rubocop:disable Lint/BooleanSymbol
+              else
+                defaultto options[:default]
+              end
+              # defaultto options[:default]
             end
           end
 
@@ -195,11 +204,14 @@ module Puppet::ResourceApi
 
           if param_or_property == :newproperty
             define_method(:should) do
-              if type.is_a? Puppet::Pops::Types::PBooleanType
-                # work around https://tickets.puppetlabs.com/browse/PUP-2368
-                rs_value ? :true : :false # rubocop:disable Lint/BooleanSymbol
-              elsif name == :ensure && rs_value.is_a?(String)
+              if name == :ensure && rs_value.is_a?(String)
                 rs_value.to_sym
+              elsif rs_value == false
+                # work around https://tickets.puppetlabs.com/browse/PUP-2368
+                :false # rubocop:disable Lint/BooleanSymbol
+              elsif rs_value == true
+                # work around https://tickets.puppetlabs.com/browse/PUP-2368
+                :true # rubocop:disable Lint/BooleanSymbol
               else
                 rs_value
               end
@@ -521,6 +533,12 @@ MESSAGE
       # the correct types, e.g. "1" (a string) to 1 (an integer)
       cleaned_value, error_msg = try_mungify(type, value, error_msg_prefix)
       raise Puppet::ResourceError, error_msg if error_msg
+    elsif value == :false # rubocop:disable Lint/BooleanSymbol
+      # work around https://tickets.puppetlabs.com/browse/PUP-2368
+      cleaned_value = false
+    elsif value == :true # rubocop:disable Lint/BooleanSymbol
+      # work around https://tickets.puppetlabs.com/browse/PUP-2368
+      cleaned_value = true
     else
       # Every other time, we can use the values as is
       cleaned_value = value

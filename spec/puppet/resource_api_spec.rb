@@ -237,10 +237,28 @@ RSpec.describe Puppet::ResourceApi do
           it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
         end
 
-        context 'when using a legacy symbol' do
+        context 'when using true string' do
+          let(:the_boolean) { 'true' }
+
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+        end
+
+        context 'when using false string' do
+          let(:the_boolean) { 'false' }
+
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+        end
+
+        context 'when using a legacy true symbol' do
           let(:the_boolean) { :true }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got Runtime} }
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :true }
+        end
+
+        context 'when using a legacy false symbol' do
+          let(:the_boolean) { :false }
+
+          it('the test_boolean value is set correctly') { expect(instance[:test_boolean]).to eq :false }
         end
         # rubocop:enable Lint/BooleanSymbol
       end
@@ -1031,6 +1049,81 @@ RSpec.describe Puppet::ResourceApi do
           expect(instance.title_patterns.last[1][0][0]).to eq :package
         end
       end
+    end
+  end
+
+  context 'when registering a type with a mandatory boolean value', agent_test: true do
+    let(:provider_class) do
+      Class.new do
+        def get(_context)
+          []
+        end
+
+        def set(_context, _changes); end
+      end
+    end
+
+    let(:definition) do
+      {
+        name: 'default_bool',
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+          },
+          name: {
+            type: 'String',
+            behavior: :namevar,
+          },
+          bool: {
+            type: 'Boolean',
+            default: default_value,
+          },
+          variant_bool: {
+            type: 'Variant[String, Boolean]',
+            default: default_value,
+          },
+          optional_bool: {
+            type: 'Optional[Boolean]',
+            default: default_value,
+          },
+          array_bool: {
+            type: 'Array[Boolean]',
+            default: [default_value],
+          },
+        },
+      }
+    end
+
+    let(:type) { Puppet::Type.type(:default_bool) }
+    let(:instance) { type.new(name: 'foo', ensure: 'present') }
+    let(:final_hash) do
+      {
+        name: 'foo',
+        ensure: 'present',
+        bool: default_value,
+        variant_bool: default_value,
+        optional_bool: default_value,
+        array_bool: [default_value],
+      }
+    end
+
+    before(:each) do
+      stub_const('Puppet::Provider::DefaultBool', Module.new)
+      stub_const('Puppet::Provider::DefaultBool::DefaultBool', provider_class)
+    end
+
+    context 'when the default value is true' do
+      let(:default_value) { true }
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+      it { expect(instance.flush).to eq(final_hash) }
+    end
+
+    context 'when the default value is false' do
+      let(:default_value) { false }
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+      it { expect(instance.flush).to eq(final_hash) }
     end
   end
 
