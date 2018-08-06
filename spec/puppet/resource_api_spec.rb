@@ -1344,6 +1344,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when flushing' do
           before(:each) do
             Puppet.debug = true
+            instance.my_provider.set(nil, nil) # reset the current_state
             instance.flush
           end
 
