@@ -47,7 +47,7 @@ $
 ```
 
 5. Create the required files for a new type and provider in the module by running `pdk new provider <provider_name>`
- 
+
 You will get the following response:
 
 ```
@@ -82,13 +82,13 @@ Puppet::ResourceApi.register_type(
   docs: <<-EOS,
       This type provides Puppet with the capabilities to manage ...
     EOS
-  attributes:   {
-    ensure:      {
+  attributes: {
+    ensure: {
       type:    'Enum[present, absent]',
       desc:    'Whether this apt key should be present or absent on the target system.',
       default: 'present',
     },
-    name:        {
+    name: {
       type:      'String',
       desc:      'The name of the resource you want to manage.',
       behaviour: :namevar,
