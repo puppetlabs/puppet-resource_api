@@ -3,6 +3,18 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.4.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.2) (2018-08-09)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.1...v1.4.2)
+
+**Fixed bugs:**
+
+- Allow an attribute with default boolean value to be set correctly [\#110](https://github.com/puppetlabs/puppet-resource_api/pull/110) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- \(maint\) fix brace alignment; document reference [\#111](https://github.com/puppetlabs/puppet-resource_api/pull/111) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.4.1 [\#109](https://github.com/puppetlabs/puppet-resource_api/pull/109) ([DavidS](https://github.com/DavidS))
+
 ## [v1.4.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.1) (2018-07-20)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.0...v1.4.1)
 
