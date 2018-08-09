@@ -9,13 +9,21 @@ class Puppet::Provider::TestBool::TestBool < Puppet::ResourceApi::SimpleProvider
         name: 'foo',
         ensure: 'present',
         test_bool: true,
-        test_bool_param: true,
+        variant_bool: true,
+        optional_bool: true,
       },
       {
         name: 'bar',
         ensure: 'present',
         test_bool: false,
-        test_bool_param: false,
+        variant_bool: false,
+        optional_bool: false,
+      },
+      {
+        name: 'wibble',
+        ensure: 'present',
+        test_bool: false,
+        variant_bool: false,
       },
     ]
   end
