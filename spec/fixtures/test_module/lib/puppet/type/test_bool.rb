@@ -36,7 +36,6 @@ Puppet::ResourceApi.register_type(
     optional_bool: {
       type:       'Optional[Boolean]',
       desc:       'An optional boolean attribute',
-      default:    false,
     },
   },
 )
