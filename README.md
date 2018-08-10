@@ -179,6 +179,10 @@ After this, `puppet device` will be able to use the new provider, and supply it 
 
 The [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.
 
+The [hue_rsapi module](https://github.com/da-ar/hue_rsapi) is a very simple example for using the Resource API for remote resources.
+
+The [meraki module](https://github.com/meraki/puppet-module) is a full example for using the Resource API for remote resources.
+
 This [Introduction to Testing Puppet Modules](https://www.netways.de/index.php?id=3445#c44135) talk describes rspec usage in more detail.
 
 The [RSpec docs](https://relishapp.com/rspec) provide an overview of the capabilities of rspec.
