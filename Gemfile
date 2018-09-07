@@ -50,3 +50,5 @@ if ENV['PUPPET_GEM_VERSION']
 else
   gem 'puppet', github: 'DavidS/puppet', ref: 'device-apply'
 end
+
+gem 'puppet-strings'

@@ -1,5 +1,6 @@
 require 'bundler/gem_tasks'
 require 'puppetlabs_spec_helper/tasks/fixtures'
+require 'puppet-strings/tasks'
 
 task :default => :spec
 
