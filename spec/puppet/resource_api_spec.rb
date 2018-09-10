@@ -1644,6 +1644,11 @@ CODE
       expect { described_class.register_type(definition) }.not_to raise_error
     end
 
+    it 'passes through the an empty array to `get`' do
+      expect(provider).to receive(:get).with(anything, []).and_return([])
+      type.instances
+    end
+
     it 'passes through the resource title to `get`' do
       instance = type.new(name: 'bar', ensure: 'present')
       expect(provider).to receive(:get).with(anything, ['bar']).and_return([])

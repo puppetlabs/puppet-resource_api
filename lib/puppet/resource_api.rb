@@ -301,7 +301,13 @@ module Puppet::ResourceApi
         # force autoloading of the provider
         provider(type_definition.name)
 
-        my_provider.get(context).map do |resource_hash|
+        initial_fetch = if type_definition.feature?('simple_get_filter')
+                          my_provider.get(context, [])
+                        else
+                          my_provider.get(context)
+                        end
+
+        initial_fetch.map do |resource_hash|
           type_definition.check_schema(resource_hash)
           result = new(title: resource_hash[type_definition.namevars.first])
           result.cache_current_state(resource_hash)
@@ -311,7 +317,7 @@ module Puppet::ResourceApi
 
       define_method(:refresh_current_state) do
         @rapi_current_state = if type_definition.feature?('simple_get_filter')
-                                my_provider.get(context, [title]).first
+                                my_provider.get(context, [title]).find { |h| namevar_match?(h) }
                               else
                                 my_provider.get(context).find { |h| namevar_match?(h) }
                               end
