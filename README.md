@@ -243,6 +243,10 @@ To cut a new release, from a current `master` checkout:
   * Have a [CHANGELOG_GITHUB_TOKEN](https://github.com/skywinder/github-changelog-generator#github-token) set in your environment
   * run `rake changelog`
   * double check the PRs to make sure they're all tagged correctly (using the new CHANGELOG for cross-checking)
+* Execute the Puppet Strings task to generate the latest [REFERENCE.md](https://github.com/puppetlabs/puppet-resource_api/blob/master/REFERENCE.md)
+    ```
+      bundle exec rake strings:generate['lib/puppet/**/*.rb',,,,,REFERENCE.md,true]
+    ```
 * Check README and other materials for up-to-date-ness
 * Commit changes with title "Release prep for v\<VERSION>"
 * Upload and PR the release-prep branch to the puppetlabs GitHub repo
