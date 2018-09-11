@@ -219,7 +219,6 @@ Restrictions of puppet:
 * Attributes cannot be called `title`, `provider`, or any of the [metaparameters](https://puppet.com/docs/puppet/5.5/metaparameter.html), as those are reserved by puppet itself.
 
 Future possibilities:
-* [Composite Namevars](https://tickets.puppetlabs.com/browse/PDK-531)
 * [Multiple Providers](https://tickets.puppetlabs.com/browse/PDK-530)
 * [Commands API](https://tickets.puppetlabs.com/browse/PDK-847)
 

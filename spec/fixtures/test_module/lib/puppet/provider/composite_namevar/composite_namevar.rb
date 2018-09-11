@@ -4,12 +4,12 @@ require 'puppet/resource_api'
 class Puppet::Provider::CompositeNamevar::CompositeNamevar
   def initialize
     @current_values ||= [
-      { package: 'php', manager: 'yum', ensure: 'present', value: 'a' },
-      { package: 'php', manager: 'gem', ensure: 'present', value: 'b' },
-      { package: 'mysql', manager: 'yum', ensure: 'present', value: 'c' },
-      { package: 'mysql', manager: 'gem', ensure: 'present', value: 'd' },
-      { package: 'foo', manager: 'bar', ensure: 'present', value: 'e' },
-      { package: 'bar', manager: 'foo', ensure: 'present', value: 'f' },
+      { title: 'php-yum', package: 'php', manager: 'yum', ensure: 'present', value: 'a' },
+      { title: 'php-gem', package: 'php', manager: 'gem', ensure: 'present', value: 'b' },
+      { title: 'mysql-yum', package: 'mysql', manager: 'yum', ensure: 'present', value: 'c' },
+      { title: 'mysql-gem', package: 'mysql', manager: 'gem', ensure: 'present', value: 'd' },
+      { title: 'foo-bar', package: 'foo', manager: 'bar', ensure: 'present', value: 'e' },
+      { title: 'bar-foo', package: 'bar', manager: 'foo', ensure: 'present', value: 'f' },
     ]
   end
 

@@ -11,8 +11,8 @@ Puppet::ResourceApi.register_type(
       desc: 'Where the package and the manager are provided with a hyphen seperator',
     },
     {
-      pattern: %r{^(?<package>.*)$},
-      desc: 'Where only the package is provided',
+      pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
+      desc: 'Where the package and the manager are provided with a forward slash seperator',
     },
   ],
   attributes:   {
@@ -34,6 +34,6 @@ Puppet::ResourceApi.register_type(
     value:     {
       type: 'Optional[String]',
       desc: 'An arbitrary string for debugging purposes',
-    }
+    },
   },
 )

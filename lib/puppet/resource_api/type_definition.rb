@@ -74,7 +74,7 @@ class Puppet::ResourceApi::TypeDefinition
   # Modifies the resource passed in, leaving only valid attributes
   def check_schema_keys(resource)
     rejected = []
-    resource.reject! { |key| rejected << key unless attributes.key? key }
+    resource.reject! { |key| rejected << key if key != :title && attributes.key?(key) == false }
     rejected
   end
 

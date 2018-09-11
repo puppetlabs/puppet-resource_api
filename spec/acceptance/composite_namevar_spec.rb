@@ -16,34 +16,24 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
       expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
       expect(stdout_str.strip).to match %r{manager\s*=> \'yum\'}
-      expect(status).to eq 0
+      expect(status.exitstatus).to eq 0
     end
-    it 'returns the required resource correctly, if title is not a matching title_pattern' do
-      stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar foo package=php manager=yum")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'foo\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
-      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
-      expect(stdout_str.strip).to match %r{manager\s*=> \'yum\'}
-      expect(status).to eq 0
+    it 'Throws error if title is not a matching title_pattern' do
+      stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php package=php manager=yum")
+      expect(stdout_str.strip).to match %r{No set of title patterns matched the title "php"}
+      expect(status.exitstatus).to eq 1
     end
-    it 'returns the match if alternative title_pattern matches a single namevar and other namevars are present' do
-      stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php manager=gem")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php\'}
+    it 'returns the match if alternative title_pattern matches' do
+      stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php/gem")
+      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php/gem\'}
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
-      expect(status).to eq 0
-    end
-    it 'returns the match if title matches a namevar value' do
-      stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
-      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
-      expect(status).to eq 0
+      expect(status.exitstatus).to eq 0
     end
     it 'properly identifies an absent resource if only the title is provided' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-wibble")
       expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php-wibble\'}
       expect(stdout_str.strip).to match %r{ensure\s*=> \'absent\'}
-      expect(status).to eq 0
+      expect(status.exitstatus).to eq 0
     end
     it 'creates a previously absent resource' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-wibble ensure='present'")
@@ -51,7 +41,7 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
       expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
       expect(stdout_str.strip).to match %r{manager\s*=> \'wibble\'}
-      expect(status).to eq 0
+      expect(status.exitstatus).to eq 0
     end
     it 'will remove an existing resource' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-gem ensure=absent")
@@ -59,7 +49,7 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
       expect(stdout_str.strip).to match %r{manager\s*=> \'gem\'}
       expect(stdout_str.strip).to match %r{ensure\s*=> \'absent\'}
-      expect(status).to eq 0
+      expect(status.exitstatus).to eq 0
     end
   end
 
@@ -80,7 +70,7 @@ RSpec.describe 'a type with composite namevars' do
     context 'when managing a present instance' do
       let(:manifest) { 'composite_namevar { php-gem: }' }
 
-      it { expect(@stdout_str).to match %r{Current State: \{:package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}} }
+      it { expect(@stdout_str).to match %r{Current State: \{:title=>"php-gem", :package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}} }
       it { expect(@status.exitstatus).to eq 0 }
     end
 
@@ -104,6 +94,15 @@ RSpec.describe 'a type with composite namevars' do
       it { expect(@stdout_str).to match %r{Composite_namevar\[php-yum\]/ensure: undefined 'ensure' from 'present'} }
       it { expect(@status.exitstatus).to eq 2 }
     end
+
+    context 'when modifying an existing resource through an alternative title_pattern' do
+      let(:manifest) { 'composite_namevar { \'php/gem\': value=>\'c\' }' }
+
+      it { expect(@stdout_str).to match %r{Current State: \{:title=>"php-gem", :package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}} }
+      it { expect(@stdout_str).to match %r{Target State: \{:package=>"php", :manager=>"gem", :value=>"c", :ensure=>"present"\}} }
+      it { expect(@status.exitstatus).to eq 2 }
+    end
+
     # rubocop:enable RSpec/InstanceVariable
   end
 end
