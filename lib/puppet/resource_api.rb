@@ -308,8 +308,9 @@ module Puppet::ResourceApi
                         end
 
         initial_fetch.map do |resource_hash|
+          resource_title = resource_hash.delete(:title) || resource_hash[type_definition.namevars.first]
           type_definition.check_schema(resource_hash)
-          result = new(title: resource_hash[type_definition.namevars.first])
+          result = new(title: resource_title)
           result.cache_current_state(resource_hash)
           result
         end

@@ -1423,7 +1423,7 @@ RSpec.describe Puppet::ResourceApi do
         allow(type.my_provider).to receive(:get)
           .with(kind_of(Puppet::ResourceApi::BaseContext))
           .and_return([{ name: 'somename', test_string: 'foo' },
-                       { name: 'other', test_string: 'bar' }])
+                       { name: 'other', test_string: 'bar', title: 'mytitle' }])
       end
 
       it { is_expected.not_to be_nil }
@@ -1474,6 +1474,8 @@ RSpec.describe Puppet::ResourceApi do
         it('returns an Array') { expect(type.instances).to be_a Array }
         it('returns an array of Type instances') { expect(type.instances[0]).to be_a Puppet::Type.type(:passthrough) }
         it('its name is set correctly') { expect(type.instances[0].name).to eq 'somename' }
+        it('its title is set correctly when no title is provided by get') { expect(type.instances[0].title).to eq 'somename' }
+        it('its title is set correctly when a title is provided') { expect(type.instances[1].title).to eq 'mytitle' }
       end
 
       context 'when retrieving an instance through `retrieve`' do
