@@ -1070,7 +1070,7 @@ RSpec.describe Puppet::ResourceApi do
 
     let(:definition) do
       {
-        name: 'default_bool',
+        name: type_name,
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
@@ -1098,8 +1098,8 @@ RSpec.describe Puppet::ResourceApi do
         },
       }
     end
-
-    let(:type) { Puppet::Type.type(:default_bool) }
+    let(:type_name) { "default_bool_#{default_value}" }
+    let(:type) { Puppet::Type.type(type_name.to_sym) }
     let(:instance) { type.new(name: 'foo', ensure: 'present') }
     let(:final_hash) do
       {
@@ -1112,23 +1112,32 @@ RSpec.describe Puppet::ResourceApi do
       }
     end
 
-    before(:each) do
-      stub_const('Puppet::Provider::DefaultBool', Module.new)
-      stub_const('Puppet::Provider::DefaultBool::DefaultBool', provider_class)
-    end
-
     context 'when the default value is true' do
       let(:default_value) { true }
 
+      before(:each) do
+        stub_const('Puppet::Provider::DefaultBoolTrue', Module.new)
+        stub_const('Puppet::Provider::DefaultBoolTrue::DefaultBoolTrue', provider_class)
+      end
+
       it { expect { described_class.register_type(definition) }.not_to raise_error }
-      it { expect(instance.flush).to eq(final_hash) }
+      context 'with the type registered' do
+        it { expect(instance.flush).to eq(final_hash) }
+      end
     end
 
     context 'when the default value is false' do
       let(:default_value) { false }
 
+      before(:each) do
+        stub_const('Puppet::Provider::DefaultBoolFalse', Module.new)
+        stub_const('Puppet::Provider::DefaultBoolFalse::DefaultBoolFalse', provider_class)
+      end
+
       it { expect { described_class.register_type(definition) }.not_to raise_error }
-      it { expect(instance.flush).to eq(final_hash) }
+      context 'with the type registered' do
+        it { expect(instance.flush).to eq(final_hash) }
+      end
     end
   end
 
