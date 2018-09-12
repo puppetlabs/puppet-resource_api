@@ -309,7 +309,12 @@ module Puppet::ResourceApi
 
         initial_fetch.map do |resource_hash|
           type_definition.check_schema(resource_hash)
-          result = new(title: resource_hash[type_definition.namevars.first])
+          # allow a :title from the provider to override the default
+          result = if resource_hash.key? :title
+                     new(title: resource_hash[:title])
+                   else
+                     new(title: resource_hash[type_definition.namevars.first])
+                   end
           result.cache_current_state(resource_hash)
           result
         end

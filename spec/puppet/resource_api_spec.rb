@@ -976,7 +976,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with title_patterns' do
+  context 'when registering a type with title_patterns', agent_test: true do
     let(:definition) do
       {
         name: 'composite',
@@ -1019,12 +1019,13 @@ RSpec.describe Puppet::ResourceApi do
       let(:provider_class) do
         Class.new do
           def get(_context)
-            [{ package: 'php', manager: 'yum', ensure: 'present' }]
+            [{ title: 'php/yum', package: 'php', manager: 'yum', ensure: 'present' }]
           end
 
           def set(_context, _changes); end
         end
       end
+      let(:instance) { Puppet::Type.type(:composite) }
 
       before(:each) do
         stub_const('Puppet::Provider::Composite', Module.new)
@@ -1032,8 +1033,6 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'when title_patterns called' do
-        let(:instance) { Puppet::Type.type(:composite) }
-
         it 'returns correctly generated pattern' do
           # [[ %r{^(?<package>.*[^/])/(?<manager>.*)$},[[:package],[:manager]]],[%r{^(?<package>.*)$},[[:package]]]]
 
@@ -1047,6 +1046,12 @@ RSpec.describe Puppet::ResourceApi do
           expect(instance.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
           expect(instance.title_patterns.last[1].size).to eq 1
           expect(instance.title_patterns.last[1][0][0]).to eq :package
+        end
+      end
+
+      context 'when instances called' do
+        it 'uses the title provided by the provider' do
+          expect(instance.instances[0].title).to eq('php/yum')
         end
       end
     end
