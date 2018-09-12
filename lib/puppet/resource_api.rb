@@ -188,9 +188,13 @@ module Puppet::ResourceApi
                 # work around https://tickets.puppetlabs.com/browse/PUP-2368
                 defaultto :true # rubocop:disable Lint/BooleanSymbol
               else
-                defaultto options[:default]
+                # marshal the default option to decouple that from the actual value.
+                # we cache the dumped value in `marshalled`, but use a block to unmarshal
+                # everytime the value is requested. Objects that can't be marshalled
+                # See https://stackoverflow.com/a/8206537/4918
+                marshalled = Marshal.dump(options[:default])
+                defaultto { Marshal.load(marshalled) } # rubocop:disable Security/MarshalLoad
               end
-              # defaultto options[:default]
             end
           end
 
