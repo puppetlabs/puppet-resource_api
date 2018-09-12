@@ -322,10 +322,10 @@ module Puppet::ResourceApi
 
       define_method(:refresh_current_state) do
         @rsapi_current_state = if type_definition.feature?('simple_get_filter')
-                                my_provider.get(context, [title]).find { |h| namevar_match?(h) }
-                              else
-                                my_provider.get(context).find { |h| namevar_match?(h) }
-                              end
+                                 my_provider.get(context, [title]).find { |h| namevar_match?(h) }
+                               else
+                                 my_provider.get(context).find { |h| namevar_match?(h) }
+                               end
 
         if @rsapi_current_state
           type_definition.check_schema(@rsapi_current_state)
