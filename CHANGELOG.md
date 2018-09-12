@@ -3,6 +3,23 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.5.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.5.0) (2018-09-12)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.2...v1.5.0)
+
+**Implemented enhancements:**
+
+- \(PDK-1150\) Allow providers to override :title when retrieving resources [\#115](https://github.com/puppetlabs/puppet-resource_api/pull/115) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- \(maint\) create a new default value instance on every access [\#118](https://github.com/puppetlabs/puppet-resource_api/pull/118) ([DavidS](https://github.com/DavidS))
+- \(PDK-1091\) Fix Sensitive value handling [\#117](https://github.com/puppetlabs/puppet-resource_api/pull/117) ([DavidS](https://github.com/DavidS))
+- \(MODULES-7679\) correctly handle simple\_get\_filter providers [\#113](https://github.com/puppetlabs/puppet-resource_api/pull/113) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- Release prep for v1.4.2 [\#112](https://github.com/puppetlabs/puppet-resource_api/pull/112) ([DavidS](https://github.com/DavidS))
+
 ## [v1.4.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.2) (2018-08-09)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.1...v1.4.2)
 
