@@ -321,33 +321,33 @@ module Puppet::ResourceApi
       end
 
       define_method(:refresh_current_state) do
-        @rapi_current_state = if type_definition.feature?('simple_get_filter')
+        @rsapi_current_state = if type_definition.feature?('simple_get_filter')
                                 my_provider.get(context, [title]).find { |h| namevar_match?(h) }
                               else
                                 my_provider.get(context).find { |h| namevar_match?(h) }
                               end
 
-        if @rapi_current_state
-          type_definition.check_schema(@rapi_current_state)
-          strict_check(@rapi_current_state) if type_definition.feature?('canonicalize')
+        if @rsapi_current_state
+          type_definition.check_schema(@rsapi_current_state)
+          strict_check(@rsapi_current_state) if type_definition.feature?('canonicalize')
         else
-          @rapi_current_state = { title: title }
-          @rapi_current_state[:ensure] = :absent if type_definition.ensurable?
+          @rsapi_current_state = { title: title }
+          @rsapi_current_state[:ensure] = :absent if type_definition.ensurable?
         end
       end
 
       # Use this to set the current state from the `instances` method
       def cache_current_state(resource_hash)
-        @rapi_current_state = resource_hash
-        strict_check(@rapi_current_state) if type_definition.feature?('canonicalize')
+        @rsapi_current_state = resource_hash
+        strict_check(@rsapi_current_state) if type_definition.feature?('canonicalize')
       end
 
       define_method(:retrieve) do
-        refresh_current_state unless @rapi_current_state
+        refresh_current_state unless @rsapi_current_state
 
-        Puppet.debug("Current State: #{@rapi_current_state.inspect}")
+        Puppet.debug("Current State: #{@rsapi_current_state.inspect}")
 
-        result = Puppet::Resource.new(self.class, title, parameters: @rapi_current_state)
+        result = Puppet::Resource.new(self.class, title, parameters: @rsapi_current_state)
         # puppet needs ensure to be a symbol
         result[:ensure] = result[:ensure].to_sym if type_definition.ensurable? && result[:ensure].is_a?(String)
 
@@ -371,17 +371,17 @@ module Puppet::ResourceApi
         target_state = Hash[actual_params.map { |k, v| [k, v.rs_value] }]
         target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
 
-        retrieve unless @rapi_current_state
+        retrieve unless @rsapi_current_state
 
-        return if @rapi_current_state == target_state
+        return if @rsapi_current_state == target_state
 
         Puppet.debug("Target State: #{target_state.inspect}")
 
         # enforce init_only attributes
-        if Puppet.settings[:strict] != :off && @rapi_current_state && (@rapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
+        if Puppet.settings[:strict] != :off && @rsapi_current_state && (@rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
-            next unless definition[:attributes][name][:behaviour] == :init_only && value != @rapi_current_state[name]
-            message = "Attempting to change `#{name}` init_only attribute value from `#{@rapi_current_state[name]}` to `#{value}`"
+            next unless definition[:attributes][name][:behaviour] == :init_only && value != @rsapi_current_state[name]
+            message = "Attempting to change `#{name}` init_only attribute value from `#{@rsapi_current_state[name]}` to `#{value}`"
             case Puppet.settings[:strict]
             when :warning
               Puppet.warning(message)
@@ -392,14 +392,14 @@ module Puppet::ResourceApi
         end
 
         if type_definition.feature?('supports_noop')
-          my_provider.set(context, { title => { is: @rapi_current_state, should: target_state } }, noop: noop?)
+          my_provider.set(context, { title => { is: @rsapi_current_state, should: target_state } }, noop: noop?)
         else
-          my_provider.set(context, title => { is: @rapi_current_state, should: target_state }) unless noop?
+          my_provider.set(context, title => { is: @rsapi_current_state, should: target_state }) unless noop?
         end
         raise 'Execution encountered an error' if context.failed?
 
         # remember that we have successfully reached our desired state
-        @rapi_current_state = target_state
+        @rsapi_current_state = target_state
       end
 
       define_method(:raise_missing_attrs) do
