@@ -45,8 +45,4 @@ def location_for(place_or_version, fake_version = nil)
   end
 end
 
-if ENV['PUPPET_GEM_VERSION']
-  gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
-else
-  gem 'puppet', github: 'DavidS/puppet', ref: 'device-apply'
-end
+gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
