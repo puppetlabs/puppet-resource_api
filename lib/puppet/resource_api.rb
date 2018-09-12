@@ -79,10 +79,21 @@ module Puppet::ResourceApi
         if attributes.is_a? Puppet::Resource
           @title = attributes.title
           @catalog = attributes.catalog
+          sensitives = attributes.sensitive_parameters
           attributes = attributes.to_hash
         else
           @ral_find_absent = true
+          sensitives = []
         end
+
+        # undo puppet's unwrapping of Sensitive values to provide a uniform experience for providers
+        # See https://tickets.puppetlabs.com/browse/PDK-1091 for investigation and background
+        sensitives.each do |name|
+          if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
+            attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name])
+          end
+        end
+
         # $stderr.puts "B: #{attributes.inspect}"
         if type_definition.feature?('canonicalize')
           attributes = my_provider.canonicalize(context, [attributes])[0]

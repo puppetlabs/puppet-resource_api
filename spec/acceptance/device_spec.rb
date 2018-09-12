@@ -11,6 +11,10 @@ RSpec.describe 'exercising a device provider' do
     'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
   end
 
+  before(:all) do
+    FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
+  end
+
   describe 'using `puppet resource`' do
     it 'manages resources on the target system' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider foo ensure=present #{default_type_values}")

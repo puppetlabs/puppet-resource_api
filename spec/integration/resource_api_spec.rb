@@ -42,6 +42,10 @@ RSpec.describe 'Resource API integrated tests:' do
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url attribute',
           },
+          sensitive: {
+            type: 'Sensitive[String]',
+            desc: 'A sensitive string, like a password',
+          },
           string_array: {
             type: 'Array[String]',
             desc: 'An attribute to exercise Array handling.',
@@ -195,7 +199,8 @@ RSpec.describe 'Resource API integrated tests:' do
       let(:catalog) { instance_double('Puppet::Resource::Catalog', 'catalog') }
       let(:instance) do
         type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
-                 variant_pattern: '0x1234ABCD', url: 'http://www.google.com', string_array: %w[a b c],
+                 variant_pattern: '0x1234ABCD', url: 'http://www.google.com', sensitive: Puppet::Pops::Types::PSensitiveType::Sensitive.new('a password'),
+                 string_array: %w[a b c],
                  variant_array: 'not_an_array', array_of_arrays: [%w[a b c], %w[d e f]],
                  array_from_hell: ['a', %w[subb subc], 'd'],
                  boolean_param: false, integer_param: 99, float_param: 3.21, ensure_param: 'present',
@@ -214,6 +219,7 @@ RSpec.describe 'Resource API integrated tests:' do
 
       describe '.to_resource' do
         it { expect(instance.to_resource).to be_a Puppet::ResourceApi::ResourceShim }
+
         describe 'its title' do
           it { expect(instance.to_resource.title).to eq 'somename' }
         end

@@ -352,6 +352,106 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with a sensitive attributes' do
+    let(:definition) do
+      {
+        name: type_name,
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+            desc: 'the title',
+          },
+          secret: {
+            type: 'Sensitive[String]',
+            desc: 'a password',
+          },
+        },
+      }
+    end
+    let(:type_name) { 'with_sensitive' }
+
+    before(:each) do
+      described_class.register_type(definition)
+    end
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(type_name.to_sym) }
+
+      it { is_expected.not_to be_nil }
+    end
+
+    describe 'an instance of this type' do
+      subject(:instance) { Puppet::Type.type(type_name.to_sym).new(params) }
+
+      let(:params) do
+        { title: 'test', secret: Puppet::Pops::Types::PSensitiveType::Sensitive.new('a password value') }
+      end
+
+      it('has the secret value is set correctly') { expect(instance[:secret]).to be_a Puppet::Pops::Types::PSensitiveType::Sensitive }
+
+      context 'with a basic provider', agent_test: true do
+        let(:provider_class) do
+          Class.new do
+            def get(_context)
+              []
+            end
+
+            def set(_context, _changes); end
+          end
+        end
+
+        before(:each) do
+          stub_const('Puppet::Provider::WithSensitive', Module.new)
+          stub_const('Puppet::Provider::WithSensitive::WithSensitive', provider_class)
+        end
+
+        context 'when mandatory attributes are missing' do
+          let(:params) do
+            {
+              title: 'test',
+            }
+          end
+
+          it {
+            expect {
+              instance.validate
+              instance.retrieve
+            }.not_to raise_exception }
+        end
+
+        context 'when loading from a Puppet::Resource' do
+          let(:params) { instance_double('Puppet::Resource', 'resource') }
+          let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
+          let(:catalog) { instance_double('Unknown', 'catalog') }
+
+          before(:each) do
+            allow(provider_class).to receive(:new).with(no_args).and_return(provider_instance)
+            allow(provider_instance).to receive(:get).and_return([])
+            allow(params).to receive(:is_a?).with(Puppet::Resource).and_return(true)
+            allow(params).to receive(:title).with(no_args).and_return('a title')
+            allow(params).to receive(:catalog).with(no_args).and_return(catalog)
+            allow(params).to receive(:sensitive_parameters).with(no_args).and_return([:secret])
+            allow(params).to receive(:to_hash).with(no_args).and_return(title: 'test', secret: 'a password value')
+            allow(catalog).to receive(:host_config?).and_return(true)
+          end
+
+          it 'massages unwrapped sensitive values' do
+            expect(provider_instance).to receive(:set)
+              .with(anything,
+                    'test' => {
+                      is: { title: 'test' },
+                      should: { name: 'test', secret: a_kind_of(Puppet::Pops::Types::PSensitiveType::Sensitive) },
+                    })
+            instance.retrieve
+            instance[:secret] = Puppet::Pops::Types::PSensitiveType::Sensitive.new('a new password')
+            instance.flush
+          end
+        end
+      end
+    end
+  end
+
   context 'when registering a type that is ensurable', agent_test: true do
     context 'when ensurable is correctly declared' do
       let(:definition) do
