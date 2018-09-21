@@ -55,6 +55,7 @@ $ pdk new provider foo
 pdk (INFO): Creating '.../example/lib/puppet/type/foo.rb' from template.
 pdk (INFO): Creating '.../example/lib/puppet/provider/foo/foo.rb' from template.
 pdk (INFO): Creating '.../example/spec/unit/puppet/provider/foo/foo_spec.rb' from template.
+pdk (INFO): Creating '.../example/spec/unit/puppet/type/foo_spec.rb' from template.
 $
 ```
 
