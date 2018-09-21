@@ -8,7 +8,7 @@ This is an implementation of the [Resource API](https://github.com/puppetlabs/pu
 
 2. Create a [new module](https://puppet.com/docs/pdk/latest/pdk_generating_modules.html) with the PDK, or work with an existing PDK-enabled module. To create a new module, run `pdk new module <MODULE_NAME>` from the command line, specifying the name of the module. Respond to the dialog questions.
 
-3. To add the `puppet-resource_api` gem and enable "modern" rspec-style mocking, open the `sync.yml` file in your editor, and add the following content:
+3. To add the `puppet-resource_api` gem and enable "modern" rspec-style mocking, open the `.sync.yml` file in your editor, and add the following content:
 
 ```
 # .sync.yml
