@@ -65,7 +65,7 @@ The four generated files are the type, the implementation, and the unit tests. T
 $ pdk test unit
 [✔] Preparing to run the unit tests.
 [✔] Running unit tests.
-  Evaluated 4 tests in 0.012065973 seconds: 0 failures, 0 pending.
+  Evaluated 5 tests in 0.012065973 seconds: 0 failures, 0 pending.
 [✔] Cleaning up after running unit tests.
 $
 ```
