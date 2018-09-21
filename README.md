@@ -59,7 +59,7 @@ pdk (INFO): Creating '.../example/spec/unit/puppet/type/foo_spec.rb' from templa
 $
 ```
 
-The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider, which will look like this:
+The four generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider, which will look like this:
 
 ```
 $ pdk test unit
