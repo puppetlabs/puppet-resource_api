@@ -8,7 +8,7 @@ This is an implementation of the [Resource API](https://github.com/puppetlabs/pu
 
 2. Create a [new module](https://puppet.com/docs/pdk/latest/pdk_generating_modules.html) with the PDK, or work with an existing PDK-enabled module. To create a new module, run `pdk new module <MODULE_NAME>` from the command line, specifying the name of the module. Respond to the dialog questions.
 
-3. To add the `puppet-resource_api` gem and enable "modern" rspec-style mocking, open the `sync.yml` file in your editor, and add the following content:
+3. To add the `puppet-resource_api` gem and enable "modern" rspec-style mocking, open the `.sync.yml` file in your editor, and add the following content:
 
 ```
 # .sync.yml
@@ -55,16 +55,17 @@ $ pdk new provider foo
 pdk (INFO): Creating '.../example/lib/puppet/type/foo.rb' from template.
 pdk (INFO): Creating '.../example/lib/puppet/provider/foo/foo.rb' from template.
 pdk (INFO): Creating '.../example/spec/unit/puppet/provider/foo/foo_spec.rb' from template.
+pdk (INFO): Creating '.../example/spec/unit/puppet/type/foo_spec.rb' from template.
 $
 ```
 
-The three generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider, which will look like this:
+The four generated files are the type, the implementation, and the unit tests. The default template contains an example that demonstrates the basic workings of the Resource API. This allows the unit tests to run immediately after creating the provider, which will look like this:
 
 ```
 $ pdk test unit
 [✔] Preparing to run the unit tests.
 [✔] Running unit tests.
-  Evaluated 4 tests in 0.012065973 seconds: 0 failures, 0 pending.
+  Evaluated 5 tests in 0.012065973 seconds: 0 failures, 0 pending.
 [✔] Cleaning up after running unit tests.
 $
 ```
