@@ -1,7 +1,8 @@
 require 'puppet/resource_api'
+require 'puppet/resource_api/simple_provider'
 
 # Implementation for the title_provider type using the Resource API.
-class Puppet::Provider::CompositeNamevar::CompositeNamevar
+class Puppet::Provider::CompositeNamevar::CompositeNamevar < Puppet::ResourceApi::SimpleProvider
   def initialize
     @current_values ||= [
       { title: 'php-yum', package: 'php', manager: 'yum', ensure: 'present', value: 'a' },
@@ -13,25 +14,25 @@ class Puppet::Provider::CompositeNamevar::CompositeNamevar
     ]
   end
 
-  def set(context, changes)
-    changes.each do |name, change|
-      next unless change[:is] != change[:should]
-
-      match = @current_values.find do |item|
-        context.type.namevars.all? do |namevar|
-          item[namevar] == change[:should][namevar]
-        end
-      end
-      if match
-        match[:ensure] = change[:should][:ensure]
-      else
-        context.created([name], message: 'Adding new record')
-        @current_values << change[:should].dup
-      end
-    end
-  end
-
   def get(_context)
     @current_values
+  end
+
+  def create(context, name, should)
+    context.notice("Creating '#{name[:title]}' with #{should.inspect}")
+    context.notice("namevar :package value `#{name[:package]}`")
+    context.notice("namevar :manager value `#{name[:manager]}`")
+  end
+
+  def update(context, name, should)
+    context.notice("Updating '#{name[:title]}' with #{should.inspect}")
+    context.notice("namevar :package value `#{name[:package]}`")
+    context.notice("namevar :manager value `#{name[:manager]}`")
+  end
+
+  def delete(context, name)
+    context.notice("Deleting '#{name[:title]}'")
+    context.notice("namevar :package value `#{name[:package]}`")
+    context.notice("namevar :manager value `#{name[:manager]}`")
   end
 end

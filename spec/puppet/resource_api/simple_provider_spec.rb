@@ -66,6 +66,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:name])
     end
 
     it 'calls create once' do
@@ -109,6 +110,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:updating).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:namevars).and_return([:name])
     end
 
     it 'does not call create' do
@@ -140,6 +142,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:deleting).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:namevars).and_return([:name])
     end
 
     it 'does not call create' do
@@ -179,6 +182,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:updating).with('to update').and_yield
       allow(context).to receive(:deleting).with('to delete').and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter').exactly(3).times
+      allow(type_def).to receive(:namevars).and_return([:name])
     end
 
     it 'calls the crud methods' do
@@ -208,5 +212,36 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
+  end
+
+  context 'with a type with multiple namevars' do
+    let(:should_values) { { name: 'title', parent: 'foo', wibble: 'wub', ensure: 'present' } }
+    let(:title) { 'foo#wub' }
+    let(:changes) do
+      { title =>
+        {
+          should: should_values,
+        } }
+    end
+    let(:name_hash) do
+      {
+        title: title,
+        parent: 'foo',
+        wibble: 'wub',
+      }
+    end
+
+    before(:each) do
+      allow(context).to receive(:creating).with(title).and_yield
+      allow(context).to receive(:type).and_return(type_def)
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:parent, :wibble])
+    end
+
+    it 'calls create once' do
+      expect(provider).to receive(:create).with(context, name_hash, should_values).once
+      provider.set(context, changes)
+    end
   end
 end

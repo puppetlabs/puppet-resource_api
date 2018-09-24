@@ -22,17 +22,28 @@ module Puppet::ResourceApi
         is = { name: name, ensure: 'absent' } if is.nil?
         should = { name: name, ensure: 'absent' } if should.nil?
 
+        name_hash = if context.type.namevars.length > 1
+                      # pass a name_hash containing the values of all namevars
+                      name_hash = { title: name }
+                      context.type.namevars.each do |namevar|
+                        name_hash[namevar] = change[:should][namevar]
+                      end
+                      name_hash
+                    else
+                      name
+                    end
+
         if is[:ensure].to_s == 'absent' && should[:ensure].to_s == 'present'
           context.creating(name) do
-            create(context, name, should)
+            create(context, name_hash, should)
           end
         elsif is[:ensure].to_s == 'present' && should[:ensure].to_s == 'present'
           context.updating(name) do
-            update(context, name, should)
+            update(context, name_hash, should)
           end
         elsif is[:ensure].to_s == 'present' && should[:ensure].to_s == 'absent'
           context.deleting(name) do
-            delete(context, name)
+            delete(context, name_hash)
           end
         end
       end
