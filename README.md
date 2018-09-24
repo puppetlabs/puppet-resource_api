@@ -4,7 +4,7 @@ This is an implementation of the [Resource API](https://github.com/puppetlabs/pu
 
 ## Deployment
 
-The `puppet-resource_api` gem is part of [Puppet 6 Platform](https://puppet.com/blog/introducing-puppet-6). On older versions of puppet, you can use the [puppetlabs-resource_api module](https://forge.puppet.com/puppetlabs/resource_api) to install the gem into your servers and agents.
+The `puppet-resource_api` gem is part of the [Puppet 6 Platform](https://puppet.com/blog/introducing-puppet-6). With older versions of Puppet, you can use the [puppetlabs-resource_api module](https://forge.puppet.com/puppetlabs/resource_api) to install the gem on your servers and agents.
 
 ## Getting Started
 
