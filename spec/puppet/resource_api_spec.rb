@@ -1253,13 +1253,49 @@ RSpec.describe Puppet::ResourceApi do
     context 'when loading a provider that doesn\'t create the correct class' do
       let(:definition) { { name: 'no_class', attributes: {} } }
 
-      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{NoClass} }
+      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{Puppet::Provider::NoClass::NoClass} }
     end
 
     context 'when loading a provider that creates the correct class' do
       let(:definition) { { name: 'test_provider', attributes: {} } }
 
       it { expect(described_class.load_provider('test_provider').name).to eq 'Puppet::Provider::TestProvider::TestProvider' }
+    end
+
+    context 'with a device configured' do
+      let(:definition) { { name: 'multi_provider', attributes: {} } }
+      let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
+      let(:device_class) { instance_double(Class, 'device_class') }
+
+      before(:each) do
+        allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(device)
+        allow(device).to receive(:class).with(no_args).and_return(device_class)
+        allow(device_class).to receive(:name).with(no_args).and_return(device_class_name)
+
+        module ::Puppet::Provider::MultiProvider
+          class MultiProvider; end
+          class SomeDevice; end
+          class OtherDevice; end
+        end
+      end
+
+      context 'with no provider' do
+        let(:device_class_name) { 'Puppet::Util::NetworkDevice::Some_device::Device' }
+
+        it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{device-specific provider class Puppet::Provider::NoClass::SomeDevice} }
+      end
+
+      context 'with no device-specific provider' do
+        let(:device_class_name) { 'Puppet::Util::NetworkDevice::Default_device::Device' }
+
+        it('loads the default provider') { expect(described_class.load_provider('multi_provider').name).to eq 'Puppet::Provider::MultiProvider::MultiProvider' }
+      end
+
+      context 'with a device-specific provider' do
+        let(:device_class_name) { 'Puppet::Util::NetworkDevice::Some_device::Device' }
+
+        it('loads the device provider') { expect(described_class.load_provider('multi_provider').name).to eq 'Puppet::Provider::MultiProvider::SomeDevice' }
+      end
     end
   end
 
