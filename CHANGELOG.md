@@ -3,6 +3,25 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.6.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.0) (2018-09-25)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.5.0...v1.6.0)
+
+**Implemented enhancements:**
+
+- \(PDK-1185\) Implement allowances for device-specific providers [\#126](https://github.com/puppetlabs/puppet-resource_api/pull/126) ([DavidS](https://github.com/DavidS))
+- \(PDK-1143\) Allow SimpleProvider to handle multiple namevars [\#125](https://github.com/puppetlabs/puppet-resource_api/pull/125) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- Update README walkthrough [\#122](https://github.com/puppetlabs/puppet-resource_api/pull/122) ([AlmogCohen](https://github.com/AlmogCohen))
+
+**Merged pull requests:**
+
+- Update README [\#124](https://github.com/puppetlabs/puppet-resource_api/pull/124) ([clairecadman](https://github.com/clairecadman))
+- Update README [\#123](https://github.com/puppetlabs/puppet-resource_api/pull/123) ([DavidS](https://github.com/DavidS))
+- \(maint\) Add Travis job for Puppet 6.0.x branch [\#120](https://github.com/puppetlabs/puppet-resource_api/pull/120) ([da-ar](https://github.com/da-ar))
+- Release prep for v1.5.0 [\#119](https://github.com/puppetlabs/puppet-resource_api/pull/119) ([DavidS](https://github.com/DavidS))
+
 ## [v1.5.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.5.0) (2018-09-12)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.2...v1.5.0)
 
