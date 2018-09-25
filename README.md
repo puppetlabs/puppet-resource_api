@@ -180,6 +180,10 @@ The provider needs to specify the `remote_resource` feature to enable the second
 
 After this, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
 
+#### Device-specific providers
+
+To allow modules to deal with different backends independently of each other, the Resource API also implements a mechanism to use different API providers side-by-side. For a given device type (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
+
 ### Further Reading
 
 The [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.

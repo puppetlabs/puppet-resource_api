@@ -4,6 +4,7 @@ require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/type_definition'
 require 'puppet/resource_api/version'
 require 'puppet/type'
+require 'puppet/util/network_device'
 
 module Puppet::ResourceApi
   @warning_count = 0
@@ -54,7 +55,8 @@ module Puppet::ResourceApi
 
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
       define_singleton_method(:my_provider) do
-        @my_provider ||= Puppet::ResourceApi.load_provider(definition[:name]).new
+        @my_provider ||= Hash.new { |hash, key| hash[key] = Puppet::ResourceApi.load_provider(definition[:name]).new }
+        @my_provider[Puppet::Util::NetworkDevice.current.class]
       end
 
       # make the provider available in the instance's namespace
@@ -514,14 +516,48 @@ MESSAGE
   def load_provider(type_name)
     class_name = class_name_from_type_name(type_name)
     type_name_sym = type_name.to_sym
+    device_name = if Puppet::Util::NetworkDevice.current.nil?
+                    nil
+                  else
+                    # extract the device type from the currently loaded device's class
+                    Puppet::Util::NetworkDevice.current.class.name.split('::')[-2].downcase
+                  end
+    device_class_name = class_name_from_type_name(device_name)
 
+    if device_name
+      device_name_sym = device_name.to_sym if device_name
+      load_device_provider(class_name, type_name_sym, device_class_name, device_name_sym)
+    else
+      load_default_provider(class_name, type_name_sym)
+    end
+  rescue NameError
+    if device_name # line too long # rubocop:disable Style/GuardClause
+      raise Puppet::DevError, "Found neither the device-specific provider class Puppet::Provider::#{class_name}::#{device_class_name} in puppet/provider/#{type_name}/#{device_name}"\
+      " nor the generic provider class Puppet::Provider::#{class_name}::#{class_name} in puppet/provider/#{type_name}/#{type_name}"
+    else
+      raise Puppet::DevError, "provider class Puppet::Provider::#{class_name}::#{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
+    end
+  end
+  module_function :load_provider # rubocop:disable Style/AccessModifierDeclarations
+
+  def load_default_provider(class_name, type_name_sym)
     # loads the "puppet/provider/#{type_name}/#{type_name}" file through puppet
     Puppet::Type.type(type_name_sym).provider(type_name_sym)
     Puppet::Provider.const_get(class_name).const_get(class_name)
-  rescue NameError
-    raise Puppet::DevError, "class #{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
   end
-  module_function :load_provider # rubocop:disable Style/AccessModifierDeclarations
+  module_function :load_default_provider # rubocop:disable Style/AccessModifierDeclarations
+
+  def load_device_provider(class_name, type_name_sym, device_class_name, device_name_sym)
+    # loads the "puppet/provider/#{type_name}/#{device_name}" file through puppet
+    Puppet::Type.type(type_name_sym).provider(device_name_sym)
+    provider_module = Puppet::Provider.const_get(class_name)
+    if provider_module.const_defined?(device_class_name)
+      provider_module.const_get(device_class_name)
+    else
+      load_default_provider(class_name, type_name_sym)
+    end
+  end
+  module_function :load_device_provider # rubocop:disable Style/AccessModifierDeclarations
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
