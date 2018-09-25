@@ -24,6 +24,8 @@ group :tests do
   # the test gems required for module testing
   gem 'puppetlabs_spec_helper', '~> 2.7'
   gem 'rspec-puppet'
+
+  gem 'CFPropertyList'
 end
 
 group :development do
