@@ -18,7 +18,7 @@ We're pleased to announce that version X.Y.Z of the Resource API is being releas
 
 The Resource API provides a simple way to create new native resources in the form of types and providers for Puppet. Using a little bit of ruby, you can finally get rid of that brittle exec, or manage that one API that eluded you until now.
 
-It is provided as a Ruby gem to be referenced within modules. Support for it has been included as an experimental feature in the Puppet Development Kit (see `pdk new provider --help`). Use the [resource_api module](https://forge.puppet.com/puppetlabs/resource_api) or the [puppet 6 nightly packages](https://groups.google.com/d/msg/puppet-users/N3LJGhsrqkU/TUEsq7VfDQAJ) to deploy it in your infrastructure.
+It is provided as a Ruby gem to be referenced within modules. Support for it has been included as an experimental feature in the Puppet Development Kit (see `pdk new provider --help`). Use the [Puppet 6 packages](https://puppet.com/blog/introducing-puppet-6) or the [resource_api module](https://forge.puppet.com/puppetlabs/resource_api) to deploy it in your infrastructure. Note that if you are using Puppet 6 packages, you will have to wait until the next release to upgrade.
 
 The new release of the Resource API provides the following enhancements:
 
@@ -34,7 +34,7 @@ The new release also contains the following notable bugfixes:
 
 See the [CHANGELOG](https://github.com/puppetlabs/puppet-resource_api/blob/master/CHANGELOG.md) for a full list of changes.
 
-We encourage all module developers to review the Resource API and use it when creating types and providers. The [README](https://github.com/puppetlabs/puppet-resource_api/blob/master/README.md) gets you going quickly. To see some example code see [this simple Philips Hue type](https://github.com/da-ar/hue_rsapi) or [this experimental apt_key provider](https://github.com/DavidS/puppetlabs-apt/blob/resource-api-experiments/lib/puppet/provider/apt_key2/apt_key2.rb).
+We encourage all module developers to review the Resource API and use it when creating types and providers. The [README](https://github.com/puppetlabs/puppet-resource_api/blob/master/README.md) gets you going quickly. To see some example code see [this simple Philips Hue type](https://github.com/da-ar/hue_rsapi) or [the Palo Alto firewall module](https://github.com/puppetlabs/puppetlabs-panos).
 
 Please let us know of your experiences with the Resource API, either here, on [Slack](https://slack.puppet.com/) (#forge-modules), or on the [github repo](https://github.com/puppetlabs/puppet-resource_api).
 
