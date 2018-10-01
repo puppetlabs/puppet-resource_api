@@ -8,11 +8,11 @@ Puppet::ResourceApi.register_type(
   title_patterns: [
     {
       pattern: %r{^(?<package>.*[^-])-(?<manager>.*)$},
-      desc: 'Where the package and the manager are provided with a hyphen seperator',
+      desc: 'Where the package and the manager are provided with a hyphen separator',
     },
     {
       pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
-      desc: 'Where the package and the manager are provided with a forward slash seperator',
+      desc: 'Where the package and the manager are provided with a forward slash separator',
     },
   ],
   attributes:   {
