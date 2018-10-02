@@ -1083,7 +1083,7 @@ RSpec.describe Puppet::ResourceApi do
         title_patterns: [
           {
             pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
-            desc: 'Where the package and the manager are provided with a slash seperator',
+            desc: 'Where the package and the manager are provided with a slash separator',
           },
           {
             pattern: %r{^(?<package>.*)$},
