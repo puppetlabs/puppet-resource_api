@@ -1,5 +1,17 @@
-Send out announcements for major new feature releases, and high-impact bugfixes to <puppet-announce@googlegroups.com>, <puppet-dev@googlegroups.com>, <puppet-users@googlegroups.com>, <voxpupuli@groups.io>, and the puppet internal mailing lists: <puppet-product-updates@puppet.com>, <dev@puppet.com>, <tech-discuss@puppet.com>.
+Send out announcements for major new feature releases and high-impact bugfixes.
 
+For each release two announcements should be sent: an internal one and an external one.
+
+Both emails must be sent from the puppet-product-updates@puppet.com email alias. You must add yourself to the alias in order to have rights to send the email from that alias.
+
+### Internal email
+Send from the puppet-product-updates@puppet.com email alias to the internal-puppet-product-updates email address. This will send the announcement to internal only people and most internal groups have been auto-subscribed to that list, so it should hit everyone in the organisation. It may include specific internal-only information, but most of the core content should be the same as the external email. Indeed, it is acceptable for both emails to be the same if there is no internal only information.
+
+### External email
+Send from the puppet-product-updates@puppet.com email alias to the following external aliases: <puppet-announce@googlegroups.com>, <puppet-dev@googlegroups.com>, <puppet-users@googlegroups.com>, <voxpupuli@groups.io>.
+
+
+### Instructions on email content
 Before sending, do check that all links are still valid. Feel free to adjust the text to match better with the circumstances of the release, or add other news that are relevant at the time. If you make changes, consider committing them here, for the benefit of future-you.
 
 The github rendering of the markdown seems to copy&paste acceptably into Google Inbox.
