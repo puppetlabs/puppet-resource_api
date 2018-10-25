@@ -3,6 +3,21 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.6.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.1) (2018-10-25)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.0...v1.6.1)
+
+**Fixed bugs:**
+
+- \(PDK-1209\) setting inherited const\_defined lookup to false [\#132](https://github.com/puppetlabs/puppet-resource_api/pull/132) ([Thomas-Franklin](https://github.com/Thomas-Franklin))
+
+**Merged pull requests:**
+
+- Updated announcement instructions [\#131](https://github.com/puppetlabs/puppet-resource_api/pull/131) ([davinhanlon](https://github.com/davinhanlon))
+- Minor spelling fix [\#130](https://github.com/puppetlabs/puppet-resource_api/pull/130) ([AlmogCohen](https://github.com/AlmogCohen))
+- Add internal announcement list to template [\#129](https://github.com/puppetlabs/puppet-resource_api/pull/129) ([DavidS](https://github.com/DavidS))
+- Adjust announcement template to reality [\#128](https://github.com/puppetlabs/puppet-resource_api/pull/128) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.6.0 [\#127](https://github.com/puppetlabs/puppet-resource_api/pull/127) ([da-ar](https://github.com/da-ar))
+
 ## [v1.6.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.0) (2018-09-25)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.5.0...v1.6.0)
 
