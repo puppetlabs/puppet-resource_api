@@ -3,6 +3,17 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.6.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.2) (2018-10-25)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.1...v1.6.2)
+
+**Fixed bugs:**
+
+- \(PDK-1209\) Fix the other call-sites of const\_defined? and const\_get [\#134](https://github.com/puppetlabs/puppet-resource_api/pull/134) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Release prep for v1.6.1 [\#133](https://github.com/puppetlabs/puppet-resource_api/pull/133) ([DavidS](https://github.com/DavidS))
+
 ## [v1.6.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.1) (2018-10-25)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.0...v1.6.1)
 
