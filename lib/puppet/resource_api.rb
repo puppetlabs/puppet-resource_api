@@ -543,16 +543,16 @@ MESSAGE
   def load_default_provider(class_name, type_name_sym)
     # loads the "puppet/provider/#{type_name}/#{type_name}" file through puppet
     Puppet::Type.type(type_name_sym).provider(type_name_sym)
-    Puppet::Provider.const_get(class_name).const_get(class_name)
+    Puppet::Provider.const_get(class_name, false).const_get(class_name, false)
   end
   module_function :load_default_provider # rubocop:disable Style/AccessModifierDeclarations
 
   def load_device_provider(class_name, type_name_sym, device_class_name, device_name_sym)
     # loads the "puppet/provider/#{type_name}/#{device_name}" file through puppet
     Puppet::Type.type(type_name_sym).provider(device_name_sym)
-    provider_module = Puppet::Provider.const_get(class_name)
-    if provider_module.const_defined?(device_class_name)
-      provider_module.const_get(device_class_name)
+    provider_module = Puppet::Provider.const_get(class_name, false)
+    if provider_module.const_defined?(device_class_name, false)
+      provider_module.const_get(device_class_name, false)
     else
       load_default_provider(class_name, type_name_sym)
     end

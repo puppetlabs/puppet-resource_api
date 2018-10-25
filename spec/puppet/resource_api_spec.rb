@@ -58,7 +58,7 @@ RSpec.describe Puppet::ResourceApi do
     end
 
     describe Puppet::Provider do
-      it('has a module prepared for the provider') { expect(described_class.const_get('Minimal').name).to eq 'Puppet::Provider::Minimal' }
+      it('has a module prepared for the provider') { expect(described_class.const_get('Minimal', false).name).to eq 'Puppet::Provider::Minimal' }
     end
   end
 
