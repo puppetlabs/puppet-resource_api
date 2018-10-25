@@ -46,7 +46,7 @@ module Puppet::ResourceApi
     # this has to happen before Puppet::Type.newtype starts autoloading providers
     # it also needs to be guarded against the namespace already being defined by something
     # else to avoid ruby warnings
-    unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]))
+    unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
       Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
     end
 
