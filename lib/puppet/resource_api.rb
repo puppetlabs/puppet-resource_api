@@ -1,7 +1,10 @@
 require 'pathname'
 require 'puppet/resource_api/data_type_handling'
 require 'puppet/resource_api/glue'
+require 'puppet/resource_api/parameter'
+require 'puppet/resource_api/property'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
+require 'puppet/resource_api/read_only_parameter'
 require 'puppet/resource_api/type_definition'
 require 'puppet/resource_api/version'
 require 'puppet/type'
@@ -180,7 +183,30 @@ module Puppet::ResourceApi
                               :newproperty
                             end
 
-        send(param_or_property, name.to_sym) do
+        parent = if param_or_property == :newproperty
+                   Puppet::ResourceApi::Property
+                 elsif options[:behaviour] == :read_only
+                   Puppet::ResourceApi::ReadOnlyParameter
+                 else
+                   Puppet::ResourceApi::Parameter
+                 end
+
+        # This part fo code creates new parameter or property. It takes the
+        # param_and_property which is one of methods and then translates it to
+        # the i.ex.
+        # newparam(:param_name, parent: Puppet::ResourceApi::Parameter) do; end;
+        send(param_or_property, name.to_sym, parent: parent) do
+          # The initialize takes passed hash with resource.
+          # The method pass needed arguments, depending on parent to:
+          # - Puppet::ResourceApi::Property
+          # - Puppet::ResourceApi::Parameter
+          # - Puppet::ResourceApi::ReadOnlyParameter
+          # @param resource_hash [{ resource: #<Puppet::Type::TypeName> }] is
+          # one element hash referencing the resource object.
+          def initialize(resource_hash)
+            super(name, data_type, data_definition, resource_hash[:resource])
+          end
+
           unless options[:type]
             raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
           end
@@ -226,69 +252,16 @@ module Puppet::ResourceApi
             options[:type],
           )
 
-          if param_or_property == :newproperty
-            define_method(:should) do
-              if name == :ensure && rs_value.is_a?(String)
-                rs_value.to_sym
-              elsif rs_value == false
-                # work around https://tickets.puppetlabs.com/browse/PUP-2368
-                :false # rubocop:disable Lint/BooleanSymbol
-              elsif rs_value == true
-                # work around https://tickets.puppetlabs.com/browse/PUP-2368
-                :true # rubocop:disable Lint/BooleanSymbol
-              else
-                rs_value
-              end
-            end
+          # inside of parameter or property provide method to check and return
+          # data type.
+          define_method(:data_type) do
+            type
+          end
 
-            define_method(:should=) do |value|
-              @shouldorig = value
-
-              if name == :ensure
-                value = value.to_s
-              end
-
-              # Puppet requires the @should value to always be stored as an array. We do not use this
-              # for anything else
-              # @see Puppet::Property.should=(value)
-              @should = [
-                Puppet::ResourceApi::DataTypeHandling.mungify(
-                  type,
-                  value,
-                  "#{definition[:name]}.#{name}",
-                  Puppet::ResourceApi.caller_is_resource_app?,
-                ),
-              ]
-            end
-
-            # used internally
-            # @returns the final mungified value of this property
-            define_method(:rs_value) do
-              @should ? @should.first : @should
-            end
-          else
-            define_method(:value) do
-              @value
-            end
-
-            define_method(:value=) do |value|
-              if options[:behaviour] == :read_only
-                raise Puppet::ResourceError, "Attempting to set `#{name}` read_only attribute value to `#{value}`"
-              end
-
-              @value = Puppet::ResourceApi::DataTypeHandling.mungify(
-                type,
-                value,
-                "#{definition[:name]}.#{name}",
-                Puppet::ResourceApi.caller_is_resource_app?,
-              )
-            end
-
-            # used internally
-            # @returns the final mungified value of this parameter
-            define_method(:rs_value) do
-              @value
-            end
+          # inside of parameter or property provide method to check and return
+          # the definition hash object.
+          define_method(:data_definition) do
+            definition
           end
 
           # puppet symbolizes some values through puppet/parameter/value.rb (see .convert()), but (especially) Enums
