@@ -84,8 +84,15 @@ class Puppet::ResourceApi::TypeDefinition
     bad_vals = {}
     resource.each do |key, value|
       next unless attributes[key]
-      type = Puppet::ResourceApi.parse_puppet_type(key, attributes[key][:type])
-      error_message = Puppet::ResourceApi.try_validate(type, value, '')
+      type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
+        key,
+        attributes[key][:type],
+      )
+      error_message = Puppet::ResourceApi::DataTypeHandling.try_validate(
+        type,
+        value,
+        '',
+      )
       bad_vals[key] = value unless error_message.nil?
     end
     bad_vals
