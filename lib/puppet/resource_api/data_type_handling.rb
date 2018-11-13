@@ -1,4 +1,4 @@
-module Puppet::ResourceApi; end # predeclare the main module # rubocop:disable Style/Documentation
+module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
 
 # This module is used to handle data inside types, contains methods for munging
 # and validation of the type values.
