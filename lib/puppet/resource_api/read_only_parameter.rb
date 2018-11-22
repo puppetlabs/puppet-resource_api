@@ -34,4 +34,10 @@ class Puppet::ResourceApi::ReadOnlyParameter < Puppet::Property
   def rs_value
     @value
   end
+
+  # puppet symbolizes some values through puppet/parameter/value.rb
+  # (see .convert()), but (especially) Enums are strings. specifying a
+  # munge block here skips the value_collection fallback in
+  # puppet/parameter.rb's default .unsafe_munge() implementation.
+  munge { |v| v }
 end

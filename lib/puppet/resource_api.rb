@@ -6,6 +6,7 @@ require 'puppet/resource_api/property'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
 require 'puppet/resource_api/type_definition'
+require 'puppet/resource_api/value_creator'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 require 'puppet/util/network_device'
@@ -196,6 +197,10 @@ module Puppet::ResourceApi
         # the i.ex.
         # newparam(:param_name, parent: Puppet::ResourceApi::Parameter) do; end;
         send(param_or_property, name.to_sym, parent: parent) do
+          unless options[:type]
+            raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
+          end
+
           # The initialize takes passed hash with resource.
           # The method pass needed arguments, depending on parent to:
           # - Puppet::ResourceApi::Property
@@ -207,44 +212,10 @@ module Puppet::ResourceApi
             super(name, data_type, data_definition, resource_hash[:resource])
           end
 
-          unless options[:type]
-            raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
-          end
-
           if options[:desc]
             desc "#{options[:desc]} (a #{options[:type]})"
           else
             warn("#{definition[:name]}.#{name} has no docs")
-          end
-
-          if options[:behaviour] == :namevar
-            isnamevar
-          end
-
-          # read-only values do not need type checking, but can have default values
-          if options[:behaviour] != :read_only && options.key?(:default)
-            if options.key? :default
-              if options[:default] == false
-                # work around https://tickets.puppetlabs.com/browse/PUP-2368
-                defaultto :false # rubocop:disable Lint/BooleanSymbol
-              elsif options[:default] == true
-                # work around https://tickets.puppetlabs.com/browse/PUP-2368
-                defaultto :true # rubocop:disable Lint/BooleanSymbol
-              else
-                # marshal the default option to decouple that from the actual value.
-                # we cache the dumped value in `marshalled`, but use a block to unmarshal
-                # everytime the value is requested. Objects that can't be marshalled
-                # See https://stackoverflow.com/a/8206537/4918
-                marshalled = Marshal.dump(options[:default])
-                defaultto { Marshal.load(marshalled) } # rubocop:disable Security/MarshalLoad
-              end
-            end
-          end
-
-          if name == :ensure
-            def insync?(is)
-              rs_value.to_s == is.to_s
-            end
           end
 
           type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
@@ -264,44 +235,19 @@ module Puppet::ResourceApi
             definition
           end
 
-          # puppet symbolizes some values through puppet/parameter/value.rb (see .convert()), but (especially) Enums
-          # are strings. specifying a munge block here skips the value_collection fallback in puppet/parameter.rb's
-          # default .unsafe_munge() implementation.
-          munge { |v| v }
-
           # provide hints to `puppet type generate` for better parsing
           if type.instance_of? Puppet::Pops::Types::POptionalType
             type = type.type
           end
 
-          case type
-          when Puppet::Pops::Types::PStringType
-            # require any string value
-            Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{})
-          when Puppet::Pops::Types::PBooleanType
-            Puppet::ResourceApi.def_newvalues(self, param_or_property, 'true', 'false')
-            aliasvalue true, 'true'
-            aliasvalue false, 'false'
-            aliasvalue :true, 'true' # rubocop:disable Lint/BooleanSymbol
-            aliasvalue :false, 'false' # rubocop:disable Lint/BooleanSymbol
-
-          when Puppet::Pops::Types::PIntegerType
-            Puppet::ResourceApi.def_newvalues(self, param_or_property, %r{^-?\d+$})
-          when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
-            Puppet::ResourceApi.def_newvalues(self, param_or_property, Puppet::Pops::Patterns::NUMERIC)
-          end
-
-          if param_or_property == :newproperty
-            # stop puppet from trying to call into the provider when
-            # no pre-defined values have been specified
-            # "This is not the provider you are looking for." -- Obi-Wan Kaniesobi.
-            def call_provider(value); end
-          end
-
-          case options[:type]
-          when 'Enum[present, absent]'
-            Puppet::ResourceApi.def_newvalues(self, param_or_property, 'absent', 'present')
-          end
+          # Initialize ValueCreator and call create_values which creates alias
+          # values and default values for properties and params.
+          Puppet::ResourceApi::ValueCreator.new(
+            self,
+            type,
+            param_or_property,
+            options,
+          ).create_values
         end
       end
 
@@ -553,17 +499,6 @@ MESSAGE
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
-  end
-
-  # Add the value to `this` property or param, depending on whether param_or_property is `:newparam`, or `:newproperty`
-  def self.def_newvalues(this, param_or_property, *values)
-    if param_or_property == :newparam
-      this.newvalues(*values)
-    else
-      values.each do |v|
-        this.newvalue(v) {}
-      end
-    end
   end
 
   def self.caller_is_resource_app?

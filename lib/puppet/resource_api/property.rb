@@ -13,6 +13,8 @@ class Puppet::ResourceApi::Property < Puppet::Property
     @name = name
     @type = type
     @definition = definition
+    # Define class method insync?(is) if the name is :ensure
+    def_insync? if @name == :ensure
     # Pass resource and should to parent Puppet class.
     super(resource: resource, should: should)
   end
@@ -61,4 +63,16 @@ class Puppet::ResourceApi::Property < Puppet::Property
   def rs_value
     @should ? @should.first : @should
   end
+
+  # method added only for the :ensure property, add option to check if the
+  # rs_value matches is
+  def def_insync?
+    self.class.send(:define_method, :insync?) { |is| rs_value.to_s == is.to_s }
+  end
+
+  # puppet symbolizes some values through puppet/parameter/value.rb
+  # (see .convert()), but (especially) Enums are strings. specifying a
+  # munge block here skips the value_collection fallback in
+  # puppet/parameter.rb's default .unsafe_munge() implementation.
+  munge { |v| v }
 end
