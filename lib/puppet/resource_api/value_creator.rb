@@ -17,22 +17,20 @@ class Puppet::ResourceApi::ValueCreator
 
     # read-only values do not need type checking, but can have default values
     if @options[:behaviour] != :read_only && @options.key?(:default)
-      if @options.key? :default
-        if @options[:default] == false
-          # work around https://tickets.puppetlabs.com/browse/PUP-2368
-          @resource_class.defaultto :false # rubocop:disable Lint/BooleanSymbol
-        elsif @options[:default] == true
-          # work around https://tickets.puppetlabs.com/browse/PUP-2368
-          @resource_class.defaultto :true # rubocop:disable Lint/BooleanSymbol
-        else
-          # marshal the default option to decouple that from the actual value.
-          # we cache the dumped value in `marshalled`, but use a block to
-          # unmarshal everytime the value is requested. Objects that can't be
-          # marshalled
-          # See https://stackoverflow.com/a/8206537/4918
-          marshalled = Marshal.dump(@options[:default])
-          @resource_class.defaultto { Marshal.load(marshalled) } # rubocop:disable Security/MarshalLoad
-        end
+      if @options[:default] == false
+        # work around https://tickets.puppetlabs.com/browse/PUP-2368
+        @resource_class.defaultto :false # rubocop:disable Lint/BooleanSymbol
+      elsif @options[:default] == true
+        # work around https://tickets.puppetlabs.com/browse/PUP-2368
+        @resource_class.defaultto :true # rubocop:disable Lint/BooleanSymbol
+      else
+        # marshal the default option to decouple that from the actual value.
+        # we cache the dumped value in `marshalled`, but use a block to
+        # unmarshal everytime the value is requested. Objects that can't be
+        # marshalled
+        # See https://stackoverflow.com/a/8206537/4918
+        marshalled = Marshal.dump(@options[:default])
+        @resource_class.defaultto { Marshal.load(marshalled) } # rubocop:disable Security/MarshalLoad
       end
     end
 
