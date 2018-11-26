@@ -1,3 +1,4 @@
+require 'puppet/util'
 require 'puppet/property'
 
 module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
@@ -5,24 +6,25 @@ module Puppet; module ResourceApi; end; end # predeclare the main module # ruboc
 # Class containing property functionality for ResourceApi.
 class Puppet::ResourceApi::Property < Puppet::Property
   # This initialize takes arguments and sets up new property.
-  # @param name the name used for reporting errors
-  # @param type the type instance
-  # @param definition the definition of the property
-  # @param resource the resource instance which is passed to the parent class.
-  def initialize(name, type, definition, resource)
-    @name = name
-    @type = type
-    @definition = definition
+  # @param type_name the name of the Puppet Type
+  # @param data_type the data type of property instance
+  # @param attribute_name the name of attribue of the property
+  # @param resource_hash the resource hash instance which is passed to the
+  # parent class.
+  def initialize(type_name, data_type, attribute_name, resource_hash)
+    @type_name = type_name
+    @data_type = data_type
+    @attribute_name = attribute_name
     # Define class method insync?(is) if the name is :ensure
-    def_insync? if @name == :ensure
-    # Pass resource and should to parent Puppet class.
-    super(resource: resource, should: should)
+    def_insync? if @attribute_name == :ensure
+    # Pass resource to parent Puppet class.
+    super(resource_hash)
   end
 
   # This method returns value of the property.
   # @return [type] the property value
   def should
-    if @name == :ensure && rs_value.is_a?(String)
+    if @attribute_name == :ensure && rs_value.is_a?(String)
       rs_value.to_sym
     elsif rs_value == false
       # work around https://tickets.puppetlabs.com/browse/PUP-2368
@@ -41,7 +43,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
   def should=(value)
     @shouldorig = value
 
-    if @name == :ensure
+    if @attribute_name == :ensure
       value = value.to_s
     end
 
@@ -50,9 +52,9 @@ class Puppet::ResourceApi::Property < Puppet::Property
     # @see Puppet::Property.should=(value)
     @should = [
       Puppet::ResourceApi::DataTypeHandling.mungify(
-        @type,
+        @data_type,
         value,
-        "#{@definition[:name]}.#{@name}",
+        "#{@type_name}.#{@attribute_name}",
         Puppet::ResourceApi.caller_is_resource_app?,
       ),
     ]

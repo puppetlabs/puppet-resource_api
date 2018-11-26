@@ -2,33 +2,17 @@ require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::Property do
   subject(:property) do
-    described_class.new(name, type, definition, resource)
+    described_class.new(type_name, data_type, attribute_name, resource_hash)
   end
 
-  let(:definition) { {} }
-  let(:log_sink) { [] }
-  let(:name) { 'some_property' }
-  let(:resource) { {} }
+  let(:type_name) { 'test_name' }
+  let(:attribute_name) { 'some_property' }
+  let(:data_type) { Puppet::Pops::Types::PStringType.new(nil) }
+  let(:resource_hash) { { resource: {} } }
   let(:result) { 'value' }
-  let(:strict_level) { :error }
-  let(:type) { Puppet::Pops::Types::PStringType.new(nil) }
-
-  before(:each) do
-    # set default to strictest setting
-    # by default Puppet runs at warning level
-    Puppet.settings[:strict] = strict_level
-    # Enable debug logging
-    Puppet.debug = true
-
-    Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
-  end
-
-  after(:each) do
-    Puppet::Util::Log.close_all
-  end
 
   it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
-  it { expect { described_class.new(name, type, definition, resource) }.not_to raise_error }
+  it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
 
   describe '#should=(value)' do
     context 'when value is string' do
@@ -43,7 +27,7 @@ RSpec.describe Puppet::ResourceApi::Property do
         end
 
         it('value is returned') do
-          expect(property.should=(value)).to eq result
+          expect(property.should=(value)).to eq result # rubocop:disable Style/RedundantParentheses, Layout/SpaceAroundOperators
         end
       end
     end
@@ -53,9 +37,9 @@ RSpec.describe Puppet::ResourceApi::Property do
     context 'when value is boolean' do
       context 'when the @should is set' do
         let(:should_true_value) { [true] } # rs_value takes value in array
-        let(:true_result) { :true }
+        let(:true_result) { :true } # rubocop:disable Lint/BooleanSymbol
         let(:should_false_value) { [false] } # rs_value takes value in array
-        let(:false_result) { :false }
+        let(:false_result) { :false } # rubocop:disable Lint/BooleanSymbol
 
         it('true symbol value is returned') do
           property.instance_variable_set(:@should, should_true_value)
@@ -74,7 +58,7 @@ RSpec.describe Puppet::ResourceApi::Property do
         context 'when the @should is set' do
           let(:should_value) { ['present'] } # rs_value takes value in array
           let(:name) { :ensure }
-          let(:result) { :present }
+          let(:result) { 'present' }
 
           it('symbol value is returned') do
             property.instance_variable_set(:@should, should_value)

@@ -10,6 +10,8 @@ require 'puppet/resource_api/value_creator'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 require 'puppet/util/network_device'
+require 'puppet/property'
+require 'puppet/parameter'
 
 module Puppet::ResourceApi
   @warning_count = 0
@@ -178,24 +180,22 @@ module Puppet::ResourceApi
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        param_or_property = if [:read_only, :parameter, :namevar].include? options[:behaviour]
-                              :newparam
-                            else
-                              :newproperty
-                            end
+        if [:parameter, :namevar].include? options[:behaviour]
+          param_or_property = :newparam
+          parent = Puppet::ResourceApi::Parameter
+        elsif options[:behaviour] == :read_only
+          param_or_property = :newparam
+          parent = Puppet::ResourceApi::ReadOnlyParameter
+        else
+          param_or_property = :newproperty
+          parent = Puppet::ResourceApi::Property
+        end
 
-        parent = if param_or_property == :newproperty
-                   Puppet::ResourceApi::Property
-                 elsif options[:behaviour] == :read_only
-                   Puppet::ResourceApi::ReadOnlyParameter
-                 else
-                   Puppet::ResourceApi::Parameter
-                 end
-
-        # This part fo code creates new parameter or property. It takes the
-        # param_and_property which is one of methods and then translates it to
-        # the i.ex.
-        # newparam(:param_name, parent: Puppet::ResourceApi::Parameter) do; end;
+        # This call creates a new parameter or property with all work-arounds or
+        # customizations required by the Resource API applied. Under the hood,
+        # this maps to the relevant DSL methods in Puppet::Type. See
+        # https://puppet.com/docs/puppet/6.0/custom_types.html#reference-5883
+        # for details.
         send(param_or_property, name.to_sym, parent: parent) do
           unless options[:type]
             raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
@@ -207,48 +207,32 @@ module Puppet::ResourceApi
             warn("#{definition[:name]}.#{name} has no docs")
           end
 
-          # The initialize takes passed hash with resource.
-          # The method pass needed arguments, depending on parent to:
-          # - Puppet::ResourceApi::Property
-          # - Puppet::ResourceApi::Parameter
-          # - Puppet::ResourceApi::ReadOnlyParameter
-          # @param resource_hash [{ resource: #<Puppet::Type::TypeName> }] is
-          # one element hash referencing the resource object.
-          def initialize(resource_hash)
-            super(name, data_type, data_definition, resource_hash[:resource])
+          # The initialize method is called when puppet core starts building up
+          # type objects. The core passes in a hash of shape { resource:
+          # #<Puppet::Type::TypeName> }. We use this to pass through the
+          # required configuration data to the parent (see
+          # Puppet::ResourceApi::Property, Puppet::ResourceApi::Parameter and
+          # Puppet::ResourceApi::ReadOnlyParameter).
+          define_method(:initialize) do |resource_hash|
+            super(definition[:name], self.class.data_type, name, resource_hash)
           end
 
-          # get type class object for the parameter or property
-          type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
-            name,
-            options[:type],
-          )
-
-          # provide hints to `puppet type generate` for better parsing
-          if type.instance_of? Puppet::Pops::Types::POptionalType
-            type = type.type
+          # get pops data type object for this parameter or property
+          define_singleton_method(:data_type) do
+            @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
+              name,
+              options[:type],
+            )
           end
 
-          # inside of parameter or property provide method to check and return
-          # data type
-          define_method(:data_type) do
-            type
-          end
-
-          # inside of parameter or property provide method to check and return
-          # the definition hash object
-          define_method(:data_definition) do
-            definition
-          end
-
-          # initialize ValueCreator and call create_values which makes alias
-          # values and default values for properties and params
-          Puppet::ResourceApi::ValueCreator.new(
+          # from ValueCreator call create_values which makes alias values and
+          # default values for properties and params
+          Puppet::ResourceApi::ValueCreator.create_values(
             self,
-            type,
+            data_type,
             param_or_property,
             options,
-          ).create_values
+          )
         end
       end
 

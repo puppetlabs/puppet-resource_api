@@ -2,40 +2,24 @@ require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::Parameter do
   subject(:parameter) do
-    described_class.new(name, type, definition, resource)
+    described_class.new(type_name, data_type, attribute_name, resource_hash)
   end
 
-  let(:definition) { {} }
-  let(:log_sink) { [] }
-  let(:name) { 'some_parameter' }
-  let(:resource) { {} }
+  let(:type_name) { 'test_name' }
+  let(:attribute_name) { 'some_parameter' }
+  let(:data_type) { Puppet::Pops::Types::PStringType.new(nil) }
+  let(:resource_hash) { { resource: {} } }
   let(:result) { 'value' }
-  let(:strict_level) { :error }
-  let(:type) { Puppet::Pops::Types::PStringType.new(nil) }
   let(:value) { 'value' }
 
-  before(:each) do
-    # set default to strictest setting
-    # by default Puppet runs at warning level
-    Puppet.settings[:strict] = strict_level
-    # Enable debug logging
-    Puppet.debug = true
-
-    Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
-  end
-
-  after(:each) do
-    Puppet::Util::Log.close_all
-  end
-
   it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
-  it { expect { described_class.new(name, type, definition, resource) }.not_to raise_error }
+  it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
 
   describe '#value=(value)' do
     context 'when value is string' do
       context 'when the value is set with string value' do
         it('value is returned') do
-          expect(parameter.value=(value)).to eq result
+          expect(parameter.value=(value)).to eq result # rubocop:disable Style/RedundantParentheses, Layout/SpaceAroundOperators
         end
 
         it('value=(value) is called') do

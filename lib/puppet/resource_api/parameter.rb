@@ -1,25 +1,23 @@
+require 'puppet/util'
 require 'puppet/parameter'
 
 module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
 
 # Class containing parameter functionality for ResourceApi.
 class Puppet::ResourceApi::Parameter < Puppet::Parameter
-  # This initialize takes arguments and sets up new parameter.
-  # @param name the name used for reporting errors
-  # @param type the type instance
-  # @param definition the definition of the property
-  # @param resource the resource instance which is passed to the parent class.
-  def initialize(name, type, definiton, resource)
-    @name = name
-    @type = type
-    @definiton = definiton
-    super(resource: resource) # Pass resource to parent Puppet class.
-  end
+  attr_reader :value
 
-  # This method handles return of assigned value from parameter.
-  # @return [type] the type value
-  def value
-    @value
+  # This initialize takes arguments and sets up new parameter.
+  # @param type_name the name of the Puppet Type
+  # @param data_type the data type of parameter instance
+  # @param attribute_name the name of attribue of the parameter
+  # @param resource_hash the resource hash instance which is passed to the
+  # parent class.
+  def initialize(type_name, data_type, attribute_name, resource_hash)
+    @type_name = type_name
+    @data_type = data_type
+    @attribute_name = attribute_name
+    super(resource_hash) # Pass resource to parent Puppet class.
   end
 
   # This method assigns value to the parameter and cleans value.
@@ -27,9 +25,9 @@ class Puppet::ResourceApi::Parameter < Puppet::Parameter
   # @return [type] the cleaned value
   def value=(value)
     @value = Puppet::ResourceApi::DataTypeHandling.mungify(
-      @type,
+      @data_type,
       value,
-      "#{@definiton[:name]}.#{name}",
+      "#{@type_name}.#{@attribute_name}",
       Puppet::ResourceApi.caller_is_resource_app?,
     )
   end

@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::ValueCreator do
-  subject(:instance) do
-    described_class.new(resource_class, data_type, param_or_property, options)
+  subject(:value_creator) do
+    described_class
   end
 
   let(:resource_class) { Puppet::ResourceApi::Property }
@@ -24,12 +24,12 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     allow(resource_class).to receive(:isnamevar)
   end
 
-  it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
-  it { expect { instance }.not_to raise_error }
+  it { expect { described_class.create_values(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+  it { expect { value_creator }.not_to raise_error }
 
   describe '#create_values' do
     before(:each) do
-      instance.create_values
+      value_creator.create_values(resource_class, data_type, param_or_property, options)
     end
 
     context 'when resource class is property' do
@@ -50,7 +50,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when property has Boolean type' do
-        let(:data_type) { Puppet::Pops::Types::PBooleanType.new() } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
         let(:options) do
           {
             type: 'Boolean',
@@ -68,7 +68,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when property has String type' do
-        let(:data_type) { Puppet::Pops::Types::PStringType.new('s') } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PStringType.new('s') }
         let(:options) do
           {
             type: 'String',
@@ -82,7 +82,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when property has Integer type' do
-        let(:data_type) { Puppet::Pops::Types::PIntegerType.new(1) } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PIntegerType.new(1) }
         let(:options) do
           {
             type: 'Integer',
@@ -96,7 +96,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when property has Float type' do
-        let(:data_type) { Puppet::Pops::Types::PFloatType.new(1.0) } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PFloatType.new(1.0) }
         let(:options) do
           {
             type: 'Float',
@@ -112,7 +112,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
 
     context 'when resource class is parameter' do
       let(:resource_class) { Puppet::ResourceApi::Parameter }
-      let(:data_type) { Puppet::Pops::Types::PBooleanType.new() } # rubocop:disable Style/WordArray
+      let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
       let(:param_or_property) { :newparam }
 
       it 'resource_class has no #call_provider method' do
@@ -161,7 +161,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when parameter has Boolean type' do
-        let(:data_type) { Puppet::Pops::Types::PBooleanType.new() } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
         let(:options) do
           {
             type: 'Boolean',
@@ -179,7 +179,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when parameter has String type' do
-        let(:data_type) { Puppet::Pops::Types::PStringType.new('s') } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PStringType.new('s') }
         let(:options) do
           {
             type: 'String',
@@ -193,7 +193,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when parameter has Integer type' do
-        let(:data_type) { Puppet::Pops::Types::PIntegerType.new(1) } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PIntegerType.new(1) }
         let(:options) do
           {
             type: 'Integer',
@@ -207,7 +207,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       end
 
       context 'when parameter has Float type' do
-        let(:data_type) { Puppet::Pops::Types::PFloatType.new(1.0) } # rubocop:disable Style/WordArray
+        let(:data_type) { Puppet::Pops::Types::PFloatType.new(1.0) }
         let(:options) do
           {
             type: 'Float',
