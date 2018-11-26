@@ -3,6 +3,14 @@ module Puppet; module ResourceApi; end; end # predeclare the main module # ruboc
 # This class is responsible for setting default and alias values for the
 # resource class.
 class Puppet::ResourceApi::ValueCreator
+  # This initialize takes arguments and sets up new value creator for given
+  # resource class which can be Puppet::ResourceApi::Parameter,
+  # Puppet::ResourceApi::ReadOnlyParameter, Puppet::ResourceApi::Property.
+  # @param resource_class the class of selected resource to be extended
+  # @param data_type the type instance
+  # @param definition the definition of the property
+  # @param options the ResourceAPI options hash containing setup information for
+  # selected parameter or property
   def initialize(resource_class, data_type, param_or_property, options = {})
     @resource_class = resource_class
     @data_type = data_type
@@ -58,8 +66,8 @@ class Puppet::ResourceApi::ValueCreator
     end
   end
 
-  # Add the value to `this` property or param, depending on whether
-  # param_or_property is `:newparam`, or `:newproperty`.
+  # add the value to `this` property or param, depending on whether
+  # param_or_property is `:newparam`, or `:newproperty`
   def def_newvalues(this, *values)
     if @param_or_property == :newparam
       this.newvalues(*values)

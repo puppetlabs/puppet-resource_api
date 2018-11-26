@@ -201,6 +201,12 @@ module Puppet::ResourceApi
             raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
           end
 
+          if options[:desc]
+            desc "#{options[:desc]} (a #{options[:type]})"
+          else
+            warn("#{definition[:name]}.#{name} has no docs")
+          end
+
           # The initialize takes passed hash with resource.
           # The method pass needed arguments, depending on parent to:
           # - Puppet::ResourceApi::Property
@@ -212,36 +218,31 @@ module Puppet::ResourceApi
             super(name, data_type, data_definition, resource_hash[:resource])
           end
 
-          if options[:desc]
-            desc "#{options[:desc]} (a #{options[:type]})"
-          else
-            warn("#{definition[:name]}.#{name} has no docs")
-          end
-
+          # get type class object for the parameter or property
           type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             name,
             options[:type],
           )
-
-          # inside of parameter or property provide method to check and return
-          # data type.
-          define_method(:data_type) do
-            type
-          end
-
-          # inside of parameter or property provide method to check and return
-          # the definition hash object.
-          define_method(:data_definition) do
-            definition
-          end
 
           # provide hints to `puppet type generate` for better parsing
           if type.instance_of? Puppet::Pops::Types::POptionalType
             type = type.type
           end
 
-          # Initialize ValueCreator and call create_values which creates alias
-          # values and default values for properties and params.
+          # inside of parameter or property provide method to check and return
+          # data type
+          define_method(:data_type) do
+            type
+          end
+
+          # inside of parameter or property provide method to check and return
+          # the definition hash object
+          define_method(:data_definition) do
+            definition
+          end
+
+          # initialize ValueCreator and call create_values which makes alias
+          # values and default values for properties and params
           Puppet::ResourceApi::ValueCreator.new(
             self,
             type,
