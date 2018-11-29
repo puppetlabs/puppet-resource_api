@@ -9,77 +9,101 @@ RSpec.describe Puppet::ResourceApi::Property do
   let(:attribute_name) { 'some_property' }
   let(:data_type) { Puppet::Pops::Types::PStringType.new(nil) }
   let(:resource_hash) { { resource: {} } }
-  let(:result) { 'value' }
 
-  it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
-  it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
+  describe '#new(type_name, data_type, attribute_name, resource_hash)' do
+    it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+    it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
 
-  describe '#should=(value)' do
-    context 'when value is string' do
-      context 'when the should is set with string value' do
-        let(:value) { 'value' }
+    context 'when name is :ensure' do
+      let(:attribute_name) { :ensure }
 
-        it('value is called') do
-          allow(described_class).to receive(:should=).with(value).and_return(result)
-          allow(described_class).to receive(:rs_value).and_return(result)
-          described_class.should=(value) # rubocop:disable Style/RedundantParentheses, Layout/SpaceAroundOperators
-          expect(described_class).to have_received(:should=).once
-        end
-
-        it('value is returned') do
-          expect(property.should=(value)).to eq result # rubocop:disable Style/RedundantParentheses, Layout/SpaceAroundOperators
-        end
+      it 'the #insync? method is avaliable' do
+        expect(property.methods.include?(:insync?)).to eq true
       end
     end
   end
 
-  describe '#should' do
-    context 'when value is boolean' do
-      context 'when the @should is set' do
-        let(:should_true_value) { [true] } # rs_value takes value in array
-        let(:true_result) { :true } # rubocop:disable Lint/BooleanSymbol
-        let(:should_false_value) { [false] } # rs_value takes value in array
-        let(:false_result) { :false } # rubocop:disable Lint/BooleanSymbol
+  describe '#should=(value)' do
+    context 'when value is string type' do
+      it 'calls mungify and stores the munged value' do
+        expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+          .with(data_type, 'value', 'test_name.some_property', false)
+          .and_return('munged value')
 
-        it('true symbol value is returned') do
-          property.instance_variable_set(:@should, should_true_value)
-          expect(property.should).to eq true_result
-        end
+        property.should = 'value'
 
-        it('false symbol value is returned') do
-          property.instance_variable_set(:@should, should_false_value)
-          expect(property.should).to eq false_result
-        end
+        expect(property.value).to eq 'munged value'
       end
     end
 
-    context 'when value is string' do
-      context 'when the name is :ensure' do
-        context 'when the @should is set' do
-          let(:should_value) { ['present'] } # rs_value takes value in array
-          let(:name) { :ensure }
-          let(:result) { 'present' }
+    context 'when attribute name is :ensure' do
+      let(:attribute_name) { :ensure }
+      let(:data_type) { Puppet::Pops::Types::PEnumType.new(%w[absent present]) }
 
-          it('symbol value is returned') do
-            property.instance_variable_set(:@should, should_value)
-            property.instance_variable_set(:@name, name)
-            expect(property.should).to eq result
-          end
+      it 'calls mungify and stores the munged symbol value' do
+        expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+          .with(data_type, 'absent', 'test_name.ensure', false)
+          .and_return('absent')
+
+        property.should = :absent
+
+        expect(property.should).to eq :absent
+      end
+    end
+
+    it 'calls mungify and stores the munged value' do
+      expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+        .with(data_type, 'value', 'test_name.some_property', false)
+        .and_return('munged value')
+
+      property.should = 'value'
+
+      expect(property.value).to eq 'munged value'
+    end
+
+    it 'calls mungify and reports its error' do
+      expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+        .and_raise Exception, 'error'
+
+      expect { property.should = 'value' }.to raise_error Exception, 'error'
+
+      expect(property.should).to eq nil
+    end
+  end
+
+  describe '#should' do
+    context 'when the should is not set' do
+      it 'nil is returned' do
+        expect(property.should).to eq nil
+      end
+    end
+
+    context 'when the should is set' do
+      context 'when should is string' do
+        it 'value is returned' do
+          property.instance_variable_set(:@should, ['value'])
+          expect(property.should).to eq 'value'
         end
       end
 
-      context 'when the should is set' do
-        let(:should_value) { ['value'] } # rs_value takes value in array
-
-        it('value is called') do
-          allow(described_class).to receive(:should).and_return(result)
-          described_class.should
-          expect(described_class).to have_received(:should).once
+      context 'when should is boolean' do
+        it ':false symbol value is returned' do
+          property.instance_variable_set(:@should, [false])
+          expect(property.should).to eq :false # rubocop:disable Lint/BooleanSymbol
         end
 
-        it('value is returned') do
-          property.instance_variable_set(:@should, should_value)
-          expect(property.should).to eq result
+        it ':true symbol value is returned' do
+          property.instance_variable_set(:@should, [true])
+          expect(property.should).to eq :true # rubocop:disable Lint/BooleanSymbol
+        end
+      end
+
+      context 'when atribute name is :ensure' do
+        let(:attribute_name) { :ensure }
+
+        it 'symbol value is returned' do
+          property.instance_variable_set(:@should, ['present'])
+          expect(property.should).to eq :present
         end
       end
     end
@@ -87,25 +111,15 @@ RSpec.describe Puppet::ResourceApi::Property do
 
   describe '#rs_value' do
     context 'when the value is not set' do
-      it('nil is returned') do
-        expect(property.value).to eq nil
+      it 'nil is returned' do
+        expect(property.rs_value).to eq nil
       end
     end
 
-    context 'when value is string' do
-      let(:should_value) { ['value'] }
-
-      context 'when the value is set' do
-        it('value is called') do
-          allow(described_class).to receive(:rs_value).and_return(result)
-          described_class.rs_value
-          expect(described_class).to have_received(:rs_value).once
-        end
-
-        it('value is returned') do
-          property.instance_variable_set(:@should, should_value)
-          expect(property.rs_value).to eq result
-        end
+    context 'when the value is set' do
+      it 'value is returned' do
+        property.instance_variable_set(:@should, ['value'])
+        expect(property.rs_value).to eq 'value'
       end
     end
   end
