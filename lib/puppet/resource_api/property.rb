@@ -77,4 +77,9 @@ class Puppet::ResourceApi::Property < Puppet::Property
   # munge block here skips the value_collection fallback in
   # puppet/parameter.rb's default .unsafe_munge() implementation.
   munge { |v| v }
+
+  # stop puppet from trying to call into the provider when
+  # no pre-defined values have been specified
+  # "This is not the provider you are looking for." -- Obi-Wan Kaniesobi.
+  def call_provider(_value); end
 end

@@ -54,8 +54,6 @@ module Puppet::ResourceApi::ValueCreator
       def_newvalues(resource_class, param_or_property, Puppet::Pops::Patterns::NUMERIC)
     end
 
-    def_call_provider(resource_class) if param_or_property == :newproperty
-
     case options[:type]
     when 'Enum[present, absent]'
       def_newvalues(resource_class, param_or_property, 'absent', 'present')
@@ -73,12 +71,5 @@ module Puppet::ResourceApi::ValueCreator
         this.newvalue(v) {}
       end
     end
-  end
-
-  # stop puppet from trying to call into the provider when
-  # no pre-defined values have been specified
-  # "This is not the provider you are looking for." -- Obi-Wan Kaniesobi.
-  def self.def_call_provider(resource_class)
-    resource_class.send(:define_method, :call_provider) { |value| }
   end
 end
