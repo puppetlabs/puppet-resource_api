@@ -10,8 +10,6 @@ require 'puppet/resource_api/value_creator'
 require 'puppet/resource_api/version'
 require 'puppet/type'
 require 'puppet/util/network_device'
-require 'puppet/property'
-require 'puppet/parameter'
 
 module Puppet::ResourceApi
   @warning_count = 0
