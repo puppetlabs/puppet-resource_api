@@ -15,17 +15,7 @@ RSpec.describe Puppet::ResourceApi::Parameter do
     it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
   end
 
-  describe '#value=(value)' do
-    it 'calls mungify and stores the munged value' do
-      expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
-        .with(data_type, 'value', 'test_name.some_parameter', false)
-        .and_return('munged value')
-
-      parameter.value = 'value'
-
-      expect(parameter.value).to eq 'munged value'
-    end
-
+  describe 'value error handling' do
     it 'calls mungify and reports its error' do
       expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
         .and_raise Exception, 'error'
@@ -36,33 +26,30 @@ RSpec.describe Puppet::ResourceApi::Parameter do
     end
   end
 
-  describe '#value' do
-    context 'when the value is not set' do
-      it 'nil is returned' do
-        expect(parameter.value).to eq nil
-      end
+  describe 'value munging and storage' do
+    before(:each) do
+      allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+        .with(data_type, value, 'test_name.some_parameter', false)
+        .and_return(munged_value)
+
+      parameter.value = value
     end
 
-    context 'when the value is set' do
-      it 'value is returned' do
-        parameter.instance_variable_set(:@value, 'value')
-        expect(parameter.value).to eq 'value'
-      end
-    end
-  end
+    context 'when handling strings' do
+      let(:value) { 'value' }
+      let(:munged_value) { 'munged value' }
 
-  describe '#rs_value' do
-    context 'when the value is not set' do
-      it 'nil is returned' do
-        expect(parameter.rs_value).to eq nil
-      end
+      it { expect(parameter.rs_value).to eq 'munged value' }
+      it { expect(parameter.value).to eq 'munged value' }
     end
 
-    context 'when the value is set' do
-      it 'value is returned' do
-        parameter.instance_variable_set(:@value, 'value')
-        expect(parameter.rs_value).to eq 'value'
-      end
+    context 'when handling boolean true' do
+      let(:value) { true }
+      let(:munged_value) { true }
+      let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
+
+      it { expect(parameter.rs_value).to eq true }
+      it { expect(parameter.value).to eq true }
     end
   end
 end
