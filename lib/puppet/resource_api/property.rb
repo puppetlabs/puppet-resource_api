@@ -66,10 +66,11 @@ class Puppet::ResourceApi::Property < Puppet::Property
     @should ? @should.first : @should
   end
 
-  # method added only for the :ensure property, add option to check if the
-  # rs_value matches is
+  # method overloaded only for the :ensure property, add option to check if the
+  # rs_value matches is. Only if the class is child of
+  # Puppet::ResourceApi::Property.
   def def_insync?
-    self.class.send(:define_method, :insync?) { |is| rs_value.to_s == is.to_s }
+    self.class.send(:define_method, :insync?) { |is| rs_value.to_s == is.to_s } unless self.class == Puppet::ResourceApi::Property
   end
 
   # puppet symbolizes some values through puppet/parameter/value.rb
