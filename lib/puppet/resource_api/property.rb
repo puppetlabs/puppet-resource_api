@@ -16,7 +16,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
     @data_type = data_type
     @attribute_name = attribute_name
     # Define class method insync?(is) if the name is :ensure
-    def_insync? if @attribute_name == :ensure
+    def_insync? if @attribute_name == :ensure && self.class != Puppet::ResourceApi::Property
     # Pass resource to parent Puppet class.
     super(resource_hash)
   end
@@ -70,7 +70,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
   # rs_value matches is. Only if the class is child of
   # Puppet::ResourceApi::Property.
   def def_insync?
-    self.class.send(:define_method, :insync?) { |is| rs_value.to_s == is.to_s } unless self.class == Puppet::ResourceApi::Property
+    define_singleton_method(:insync?) { |is| rs_value.to_s == is.to_s }
   end
 
   # puppet symbolizes some values through puppet/parameter/value.rb

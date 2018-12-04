@@ -15,6 +15,40 @@ RSpec.describe Puppet::ResourceApi::Property do
     it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
   end
 
+  describe 'the special :ensure behaviour' do
+    let(:ensure_property_class) do
+      Class.new(described_class) do
+        define_method(:initialize) do
+          super('test_name',
+            Puppet::Pops::Types::PEnumType.new(%w[absent present]),
+            :ensure,
+            { resource: {} })
+        end
+      end
+    end
+    let(:ensure_property) { ensure_property_class.new }
+
+    it 'has a #insync? method' do
+      expect(ensure_property.public_methods(false)).to include(:insync?)
+    end
+
+    describe '#insync?' do
+      let(:data_type) { Puppet::Pops::Types::PEnumType.new(%w[absent present]) }
+
+      before(:each) do
+        allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+          .with(data_type, 'present', 'test_name.ensure', false)
+          .and_return('present')
+
+        ensure_property.should = 'present'
+      end
+
+      it 'compares using symbols' do
+        expect(ensure_property.insync?(:present)).to eq(true)
+      end
+    end
+  end
+
   describe 'should error handling' do
     it 'calls mungify and reports its error' do
       expect(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
