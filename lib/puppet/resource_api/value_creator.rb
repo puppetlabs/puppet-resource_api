@@ -11,17 +11,17 @@ module Puppet::ResourceApi::ValueCreator
   # @param definition the definition of the property
   # @param options the ResourceAPI options hash containing setup information for
   # selected parameter or property
-  def self.create_values(resource_class, data_type, param_or_property, options = {})
-    resource_class.isnamevar if options[:behaviour] == :namevar
+  def self.create_values(attribute_class, data_type, param_or_property, options = {})
+    attribute_class.isnamevar if options[:behaviour] == :namevar
 
     # read-only values do not need type checking, but can have default values
     if options[:behaviour] != :read_only && options.key?(:default)
       if options[:default] == false
         # work around https://tickets.puppetlabs.com/browse/PUP-2368
-        resource_class.defaultto :false # rubocop:disable Lint/BooleanSymbol
+        attribute_class.defaultto :false # rubocop:disable Lint/BooleanSymbol
       elsif options[:default] == true
         # work around https://tickets.puppetlabs.com/browse/PUP-2368
-        resource_class.defaultto :true # rubocop:disable Lint/BooleanSymbol
+        attribute_class.defaultto :true # rubocop:disable Lint/BooleanSymbol
       else
         # marshal the default option to decouple that from the actual value.
         # we cache the dumped value in `marshalled`, but use a block to
@@ -29,7 +29,7 @@ module Puppet::ResourceApi::ValueCreator
         # marshalled
         # See https://stackoverflow.com/a/8206537/4918
         marshalled = Marshal.dump(options[:default])
-        resource_class.defaultto { Marshal.load(marshalled) } # rubocop:disable Security/MarshalLoad
+        attribute_class.defaultto { Marshal.load(marshalled) } # rubocop:disable Security/MarshalLoad
       end
     end
 
@@ -41,24 +41,24 @@ module Puppet::ResourceApi::ValueCreator
     case data_type
     when Puppet::Pops::Types::PStringType
       # require any string value
-      def_newvalues(resource_class, param_or_property, %r{})
+      def_newvalues(attribute_class, param_or_property, %r{})
     when Puppet::Pops::Types::PBooleanType
-      def_newvalues(resource_class, param_or_property, 'true', 'false')
-      resource_class.aliasvalue true, 'true'
-      resource_class.aliasvalue false, 'false'
-      resource_class.aliasvalue :true, 'true' # rubocop:disable Lint/BooleanSymbol
-      resource_class.aliasvalue :false, 'false' # rubocop:disable Lint/BooleanSymbol
+      def_newvalues(attribute_class, param_or_property, 'true', 'false')
+      attribute_class.aliasvalue true, 'true'
+      attribute_class.aliasvalue false, 'false'
+      attribute_class.aliasvalue :true, 'true' # rubocop:disable Lint/BooleanSymbol
+      attribute_class.aliasvalue :false, 'false' # rubocop:disable Lint/BooleanSymbol
     when Puppet::Pops::Types::PIntegerType
-      def_newvalues(resource_class, param_or_property, %r{^-?\d+$})
+      def_newvalues(attribute_class, param_or_property, %r{^-?\d+$})
     when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
-      def_newvalues(resource_class, param_or_property, Puppet::Pops::Patterns::NUMERIC)
+      def_newvalues(attribute_class, param_or_property, Puppet::Pops::Patterns::NUMERIC)
     end
 
     case options[:type]
     when 'Enum[present, absent]'
-      def_newvalues(resource_class, param_or_property, 'absent', 'present')
+      def_newvalues(attribute_class, param_or_property, 'absent', 'present')
     end
-    resource_class
+    attribute_class
   end
 
   # add the value to `this` property or param, depending on whether

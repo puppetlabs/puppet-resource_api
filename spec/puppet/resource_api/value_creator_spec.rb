@@ -5,7 +5,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     described_class
   end
 
-  let(:resource_class) { Puppet::ResourceApi::Property }
+  let(:attribute_class) { Puppet::ResourceApi::Property }
   let(:data_type) { Puppet::Pops::Types::PEnumType.new(['absent', 'present']) } # rubocop:disable Style/WordArray
   let(:param_or_property) { :newproperty }
   let(:options) do
@@ -17,11 +17,11 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
   end
 
   before(:each) do
-    allow(resource_class).to receive(:newvalue)
-    allow(resource_class).to receive(:newvalues)
-    allow(resource_class).to receive(:aliasvalue)
-    allow(resource_class).to receive(:defaultto)
-    allow(resource_class).to receive(:isnamevar)
+    allow(attribute_class).to receive(:newvalue)
+    allow(attribute_class).to receive(:newvalues)
+    allow(attribute_class).to receive(:aliasvalue)
+    allow(attribute_class).to receive(:defaultto)
+    allow(attribute_class).to receive(:isnamevar)
   end
 
   it { expect { described_class.create_values(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
@@ -29,23 +29,20 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
 
   describe '#create_values' do
     before(:each) do
-      value_creator.create_values(resource_class, data_type, param_or_property, options)
+      value_creator.create_values(attribute_class, data_type, param_or_property, options)
     end
 
-    context 'when resource class is property' do
-      it 'resource_class has #call_provider defined' do
-        expect(resource_class.method_defined?(:call_provider)).to eq(true)
-      end
-
+    context 'when attribute class is property' do
       context 'when property is :ensure' do
         it 'calls #newvalue twice' do
-          expect(Puppet::ResourceApi::Property).to have_received(:newvalue).twice
+          expect(Puppet::ResourceApi::Property).to have_received(:newvalue).with('absent')
+          expect(Puppet::ResourceApi::Property).to have_received(:newvalue).with('present')
         end
       end
 
       context 'when default is set' do
         it 'calls #defaultto once' do
-          expect(resource_class).to have_received(:defaultto)
+          expect(attribute_class).to have_received(:defaultto) { |&block| expect(block[0]).to eq('present') }
         end
       end
 
@@ -59,11 +56,15 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #newvalue twice' do
-          expect(resource_class).to have_received(:newvalue).twice
+          expect(attribute_class).to have_received(:newvalue).with('true')
+          expect(attribute_class).to have_received(:newvalue).with('false')
         end
 
         it 'calls #aliasvalue four times' do
-          expect(resource_class).to have_received(:aliasvalue).at_least(4).times
+          expect(attribute_class).to have_received(:aliasvalue).with(true, 'true')
+          expect(attribute_class).to have_received(:aliasvalue).with(false, 'false')
+          expect(attribute_class).to have_received(:aliasvalue).with(:true, 'true') # rubocop:disable Lint/BooleanSymbol
+          expect(attribute_class).to have_received(:aliasvalue).with(:false, 'false') # rubocop:disable Lint/BooleanSymbol
         end
       end
 
@@ -76,8 +77,8 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalue twice' do
-          expect(resource_class).to have_received(:newvalue).once
+        it 'calls #newvalue once' do
+          expect(attribute_class).to have_received(:newvalue).with(%r{})
         end
       end
 
@@ -90,8 +91,8 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalue twice' do
-          expect(resource_class).to have_received(:newvalue).once
+        it 'calls #newvalue once' do
+          expect(attribute_class).to have_received(:newvalue).with(%r{^-?\d+$})
         end
       end
 
@@ -104,19 +105,19 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalue twice' do
-          expect(resource_class).to have_received(:newvalue).once
+        it 'calls #newvalue once' do
+          expect(attribute_class).to have_received(:newvalue)
         end
       end
     end
 
-    context 'when resource class is parameter' do
-      let(:resource_class) { Puppet::ResourceApi::Parameter }
+    context 'when attribute class is parameter' do
+      let(:attribute_class) { Puppet::ResourceApi::Parameter }
       let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
       let(:param_or_property) { :newparam }
 
-      it 'resource_class has no #call_provider method' do
-        expect(resource_class.method_defined?(:call_provider)).to eq(false)
+      it 'attribute_class has no #call_provider method' do
+        expect(attribute_class.method_defined?(:call_provider)).to eq(false)
       end
 
       context 'when behaviour is set to :namevar' do
@@ -129,7 +130,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #isnamevar once' do
-          expect(resource_class).to have_received(:isnamevar).once
+          expect(attribute_class).to have_received(:isnamevar)
         end
       end
 
@@ -143,7 +144,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #defaultto once' do
-          expect(resource_class).to have_received(:defaultto).once
+          expect(attribute_class).to have_received(:defaultto).with(:true) # rubocop:disable Lint/BooleanSymbol
         end
       end
 
@@ -156,7 +157,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'does not call #defaultto' do
-          expect(resource_class).not_to receive(:defaultto)
+          expect(attribute_class).not_to receive(:defaultto).with(nil)
         end
       end
 
@@ -169,12 +170,15 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalues twice' do
-          expect(resource_class).to have_received(:newvalues).once
+        it 'calls #newvalues once' do
+          expect(attribute_class).to have_received(:newvalues).with('true', 'false')
         end
 
         it 'calls #aliasvalue four times' do
-          expect(resource_class).to have_received(:aliasvalue).at_least(4).times
+          expect(attribute_class).to have_received(:aliasvalue).with(true, 'true')
+          expect(attribute_class).to have_received(:aliasvalue).with(false, 'false')
+          expect(attribute_class).to have_received(:aliasvalue).with(:true, 'true') # rubocop:disable Lint/BooleanSymbol
+          expect(attribute_class).to have_received(:aliasvalue).with(:false, 'false') # rubocop:disable Lint/BooleanSymbol
         end
       end
 
@@ -187,8 +191,8 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalues twice' do
-          expect(resource_class).to have_received(:newvalues).once
+        it 'calls #newvalues once' do
+          expect(attribute_class).to have_received(:newvalues).with(%r{})
         end
       end
 
@@ -201,8 +205,8 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalues twice' do
-          expect(resource_class).to have_received(:newvalues).once
+        it 'calls #newvalues once' do
+          expect(attribute_class).to have_received(:newvalues).with(%r{^-?\d+$})
         end
       end
 
@@ -215,8 +219,10 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           }
         end
 
-        it 'calls #newvalues twice' do
-          expect(resource_class).to have_received(:newvalues).once
+        it 'calls #newvalues once' do
+          expect(attribute_class).to have_received(:newvalues).with(
+            %r{\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z},
+          )
         end
       end
     end
