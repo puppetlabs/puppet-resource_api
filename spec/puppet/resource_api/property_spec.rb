@@ -28,24 +28,28 @@ RSpec.describe Puppet::ResourceApi::Property do
     end
     let(:ensure_property) { ensure_property_class.new }
 
+    before(:each) do
+      allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
+        .with(Puppet::Pops::Types::PEnumType.new(%w[absent present]), 'present', 'test_name.ensure', false)
+        .and_return('present')
+
+      ensure_property.should = 'present'
+    end
+
     it 'has a #insync? method' do
       expect(ensure_property.public_methods(false)).to include(:insync?)
     end
 
     describe '#insync?' do
-      let(:data_type) { Puppet::Pops::Types::PEnumType.new(%w[absent present]) }
-
-      before(:each) do
-        allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
-          .with(data_type, 'present', 'test_name.ensure', false)
-          .and_return('present')
-
-        ensure_property.should = 'present'
-      end
-
       it 'compares using symbols' do
         expect(ensure_property.insync?(:present)).to eq(true)
       end
+    end
+
+    context "when handling 'present' string" do
+      it { expect(ensure_property.should).to eq :present }
+      it { expect(ensure_property.rs_value).to eq 'present' }
+      it { expect(ensure_property.value).to eq :present }
     end
   end
 
