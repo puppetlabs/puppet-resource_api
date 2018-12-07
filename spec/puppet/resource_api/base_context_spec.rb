@@ -13,7 +13,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     TestContext.new(definition)
   end
 
-  let(:definition) { { name: 'some_resource', attributes: { name: 'some_resource' }, features: feature_support } }
+  let(:definition) { { name: 'some_resource', attributes: { name: { type: 'String' } }, features: feature_support } }
   let(:feature_support) { [] }
 
   it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{BaseContext requires definition to be a Hash} }

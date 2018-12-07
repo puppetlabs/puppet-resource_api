@@ -5,6 +5,7 @@ require 'puppet/resource_api/parameter'
 require 'puppet/resource_api/property'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
+require 'puppet/resource_api/transport'
 require 'puppet/resource_api/type_definition'
 require 'puppet/resource_api/value_creator'
 require 'puppet/resource_api/version'
@@ -195,14 +196,8 @@ module Puppet::ResourceApi
         # https://puppet.com/docs/puppet/6.0/custom_types.html#reference-5883
         # for details.
         send(param_or_property, name.to_sym, parent: parent) do
-          unless options[:type]
-            raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
-          end
-
           if options[:desc]
             desc "#{options[:desc]} (a #{options[:type]})"
-          else
-            warn("#{definition[:name]}.#{name} has no docs")
           end
 
           # The initialize method is called when puppet core starts building up
