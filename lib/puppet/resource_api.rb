@@ -19,33 +19,9 @@ module Puppet::ResourceApi
   end
 
   def register_type(definition)
-    raise Puppet::DevError, 'requires a hash as definition, not `%{other_type}`' % { other_type: definition.class } unless definition.is_a? Hash
-    raise Puppet::DevError, 'requires a `:name`' unless definition.key? :name
-    raise Puppet::DevError, 'requires `:attributes`' unless definition.key? :attributes
-    raise Puppet::DevError, '`:attributes` must be a hash, not `%{other_type}`' % { other_type: definition[:attributes].class } unless definition[:attributes].is_a?(Hash)
-    [:title, :provider, :alias, :audit, :before, :consume, :export, :loglevel, :noop, :notify, :require, :schedule, :stage, :subscribe, :tag].each do |name|
-      raise Puppet::DevError, 'must not define an attribute called `%{name}`' % { name: name.inspect } if definition[:attributes].key? name
-    end
-    if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)
-      raise Puppet::DevError, '`:title_patterns` must be an array, not `%{other_type}`' % { other_type: definition[:title_patterns].class }
-    end
-
-    Puppet::ResourceApi::DataTypeHandling.validate_ensure(definition)
-
-    definition[:features] ||= []
-    supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter].freeze
-    unknown_features = definition[:features] - supported_features
-    Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
-
-    # fixup any weird behavior  ;-)
-    definition[:attributes].each do |name, attr|
-      next unless attr[:behavior]
-      if attr[:behaviour]
-        raise Puppet::DevError, "the '#{name}' attribute has both a `behavior` and a `behaviour`, only use one"
-      end
-      attr[:behaviour] = attr[:behavior]
-      attr.delete(:behavior)
-    end
+    # Attempt to create a TypeDefinition from the input hash
+    # This will validate and throw if its not right
+    type_def = TypeDefinition.new(definition)
 
     # prepare the ruby module for the provider
     # this has to happen before Puppet::Type.newtype starts autoloading providers
@@ -57,6 +33,7 @@ module Puppet::ResourceApi
 
     Puppet::Type.newtype(definition[:name].to_sym) do
       @docs = definition[:docs]
+      @type_definition = type_def
 
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
       define_singleton_method(:my_provider) do
@@ -70,7 +47,7 @@ module Puppet::ResourceApi
       end
 
       define_singleton_method(:type_definition) do
-        @type_definition ||= TypeDefinition.new(definition)
+        @type_definition
       end
 
       def type_definition
@@ -195,14 +172,8 @@ module Puppet::ResourceApi
         # https://puppet.com/docs/puppet/6.0/custom_types.html#reference-5883
         # for details.
         send(param_or_property, name.to_sym, parent: parent) do
-          unless options[:type]
-            raise Puppet::DevError, "#{definition[:name]}.#{name} has no type"
-          end
-
           if options[:desc]
             desc "#{options[:desc]} (a #{options[:type]})"
-          else
-            warn("#{definition[:name]}.#{name} has no docs")
           end
 
           # The initialize method is called when puppet core starts building up

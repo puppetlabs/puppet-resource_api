@@ -4,7 +4,7 @@ require 'puppet/resource_api/io_context'
 RSpec.describe Puppet::ResourceApi::IOContext do
   subject(:context) { described_class.new(definition, io) }
 
-  let(:definition) { { name: 'some_resource' } }
+  let(:definition) { { name: 'some_resource', attributes: {} } }
 
   let(:io) { StringIO.new('', 'w') }
 

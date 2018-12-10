@@ -23,7 +23,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
   end
   let(:feature_support) { [] }
 
-  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{TypeDefinition requires definition to be a Hash} }
+  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{Type definition must be a Hash} }
 
   describe '.name' do
     it { expect(type.name).to eq 'some_resource' }
@@ -31,17 +31,17 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
 
   describe '#ensurable?' do
     context 'when type is ensurable' do
-      let(:definition) { { attributes: { ensure: true } } }
+      let(:definition) { { name: 'some_resource', attributes: { ensure: { type: 'Enum[absent, present]' } } } }
 
       it { expect(type).to be_ensurable }
       it { expect(type.attributes).to be_key(:ensure) }
     end
 
     context 'when type is not ensurable' do
-      let(:definition) { { attributes: { string: 'something' } } }
+      let(:definition) { { name: 'some_resource', attributes: { name: { type: 'String' } } } }
 
       it { expect(type).not_to be_ensurable }
-      it { expect(type.attributes).to be_key(:string) }
+      it { expect(type.attributes).to be_key(:name) }
     end
   end
 
@@ -61,10 +61,9 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
 
   describe '#attributes' do
     context 'when type has attributes' do
-      let(:definition) { { attributes: { string: 'test_string' } } }
+      let(:definition) { { name: 'some_resource', attributes: { wibble: { type: 'String' } } } }
 
-      it { expect(type.attributes).to be_key(:string) }
-      it { expect(type.attributes[:string]).to eq('test_string') }
+      it { expect(type.attributes).to be_key(:wibble) }
     end
   end
 
@@ -102,7 +101,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
     end
   end
 
-  describe '#check_schemas' do
+  describe '#check_schema' do
     context 'when resource does not contain its namevar' do
       let(:resource) { { nom: 'some_resource', prop: 1, ensure: 'present' } }
 
@@ -181,6 +180,85 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
           type.check_schema(resource)
         end
       end
+    end
+  end
+
+  describe '#validate_schema' do
+    context 'when the type definition does not have a name' do
+      let(:definition) { { attributes: 'some_string' } }
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{Type definition must have a name} }
+    end
+
+    context 'when attributes is not a hash' do
+      let(:definition) { { name: 'some_resource', attributes: 'some_string' } }
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{`some_resource.attributes` must be a hash} }
+    end
+
+    context 'when the schema contains title_patterns and it is not an array' do
+      let(:definition) { { name: 'some_resource', title_patterns: {}, attributes: {} } }
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{`:title_patterns` must be an array} }
+    end
+
+    context 'when an attribute is not a hash' do
+      let(:definition) { { name: 'some_resource', attributes: { name: 'some_string' } } }
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{`some_resource.name` must be a Hash} }
+    end
+
+    context 'when an attribute has no type' do
+      let(:definition) { { name: 'some_resource', attributes: { name: { desc: 'message' } } } }
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{has no type} }
+    end
+
+    context 'when an attribute has no descrption' do
+      let(:definition) { { name: 'some_resource', attributes: { name: { type: 'String' } } } }
+
+      it 'Raises a warning message' do
+        expect(Puppet).to receive(:warning).with('`some_resource.name` has no docs')
+        type
+      end
+    end
+
+    context 'when an attribute has an unsupported type' do
+      let(:definition) { { name: 'some_resource', attributes: { name: { type: 'basic' } } } }
+
+      it { expect { type }.to raise_error %r{<basic> is not a valid type specification} }
+    end
+
+    context 'with both behavior and behaviour' do
+      let(:definition) do
+        {
+          name: 'bad_behaviour',
+          attributes: {
+            name: {
+              type: 'String',
+              behaviour: :namevar,
+              behavior: :namevar,
+            },
+          },
+        }
+      end
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{name.*attribute has both} }
+    end
+
+    context 'when registering a type with badly formed attribute type' do
+      let(:definition) do
+        {
+          name: 'bad_syntax',
+          attributes: {
+            name: {
+              type: 'Optional[String',
+            },
+          },
+        }
+      end
+
+      it { expect { type }.to raise_error Puppet::DevError, %r{The type of the `name` attribute `Optional\[String` could not be parsed:} }
     end
   end
 end
