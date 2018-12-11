@@ -12,7 +12,10 @@ RSpec.describe 'exercising a device provider' do
   end
 
   before(:all) do
-    FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
+    if Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.0') && Gem::Version.new(Puppet::PUPPETVERSION) < Gem::Version.new('5.4.0')
+      # work around https://tickets.puppetlabs.com/browse/PUP-8632 and https://tickets.puppetlabs.com/browse/PUP-9047
+      FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
+    end
   end
 
   describe 'using `puppet resource`' do
