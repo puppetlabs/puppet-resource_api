@@ -1825,4 +1825,24 @@ CODE
       it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, %r{^`bad` is not a valid behaviour value$} }
     end
   end
+
+  describe '#register_transport' do
+    let(:schema) do
+      {
+        name: 'test_transport',
+        desc: 'a demo transport',
+        connection_info: {
+          host: {
+            type: 'String',
+            desc: 'hostname',
+          },
+        },
+      }
+    end
+
+    it 'calls Puppet::ResourceApi::Transport.register' do
+      expect(Puppet::ResourceApi::Transport).to receive(:register).with(schema)
+      described_class.register_transport(schema)
+    end
+  end
 end
