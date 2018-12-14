@@ -45,6 +45,11 @@ RSpec.configure do |config|
 
   # override legacy default from puppetlabs_spec_helper
   config.mock_with :rspec
+
+  # reset the warning suppression count
+  config.before(:each) do
+    Puppet::ResourceApi.warning_count = 0
+  end
 end
 
 require 'puppetlabs_spec_helper/module_spec_helper'

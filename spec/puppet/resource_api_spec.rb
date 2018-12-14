@@ -22,28 +22,6 @@ RSpec.describe Puppet::ResourceApi do
     expect(Puppet::ResourceApi::VERSION).not_to be nil
   end
 
-  context 'when registering a definition with missing keys' do
-    it { expect { described_class.register_type([]) }.to raise_error(Puppet::DevError, %r{requires a hash as definition}) }
-    it { expect { described_class.register_type({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
-    it { expect { described_class.register_type(name: 'no attributes') }.to raise_error(Puppet::DevError, %r{requires `:attributes`}) }
-    it { expect { described_class.register_type(name: 'no hash attributes', attributes: []) }.to raise_error(Puppet::DevError, %r{`:attributes` must be a hash, not}) }
-    it {
-      expect {
-        described_class.register_type(name: 'with a title', attributes: { title: {} })
-      }.to raise_error(Puppet::DevError, %r{must not define an attribute called `:title`})
-    }
-    it {
-      expect {
-        described_class.register_type(name: 'with a provider', attributes: { provider: {} })
-      }.to raise_error(Puppet::DevError, %r{must not define an attribute called `:provider`})
-    }
-    it {
-      expect {
-        described_class.register_type(name: 'with no hash title_patterns', attributes: {}, title_patterns: {})
-      }.to raise_error(Puppet::DevError, %r{`:title_patterns` must be an array, not})
-    }
-  end
-
   context 'when registering a minimal type' do
     let(:definition) { { name: 'minimal', attributes: {} } }
 
@@ -772,17 +750,21 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
+            desc: '',
           },
           name: {
             type: 'String',
+            desc: '',
             behavior: :namevar,
           },
           something_init_only: {
             type: 'String',
+            desc: '',
             behaviour: :init_only,
           },
           mutable: {
             type: 'String',
+            desc: '',
           },
         },
       }
@@ -935,69 +917,6 @@ RSpec.describe Puppet::ResourceApi do
         it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
       end
     end
-  end
-
-  context 'when registering a type with a malformed attributes' do
-    context 'without a type' do
-      let(:definition) do
-        {
-          name: 'no_type',
-          attributes: {
-            name: {
-              behaviour: :namevar,
-            },
-          },
-        }
-      end
-
-      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*has no type} }
-    end
-
-    context 'with both behavior and behaviour' do
-      let(:definition) do
-        {
-          name: 'bad_behaviour',
-          attributes: {
-            name: {
-              behaviour: :namevar,
-              behavior: :namevar,
-            },
-          },
-        }
-      end
-
-      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{name.*attribute has both} }
-    end
-  end
-
-  context 'when registering a type with badly formed attribute type' do
-    let(:definition) do
-      {
-        name: 'bad_syntax',
-        attributes: {
-          name: {
-            type: 'Optional[String',
-          },
-        },
-      }
-    end
-
-    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{The type of the `name` attribute `Optional\[String` could not be parsed:} }
-  end
-
-  context 'when registering a type with unknown attribute type' do
-    let(:definition) do
-      {
-        name: 'wibble',
-        attributes: {
-          name: {
-            type: 'wibble',
-          },
-        },
-      }
-    end
-
-    it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{The type of the `name` attribute `wibble` is not recognised:} }
   end
 
   context 'when registering a namevar that is not called `name`' do
@@ -1306,10 +1225,12 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'String',
+            desc: '',
             behaviour: :namevar,
           },
           test_string: {
             type: 'String',
+            desc: '',
           },
         },
         features: ['canonicalize'],
@@ -1795,11 +1716,13 @@ CODE
     end
 
     it 'passes through the an empty array to `get`' do
+      expect { described_class.register_type(definition) }.not_to raise_error
       expect(provider).to receive(:get).with(anything, []).and_return([])
       type.instances
     end
 
     it 'passes through the resource title to `get`' do
+      expect { described_class.register_type(definition) }.not_to raise_error
       instance = type.new(name: 'bar', ensure: 'present')
       expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
       instance.retrieve
