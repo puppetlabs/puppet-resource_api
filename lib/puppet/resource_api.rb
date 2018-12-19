@@ -5,6 +5,7 @@ require 'puppet/resource_api/parameter'
 require 'puppet/resource_api/property'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
+require 'puppet/resource_api/transport'
 require 'puppet/resource_api/type_definition'
 require 'puppet/resource_api/value_creator'
 require 'puppet/resource_api/version'
@@ -450,6 +451,12 @@ MESSAGE
     end
   end
   module_function :load_device_provider # rubocop:disable Style/AccessModifierDeclarations
+
+  # keeps the existing register API format. e.g. Puppet::ResourceApi.register_type
+  def register_transport(schema)
+    Puppet::ResourceApi::Transport.register(schema)
+  end
+  module_function :register_transport # rubocop:disable Style/AccessModifierDeclarations
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
