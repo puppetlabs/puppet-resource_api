@@ -12,4 +12,25 @@ module Puppet::ResourceApi::Transport
     @transports[schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
   end
   module_function :register # rubocop:disable Style/AccessModifierDeclarations
+
+  def connect(name, connection_info)
+    validate(name, connection_info)
+    begin
+      require "puppet/transport/#{name}"
+      class_name = name.split('_').map { |e| e.capitalize }.join
+      Puppet::Transport.const_get(class_name).new(connection_info)
+    rescue LoadError, NameError => detail
+      raise Puppet::DevError, 'Cannot load transport for `%{target}`: %{detail}' % { target: name, detail: detail }
+    end
+  end
+  module_function :connect # rubocop:disable Style/AccessModifierDeclarations
+
+  def self.validate(name, connection_info)
+    @transports ||= {}
+    transport_schema = @transports[name]
+    raise Puppet::DevError, 'Transport for `%{target}` not registered' % { target: name } if transport_schema.nil?
+
+    transport_schema.check_schema(connection_info)
+    transport_schema.validate(connection_info)
+  end
 end
