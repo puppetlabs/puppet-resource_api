@@ -25,4 +25,21 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       it { expect(type.attributes).to be_key(:user) }
     end
   end
+
+  describe '#validate' do
+    context 'when resource is missing attributes' do
+      let(:resource) { {} }
+
+      it 'raises an error listing the missing attributes' do
+        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, %r{host}
+        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, %r{user}
+      end
+    end
+
+    context 'when resource has all its attributes' do
+      let(:resource) { { host: '1234', user: '4321' } }
+
+      it {  expect { type.validate(resource) }.not_to raise_error }
+    end
+  end
 end

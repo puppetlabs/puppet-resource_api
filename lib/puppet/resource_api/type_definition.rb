@@ -50,6 +50,22 @@ module Puppet::ResourceApi
     def initialize(definition)
       super(definition, :connection_info)
     end
+
+    def validate(resource)
+      # enforce mandatory attributes
+      missing_attrs = []
+
+      attributes.each do |name, _options|
+        type = @data_type_cache[attributes[name][:type]]
+
+        if resource[name].nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
+          missing_attrs << name
+        end
+      end
+
+      error_msg = "The following mandatory attributes were not provided:\n    *  " + missing_attrs.join(", \n    *  ")
+      raise Puppet::ResourceError, error_msg if missing_attrs.any?
+    end
   end
 
   # Base RSAPI schema Object

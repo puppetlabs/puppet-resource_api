@@ -44,7 +44,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
             desc: 'the user to connect as',
           },
           password: {
-            type: 'Sensitive[String]',
+            type: 'String',
+            sensitive: true,
             desc: 'the password to make the connection',
           },
         },
@@ -75,5 +76,73 @@ RSpec.describe Puppet::ResourceApi::Transport do
         Puppet::DevError, %r{<garbage> is not a valid type specification}
       )
     }
+  end
+
+  context 'when connecting to a transport' do
+    let(:name) { 'test_target' }
+    let(:connection_info) do
+      {
+        name: 'test_target',
+        desc: 'a basic transport',
+        connection_info: {
+          host: {
+            type: 'String',
+            desc: 'the host ip address or hostname',
+          },
+        },
+      }
+    end
+
+    context 'when the transport file does not exist' do
+      it 'throws a DevError' do
+        expect(described_class).to receive(:validate).with(name, connection_info)
+        expect { described_class.connect(name, connection_info) }.to raise_error Puppet::DevError,
+                                                                                 %r{Cannot load transport for `test_target`}
+      end
+    end
+
+    context 'when the transport file does exist' do
+      context 'with and incorrectly defined transport' do
+        it 'throws a DevError' do
+          expect(described_class).to receive(:validate).with(name, connection_info)
+          expect(described_class).to receive(:require).with('puppet/transport/test_target')
+          expect { described_class.connect(name, connection_info) }.to raise_error Puppet::DevError,
+                                                                                   %r{uninitialized constant Puppet::Transport}
+        end
+      end
+
+      context 'with a correctly defined transport' do
+        let(:test_target) { double('Puppet::Transport::TestTarget') } # rubocop:disable RSpec/VerifiedDoubles
+
+        it 'loads initiates the class successfully' do
+          expect(described_class).to receive(:require).with('puppet/transport/test_target')
+          expect(described_class).to receive(:validate).with(name, connection_info)
+
+          stub_const('Puppet::Transport::TestTarget', test_target)
+          expect(test_target).to receive(:new).with(connection_info)
+
+          described_class.connect(name, connection_info)
+        end
+      end
+    end
+  end
+
+  describe '#self.validate' do
+    context 'when the transport being validated has not be registered' do
+      it { expect { described_class.validate('wibble', {}) }.to raise_error Puppet::DevError, %r{Transport for `wibble` not registered} }
+    end
+
+    context 'when the transport being validated has been registered' do
+      let(:schema) { { name: 'validate', desc: 'a  minimal connection', connection_info: {} } }
+
+      it 'continues to validate the connection_info' do
+        # rubocop:disable  RSpec/AnyInstance
+        expect_any_instance_of(Puppet::ResourceApi::TransportSchemaDef).to receive(:check_schema).with({})
+        expect_any_instance_of(Puppet::ResourceApi::TransportSchemaDef).to receive(:validate).with({})
+        # rubocop:enable  RSpec/AnyInstance
+        described_class.register(schema)
+        described_class.validate('validate', {})
+      end
+    end
   end
 end
