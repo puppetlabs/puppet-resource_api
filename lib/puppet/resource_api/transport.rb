@@ -1,3 +1,9 @@
+# rubocop:disable Style/Documentation
+module Puppet; end
+module Puppet::ResourceApi; end
+module Puppet::ResourceApi::Transport; end
+# rubocop:enable Style/Documentation
+
 # Remote target transport API
 module Puppet::ResourceApi::Transport
   def register(schema)
