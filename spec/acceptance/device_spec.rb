@@ -74,9 +74,11 @@ RSpec.describe 'exercising a device provider' do
       <<DEVICE_CONF
 [the_node]
 type test_device
-url  file:///etc/credentials.txt
+url  file://#{device_credentials.path}
 DEVICE_CONF
     end
+    let(:device_credentials) { Tempfile.new('credentials.txt') }
+    let(:device_credentials_content) { {} }
 
     def is_device_apply_supported?
       Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')
@@ -86,10 +88,14 @@ DEVICE_CONF
       skip "No device --apply in puppet before v5.3.6 nor in v5.4.0 (v#{Puppet::PUPPETVERSION} is installed)" unless is_device_apply_supported?
       device_conf.write(device_conf_content)
       device_conf.close
+
+      device_credentials.write(device_credentials_content)
+      device_credentials.close
     end
 
     after(:each) do
       device_conf.unlink
+      device_credentials.unlink
     end
 
     context 'with no config specified' do

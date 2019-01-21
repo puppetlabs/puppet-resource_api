@@ -102,12 +102,12 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
 
     context 'when the transport file does exist' do
-      context 'with and incorrectly defined transport' do
+      context 'with an incorrectly defined transport' do
         it 'throws a DevError' do
           expect(described_class).to receive(:validate).with(name, connection_info)
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect { described_class.connect(name, connection_info) }.to raise_error Puppet::DevError,
-                                                                                   %r{uninitialized constant Puppet::Transport}
+                                                                                   %r{uninitialized constant (Puppet::Transport|TestTarget)}
         end
       end
 
