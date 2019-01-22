@@ -7,7 +7,6 @@ class Puppet::ResourceApi::BaseContext
 
   def initialize(definition)
     raise ArgumentError, 'BaseContext requires definition to be a Hash' unless definition.is_a?(Hash)
-    @typename = definition[:name]
     @type = Puppet::ResourceApi::TypeDefinition.new(definition)
   end
 
@@ -27,7 +26,7 @@ class Puppet::ResourceApi::BaseContext
   [:debug, :info, :notice, :warning, :err].each do |level|
     define_method(level) do |*args|
       if args.length == 1
-        message = "#{@context || @typename}: #{args.last}"
+        message = "#{@context || @type.name}: #{args.last}"
       elsif args.length == 2
         resources = format_titles(args.first)
         message = "#{resources}: #{args.last}"
@@ -137,9 +136,9 @@ class Puppet::ResourceApi::BaseContext
 
   def format_titles(titles)
     if titles.length.zero? && !titles.is_a?(String)
-      @typename
+      @type.name
     else
-      "#{@typename}[#{[titles].flatten.compact.join(', ')}]"
+      "#{@type.name}[#{[titles].flatten.compact.join(', ')}]"
     end
   end
 
