@@ -353,7 +353,7 @@ MESSAGE
       end
 
       define_singleton_method(:context) do
-        @context ||= PuppetContext.new(definition)
+        @context ||= PuppetContext.new(TypeDefinition.new(definition))
       end
 
       def context
