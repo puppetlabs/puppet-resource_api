@@ -6,8 +6,14 @@ class Puppet::ResourceApi::BaseContext
   attr_reader :type
 
   def initialize(definition)
-    raise ArgumentError, 'BaseContext requires definition to be a Hash' unless definition.is_a?(Hash)
-    @type = Puppet::ResourceApi::TypeDefinition.new(definition)
+    if definition.is_a?(Hash)
+      # this is only for backwards compatibility
+      @type = Puppet::ResourceApi::TypeDefinition.new(definition)
+    elsif definition.is_a? Puppet::ResourceApi::BaseTypeDefinition
+      @type = definition
+    else
+      raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%{actual_type}>' % { actual_type: definition.class }
+    end
   end
 
   def device
