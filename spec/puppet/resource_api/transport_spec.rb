@@ -11,6 +11,11 @@ RSpec.describe Puppet::ResourceApi::Transport do
     Puppet.debug = true
   end
 
+  after(:each) do
+    # reset registered transports between tests to reduce cross-test poisoning
+    described_class.instance_variable_set(:@transports, nil)
+  end
+
   context 'when registering a schema with missing keys' do
     it { expect { described_class.register([]) }.to raise_error(Puppet::DevError, %r{requires a hash as schema}) }
     it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
@@ -25,7 +30,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
     it { expect { described_class.register(schema) }.not_to raise_error }
 
     context 'when re-registering a transport' do
-      it { expect { described_class.register(schema) }.to raise_error(Puppet::DevError, %r{`minimal` is already registered}) }
+      it {
+        described_class.register(schema)
+        expect { described_class.register(schema) }.to raise_error(Puppet::DevError, %r{`minimal` is already registered})
+      }
     end
   end
 
