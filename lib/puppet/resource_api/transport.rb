@@ -33,6 +33,7 @@ module Puppet::ResourceApi::Transport
 
   def self.validate(name, connection_info)
     @transports ||= {}
+    require "puppet/transport/schema/#{name}" unless @transports.key? name
     transport_schema = @transports[name]
     raise Puppet::DevError, 'Transport for `%{target}` not registered' % { target: name } if transport_schema.nil?
 

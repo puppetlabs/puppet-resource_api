@@ -129,19 +129,22 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
   describe '#self.validate' do
     context 'when the transport being validated has not be registered' do
-      it { expect { described_class.validate('wibble', {}) }.to raise_error Puppet::DevError, %r{Transport for `wibble` not registered} }
+      it { expect { described_class.validate('wibble', {}) }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/schema/wibble} }
     end
 
     context 'when the transport being validated has been registered' do
       let(:schema) { { name: 'validate', desc: 'a  minimal connection', connection_info: {} } }
+      let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
 
-      it 'continues to validate the connection_info' do
-        # rubocop:disable  RSpec/AnyInstance
-        expect_any_instance_of(Puppet::ResourceApi::TransportSchemaDef).to receive(:check_schema).with({})
-        expect_any_instance_of(Puppet::ResourceApi::TransportSchemaDef).to receive(:validate).with({})
-        # rubocop:enable  RSpec/AnyInstance
+      it 'validates the connection_info' do
+        allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
+
         described_class.register(schema)
-        described_class.validate('validate', {})
+
+        expect(schema_def).to receive(:check_schema).with('connection_info').and_return(nil)
+        expect(schema_def).to receive(:validate).with('connection_info').and_return(nil)
+
+        described_class.validate('validate', 'connection_info')
       end
     end
   end
