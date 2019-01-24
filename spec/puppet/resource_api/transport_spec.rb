@@ -102,19 +102,18 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
 
     context 'when the transport file does not exist' do
-      it 'throws a DevError' do
+      it 'throws a LoadError' do
         expect(described_class).to receive(:validate).with(name, connection_info)
-        expect { described_class.connect(name, connection_info) }.to raise_error Puppet::DevError,
-                                                                                 %r{Cannot load transport for `test_target`}
+        expect { described_class.connect(name, connection_info) }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/test_target}
       end
     end
 
     context 'when the transport file does exist' do
       context 'with an incorrectly defined transport' do
-        it 'throws a DevError' do
+        it 'throws a NameError' do
           expect(described_class).to receive(:validate).with(name, connection_info)
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
-          expect { described_class.connect(name, connection_info) }.to raise_error Puppet::DevError,
+          expect { described_class.connect(name, connection_info) }.to raise_error NameError,
                                                                                    %r{uninitialized constant (Puppet::Transport|TestTarget)}
         end
       end

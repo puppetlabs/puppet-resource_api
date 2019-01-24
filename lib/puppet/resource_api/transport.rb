@@ -21,13 +21,9 @@ module Puppet::ResourceApi::Transport
 
   def connect(name, connection_info)
     validate(name, connection_info)
-    begin
-      require "puppet/transport/#{name}"
-      class_name = name.split('_').map { |e| e.capitalize }.join
-      Puppet::Transport.const_get(class_name).new(connection_info)
-    rescue LoadError, NameError => detail
-      raise Puppet::DevError, 'Cannot load transport for `%{target}`: %{detail}' % { target: name, detail: detail }
-    end
+    require "puppet/transport/#{name}"
+    class_name = name.split('_').map { |e| e.capitalize }.join
+    Puppet::Transport.const_get(class_name).new(connection_info)
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
