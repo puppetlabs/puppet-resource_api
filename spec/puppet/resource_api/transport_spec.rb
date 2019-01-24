@@ -88,6 +88,38 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
   end
 
+  describe '#list' do
+    subject { described_class.list }
+
+    context 'with no transports registered' do
+      it { is_expected.to eq({}) }
+    end
+
+    context 'with a transport registered' do
+      let(:schema) do
+        {
+          name: 'test_target',
+          desc: 'a basic transport',
+          connection_info: {
+            host: {
+              type: 'String',
+              desc: 'the host ip address or hostname',
+            },
+          },
+        }
+      end
+
+      before(:each) do
+        described_class.register(schema)
+      end
+
+      it { expect(described_class.list['test_target'].definition).to eq schema }
+      it 'returns a new object' do
+        expect(described_class.list['test_target'].definition.object_id).not_to eq schema.object_id
+      end
+    end
+  end
+
   describe '#connect(name, connection_info)', agent_test: true do
     let(:name) { 'test_target' }
     let(:schema) do

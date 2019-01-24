@@ -18,6 +18,16 @@ module Puppet::ResourceApi::Transport
   end
   module_function :register # rubocop:disable Style/AccessModifierDeclarations
 
+  # retrieve a Hash of transport schemas, keyed by their name.
+  def list
+    if @transports
+      Marshal.load(Marshal.dump(@transports))
+    else
+      {}
+    end
+  end
+  module_function :list # rubocop:disable Style/AccessModifierDeclarations
+
   def connect(name, connection_info)
     validate(name, connection_info)
     require "puppet/transport/#{name}"
