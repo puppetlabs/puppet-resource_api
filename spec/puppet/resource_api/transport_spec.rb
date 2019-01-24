@@ -127,6 +127,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
         it 'loads initiates the class successfully' do
           described_class.register(schema)
 
+          allow(described_class).to receive(:require).with('puppet/resource_api/puppet_context').and_call_original
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect(described_class).to receive(:validate).with(name, host: 'example.com')
           expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)

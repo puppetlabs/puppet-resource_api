@@ -1,5 +1,3 @@
-require 'puppet/resource_api/puppet_context'
-
 # Remote target transport API
 module Puppet::ResourceApi::Transport
   def register(schema)
@@ -19,8 +17,7 @@ module Puppet::ResourceApi::Transport
     validate(name, connection_info)
     require "puppet/transport/#{name}"
     class_name = name.split('_').map { |e| e.capitalize }.join
-    context = Puppet::ResourceApi::PuppetContext.new(@transports[name])
-    Puppet::Transport.const_get(class_name).new(context, connection_info)
+    Puppet::Transport.const_get(class_name).new(get_context(name), connection_info)
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
@@ -32,5 +29,10 @@ module Puppet::ResourceApi::Transport
 
     transport_schema.check_schema(connection_info)
     transport_schema.validate(connection_info)
+  end
+
+  def self.get_context(name)
+    require 'puppet/resource_api/puppet_context'
+    Puppet::ResourceApi::PuppetContext.new(@transports[name])
   end
 end
