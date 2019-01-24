@@ -1,6 +1,8 @@
 require 'puppet/resource_api/base_context'
 require 'puppet/util/logging'
 
+# Implement Resource API Context to log through Puppet facilities
+# and access/expose the puppet process' current device
 class Puppet::ResourceApi::PuppetContext < Puppet::ResourceApi::BaseContext
   def device
     # TODO: evaluate facter_url setting for loading config if there is no `current` NetworkDevice

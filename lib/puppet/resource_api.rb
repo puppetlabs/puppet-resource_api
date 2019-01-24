@@ -12,6 +12,7 @@ require 'puppet/resource_api/version'
 require 'puppet/type'
 require 'puppet/util/network_device'
 
+# This module contains the main API to register and access types, providers and transports.
 module Puppet::ResourceApi
   @warning_count = 0
 

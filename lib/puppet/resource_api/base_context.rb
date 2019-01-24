@@ -1,7 +1,12 @@
 require 'puppet/resource_api/type_definition'
 
+# rubocop:disable Style/Documentation
 module Puppet; end
 module Puppet::ResourceApi; end
+# rubocop:enable Style/Documentation
+
+# This class provides access to all common external dependencies of providers and transports.
+# The runtime environment will inject an appropriate implementation.
 class Puppet::ResourceApi::BaseContext
   attr_reader :type
 
