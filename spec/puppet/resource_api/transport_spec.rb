@@ -88,7 +88,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
   context 'when connecting to a transport' do
     let(:name) { 'test_target' }
-    let(:connection_info) do
+    let(:schema) do
       {
         name: 'test_target',
         desc: 'a basic transport',
@@ -103,18 +103,18 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when the transport file does not exist' do
       it 'throws a LoadError' do
-        expect(described_class).to receive(:validate).with(name, connection_info)
-        expect { described_class.connect(name, connection_info) }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/test_target}
+        expect(described_class).to receive(:validate).with(name, host: 'example.com')
+        expect { described_class.connect(name, host: 'example.com') }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/test_target}
       end
     end
 
     context 'when the transport file does exist' do
       context 'with an incorrectly defined transport' do
         it 'throws a NameError' do
-          expect(described_class).to receive(:validate).with(name, connection_info)
+          expect(described_class).to receive(:validate).with(name, host: 'example.com')
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
-          expect { described_class.connect(name, connection_info) }.to raise_error NameError,
-                                                                                   %r{uninitialized constant (Puppet::Transport|TestTarget)}
+          expect { described_class.connect(name, host: 'example.com') }.to raise_error NameError,
+                                                                                       %r{uninitialized constant (Puppet::Transport|TestTarget)}
         end
       end
 
@@ -123,12 +123,12 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
         it 'loads initiates the class successfully' do
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
-          expect(described_class).to receive(:validate).with(name, connection_info)
+          expect(described_class).to receive(:validate).with(name, host: 'example.com')
 
           stub_const('Puppet::Transport::TestTarget', test_target)
-          expect(test_target).to receive(:new).with(connection_info)
+          expect(test_target).to receive(:new).with(host: 'example.com')
 
-          described_class.connect(name, connection_info)
+          described_class.connect(name, host: 'example.com')
         end
       end
     end
