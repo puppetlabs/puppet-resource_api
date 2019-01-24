@@ -111,6 +111,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
     context 'when the transport file does exist' do
       context 'with an incorrectly defined transport' do
         it 'throws a NameError' do
+          described_class.register(schema)
+
           expect(described_class).to receive(:validate).with(name, host: 'example.com')
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect { described_class.connect(name, host: 'example.com') }.to raise_error NameError,
@@ -120,13 +122,17 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
       context 'with a correctly defined transport' do
         let(:test_target) { double('Puppet::Transport::TestTarget') } # rubocop:disable RSpec/VerifiedDoubles
+        let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
         it 'loads initiates the class successfully' do
+          described_class.register(schema)
+
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect(described_class).to receive(:validate).with(name, host: 'example.com')
+          expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)
 
           stub_const('Puppet::Transport::TestTarget', test_target)
-          expect(test_target).to receive(:new).with(host: 'example.com')
+          expect(test_target).to receive(:new).with(context, host: 'example.com')
 
           described_class.connect(name, host: 'example.com')
         end

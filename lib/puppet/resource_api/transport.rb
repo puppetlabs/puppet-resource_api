@@ -1,8 +1,4 @@
-# rubocop:disable Style/Documentation
-module Puppet; end
-module Puppet::ResourceApi; end
-module Puppet::ResourceApi::Transport; end
-# rubocop:enable Style/Documentation
+require 'puppet/resource_api/puppet_context'
 
 # Remote target transport API
 module Puppet::ResourceApi::Transport
@@ -23,7 +19,8 @@ module Puppet::ResourceApi::Transport
     validate(name, connection_info)
     require "puppet/transport/#{name}"
     class_name = name.split('_').map { |e| e.capitalize }.join
-    Puppet::Transport.const_get(class_name).new(connection_info)
+    context = Puppet::ResourceApi::PuppetContext.new(@transports[name])
+    Puppet::Transport.const_get(class_name).new(context, connection_info)
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
