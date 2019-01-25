@@ -17,11 +17,13 @@ class Puppet::ResourceApi::Transport::Wrapper
     end
 
     @transport = Puppet::ResourceApi::Transport.connect(name, config)
+    @schema = Puppet::ResourceApi::Transport.list[name]
   end
 
   def facts
+    context = Puppet::ResourceApi::PuppetContext.new(@schema)
     # @transport.facts + custom_facts  # look into custom facts work by TP
-    @transport.facts(nil)
+    @transport.facts(context)
   end
 
   def respond_to_missing?(name, _include_private)
