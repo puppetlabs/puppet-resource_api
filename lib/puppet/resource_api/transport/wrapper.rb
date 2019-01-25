@@ -21,7 +21,7 @@ class Puppet::ResourceApi::Transport::Wrapper
 
   def facts
     # @transport.facts + custom_facts  # look into custom facts work by TP
-    @transport.facts
+    @transport.facts(nil)
   end
 
   def respond_to_missing?(name, _include_private)

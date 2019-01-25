@@ -42,7 +42,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
 
       it 'will return the facts provided by the transport' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
-        allow(transport).to receive(:facts).and_return(facts)
+        allow(transport).to receive(:facts).with(nil).and_return(facts)
 
         expect(instance.facts).to eq(facts)
       end
@@ -53,12 +53,13 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     context 'when the transport can handle the method' do
       let(:instance) { described_class.new('wibble', {}) }
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
+      let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
       it 'will return the facts provided by the transport' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
         expect(transport).to receive(:close)
 
-        instance.close
+        instance.close(context)
       end
     end
 
