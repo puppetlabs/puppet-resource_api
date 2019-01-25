@@ -1,7 +1,4 @@
-# rubocop:disable Style/Documentation
-module Puppet; end
-module Puppet::ResourceApi; end
-# rubocop:enable Style/Documentation
+module Puppet::ResourceApi; end # rubocop:disable Style/Documentation
 
 # Remote target transport API
 module Puppet::ResourceApi::Transport
@@ -12,19 +9,21 @@ module Puppet::ResourceApi::Transport
     raise Puppet::DevError, 'requires `:connection_info`' unless schema.key? :connection_info
     raise Puppet::DevError, '`:connection_info` must be a hash, not `%{other_type}`' % { other_type: schema[:connection_info].class } unless schema[:connection_info].is_a?(Hash)
 
-    @transports ||= {}
-    raise Puppet::DevError, 'Transport `%{name}` is already registered.' % { name: schema[:name] } unless @transports[schema[:name]].nil?
-    @transports[schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
+    init_transports
+    unless @transports[@environment][schema[:name]].nil?
+      raise Puppet::DevError, 'Transport `%{name}` is already registered for `%{environment}`' % {
+        name: schema[:name],
+        environment: @environment,
+      }
+    end
+    @transports[@environment][schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
   end
   module_function :register # rubocop:disable Style/AccessModifierDeclarations
 
   # retrieve a Hash of transport schemas, keyed by their name.
   def list
-    if @transports
-      Marshal.load(Marshal.dump(@transports))
-    else
-      {}
-    end
+    init_transports
+    Marshal.load(Marshal.dump(@transports[@environment]))
   end
   module_function :list # rubocop:disable Style/AccessModifierDeclarations
 
@@ -37,17 +36,36 @@ module Puppet::ResourceApi::Transport
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
   def self.validate(name, connection_info)
-    @transports ||= {}
+    init_transports
     require "puppet/transport/schema/#{name}" unless @transports.key? name
-    transport_schema = @transports[name]
-    raise Puppet::DevError, 'Transport for `%{target}` not registered' % { target: name } if transport_schema.nil?
+    transport_schema = @transports[@environment][name]
+    if transport_schema.nil?
+      raise Puppet::DevError, 'Transport for `%{target}` not registered with `%{environment}`' % {
+        target: name,
+        environment: @environment,
+      }
+    end
 
     transport_schema.check_schema(connection_info)
     transport_schema.validate(connection_info)
   end
+  private_class_method :validate
 
   def self.get_context(name)
     require 'puppet/resource_api/puppet_context'
-    Puppet::ResourceApi::PuppetContext.new(@transports[name])
+    Puppet::ResourceApi::PuppetContext.new(@transports[@environment][name])
   end
+  private_class_method :get_context
+
+  def self.init_transports
+    lookup = Puppet.lookup(:current_environment) if Puppet.respond_to? :lookup
+    @environment =  if lookup.nil?
+                      :transports_default
+                    else
+                      lookup.name
+                    end
+    @transports ||= {}
+    @transports[@environment] ||= {}
+  end
+  private_class_method :init_transports
 end
