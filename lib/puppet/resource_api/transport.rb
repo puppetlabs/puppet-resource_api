@@ -1,7 +1,6 @@
 # rubocop:disable Style/Documentation
 module Puppet; end
 module Puppet::ResourceApi; end
-module Puppet::ResourceApi::Transport; end
 # rubocop:enable Style/Documentation
 
 # Remote target transport API
@@ -19,24 +18,36 @@ module Puppet::ResourceApi::Transport
   end
   module_function :register # rubocop:disable Style/AccessModifierDeclarations
 
+  # retrieve a Hash of transport schemas, keyed by their name.
+  def list
+    if @transports
+      Marshal.load(Marshal.dump(@transports))
+    else
+      {}
+    end
+  end
+  module_function :list # rubocop:disable Style/AccessModifierDeclarations
+
   def connect(name, connection_info)
     validate(name, connection_info)
-    begin
-      require "puppet/transport/#{name}"
-      class_name = name.split('_').map { |e| e.capitalize }.join
-      Puppet::Transport.const_get(class_name).new(connection_info)
-    rescue LoadError, NameError => detail
-      raise Puppet::DevError, 'Cannot load transport for `%{target}`: %{detail}' % { target: name, detail: detail }
-    end
+    require "puppet/transport/#{name}"
+    class_name = name.split('_').map { |e| e.capitalize }.join
+    Puppet::Transport.const_get(class_name).new(get_context(name), connection_info)
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
   def self.validate(name, connection_info)
     @transports ||= {}
+    require "puppet/transport/schema/#{name}" unless @transports.key? name
     transport_schema = @transports[name]
     raise Puppet::DevError, 'Transport for `%{target}` not registered' % { target: name } if transport_schema.nil?
 
     transport_schema.check_schema(connection_info)
     transport_schema.validate(connection_info)
+  end
+
+  def self.get_context(name)
+    require 'puppet/resource_api/puppet_context'
+    Puppet::ResourceApi::PuppetContext.new(@transports[name])
   end
 end

@@ -65,10 +65,5 @@ matrix:
     - rvm: 2.5.1
       env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#6.0.x'
 notifications:
-  hipchat:
-    rooms:
-      secure: 10a49kkZcghKHNnef8x7eBG+KjScL3i1VpygFg6DPAOK2YNbEoyEx1Kv9KLC7GSRYov/SQZOsZrvHZtDhEtFSKhhiAjOwxl1jV1t6aAMGMnN1IoZBOvdAJKrZsm54/bBeYp+je2wqnnoFNtLVFSoOX0LkFaDEWT+zGZ5xKJIH25GpeQEZf1eDxs/d8YX/m+RwbGXHVA//hOpvZo0ntvznh2EbW5OPODKSeUXbWZ+W4ndODTsKWFc/WLMSSgFDzW/Y2/9V40D4IC8lvSx6eKFryMfAQy6pO/d1aTB468awzyVcdYAMMCOITm7hlKGRKxNgq6NkOsXs5KLg6ifpn+a/Rhapbz6Qxbpjjho/7Wxngl4B3T+i35ap/mFrS/fOfKCq3gEQlYn29its9bEFArNGbr+/sXKABb+sRpgW4RTPWYDHJyHJendbevd5tZ+fd0JUBOi0Cb4PcXxQxM8IQrbuu2zso0K5MV05kL0S1DE/VsuUrPaK0RsF+b1+i6NfvtN8kgbYs1eiVku+guIG2ec3xIefQ1hsEOFPFNqSDfHp7nANnRVIbBCt8qw8DhmNEczsfN5Dp21euJUsO9qpau++NzD3jRhkE5Zki5cwsakU7hIQzw82BIb0eSQJCHygieExeEboWRqtDgy/IKIWPgIvEuU68ppR2bl2reKCHLCnWc=
-    template:
-    - '%{repository}#%{build_number} (%{branch} - %{commit} : %{author}): %{message}
-      (<a href="%{build_url}">Details</a> | <a href="%{compare_url}">PR/Diff</a>)'
-    format: html
+  slack:
+    secure: aPXZYNow8LsmmlS8PQU3FjL0bc7FqUUA95d++wZfIu7YAjGboIUiekxYouQ0XnY+Aig8InvbTOIgBHgGNheyr/YFbFS90/jtulbF8oW7BitW+imgjeAHDCwlQZTCc4FFYde/2pI7QTT8H5NpLR9mKxlTU77Sqr8gFAIybuPdHcKMYQZdEZS07ma2pUp7+GyKS6PDQpzW2+mDCz/wfi3/JdsUvc0mclCZ8vxySc66j5P1E6nFDMzuakBOjwJHpgeDpreapbmSUQLAX0a3ZsFP+N+SNduLotlV2BWnJK2gcO6rGFP4Fz1D0bGXuBnYYdIiB+9OgI3wtXg9y1SifNHUG3IrOBAA8CGNyrebTGKtH0TS2O+HZLbaNX2g6udD5e3156vys9wScmJuQ/rSkVtQfXf1qUm5eijvlXI+DIbssbZHqm6QQGyM4p3NoULmNmF1C85bQoZ4GF7b1P/8mstsVE/HUfnzRPNbwD0r6j1aE/ck3PKMi7ZAhIi0Ja9RnAgP3wi0t62uERYcJGGYEycWohMWnrf2w6GFwGeuoiwAkASdHOLX0/AOMPc4mBOjlc621o8uYMrrZqfF5CrOAvJ151USSsWn2AhXaibIvnHo6X91paNvvNpU/GYu3CUAl6q8OhYovvjtRVPVnhs2DrpgoRB+6NWHnzjRG/wr6Z9U+vA=

@@ -37,12 +37,15 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
   describe '#facts' do
     context 'when called' do
       let(:instance) { described_class.new('wibble', {}) }
+      let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
       let(:facts) { { 'foo' => 'bar' } }
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
 
       it 'will return the facts provided by the transport' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
-        allow(transport).to receive(:facts).and_return(facts)
+        allow(Puppet::ResourceApi::Transport).to receive(:list).and_return(schema: :dummy)
+        allow(Puppet::ResourceApi::PuppetContext).to receive(:new).and_return(context)
+        allow(transport).to receive(:facts).with(context).and_return(facts)
 
         expect(instance.facts).to eq(facts)
       end
@@ -53,12 +56,13 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     context 'when the transport can handle the method' do
       let(:instance) { described_class.new('wibble', {}) }
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
+      let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
       it 'will return the facts provided by the transport' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
         expect(transport).to receive(:close)
 
-        instance.close
+        instance.close(context)
       end
     end
 
