@@ -1,6 +1,24 @@
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::Transport do
+  def change_environment(name = nil)
+    environment = class_double(Puppet::Node::Environment)
+
+    if name.nil?
+      allow(Puppet).to receive(:respond_to?).and_return(false)
+    else
+      allow(Puppet).to receive(:respond_to?).and_return(true)
+    end
+
+    allow(Puppet).to receive(:lookup).with(:current_environment).and_return(environment)
+
+    # allow clean up scripts to run unhindered
+    allow(Puppet).to receive(:lookup).with(:root_environment).and_call_original
+    allow(Puppet).to receive(:lookup).with(:environments).and_call_original
+
+    allow(environment).to receive(:name).and_return(name)
+  end
+
   let(:strict_level) { :error }
 
   before(:each) do
@@ -60,9 +78,63 @@ RSpec.describe Puppet::ResourceApi::Transport do
           },
         }
       end
+      let(:schema2) do
+        {
+          name: 'schema2',
+          desc: 'basic transport',
+          connection_info: {
+            host: {
+              type: 'String',
+              desc: 'the host ip address or hostname',
+            },
+          },
+        }
+      end
+      let(:schema3) do
+        {
+          name: 'schema3',
+          desc: 'basic transport',
+          connection_info: {
+            user: {
+              type: 'String',
+              desc: 'the user to connect as',
+            },
+            password: {
+              type: 'String',
+              sensitive: true,
+              desc: 'the password to make the connection',
+            },
+          },
+        }
+      end
 
       it 'adds to the transports register' do
         expect { described_class.register(schema) }.not_to raise_error
+      end
+
+      context 'when a transports are added to multiple environments' do
+        it 'will record the schemas in the correct structure' do
+          change_environment(:wibble)
+          described_class.register(schema)
+          expect(described_class.instance_variable_get(:@transports)).to be_key(:wibble)
+          expect(described_class.instance_variable_get(:@transports)[:wibble][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(described_class.instance_variable_get(:@transports)[:wibble][schema[:name]].definition).to eq(schema)
+
+          change_environment(:foo)
+          described_class.register(schema)
+          described_class.register(schema2)
+          expect(described_class.instance_variable_get(:@transports)).to be_key(:foo)
+          expect(described_class.instance_variable_get(:@transports)[:foo][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(described_class.instance_variable_get(:@transports)[:foo][schema[:name]].definition).to eq(schema)
+          expect(described_class.instance_variable_get(:@transports)[:foo][schema2[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(described_class.instance_variable_get(:@transports)[:foo][schema2[:name]].definition).to eq(schema2)
+
+          change_environment(:bar)
+          described_class.register(schema3)
+          expect(described_class.instance_variable_get(:@transports)).to be_key(:bar)
+          expect(described_class.instance_variable_get(:@transports)[:bar][schema3[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(described_class.instance_variable_get(:@transports)[:bar][schema3[:name]].definition).to eq(schema3)
+        end
       end
     end
 
@@ -176,8 +248,15 @@ RSpec.describe Puppet::ResourceApi::Transport do
   end
 
   describe '#validate(name, connection_info)', agent_test: true do
+    context 'when the transport does not exist' do
+      it { expect { described_class.send(:validate, 'wibble', {}) }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/schema/wibble} }
+    end
+
     context 'when the transport being validated has not be registered' do
-      it { expect { described_class.validate('wibble', {}) }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/schema/wibble} }
+      it 'will throw an unregistered error message' do
+        expect(described_class).to receive(:require).with('puppet/transport/schema/wibble')
+        expect { described_class.send(:validate, 'wibble', {}) }.to raise_error Puppet::DevError, %r{ not registered with }
+      end
     end
 
     context 'when the transport being validated has been registered' do
@@ -189,10 +268,33 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
         described_class.register(schema)
 
+        expect(described_class).to receive(:require).with('puppet/transport/schema/validate')
         expect(schema_def).to receive(:check_schema).with('connection_info').and_return(nil)
         expect(schema_def).to receive(:validate).with('connection_info').and_return(nil)
 
-        described_class.validate('validate', 'connection_info')
+        described_class.send :validate, 'validate', 'connection_info'
+      end
+    end
+  end
+
+  describe '#init_transports' do
+    context 'when there is not a current_environment' do
+      it 'will return the default transport environment name' do
+        change_environment
+
+        described_class.send :init_transports
+
+        expect(described_class.instance_variable_get(:@environment)).to eq(:transports_default)
+      end
+    end
+
+    context 'when there is a current_environment' do
+      it 'will return the set environment name' do
+        change_environment(:something)
+
+        described_class.send :init_transports
+
+        expect(described_class.instance_variable_get(:@environment)).to eq(:something)
       end
     end
   end
