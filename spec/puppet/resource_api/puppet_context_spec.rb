@@ -18,7 +18,21 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
       end
     end
 
-    context 'with no NetworkDevice configured' do
+    context 'when a Transport::Wrapper device is configured' do
+      let(:device) { instance_double('Puppet::Util::NetworkDevice::Test_device::Device', 'device') }
+      let(:transport) { instance_double('Puppet::Transport::TestDevice', 'transport') }
+
+      before(:each) do
+        allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(device)
+        allow(device).to receive(:transport).and_return(transport)
+      end
+
+      it 'returns the transport' do
+        expect(context.transport).to eq(transport)
+      end
+    end
+
+    context 'with nothing configured' do
       before(:each) do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(nil)
       end

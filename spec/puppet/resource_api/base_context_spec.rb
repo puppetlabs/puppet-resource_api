@@ -341,6 +341,10 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     it { expect { described_class.new(definition).device }.to raise_error RuntimeError, %r{Received device\(\) on an unprepared BaseContext\. Use a PuppetContext instead} }
   end
 
+  describe '#transport' do
+    it { expect { described_class.new(definition).transport }.to raise_error RuntimeError, %r{No transport available\.} }
+  end
+
   describe '#send_log' do
     it { expect { described_class.new(definition).send_log(nil, nil) }.to raise_error RuntimeError, %r{Received send_log\(\) on an unprepared BaseContext\. Use IOContext, or PuppetContext instead} }
   end

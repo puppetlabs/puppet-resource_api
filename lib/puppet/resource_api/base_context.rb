@@ -25,6 +25,10 @@ class Puppet::ResourceApi::BaseContext
     raise 'Received device() on an unprepared BaseContext. Use a PuppetContext instead.'
   end
 
+  def transport
+    raise 'No transport available.'
+  end
+
   def failed?
     @failed
   end
