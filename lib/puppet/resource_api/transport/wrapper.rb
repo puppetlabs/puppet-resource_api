@@ -4,7 +4,7 @@ require 'hocon/config_syntax'
 
 # Puppet::ResourceApi::Transport::Wrapper` to interface between the Util::NetworkDevice
 class Puppet::ResourceApi::Transport::Wrapper
-  attr_reader :transport
+  attr_reader :transport, :schema
 
   def initialize(name, url_or_config)
     if url_or_config.is_a? String
