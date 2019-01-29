@@ -39,9 +39,6 @@ module Puppet::ResourceApi
       supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter].freeze
       unknown_features = definition[:features] - supported_features
       Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
-
-      # store the validated definition
-      @definition = definition
     end
   end
 
@@ -75,10 +72,12 @@ module Puppet::ResourceApi
     def initialize(definition, attr_key)
       @data_type_cache = {}
       validate_schema(definition, attr_key)
+      # store the validated definition
+      @definition = definition
     end
 
     def name
-      @definition[:name]
+      definition[:name]
     end
 
     def namevars
@@ -118,8 +117,6 @@ module Puppet::ResourceApi
         attr[:behaviour] = attr[:behavior]
         attr.delete(:behavior)
       end
-      # store the validated definition
-      @definition = definition
     end
 
     # validates a resource hash against its type schema
