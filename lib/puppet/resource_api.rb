@@ -40,7 +40,12 @@ module Puppet::ResourceApi
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
       define_singleton_method(:my_provider) do
         @my_provider ||= Hash.new { |hash, key| hash[key] = Puppet::ResourceApi.load_provider(definition[:name]).new }
-        @my_provider[Puppet::Util::NetworkDevice.current.class]
+
+        if Puppet::Util::NetworkDevice.current.is_a? Puppet::ResourceApi::Transport::Wrapper
+          @my_provider[Puppet::Util::NetworkDevice.current.transport.class]
+        else
+          @my_provider[Puppet::Util::NetworkDevice.current.class]
+        end
       end
 
       # make the provider available in the instance's namespace
@@ -414,7 +419,11 @@ MESSAGE
                     nil
                   else
                     # extract the device type from the currently loaded device's class
-                    Puppet::Util::NetworkDevice.current.class.name.split('::')[-2].downcase
+                    if Puppet::Util::NetworkDevice.current.is_a? Puppet::ResourceApi::Transport::Wrapper
+                      Puppet::Util::NetworkDevice.current.schema.name
+                    else
+                      Puppet::Util::NetworkDevice.current.class.name.split('::')[-2].downcase
+                    end
                   end
     device_class_name = class_name_from_type_name(device_name)
 
