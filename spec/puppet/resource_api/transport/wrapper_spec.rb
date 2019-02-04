@@ -11,7 +11,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
         it 'will not throw an error' do
           allow(File).to receive(:exist?).and_return(true)
           expect(Puppet::ResourceApi::Transport).to receive(:connect)
-          expect(Hocon).to receive(:load)
+          expect(Hocon).to receive(:load).with('/etc/credentials', any_args).and_return('foo' => %w[a b], 'bar' => 2)
           expect { described_class.new('wibble', url) }.not_to raise_error
         end
       end
