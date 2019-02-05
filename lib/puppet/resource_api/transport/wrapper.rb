@@ -32,7 +32,6 @@ class Puppet::ResourceApi::Transport::Wrapper
 
   def method_missing(method_name, *args, &block)
     if @transport.respond_to? method_name
-      puts "Delegating #{method_name}"
       @transport.send(method_name, *args, &block)
     else
       super
