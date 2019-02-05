@@ -6,6 +6,7 @@ require 'puppet/resource_api/property'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
 require 'puppet/resource_api/transport'
+require 'puppet/resource_api/transport/wrapper'
 require 'puppet/resource_api/type_definition'
 require 'puppet/resource_api/value_creator'
 require 'puppet/resource_api/version'
@@ -417,13 +418,11 @@ MESSAGE
     type_name_sym = type_name.to_sym
     device_name = if Puppet::Util::NetworkDevice.current.nil?
                     nil
-                  else
+                  elsif Puppet::Util::NetworkDevice.current.is_a? Puppet::ResourceApi::Transport::Wrapper
                     # extract the device type from the currently loaded device's class
-                    if Puppet::Util::NetworkDevice.current.is_a? Puppet::ResourceApi::Transport::Wrapper
-                      Puppet::Util::NetworkDevice.current.schema.name
-                    else
-                      Puppet::Util::NetworkDevice.current.class.name.split('::')[-2].downcase
-                    end
+                    Puppet::Util::NetworkDevice.current.schema.name
+                  else
+                    Puppet::Util::NetworkDevice.current.class.name.split('::')[-2].downcase
                   end
     device_class_name = class_name_from_type_name(device_name)
 

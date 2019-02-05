@@ -1216,6 +1216,37 @@ RSpec.describe Puppet::ResourceApi do
         it('loads the device provider') { expect(described_class.load_provider('multi_provider').name).to eq 'Puppet::Provider::MultiProvider::SomeDevice' }
       end
     end
+
+    context 'with a transport configured' do
+      let(:definition) { { name: 'multi_provider', attributes: {} } }
+      let(:transport) { instance_double('Puppet::ResourceApi::Transport::Wrapper', 'transport') }
+      let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
+
+      before(:each) do
+        allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(transport)
+        allow(transport).to receive(:is_a?).with(Puppet::ResourceApi::Transport::Wrapper).and_return(true)
+        allow(transport).to receive(:schema).and_return(schema_def)
+        allow(schema_def).to receive(:name).and_return(schema_name)
+
+        module ::Puppet::Provider::MultiProvider
+          class MultiProvider; end
+          class SomeDevice; end
+          class OtherDevice; end
+        end
+      end
+
+      context 'with no device-specific provider' do
+        let(:schema_name) { 'multi_provider' }
+
+        it('loads the default provider') { expect(described_class.load_provider('multi_provider').name).to eq 'Puppet::Provider::MultiProvider::MultiProvider' }
+      end
+
+      context 'with a device-specific provider' do
+        let(:schema_name) { 'some_device' }
+
+        it('loads the device provider') { expect(described_class.load_provider('multi_provider').name).to eq 'Puppet::Provider::MultiProvider::SomeDevice' }
+      end
+    end
   end
 
   context 'with a provider that does canonicalization', agent_test: true do
@@ -1601,6 +1632,10 @@ RSpec.describe Puppet::ResourceApi do
       stub_const('Puppet::Provider::Remoter::Remoter', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
       Puppet.settings[:strict] = :warning
+
+      module ::Puppet::Transport
+        class Wibble; end
+      end
     end
 
     it 'is seen as a supported feature' do
@@ -1616,6 +1651,30 @@ RSpec.describe Puppet::ResourceApi do
 
       it 'returns true for feature_support?' do
         expect(type.context.type).to be_feature('remote_resource')
+      end
+    end
+
+    describe '#self.my_provider' do
+      subject(:type) { Puppet::Type.type(:remoter) }
+
+      let(:instance) { type.new(name: 'remote_thing', test_string: 'wibble') }
+      let(:wrapper) { instance_double('Puppet::ResourceApi::Transport::Wrapper', 'wrapper') }
+      let(:transport) { instance_double('Puppet::Transport::Wibble', 'transport') }
+
+      before(:each) do
+        allow(described_class).to receive(:load_provider).and_return(provider)
+        allow(provider).to receive(:new).and_return(provider)
+      end
+
+      context 'when a transport is returned by NetworkDevice.current' do
+        it 'stores the provider with the the name of the transport' do
+          allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(wrapper)
+          allow(wrapper).to receive(:is_a?).with(Puppet::ResourceApi::Transport::Wrapper).and_return(true)
+          allow(wrapper).to receive(:transport).and_return(transport)
+          allow(transport).to receive(:class).and_return(Puppet::Transport::Wibble)
+
+          expect(instance.my_provider).to eq provider
+        end
       end
     end
   end
