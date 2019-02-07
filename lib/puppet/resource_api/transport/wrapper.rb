@@ -6,18 +6,26 @@ require 'hocon/config_syntax'
 class Puppet::ResourceApi::Transport::Wrapper
   attr_reader :transport, :schema
 
-  def initialize(name, url_or_config)
-    if url_or_config.is_a? String
-      url = URI.parse(url_or_config)
-      raise "Unexpected url '#{url_or_config}' found. Only file:/// URLs for configuration supported at the moment." unless url.scheme == 'file'
+  def initialize(name, url_or_config_or_transport)
+    if url_or_config_or_transport.is_a? String
+      url = URI.parse(url_or_config_or_transport)
+      raise "Unexpected url '#{url_or_config_or_transport}' found. Only file:/// URLs for configuration supported at the moment." unless url.scheme == 'file'
       raise "Trying to load config from '#{url.path}, but file does not exist." if url && !File.exist?(url.path)
       config = self.class.deep_symbolize(Hocon.load(url.path, syntax: Hocon::ConfigSyntax::HOCON) || {})
-    else
-      config = url_or_config
+    elsif url_or_config_or_transport.is_a? Hash
+      config = url_or_config_or_transport
+    elsif transport_class?(name, url_or_config_or_transport)
+      @transport = url_or_config_or_transport
     end
 
-    @transport = Puppet::ResourceApi::Transport.connect(name, config)
+    @transport ||= Puppet::ResourceApi::Transport.connect(name, config)
     @schema = Puppet::ResourceApi::Transport.list[name]
+  end
+
+  def transport_class?(name, transport)
+    class_name = name.split('_').map { |e| e.capitalize }.join
+    expected = Puppet::Transport.const_get(class_name).to_s
+    expected == transport.class.to_s
   end
 
   def facts
