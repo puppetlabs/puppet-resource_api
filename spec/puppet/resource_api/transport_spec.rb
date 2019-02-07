@@ -268,7 +268,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
         described_class.register(schema)
 
-        expect(described_class).to receive(:require).with('puppet/transport/schema/validate')
+        expect(described_class).not_to receive(:require).with('puppet/transport/schema/validate')
         expect(schema_def).to receive(:check_schema).with('connection_info').and_return(nil)
         expect(schema_def).to receive(:validate).with('connection_info').and_return(nil)
 
