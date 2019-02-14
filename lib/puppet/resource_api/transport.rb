@@ -31,9 +31,21 @@ module Puppet::ResourceApi::Transport
     validate(name, connection_info)
     require "puppet/transport/#{name}"
     class_name = name.split('_').map { |e| e.capitalize }.join
+    # passing the copy as it may have been stripped on invalid key/values by validate
     Puppet::Transport.const_get(class_name).new(get_context(name), connection_info)
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
+
+  def inject_device(name, transport)
+    transport_wrapper = Puppet::ResourceApi::Transport::Wrapper.new(name, transport)
+
+    if Puppet::Util::NetworkDevice.respond_to?(:set_device)
+      Puppet::Util::NetworkDevice.set_device(name, transport_wrapper)
+    else
+      Puppet::Util::NetworkDevice.instance_variable_set(:@current, transport_wrapper)
+    end
+  end
+  module_function :inject_device # rubocop:disable Style/AccessModifierDeclarations
 
   def self.validate(name, connection_info)
     init_transports

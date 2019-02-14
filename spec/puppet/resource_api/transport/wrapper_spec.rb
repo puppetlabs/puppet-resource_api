@@ -32,6 +32,21 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
         described_class.new('wibble', config)
       end
     end
+
+    before(:each) do
+      module Puppet::Transport
+        class SomethingSomethingDarkside; end
+      end
+    end
+
+    context 'when called with a transport class' do
+      let(:transport) { Puppet::Transport::SomethingSomethingDarkside.new }
+      let(:instance) { described_class.new('something_something_darkside', transport) }
+
+      it 'will set the @transport class variable' do
+        expect(instance.instance_variable_get(:@transport)).to eq(transport)
+      end
+    end
   end
 
   describe '#facts' do
