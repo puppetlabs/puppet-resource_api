@@ -154,10 +154,10 @@ module Puppet::ResourceApi
     end
 
     # Returns an array of keys that where not found in the type schema
-    # Modifies the resource passed in, leaving only valid attributes
+    # No longer modifies the resource passed in
     def check_schema_keys(resource)
       rejected = []
-      resource.reject! { |key| rejected << key if key != :title && attributes.key?(key) == false }
+      resource.reject { |key| rejected << key if key != :title && attributes.key?(key) == false }
       rejected
     end
 

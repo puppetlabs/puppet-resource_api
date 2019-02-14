@@ -38,9 +38,15 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
 
     context 'when resource contains invalid keys' do
       let(:resource) { { name: 'test_string', wibble: '1', foo: '2' } }
+      let(:resource_copy) { { name: 'test_string', wibble: '1', foo: '2' } }
 
       it 'returns an array containing the bad keys' do
         expect(type.check_schema_keys(resource)).to eq([:wibble, :foo])
+      end
+
+      it 'does not modify the resource passed in' do
+        type.check_schema_keys(resource)
+        expect(resource).to eq(resource_copy)
       end
     end
   end
@@ -84,7 +90,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         it 'displays up to 100 warnings' do
           expect(Puppet).to receive(:warning).with(message).exactly(100).times
           110.times do
-            type.check_schema(resource.dup)
+            type.check_schema(resource)
           end
         end
       end
@@ -121,7 +127,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         it 'displays up to 100 warnings' do
           expect(Puppet).to receive(:warning).with(message).exactly(100).times
           110.times do
-            type.check_schema(resource.dup)
+            type.check_schema(resource)
           end
         end
       end
