@@ -169,12 +169,17 @@ module Puppet::ResourceApi
       resource.each do |key, value|
         next unless attributes[key]
         type = @data_type_cache[attributes[key][:type]]
+        is_sensitive = (attributes[key].key?(:sensitive) && (attributes[key][:sensitive] == true))
         error_message = Puppet::ResourceApi::DataTypeHandling.try_validate(
           type,
           value,
           '',
         )
-        bad_vals[key] = value unless error_message.nil?
+        if is_sensitive
+          bad_vals[key] = '<< redacted value >> ' + error_message unless error_message.nil?
+        else
+          bad_vals[key] = value unless error_message.nil?
+        end
       end
       bad_vals
     end

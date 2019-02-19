@@ -78,7 +78,14 @@ url  file://#{device_credentials.path}
 DEVICE_CONF
     end
     let(:device_credentials) { Tempfile.new('credentials.txt') }
-    let(:device_credentials_content) { {} }
+    let(:device_credentials_content) do
+      <<DEVICE_CREDS
+{
+  username: foo
+  secret: wibble
+}
+DEVICE_CREDS
+    end
 
     def is_device_apply_supported?
       Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')

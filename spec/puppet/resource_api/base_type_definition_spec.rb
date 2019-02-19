@@ -52,19 +52,58 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
   end
 
   describe '#check_schema_values' do
-    context 'when resource contains only valid values' do
-      let(:resource) { { name: 'some_resource', prop: 1, ensure: 'present' } }
+    context 'when the definition is a type' do
+      context 'when resource contains only valid values' do
+        let(:resource) { { name: 'some_resource', prop: 1, ensure: 'present' } }
 
-      it 'returns an empty array' do
-        expect(type.check_schema_values(resource)).to eq({})
+        it 'returns an empty array' do
+          expect(type.check_schema_values(resource)).to eq({})
+        end
+      end
+
+      context 'when resource contains invalid values' do
+        let(:resource) { { name: 'test_string', prop: 'foo', ensure: 1 } }
+
+        it 'returns a hash of the keys that have invalid values' do
+          expect(type.check_schema_values(resource)).to eq(prop: 'foo', ensure: 1)
+        end
       end
     end
 
-    context 'when resource contains invalid values' do
-      let(:resource) { { name: 'test_string', prop: 'foo', ensure: 1 } }
+    context 'when the definition is a transport' do
+      subject(:type) { described_class.new(definition, :connection_info) }
 
-      it 'returns a hash of the keys that have invalid values' do
-        expect(type.check_schema_values(resource)).to eq(prop: 'foo', ensure: 1)
+      let(:definition) do
+        {
+          name: 'some_transport',
+          connection_info: {
+            username:        {
+              type:      'String',
+              desc:      'The username to connect with',
+            },
+            secret:        {
+              type:      'String',
+              desc:      'A sensitive value',
+              sensitive: true,
+            },
+          },
+        }
+      end
+
+      context 'when resource contains only valid values' do
+        let(:resource) { { username: 'wibble', secret: 'foo' } }
+
+        it 'returns an empty array' do
+          expect(type.check_schema_values(resource)).to eq({})
+        end
+      end
+
+      context 'when resource contains invalid values' do
+        let(:resource) { { username: 'wibble', secret: 12_345 } }
+
+        it 'returns a hash of the keys that have invalid values' do
+          expect(type.check_schema_values(resource)).to match(secret: %r{<< redacted value >> expect(s|ed) a String value, got Integer})
+        end
       end
     end
   end
