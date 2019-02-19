@@ -120,16 +120,17 @@ module Puppet::ResourceApi
     end
 
     # validates a resource hash against its type schema
-    def check_schema(resource)
+    def check_schema(resource, message_prefix = nil)
       namevars.each do |namevar|
         if resource[namevar].nil?
           raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute"
         end
       end
 
-      message = "Provider returned data that does not match the Type Schema for `#{name}[#{resource[namevars.first]}]`"
+      message_prefix = 'Provider returned data that does not match the Type Schema' if message_prefix.nil?
+      message = "#{message_prefix} for `#{name}[#{resource[namevars.first]}]`"
 
-      rejected_keys = check_schema_keys(resource) # removes bad keys
+      rejected_keys = check_schema_keys(resource)
       bad_values = check_schema_values(resource)
 
       unless rejected_keys.empty?

@@ -57,8 +57,8 @@ module Puppet::ResourceApi::Transport
         environment: @environment,
       }
     end
-
-    transport_schema.check_schema(connection_info)
+    message_prefix = 'The connection info provided does not match the Transport Schema'
+    transport_schema.check_schema(connection_info, message_prefix)
     transport_schema.validate(connection_info)
   end
   private_class_method :validate
