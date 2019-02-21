@@ -31,7 +31,6 @@ module Puppet::ResourceApi::Transport
     validate(name, connection_info)
     require "puppet/transport/#{name}"
     class_name = name.split('_').map { |e| e.capitalize }.join
-    # passing the copy as it may have been stripped on invalid key/values by validate
     Puppet::Transport.const_get(class_name).new(get_context(name), connection_info)
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
