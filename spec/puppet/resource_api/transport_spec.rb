@@ -331,4 +331,40 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
     end
   end
+
+  describe '#wrap_sensitive(name, connection_info)' do
+    context 'when the connection info contains a `Sensitive` type' do
+      let(:schema) do
+        {
+          name: 'sensitive_transport',
+          desc: 'a  secret',
+          connection_info: {
+            secret: {
+              type:      'String',
+              desc:      'A secret to protect.',
+              sensitive:  true,
+            },
+          },
+        }
+      end
+      let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
+      let(:connection_info) do
+        {
+          secret: 'sup3r_secret_str1ng',
+        }
+      end
+
+      before(:each) do
+        allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
+        described_class.register(schema)
+      end
+
+      it 'wraps the value in a PSensitiveType' do
+        allow(schema_def).to receive(:definition).and_return(schema)
+
+        conn_info = described_class.send :wrap_sensitive, 'sensitive_transport', connection_info
+        expect(conn_info[:secret]).to be_a(Puppet::Pops::Types::PSensitiveType::Sensitive)
+      end
+    end
+  end
 end

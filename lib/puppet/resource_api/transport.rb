@@ -31,7 +31,7 @@ module Puppet::ResourceApi::Transport
     validate(name, connection_info)
     require "puppet/transport/#{name}"
     class_name = name.split('_').map { |e| e.capitalize }.join
-    Puppet::Transport.const_get(class_name).new(get_context(name), connection_info)
+    Puppet::Transport.const_get(class_name).new(get_context(name), wrap_sensitive(name, connection_info))
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
@@ -79,4 +79,17 @@ module Puppet::ResourceApi::Transport
     @transports[@environment] ||= {}
   end
   private_class_method :init_transports
+
+  def self.wrap_sensitive(name, connection_info)
+    transport_schema = @transports[@environment][name]
+    if transport_schema
+      transport_schema.definition[:connection_info].each do |attr_name, options|
+        if options.key?(:sensitive) && (options[:sensitive] == true)
+          connection_info[attr_name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(connection_info[:name])
+        end
+      end
+    end
+    connection_info
+  end
+  private_class_method :wrap_sensitive
 end

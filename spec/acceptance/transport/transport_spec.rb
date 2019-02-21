@@ -47,7 +47,7 @@ DEVICE_CONF
   secret_string: wibble
   optional_secret: bar
   array_secret: [meep]
-  variant_secret: 21
+  variant_secret: 1234567890
 }
 DEVICE_CREDS
       end
@@ -59,14 +59,13 @@ DEVICE_CREDS
 
           stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
           expect(stdout_str).not_to match %r{Value type mismatch}
-          # These are only matched because the test transport prints them
-          # This however shows that the transport can view the raw values
+
           expect(stdout_str).to match %r{transport connection_info:}
           expect(stdout_str).to match %r{:username=>"foo"}
-          expect(stdout_str).to match %r{:secret_string=>"wibble"}
-          expect(stdout_str).to match %r{:optional_secret=>"bar"}
-          expect(stdout_str).to match %r{:array_secret=>\["meep"\]}
-          expect(stdout_str).to match %r{:variant_secret=>21}
+          expect(stdout_str).not_to match %r{wibble}
+          expect(stdout_str).not_to match %r{bar}
+          expect(stdout_str).not_to match %r{meep}
+          expect(stdout_str).not_to match %r{1234567890}
         end
       end
     end
