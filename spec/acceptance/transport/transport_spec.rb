@@ -53,8 +53,6 @@ DEVICE_CREDS
       end
 
       it 'does not throw' do
-        pending('Requires Puppet with NetworkDevice.rb support for Transports')
-
         Tempfile.create('apply_success') do |f|
           f.write 'notify { "foo": }'
           f.close
@@ -87,8 +85,6 @@ DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
-        pending('Requires Puppet with NetworkDevice.rb support for Transports')
-
         Tempfile.create('apply_success') do |f|
           f.write 'notify { "foo": }'
           f.close
@@ -117,8 +113,6 @@ DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
-        pending('Requires Puppet with NetworkDevice.rb support for Transports')
-
         Tempfile.create('apply_success') do |f|
           f.write 'notify { "foo": }'
           f.close
@@ -147,8 +141,6 @@ DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
-        pending('Requires Puppet with NetworkDevice.rb support for Transports')
-
         Tempfile.create('apply_success') do |f|
           f.write 'notify { "foo": }'
           f.close
@@ -177,8 +169,6 @@ DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
-        pending('Requires Puppet with NetworkDevice.rb support for Transports')
-
         Tempfile.create('apply_success') do |f|
           f.write 'notify { "foo": }'
           f.close
