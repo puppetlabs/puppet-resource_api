@@ -1,14 +1,14 @@
 require 'puppet/resource_api'
 
 Puppet::ResourceApi.register_transport(
-  name: 'test_device', # points at class Puppet::Transport::TestDevice
+  name: 'test_device_sensitive', # points at class Puppet::Transport::TestDevice
   desc: 'Connects to a device',
   connection_info: {
     username:        {
       type:      'String',
       desc:      'The name of the resource you want to manage.',
     },
-    secret: {
+    secret_string: {
       type:      'String',
       desc:      'A secret to protect.',
       sensitive:  true,

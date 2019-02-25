@@ -31,8 +31,7 @@ module Puppet::ResourceApi::Transport
     validate(name, connection_info)
     require "puppet/transport/#{name}"
     class_name = name.split('_').map { |e| e.capitalize }.join
-    # passing the copy as it may have been stripped on invalid key/values by validate
-    Puppet::Transport.const_get(class_name).new(get_context(name), connection_info)
+    Puppet::Transport.const_get(class_name).new(get_context(name), wrap_sensitive(name, connection_info))
   end
   module_function :connect # rubocop:disable Style/AccessModifierDeclarations
 
@@ -57,8 +56,8 @@ module Puppet::ResourceApi::Transport
         environment: @environment,
       }
     end
-
-    transport_schema.check_schema(connection_info)
+    message_prefix = 'The connection info provided does not match the Transport Schema'
+    transport_schema.check_schema(connection_info, message_prefix)
     transport_schema.validate(connection_info)
   end
   private_class_method :validate
@@ -80,4 +79,17 @@ module Puppet::ResourceApi::Transport
     @transports[@environment] ||= {}
   end
   private_class_method :init_transports
+
+  def self.wrap_sensitive(name, connection_info)
+    transport_schema = @transports[@environment][name]
+    if transport_schema
+      transport_schema.definition[:connection_info].each do |attr_name, options|
+        if options.key?(:sensitive) && (options[:sensitive] == true)
+          connection_info[attr_name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(connection_info[attr_name])
+        end
+      end
+    end
+    connection_info
+  end
+  private_class_method :wrap_sensitive
 end

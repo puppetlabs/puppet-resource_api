@@ -25,7 +25,7 @@ matrix:
     - env: RVM="jruby-9.1.9.0" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
       cache:
-        bundler: true
+        bundler: false
         directories: ~/.rvm
       before_install: rvm use jruby-9.1.9.0 --install --binary --fuzzy
     - rvm: 2.4.3
