@@ -364,6 +364,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
         conn_info = described_class.send :wrap_sensitive, 'sensitive_transport', connection_info
         expect(conn_info[:secret]).to be_a(Puppet::Pops::Types::PSensitiveType::Sensitive)
+        expect(conn_info[:secret].unwrap).to eq('sup3r_secret_str1ng')
       end
     end
   end
