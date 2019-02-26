@@ -3,6 +3,57 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.8.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.0) (2019-02-26)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.7.0...v1.8.0)
+
+**Implemented enhancements:**
+
+- \(FM-7695\) Transports - the remote content framework [\#157](https://github.com/puppetlabs/puppet-resource_api/pull/157) ([DavidS](https://github.com/DavidS))
+- \(FM-7698\) implement `sensitive:true` handling [\#156](https://github.com/puppetlabs/puppet-resource_api/pull/156) ([da-ar](https://github.com/da-ar))
+- \(PDK-1271\) Allow a transport to be wrapped and used like a device [\#155](https://github.com/puppetlabs/puppet-resource_api/pull/155) ([da-ar](https://github.com/da-ar))
+- \(FM-7701\) Support device providers when using Transport Wrapper [\#154](https://github.com/puppetlabs/puppet-resource_api/pull/154) ([da-ar](https://github.com/da-ar))
+- \(FM-7726\) implement `context.transport` to provide access [\#152](https://github.com/puppetlabs/puppet-resource_api/pull/152) ([DavidS](https://github.com/DavidS))
+- \(FM-7674\) Allow wrapping a Transport in a legacy Device [\#149](https://github.com/puppetlabs/puppet-resource_api/pull/149) ([da-ar](https://github.com/da-ar))
+- \(FM-7600\) Add Transport.connect method [\#148](https://github.com/puppetlabs/puppet-resource_api/pull/148) ([da-ar](https://github.com/da-ar))
+
+**Fixed bugs:**
+
+- \(FM-7690\) Fix transports cache to be environment aware [\#151](https://github.com/puppetlabs/puppet-resource_api/pull/151) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- \(FM-7726\) cleanups for the transport  [\#153](https://github.com/puppetlabs/puppet-resource_api/pull/153) ([DavidS](https://github.com/DavidS))
+- \(FM-7691,FM-7696\) refactoring definition handling in contexts [\#150](https://github.com/puppetlabs/puppet-resource_api/pull/150) ([DavidS](https://github.com/DavidS))
+
+## [v1.7.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.7.0) (2019-01-07)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.3...v1.7.0)
+
+**Implemented enhancements:**
+
+- \(maint\) Validate Type Schema [\#142](https://github.com/puppetlabs/puppet-resource_api/pull/142) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- \(maint\) Bundler 2.0 dropped support for Ruby versions \< 2.2 [\#147](https://github.com/puppetlabs/puppet-resource_api/pull/147) ([da-ar](https://github.com/da-ar))
+-  \(FM-7597\) RSAPI Transport register function [\#146](https://github.com/puppetlabs/puppet-resource_api/pull/146) ([da-ar](https://github.com/da-ar))
+- \(packaging\) Update version to 1.7.0 [\#144](https://github.com/puppetlabs/puppet-resource_api/pull/144) ([branan](https://github.com/branan))
+
+## [v1.6.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.3) (2018-12-11)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.2...v1.6.3)
+
+**Closed issues:**
+
+- Trying to understand stubbing in the examples [\#136](https://github.com/puppetlabs/puppet-resource_api/issues/136)
+
+**Merged pull requests:**
+
+- \(packaging\) Update version to 1.6.3 [\#143](https://github.com/puppetlabs/puppet-resource_api/pull/143) ([branan](https://github.com/branan))
+- Move parameter and property logic to separate classes [\#140](https://github.com/puppetlabs/puppet-resource_api/pull/140) ([bpietraga](https://github.com/bpietraga))
+- \(maint\) Predeclare Puppet module before ResourceApi [\#139](https://github.com/puppetlabs/puppet-resource_api/pull/139) ([caseywilliams](https://github.com/caseywilliams))
+- \(maint\) minor fix to make data\_type\_handling change work [\#138](https://github.com/puppetlabs/puppet-resource_api/pull/138) ([DavidS](https://github.com/DavidS))
+- \(maint\) extract data type handling code [\#137](https://github.com/puppetlabs/puppet-resource_api/pull/137) ([bpietraga](https://github.com/bpietraga))
+- Release prep for v1.6.2 [\#135](https://github.com/puppetlabs/puppet-resource_api/pull/135) ([DavidS](https://github.com/DavidS))
+
 ## [v1.6.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.2) (2018-10-25)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.1...v1.6.2)
 
