@@ -13,10 +13,17 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     TestContext.new(definition)
   end
 
-  let(:definition) { { name: 'some_resource', attributes: { name: { type: 'String', desc: 'message' } }, features: feature_support } }
+  let(:definition_hash) { { name: 'some_resource', attributes: { name: { type: 'String', desc: 'message' } }, features: feature_support } }
+  let(:definition) { Puppet::ResourceApi::TypeDefinition.new(definition_hash) }
   let(:feature_support) { [] }
 
-  it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{BaseContext requires definition to be a Hash} }
+  it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition} }
+  describe 'legacy hash definition support' do
+    let(:definition) { definition_hash }
+
+    it { expect { context }.not_to raise_error }
+    it { expect(context.type.name).to eq 'some_resource' }
+  end
 
   describe '#failed?' do
     it('defaults to false') { is_expected.not_to be_failed }
@@ -332,6 +339,10 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
   describe '#device' do
     it { expect { described_class.new(definition).device }.to raise_error RuntimeError, %r{Received device\(\) on an unprepared BaseContext\. Use a PuppetContext instead} }
+  end
+
+  describe '#transport' do
+    it { expect { described_class.new(definition).transport }.to raise_error RuntimeError, %r{No transport available\.} }
   end
 
   describe '#send_log' do

@@ -1,18 +1,32 @@
 require 'puppet/resource_api/type_definition'
 
+# rubocop:disable Style/Documentation
 module Puppet; end
 module Puppet::ResourceApi; end
+# rubocop:enable Style/Documentation
+
+# This class provides access to all common external dependencies of providers and transports.
+# The runtime environment will inject an appropriate implementation.
 class Puppet::ResourceApi::BaseContext
   attr_reader :type
 
   def initialize(definition)
-    raise ArgumentError, 'BaseContext requires definition to be a Hash' unless definition.is_a?(Hash)
-    @typename = definition[:name]
-    @type = Puppet::ResourceApi::TypeDefinition.new(definition)
+    if definition.is_a?(Hash)
+      # this is only for backwards compatibility
+      @type = Puppet::ResourceApi::TypeDefinition.new(definition)
+    elsif definition.is_a? Puppet::ResourceApi::BaseTypeDefinition
+      @type = definition
+    else
+      raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%{actual_type}>' % { actual_type: definition.class }
+    end
   end
 
   def device
     raise 'Received device() on an unprepared BaseContext. Use a PuppetContext instead.'
+  end
+
+  def transport
+    raise 'No transport available.'
   end
 
   def failed?
@@ -27,7 +41,7 @@ class Puppet::ResourceApi::BaseContext
   [:debug, :info, :notice, :warning, :err].each do |level|
     define_method(level) do |*args|
       if args.length == 1
-        message = "#{@context || @typename}: #{args.last}"
+        message = "#{@context || @type.name}: #{args.last}"
       elsif args.length == 2
         resources = format_titles(args.first)
         message = "#{resources}: #{args.last}"
@@ -137,9 +151,9 @@ class Puppet::ResourceApi::BaseContext
 
   def format_titles(titles)
     if titles.length.zero? && !titles.is_a?(String)
-      @typename
+      @type.name
     else
-      "#{@typename}[#{[titles].flatten.compact.join(', ')}]"
+      "#{@type.name}[#{[titles].flatten.compact.join(', ')}]"
     end
   end
 

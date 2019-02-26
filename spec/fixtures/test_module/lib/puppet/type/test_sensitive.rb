@@ -26,7 +26,11 @@ Puppet::ResourceApi.register_type(
       desc:      'An optional secret to protect.',
     },
     array_secret: {
-      type:      'Array[Sensitive[String]]',
+      type:      'Optional[Array[Sensitive[String]]]',
+      desc:      'An array secret to protect.',
+    },
+    variant_secret: {
+      type:      'Optional[Variant[Array[Sensitive[String]], Integer]]',
       desc:      'An array secret to protect.',
     },
   },
