@@ -174,34 +174,97 @@ The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automati
 
 ## Remote Resources
 
-Support for remote resources is enabled through the use of a `transport`. A transport class conatins the code for managing connections and processing information to/from the remote resource. Please see the [RSAPI specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport) document on how to create a transport.
+Support for remote resources is enabled through the use of a `transport` class. A transport class contains the code for managing connections and processing information to/from the remote resource. Please see the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport) document on how to create a transport class.
 
 ### `puppet device` support
 
-To connect to a remote resource through `puppet device` a `transport` must be called through a device shim.
+To connect to a remote resource through `puppet device` a `transport` class must be called through a device shim.
+
+For example, the `device` class will be a pass through to `transport`:
 
 ```ruby
-# lib/puppet/util/network_device/remote_thing.rb
+# lib/puppet/util/network_device/device_type/device.rb
 
 require 'puppet'
 require 'puppet/resource_api/transport/wrapper'
-# force registering the transport
-require 'puppet/transport/schema/remote_thing'
+# force registering the transport schema
+require 'puppet/transport/schema/device_type'
 
-module Puppet::Util::NetworkDevice::RemoteThing
+module Puppet::Util::NetworkDevice::DeviceType
   class Device < Puppet::ResourceApi::Transport::Wrapper
     def initialize(url_or_config, _options = {})
-      super('remote_thing', url_or_config)
+      super('device_type', url_or_config)
     end
   end
 end
+```
+
+This requires a `transport` class and schema, as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport), for example a transport class:
+
+```ruby
+# lib/puppet/transport/device_type.rb
+module Puppet::Transport
+  # The main connection class to a PAN-OS API endpoint
+  class DeviceType
+    def initialize(context, connection_info)
+    # Initialization eg. validate connection_info 
+    end
+    
+    def verify(context)
+    # Test that transport can talk to the remote target
+    end
+    
+    def facts(context)
+    # Access target, return a Facter facts hash
+    end
+    
+    def close(context)
+    # Close connection, free up resources
+    end
+  end
+end
+```
+
+An example of a corresponding schema may look like:
+
+```ruby
+# lib/puppet/transport/device_type.rb
+Puppet::ResourceAPI.register_transport(
+  name: 'device_type', # points at class Puppet::Transport::DeviceType
+  desc: 'Connects to a device_type',
+  # features: [], # future extension points
+  connection_info: {
+    hostname: {
+      type: 'String',
+      desc: 'The host to connect to.',
+    },
+    username: {
+      type: 'String',
+      desc: 'The user.',
+    },
+    password: {
+      type: 'String',
+      sensitive: true,
+      desc: 'The password to connect.',
+    },
+    enable_password: {
+      type: 'String',
+      sensitive: true,
+      desc: 'The password escalate to enable access.',
+    },
+    port: {
+      type: 'Integer',
+      desc: 'The port to connect to.',
+    },
+  },
+)
 ```
 
 After this, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
 
 #### Transport/Device specific providers
 
-To allow modules to deal with different backends independently of each other, the Resource API also implements a mechanism to use different API providers side-by-side. For a given transport/device (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
+To allow modules to deal with different backends independently of each other, the Resource API also implements a mechanism to use different API providers side-by-side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
 
 ## Further Reading
 
