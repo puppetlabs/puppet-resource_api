@@ -172,19 +172,38 @@ The `create`/`update`/`delete` methods get called by the `SimpleProvider` base-c
 
 The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automatically evaluated with `pdk test unit`.
 
+## Remote Resources
+
+Support for remote resources is enabled through the use of a `transport`. A transport class conatins the code for managing connections and processing information to/from the remote resource. Please see the [RSAPI specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport) document on how to create a transport.
+
 ### `puppet device` support
 
-To support remote resources using `puppet device`, a few more steps are needed. First a `Puppet::Util::NetworkDevice::<device type>::Device` class needs to exist, which provides facts and connection management . That device class can inherit from `Puppet::Util::NetworkDevice::Simple::Device` to receive a simple default configuration parser using hocon.
+To connect to a remote resource through `puppet device` a `transport` must be called through a device shim.
 
-The provider needs to specify the `remote_resource` feature to enable the second part of the machinery.
+```ruby
+# lib/puppet/util/network_device/remote_thing.rb
+
+require 'puppet'
+require 'puppet/resource_api/transport/wrapper'
+# force registering the transport
+require 'puppet/transport/schema/remote_thing'
+
+module Puppet::Util::NetworkDevice::RemoteThing
+  class Device < Puppet::ResourceApi::Transport::Wrapper
+    def initialize(url_or_config, _options = {})
+      super('remote_thing', url_or_config)
+    end
+  end
+end
+```
 
 After this, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
 
-#### Device-specific providers
+#### Transport/Device specific providers
 
-To allow modules to deal with different backends independently of each other, the Resource API also implements a mechanism to use different API providers side-by-side. For a given device type (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
+To allow modules to deal with different backends independently of each other, the Resource API also implements a mechanism to use different API providers side-by-side. For a given transport/device (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
 
-### Further Reading
+## Further Reading
 
 The [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.
 
