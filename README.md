@@ -178,7 +178,15 @@ Support for remote resources is enabled through a `transport` class. A transport
 
 ### `puppet device` support
 
-To connect to a remote resource through `puppet device`, you must call a `transport` class through a device shim. For example, the `device` class will be passed through to `transport`:
+To connect to a remote resource through `puppet device`, you must call a `transport` class through a device shim to maintain compatibility with Puppet Resource.
+
+A `device` class is created that Puppet Resource will call, however this will inherit from the `transport` class which will contain the following methods (as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport)):
+* `initialize`
+* `verify`
+* `facts`
+* `connect`
+
+For example, the `device` class will be a pass through to `transport`:
 
 ```ruby
 # lib/puppet/util/network_device/device_type/device.rb
