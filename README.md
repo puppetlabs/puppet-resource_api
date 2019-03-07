@@ -172,15 +172,13 @@ The `create`/`update`/`delete` methods get called by the `SimpleProvider` base-c
 
 The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automatically evaluated with `pdk test unit`.
 
-## Remote Resources
+## Remote resources
 
-Support for remote resources is enabled through the use of a `transport` class. A transport class contains the code for managing connections and processing information to/from the remote resource. Please see the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport) document on how to create a transport class.
+Support for remote resources is enabled through a `transport` class. A transport class contains the code for managing connections and processing information to and from the remote resource. For information on how to create a transport class, see the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport).
 
 ### `puppet device` support
 
-To connect to a remote resource through `puppet device` a `transport` class must be called through a device shim.
-
-For example, the `device` class will be a pass through to `transport`:
+To connect to a remote resource through `puppet device`, you must call a `transport` class through a device shim. For example, the `device` class will be passed through to `transport`:
 
 ```ruby
 # lib/puppet/util/network_device/device_type/device.rb
@@ -199,7 +197,9 @@ module Puppet::Util::NetworkDevice::DeviceType
 end
 ```
 
-This requires a `transport` class and schema, as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport), for example a transport class:
+This requires a `transport` class and schema, as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport). 
+
+An example of a transport class:
 
 ```ruby
 # lib/puppet/transport/device_type.rb
@@ -225,7 +225,7 @@ module Puppet::Transport
 end
 ```
 
-An example of a corresponding schema may look like:
+An example of a corresponding schema:
 
 ```ruby
 # lib/puppet/transport/device_type.rb
@@ -262,11 +262,11 @@ Puppet::ResourceAPI.register_transport(
 
 After this, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
 
-#### Transport/Device specific providers
+#### Transport/device specific providers
 
-To allow modules to deal with different backends independently of each other, the Resource API also implements a mechanism to use different API providers side-by-side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
+To allow modules to deal with different backends independently, the Resource API implements a mechanism to use different API providers side by side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
 
-## Further Reading
+## Further reading
 
 The [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.
 
