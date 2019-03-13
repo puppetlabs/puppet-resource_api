@@ -270,17 +270,11 @@ After the device class, transport class and transport schema have been implement
 
 To allow modules to deal with different backends independently, the Resource API implements a mechanism to use different API providers side by side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::<DeviceType>` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
 
-### `puppet device` support
+### Puppet backwards compatibility
 
-To connect to a remote resource through `puppet device`, you must call a `transport` class through a device shim to maintain compatibility with Puppet Resource.
+To connect to a remote resource through `puppet device`, you must provide a device shim to maintain compatibility with Puppet. The device shim needs to interface the transport to puppet's config and runtime expectations.
 
-A `device` class is created that Puppet Resource will call, however this will inherit from the `transport` class which will contain the following methods (as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport)):
-* `initialize`
-* `verify`
-* `facts`
-* `connect`
-
-For example, the `device` class will be a pass through to `transport`:
+In the simplest case you can use the provided `Puppet::ResourceApi::Transport::Wrapper` like this:
 
 ```ruby
 # lib/puppet/util/network_device/device_type/device.rb
@@ -290,7 +284,7 @@ require 'puppet/resource_api/transport/wrapper'
 # force registering the transport schema
 require 'puppet/transport/schema/device_type'
 
-module Puppet::Util::NetworkDevice::DeviceType
+module Puppet::Util::NetworkDevice::Device_type
   class Device < Puppet::ResourceApi::Transport::Wrapper
     def initialize(url_or_config, _options = {})
       super('device_type', url_or_config)
