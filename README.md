@@ -340,10 +340,31 @@ Future possibilities:
 * [Multiple Providers](https://tickets.puppetlabs.com/browse/PDK-530)
 * [Commands API](https://tickets.puppetlabs.com/browse/PDK-847)
 
+## Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/puppetlabs/puppet-resource_api.
 
-## Cutting a release
+### Cutting a release
 
-To cut a new release, follow the ["Special case: the resource API" instructions](https://confluence.puppetlabs.com/display/systemsEngineering/Puppet+Agent+Release+Lead+Guide) on confluence.
+To cut a new release, from a current `master` checkout:
+
+* Start the release branch with `git checkout -b release-prep`
+* Update `lib/puppet/resource_api/version.rb` to the new version
+* Update the CHANGELOG
+  * Have a [CHANGELOG_GITHUB_TOKEN](https://github.com/skywinder/github-changelog-generator#github-token) set in your environment
+  * run `rake changelog`
+  * double check the PRs to make sure they're all tagged correctly (using the new CHANGELOG for cross-checking)
+* Check README and other materials for up-to-date-ness
+* Commit changes with title "Release prep for v\<VERSION>"
+* Upload and PR the release-prep branch to the puppetlabs GitHub repo
+* Check that CI is green and merge the PR
+* Run `rake release[upstream]` to release from your checkout
+  * make sure to use the name of your git remote pointing to the puppetlabs GitHub repo
+* Remove the release-prep branch
+* Send the release announcements using the template in [misc/ANNOUNCEMENT_TEMPLATE.md](misc/ANNOUNCEMENT_TEMPLATE.md)
