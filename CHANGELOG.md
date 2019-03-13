@@ -3,6 +3,20 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.8.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.1) (2019-03-13)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.8.0...v1.8.1)
+
+**Fixed bugs:**
+
+- \(maint\) Fixes sensitive transport values where absent keys are wrapped [\#161](https://github.com/puppetlabs/puppet-resource_api/pull/161) ([da-ar](https://github.com/da-ar))
+
+**Merged pull requests:**
+
+- 1.6.x mergeup [\#162](https://github.com/puppetlabs/puppet-resource_api/pull/162) ([DavidS](https://github.com/DavidS))
+- \(FM-7829\) Update README with transports examples [\#160](https://github.com/puppetlabs/puppet-resource_api/pull/160) ([willmeek](https://github.com/willmeek))
+- \(maint\) update release docs [\#159](https://github.com/puppetlabs/puppet-resource_api/pull/159) ([DavidS](https://github.com/DavidS))
+- Improve travis cells and testing [\#145](https://github.com/puppetlabs/puppet-resource_api/pull/145) ([DavidS](https://github.com/DavidS))
+
 ## [v1.8.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.0) (2019-02-26)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.7.0...v1.8.0)
 
@@ -22,6 +36,7 @@ All significant changes to this repo will be summarized in this file.
 
 **Merged pull requests:**
 
+- Release prep for v1.8.0 [\#158](https://github.com/puppetlabs/puppet-resource_api/pull/158) ([DavidS](https://github.com/DavidS))
 - \(FM-7726\) cleanups for the transport  [\#153](https://github.com/puppetlabs/puppet-resource_api/pull/153) ([DavidS](https://github.com/DavidS))
 - \(FM-7691,FM-7696\) refactoring definition handling in contexts [\#150](https://github.com/puppetlabs/puppet-resource_api/pull/150) ([DavidS](https://github.com/DavidS))
 
