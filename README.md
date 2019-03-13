@@ -242,11 +242,11 @@ Puppet::ResourceAPI.register_transport(
   desc: 'Connects to a device_type',
   # features: [], # future extension points
   connection_info: {
-    hostname: {
+    host: {
       type: 'String',
       desc: 'The host to connect to.',
     },
-    username: {
+    user: {
       type: 'String',
       desc: 'The user.',
     },
@@ -287,8 +287,8 @@ The following keywords are encouraged within the Transport schema:
 The following keywords are keywords that must not be used by the transport schema:
  
 * `name` - transports should use `uri` instead of name.
-* `path`
-* `query`
+* `path` - reserved as a uri part
+* `query` - reserved as a uri part
 * `run-on` - This is used by bolt to determine which target to proxy to. Transports should not rely on this key.
 * `remote-transport` - This is used to determine which transport to load. It should always be the transport class name "declassified".
 * `remote-*` Any key starting with `remote-` is reserved for future use.
@@ -299,7 +299,7 @@ After the device class, transport class and transport schema have been implement
 
 #### Transport/device specific providers
 
-To allow modules to deal with different backends independently, the Resource API implements a mechanism to use different API providers side by side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::DeviceType` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
+To allow modules to deal with different backends independently, the Resource API implements a mechanism to use different API providers side by side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::<DeviceType>` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
 
 ## Further reading
 
