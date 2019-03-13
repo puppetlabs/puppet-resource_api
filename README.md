@@ -176,37 +176,6 @@ The generated unit tests in `spec/unit/puppet/provider/foo_spec.rb` get automati
 
 Support for remote resources is enabled through a `transport` class. A transport class contains the code for managing connections and processing information to and from the remote resource. For information on how to create a transport class, see the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport).
 
-### `puppet device` support
-
-To connect to a remote resource through `puppet device`, you must call a `transport` class through a device shim to maintain compatibility with Puppet Resource.
-
-A `device` class is created that Puppet Resource will call, however this will inherit from the `transport` class which will contain the following methods (as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport)):
-* `initialize`
-* `verify`
-* `facts`
-* `connect`
-
-For example, the `device` class will be a pass through to `transport`:
-
-```ruby
-# lib/puppet/util/network_device/device_type/device.rb
-
-require 'puppet'
-require 'puppet/resource_api/transport/wrapper'
-# force registering the transport schema
-require 'puppet/transport/schema/device_type'
-
-module Puppet::Util::NetworkDevice::DeviceType
-  class Device < Puppet::ResourceApi::Transport::Wrapper
-    def initialize(url_or_config, _options = {})
-      super('device_type', url_or_config)
-    end
-  end
-end
-```
-
-This requires a `transport` class and schema, as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport). 
-
 An example of a transport class:
 
 ```ruby
@@ -215,17 +184,17 @@ module Puppet::Transport
   # The main connection class to a PAN-OS API endpoint
   class DeviceType
     def initialize(context, connection_info)
-    # Initialization eg. validate connection_info 
+    # Initialization eg. validate connection_info
     end
-    
+
     def verify(context)
     # Test that transport can talk to the remote target
     end
-    
+
     def facts(context)
     # Access target, return a Facter facts hash
     end
-    
+
     def close(context)
     # Close connection, free up resources
     end
@@ -268,31 +237,31 @@ Puppet::ResourceAPI.register_transport(
 )
 ```
 
-##### Transport Schema keywords
+### Transport Schema keywords
 
 Please note that within the transport schema, the following keywords are reserved words:
 
-###### Usable within the schema
- 
+#### Usable within the schema
+
 The following keywords are encouraged within the Transport schema:
- 
+
 * `uri` - Use when you need to specify a specific URL to connect to. All of the following keys will be computed from the `uri` if possible. In the future more url parts may be computed from the URI as well.
-* `host` - Use to specify and IP or address to connect to. 
+* `host` - Use to specify and IP or address to connect to.
 * `protocol` - Use to specify which protocol the transport should use for example `http`, `https`, `ssh` or `tcp`
 * `user` - The user the transport should connect as.
 * `port` - The port the transport should connect to.
- 
-###### Non-Usable within the schema
- 
+
+#### Non-Usable within the schema
+
 The following keywords are keywords that must not be used by the transport schema:
- 
+
 * `name` - transports should use `uri` instead of name.
 * `path` - reserved as a uri part
 * `query` - reserved as a uri part
 * `run-on` - This is used by bolt to determine which target to proxy to. Transports should not rely on this key.
 * `remote-transport` - This is used to determine which transport to load. It should always be the transport class name "declassified".
 * `remote-*` Any key starting with `remote-` is reserved for future use.
- 
+
 Note: Currently bolt inventory requires that a name be set for every target and always uses that name as the URI. This means there is no way to specify `host` separately from the host section of the `name` when parsed as a URI.
 
 After the device class, transport class and transport schema have been implemented, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
@@ -300,6 +269,35 @@ After the device class, transport class and transport schema have been implement
 #### Transport/device specific providers
 
 To allow modules to deal with different backends independently, the Resource API implements a mechanism to use different API providers side by side. For a given transport/device class (see above), the Resource API will first try to load a `Puppet::Provider::TypeName::<DeviceType>` class from `lib/puppet/provider/type_name/device_type.rb`, before falling back to the regular provider at `Puppet::Provider::TypeName::TypeName`.
+
+### `puppet device` support
+
+To connect to a remote resource through `puppet device`, you must call a `transport` class through a device shim to maintain compatibility with Puppet Resource.
+
+A `device` class is created that Puppet Resource will call, however this will inherit from the `transport` class which will contain the following methods (as detailed in the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/tree/master/language/resource-api#transport)):
+* `initialize`
+* `verify`
+* `facts`
+* `connect`
+
+For example, the `device` class will be a pass through to `transport`:
+
+```ruby
+# lib/puppet/util/network_device/device_type/device.rb
+
+require 'puppet'
+require 'puppet/resource_api/transport/wrapper'
+# force registering the transport schema
+require 'puppet/transport/schema/device_type'
+
+module Puppet::Util::NetworkDevice::DeviceType
+  class Device < Puppet::ResourceApi::Transport::Wrapper
+    def initialize(url_or_config, _options = {})
+      super('device_type', url_or_config)
+    end
+  end
+end
+```
 
 ## Further reading
 
