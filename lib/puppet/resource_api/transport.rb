@@ -84,7 +84,7 @@ module Puppet::ResourceApi::Transport
     transport_schema = @transports[@environment][name]
     if transport_schema
       transport_schema.definition[:connection_info].each do |attr_name, options|
-        if options.key?(:sensitive) && (options[:sensitive] == true)
+        if options.key?(:sensitive) && (options[:sensitive] == true) && connection_info.key?(attr_name)
           connection_info[attr_name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(connection_info[attr_name])
         end
       end
