@@ -261,6 +261,7 @@ The following keywords are keywords that must not be used by the transport schem
 * `run-on` - This is used by bolt to determine which target to proxy to. Transports should not rely on this key.
 * `remote-transport` - This is used to determine which transport to load. It should always be the transport class name "declassified".
 * `remote-*` Any key starting with `remote-` is reserved for future use.
+* `implementations`: reserved by bolt
 
 Note: Currently bolt inventory requires that a name be set for every target and always uses that name as the URI. This means there is no way to specify `host` separately from the host section of the `name` when parsed as a URI.
 
