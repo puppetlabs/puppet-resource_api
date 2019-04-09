@@ -63,6 +63,10 @@ module Puppet::ResourceApi
       error_msg = "The following mandatory attributes were not provided:\n    *  " + missing_attrs.join(", \n    *  ")
       raise Puppet::ResourceError, error_msg if missing_attrs.any?
     end
+
+    def notify_schema_errors(message)
+      raise Puppet::DevError, message
+    end
   end
 
   # Base RSAPI schema Object
@@ -144,6 +148,10 @@ module Puppet::ResourceApi
 
       return if rejected_keys.empty? && bad_values.empty?
 
+      notify_schema_errors(message)
+    end
+
+    def notify_schema_errors(message)
       if Puppet.settings[:strict] == :off
         Puppet.debug(message)
       elsif Puppet.settings[:strict] == :warning

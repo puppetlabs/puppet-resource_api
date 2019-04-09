@@ -42,4 +42,14 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       it {  expect { type.validate(resource) }.not_to raise_error }
     end
   end
+
+  describe '#notify_schema_errors' do
+    context 'when a message is received ' do
+      let(:message) { 'Missing attribute: foo' }
+
+      it 'raises an error with the supplied message' do
+        expect { type.notify_schema_errors(message) }.to raise_error Puppet::DevError, message
+      end
+    end
+  end
 end
