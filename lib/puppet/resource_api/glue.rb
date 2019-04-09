@@ -41,6 +41,13 @@ module Puppet::ResourceApi
       YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n") + "\n"
     end
 
+    def to_json(*)
+      attrs = filtered_keys.map { |k| [k.to_s, values[k]] unless values[k].nil? }
+      attributes = Hash[*attrs.compact.flatten]
+      resource = { title => attributes }
+      resource.to_json
+    end
+
     # attribute names that are not title or namevars
     def filtered_keys
       values.keys.reject { |k| k == :title || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
