@@ -16,7 +16,7 @@ group :tests do
   # unless we're dealing with jruby...
   if RUBY_PLATFORM == 'java'
     # load any rubocop version that works on java for the Rakefile
-    gem 'rubocop'
+    gem 'rubocop', '0.41.2'
   elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.2.0')
     gem 'rubocop', '0.57.2'
     # the last version of parallel to support ruby 2.1
