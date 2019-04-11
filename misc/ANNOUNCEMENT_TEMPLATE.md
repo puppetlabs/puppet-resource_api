@@ -22,7 +22,7 @@ See [this post](https://groups.google.com/d/msg/puppet-dev/1R9gwkEIxHU/adWXJ0NfC
 
 ---
 
-Subject: [ANN] Resource API vX.Y.Z Release
+Subject: [ANN] Resource API X.Y.Z Release
 
 Hi all,
 
