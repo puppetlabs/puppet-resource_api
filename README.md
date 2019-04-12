@@ -359,7 +359,7 @@ To do so, follow these instructions from a current `master` checkout:
   * run `rake changelog`
   * double check the PRs to make sure they're all tagged correctly (using the new CHANGELOG for cross-checking)
 * Check README and other materials for up-to-date-ness
-* Commit changes with title "Release prep for v\<VERSION>"
+* Commit changes with title "Release prep for \<VERSION>"
 * Upload and PR the release-prep branch to the puppetlabs GitHub repo
 * Check that CI is green and merge the PR
 * Run `rake release[upstream]` to release from your checkout
