@@ -10,20 +10,20 @@ module Puppet::ResourceApi::Transport
     raise Puppet::DevError, '`:connection_info` must be a hash, not `%{other_type}`' % { other_type: schema[:connection_info].class } unless schema[:connection_info].is_a?(Hash)
 
     init_transports
-    unless @transports[@environment][schema[:name]].nil?
+    unless @transports[current_environment][schema[:name]].nil?
       raise Puppet::DevError, 'Transport `%{name}` is already registered for `%{environment}`' % {
         name: schema[:name],
-        environment: @environment,
+        environment: current_environment,
       }
     end
-    @transports[@environment][schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
+    @transports[current_environment][schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
   end
   module_function :register # rubocop:disable Style/AccessModifierDeclarations
 
   # retrieve a Hash of transport schemas, keyed by their name.
   def list
     init_transports
-    Marshal.load(Marshal.dump(@transports[@environment]))
+    Marshal.load(Marshal.dump(@transports[current_environment]))
   end
   module_function :list # rubocop:disable Style/AccessModifierDeclarations
 
@@ -48,12 +48,12 @@ module Puppet::ResourceApi::Transport
 
   def self.validate(name, connection_info)
     init_transports
-    require "puppet/transport/schema/#{name}" unless @transports[@environment].key? name
-    transport_schema = @transports[@environment][name]
+    require "puppet/transport/schema/#{name}" unless @transports[current_environment].key? name
+    transport_schema = @transports[current_environment][name]
     if transport_schema.nil?
       raise Puppet::DevError, 'Transport for `%{target}` not registered with `%{environment}`' % {
         target: name,
-        environment: @environment,
+        environment: current_environment,
       }
     end
     message_prefix = 'The connection info provided does not match the Transport Schema'
@@ -64,24 +64,18 @@ module Puppet::ResourceApi::Transport
 
   def self.get_context(name)
     require 'puppet/resource_api/puppet_context'
-    Puppet::ResourceApi::PuppetContext.new(@transports[@environment][name])
+    Puppet::ResourceApi::PuppetContext.new(@transports[current_environment][name])
   end
   private_class_method :get_context
 
   def self.init_transports
-    lookup = Puppet.lookup(:current_environment) if Puppet.respond_to? :lookup
-    @environment =  if lookup.nil?
-                      :transports_default
-                    else
-                      lookup.name
-                    end
     @transports ||= {}
-    @transports[@environment] ||= {}
+    @transports[current_environment] ||= {}
   end
   private_class_method :init_transports
 
   def self.wrap_sensitive(name, connection_info)
-    transport_schema = @transports[@environment][name]
+    transport_schema = @transports[current_environment][name]
     if transport_schema
       transport_schema.definition[:connection_info].each do |attr_name, options|
         if options.key?(:sensitive) && (options[:sensitive] == true) && connection_info.key?(attr_name)
@@ -92,4 +86,14 @@ module Puppet::ResourceApi::Transport
     connection_info
   end
   private_class_method :wrap_sensitive
+
+  def self.current_environment
+    if Puppet.respond_to? :lookup
+      env = Puppet.lookup(:current_environment)
+      env.nil? ? :transports_default : env.name
+    else
+      :transports_default
+    end
+  end
+  private_class_method :current_environment
 end

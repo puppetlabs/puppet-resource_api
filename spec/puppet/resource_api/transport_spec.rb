@@ -113,27 +113,29 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
 
       context 'when a transports are added to multiple environments' do
-        it 'will record the schemas in the correct structure' do
-          change_environment(:wibble)
-          described_class.register(schema)
-          expect(described_class.instance_variable_get(:@transports)).to be_key(:wibble)
-          expect(described_class.instance_variable_get(:@transports)[:wibble][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(described_class.instance_variable_get(:@transports)[:wibble][schema[:name]].definition).to eq(schema)
+        let(:transports) { described_class.instance_variable_get(:@transports) }
 
-          change_environment(:foo)
+        it 'will record the schemas in the correct structure' do
+          change_environment(nil)
+          described_class.register(schema)
+          expect(transports).to have_key(:transports_default)
+          expect(transports[:transports_default][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(transports[:transports_default][schema[:name]].definition).to eq(schema)
+
+          change_environment('foo')
           described_class.register(schema)
           described_class.register(schema2)
-          expect(described_class.instance_variable_get(:@transports)).to be_key(:foo)
-          expect(described_class.instance_variable_get(:@transports)[:foo][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(described_class.instance_variable_get(:@transports)[:foo][schema[:name]].definition).to eq(schema)
-          expect(described_class.instance_variable_get(:@transports)[:foo][schema2[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(described_class.instance_variable_get(:@transports)[:foo][schema2[:name]].definition).to eq(schema2)
+          expect(transports).to have_key('foo')
+          expect(transports['foo'][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(transports['foo'][schema[:name]].definition).to eq(schema)
+          expect(transports['foo'][schema2[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(transports['foo'][schema2[:name]].definition).to eq(schema2)
 
           change_environment(:bar)
           described_class.register(schema3)
-          expect(described_class.instance_variable_get(:@transports)).to be_key(:bar)
-          expect(described_class.instance_variable_get(:@transports)[:bar][schema3[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(described_class.instance_variable_get(:@transports)[:bar][schema3[:name]].definition).to eq(schema3)
+          expect(transports).to have_key(:bar)
+          expect(transports[:bar][schema3[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
+          expect(transports[:bar][schema3[:name]].definition).to eq(schema3)
         end
       end
     end
