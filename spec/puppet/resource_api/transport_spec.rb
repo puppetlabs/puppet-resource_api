@@ -312,28 +312,6 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
   end
 
-  describe '#init_transports' do
-    context 'when there is not a current_environment' do
-      it 'will return the default transport environment name' do
-        change_environment
-
-        described_class.send :init_transports
-
-        expect(described_class.instance_variable_get(:@environment)).to eq(:transports_default)
-      end
-    end
-
-    context 'when there is a current_environment' do
-      it 'will return the set environment name' do
-        change_environment(:something)
-
-        described_class.send :init_transports
-
-        expect(described_class.instance_variable_get(:@environment)).to eq(:something)
-      end
-    end
-  end
-
   describe '#wrap_sensitive(name, connection_info)' do
     let(:schema) do
       {
