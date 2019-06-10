@@ -14,7 +14,6 @@ end
 require 'rspec/core/rake_task'
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  Rake::Task[:spec_prep].invoke
   # thanks to the fixtures/modules/ symlinks this needs to exclude fixture modules explicitely
   excludes = ['fixtures/**/*.rb,fixtures/modules/*/**/*.rb']
   if RUBY_PLATFORM == 'java'
@@ -24,12 +23,20 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.exclude_pattern = "spec/{#{excludes.join ','}}"
 end
 
+task :spec => :spec_prep
+
 namespace :spec do
   desc 'Run RSpec code examples with coverage collection'
   task :coverage do
     ENV['SIMPLECOV'] = 'yes'
     Rake::Task['spec'].execute
   end
+
+  RSpec::Core::RakeTask.new(:unit) do |t|
+    t.pattern = "spec/puppet/**/*_spec.rb,spec/integration/**/*_spec.rb"
+  end
+
+  task :unit => :spec_prep
 end
 
 #### LICENSE_FINDER ####
