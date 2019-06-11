@@ -239,31 +239,26 @@ Puppet::ResourceAPI.register_transport(
 
 ### Transport Schema keywords
 
-Please note that within the transport schema, the following keywords are reserved words:
+To align with [Bolt's inventory file](https://puppet.com/docs/bolt/latest/inventory_file.html), a transport schema prefers the following keywords (when relevant):
 
-#### Usable within the schema
+* `uri`: use when you need to specify a specific URL to connect to. Bolt will compute the following keys from the `uri` when possible. In the future more url parts may be computed from the URI.
+* `protocol`: use to specify which protocol the transport should use for example `http`, `https`, `ssh` or `tcp`.
+* `host`: use to specify an IP or address to connect to.
+* `port`: the port the transport should connect to.
+* `user`: the user the transport should connect as.
+* `password`: the password for the specified user.
 
-The following keywords are encouraged within the Transport schema:
+Do not use the following keywords when writing a schema:
 
-* `uri` - Use when you need to specify a specific URL to connect to. All of the following keys will be computed from the `uri` if possible. In the future more url parts may be computed from the URI as well.
-* `host` - Use to specify and IP or address to connect to.
-* `protocol` - Use to specify which protocol the transport should use for example `http`, `https`, `ssh` or `tcp`
-* `user` - The user the transport should connect as.
-* `port` - The port the transport should connect to.
+* `implementations`: reserved by Bolt.
+* `name`: transports should use `uri` instead of name.
+* `path`: reserved as a uri part.
+* `query`: reserved as a uri part.
+* `remote-*`: any key starting with `remote-` is reserved for future use.
+* `remote-transport`: determines which transport to load. It is always the transport class named "declassified".
+* `run-on`: Bolt uses this keyword to determine which target to proxy to. Transports should not rely on this key.
 
-#### Non-Usable within the schema
-
-The following keywords are keywords that must not be used by the transport schema:
-
-* `name` - transports should use `uri` instead of name.
-* `path` - reserved as a uri part
-* `query` - reserved as a uri part
-* `run-on` - This is used by bolt to determine which target to proxy to. Transports should not rely on this key.
-* `remote-transport` - This is used to determine which transport to load. It should always be the transport class name "declassified".
-* `remote-*` Any key starting with `remote-` is reserved for future use.
-* `implementations`: reserved by bolt
-
-Note: Currently bolt inventory requires that a name be set for every target and always uses that name as the URI. This means there is no way to specify `host` separately from the host section of the `name` when parsed as a URI.
+> Note: Bolt inventory requires you to set a name for every target and always use it for the URI. This means that there is no way to specify `host` separately from the host section of the `name` when parsed as a URI.
 
 After the device class, transport class and transport schema have been implemented, `puppet device` will be able to use the new provider, and supply it (through the device class) with the URL specified in the [`device.conf`](https://puppet.com/docs/puppet/5.3/config_file_device.html).
 

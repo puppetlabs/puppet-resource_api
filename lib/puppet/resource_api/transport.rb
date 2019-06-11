@@ -53,6 +53,11 @@ module Puppet::ResourceApi::Transport
         environment: current_environment,
       }
     end
+
+    if connection_info.key?(:"remote-transport")
+      clean_bolt_attributes(transport_schema, connection_info)
+    end
+
     message_prefix = 'The connection info provided does not match the Transport Schema'
     transport_schema.check_schema(connection_info, message_prefix)
     transport_schema.validate(connection_info)
@@ -93,4 +98,36 @@ module Puppet::ResourceApi::Transport
     end
   end
   private_class_method :current_environment
+
+  def self.clean_bolt_attributes(transport_schema, connection_info)
+    context = get_context(transport_schema.name)
+
+    # Attributes we expect from bolt, but want to ignore if the transport does not expect them
+    [:uri, :host, :protocol, :user, :port, :password].each do |attribute_name|
+      if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
+        context.info('Discarding superfluous bolt attribute: %{attribute_name}' % { attribute_name: attribute_name })
+        connection_info.delete(attribute_name)
+      end
+    end
+
+    # Attributes that bolt emits, but we want to ignore if the transport does not expect them
+    ([:name, :path, :query, :"run-on", :"remote-transport", :implementations] + connection_info.keys.select { |k| k.to_s.start_with? 'remote-' }).each do |attribute_name|
+      if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
+        context.debug('Discarding bolt metaparameter: %{attribute_name}' % { attribute_name: attribute_name })
+        connection_info.delete(attribute_name)
+      end
+    end
+
+    # remove any other attributes the transport is not prepared to handle
+    connection_info.keys.each do |attribute_name|
+      if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
+        context.warning('Discarding unknown attribute: %{attribute_name}' % { attribute_name: attribute_name })
+        connection_info.delete(attribute_name)
+      end
+    end
+
+    # don't return a value as we've already modified the hash
+    nil
+  end
+  private_class_method :clean_bolt_attributes
 end
