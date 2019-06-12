@@ -25,7 +25,10 @@ RSpec.describe Puppet::ResourceApi do
   context 'when registering a minimal type' do
     let(:definition) { { name: 'minimal', attributes: {} } }
 
-    it { expect { described_class.register_type(definition) }.not_to raise_error }
+    it {
+      expect(Puppet).to receive(:warning).with('`minimal` has no documentation, add it using a `desc` key')
+      described_class.register_type(definition)
+    }
 
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:minimal) }
@@ -40,10 +43,33 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when registering a type with both desc and docs key' do
+    let(:definition) { { name: 'both', desc: 'the desc', docs: 'the docs', attributes: {} } }
+
+    it {
+      expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, '`both` has both `desc` and `docs`, prefer using `desc`'
+    }
+  end
+
+  context 'when registering a type with a docs key' do
+    let(:definition) { { name: 'both', docs: 'the docs', attributes: {} } }
+
+    it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+    describe 'the registered type' do
+      subject(:type) { Puppet::Type.type(:both) }
+
+      it { is_expected.not_to be_nil }
+      it { is_expected.to be_respond_to :instances }
+      it { expect(type.instance_variable_get(:@docs)).to eq 'the docs' }
+    end
+  end
+
   context 'when registering a type with multiple attributes' do
     let(:definition) do
       {
         name: type_name,
+        desc: 'a test resource',
         attributes: {
           name: {
             type: 'String',
@@ -747,6 +773,7 @@ RSpec.describe Puppet::ResourceApi do
     let(:definition) do
       {
         name: 'init_behaviour',
+        desc: 'a test resource',
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
@@ -1172,7 +1199,7 @@ RSpec.describe Puppet::ResourceApi do
     context 'when loading a provider that doesn\'t create the correct class' do
       let(:definition) { { name: 'no_class', attributes: {} } }
 
-      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{Puppet::Provider::NoClass::NoClass} }
+      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{provider class Puppet::Provider::NoClass::NoClass not found} }
     end
 
     context 'when loading a provider that creates the correct class' do
@@ -1792,6 +1819,7 @@ CODE
     let(:definition) do
       {
         name: 'test_noop_support',
+        desc: 'a test resource',
         features: ['no such feature'],
         attributes: {},
       }
@@ -1808,6 +1836,7 @@ CODE
       let(:definition) do
         {
           name: 'test_behaviour',
+          desc: 'a test resource',
           attributes: {
             id: {
               type: 'String',
@@ -1824,6 +1853,7 @@ CODE
       let(:definition) do
         {
           name: 'test_behaviour',
+          desc: 'a test resource',
           attributes: {
             param: {
               type: 'String',
@@ -1840,6 +1870,7 @@ CODE
       let(:definition) do
         {
           name: 'test_behaviour',
+          desc: 'a test resource',
           attributes: {
             param_ro: {
               type: 'String',
@@ -1856,6 +1887,7 @@ CODE
       let(:definition) do
         {
           name: 'test_behaviour',
+          desc: 'a test resource',
           attributes: {
             param_ro: {
               type: 'String',
@@ -1872,6 +1904,7 @@ CODE
       let(:definition) do
         {
           name: 'test_behaviour',
+          desc: 'a test resource',
           attributes: {
             source: {
               type: 'String',

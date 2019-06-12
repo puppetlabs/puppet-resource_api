@@ -12,7 +12,7 @@ group :tests do
   # rubocop 0.58 throws when testing against ruby 2.1, so pin to the latest,
   # unless we're dealing with jruby...
   if RUBY_PLATFORM == 'java'
-    # load any rubocop version that works on java for the Rakefile
+    # load a rubocop version that works on java for the Rakefile
     gem 'parser', '2.3.3.1'
     gem 'rubocop', '0.41.2'
   elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.2.0')

@@ -13,7 +13,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     TestContext.new(definition)
   end
 
-  let(:definition_hash) { { name: 'some_resource', attributes: { name: { type: 'String', desc: 'message' } }, features: feature_support } }
+  let(:definition_hash) { { name: 'some_resource', desc: 'a test resource', attributes: { name: { type: 'String', desc: 'message' } }, features: feature_support } }
   let(:definition) { Puppet::ResourceApi::TypeDefinition.new(definition_hash) }
   let(:feature_support) { [] }
 
