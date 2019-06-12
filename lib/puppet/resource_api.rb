@@ -37,6 +37,16 @@ module Puppet::ResourceApi
     unknown_features = definition[:features] - supported_features
     Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
 
+    # fixup desc/docs backwards compatibility
+    if definition.key? :docs
+      if definition[:desc]
+        raise Puppet::DevError, '`%{name}` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] }
+      end
+      definition[:desc] = definition[:docs]
+      definition.delete(:docs)
+    end
+    Puppet.warning('`%{name}` has no documentation, add it using a `desc` key' % { name: definition[:name] }) unless definition.key? :desc
+
     # fixup any weird behavior  ;-)
     definition[:attributes].each do |name, attr|
       next unless attr[:behavior]
@@ -56,7 +66,7 @@ module Puppet::ResourceApi
     end
 
     Puppet::Type.newtype(definition[:name].to_sym) do
-      @docs = definition[:docs]
+      @docs = definition[:desc]
 
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
       define_singleton_method(:my_provider) do
