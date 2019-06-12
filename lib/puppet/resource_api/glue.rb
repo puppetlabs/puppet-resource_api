@@ -48,6 +48,10 @@ module Puppet::ResourceApi
       resource.to_json
     end
 
+    def to_hash
+      values
+    end
+
     # attribute names that are not title or namevars
     def filtered_keys
       values.keys.reject { |k| k == :title || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
