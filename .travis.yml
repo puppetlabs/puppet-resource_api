@@ -20,7 +20,7 @@ matrix:
       cache:
         bundler: true
         directories: ~/.rvm
-      before_install: rvm use jruby-1.7.26 --install --binary --fuzzy
+      before_install: rvm use jruby-1.7.26 --install --binary --fuzzy && gem install bundler -v '~> 1.7.0'
     # disable coverage on jruby9k as this confuses codecov
     - env: RVM="jruby-9.1.9.0" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug"
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
