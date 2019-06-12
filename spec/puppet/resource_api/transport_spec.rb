@@ -294,20 +294,50 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
     end
 
-    context 'when the transport being validated has been registered' do
-      let(:schema) { { name: 'validate', desc: 'a  minimal connection', connection_info: {} } }
+    context 'with a registered transport' do
+      let(:attributes) { {} }
+      let(:schema) { { name: 'validate', desc: 'a  minimal connection', connection_info: attributes } }
       let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
 
-      it 'validates the connection_info' do
+      before(:each) do
         allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
+        allow(schema_def).to receive(:attributes).with(no_args).and_return(attributes)
+        allow(schema_def).to receive(:name).with(no_args).and_return(schema[:name])
 
         described_class.register(schema)
+      end
 
+      it 'validates the connection_info' do
         expect(described_class).not_to receive(:require).with('puppet/transport/schema/validate')
-        expect(schema_def).to receive(:check_schema).with('connection_info', kind_of(String)).and_return(nil)
-        expect(schema_def).to receive(:validate).with('connection_info').and_return(nil)
+        expect(schema_def).to receive(:check_schema).with({}, kind_of(String)).and_return(nil)
+        expect(schema_def).to receive(:validate).with({}).and_return(nil)
 
-        described_class.send :validate, 'validate', 'connection_info'
+        described_class.send :validate, 'validate', {}
+      end
+
+      context 'when validating bolt _target information' do
+        let(:attributes) { { host: {}, foo: {} } }
+        let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
+
+        it 'cleans the connection_info' do
+          allow(described_class).to receive(:get_context).with('validate').and_return(context)
+
+          expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
+          expect(schema_def).to receive(:validate).with(host: 'host value', foo: 'foo value').and_return(nil)
+
+          expect(context).to receive(:debug).with('Discarding bolt metaparameter: query')
+          expect(context).to receive(:debug).with('Discarding bolt metaparameter: remote-transport')
+          expect(context).to receive(:debug).with('Discarding bolt metaparameter: remote-reserved')
+          expect(context).to receive(:info).with('Discarding superfluous bolt attribute: user')
+          expect(context).to receive(:warning).with('Discarding unknown attribute: bar')
+          described_class.send :validate, 'validate', :"remote-transport" => 'validate',
+                                                      :host => 'host value',
+                                                      :foo => 'foo value',
+                                                      :user => 'superfluous bolt value',
+                                                      :query => 'metaparameter value',
+                                                      :"remote-reserved" => 'reserved value',
+                                                      :bar => 'unknown attribute'
+        end
       end
     end
   end
