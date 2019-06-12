@@ -73,5 +73,9 @@ RSpec.describe 'the dirty bits' do
         it { expect(instance.to_hierayaml).to eq "  ? |-\n    foo:\n    bar\n  : attr: value\n    attr_ro: fixed\n" }
       end
     end
+
+    describe '.to_hash' do
+      it { expect(instance.to_hash).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
+    end
   end
 end
