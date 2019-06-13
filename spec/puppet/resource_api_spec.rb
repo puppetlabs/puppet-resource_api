@@ -1767,6 +1767,11 @@ CODE
       allow(provider_class).to receive(:new).and_return(provider)
     end
 
+    after(:each) do
+      # reset cached provider between tests
+      type.instance_variable_set(:@my_provider, nil)
+    end
+
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     it 'is seen as a supported feature' do
