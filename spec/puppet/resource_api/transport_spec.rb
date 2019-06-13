@@ -260,6 +260,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
     end
 
+    after(:each) do
+      Puppet::Util::NetworkDevice.instance_variable_set(:@current, nil)
+    end
+
     context 'when puppet has set_device' do
       it 'wraps the transport and calls set_device within NetworkDevice' do
         expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
