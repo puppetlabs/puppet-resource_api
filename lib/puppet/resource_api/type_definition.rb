@@ -101,10 +101,20 @@ module Puppet::ResourceApi
         }
       end
 
+      # fixup desc/docs backwards compatibility
+      if definition.key? :docs
+        if definition[:desc]
+          raise Puppet::DevError, '`%{name}` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] }
+        end
+        definition[:desc] = definition[:docs]
+        definition.delete(:docs)
+      end
+      Puppet.warning('`%{name}` has no documentation, add it using a `desc` key' % { name: definition[:name] }) unless definition.key? :desc
+
       attributes.each do |key, attr|
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` must be a Hash, not a #{attr.class}" unless attr.is_a? Hash
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` has no type" unless attr.key? :type
-        Puppet.warning("`#{definition[:name]}.#{key}` has no docs") unless attr.key? :desc
+        Puppet.warning('`%{name}.%{key}` has no documentation, add it using a `desc` key' % { name: definition[:name], key: key }) unless attr.key? :desc
 
         # validate the type by attempting to parse into a puppet type
         @data_type_cache[attributes[key][:type]] ||=
