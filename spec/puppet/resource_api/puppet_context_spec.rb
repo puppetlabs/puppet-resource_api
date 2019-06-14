@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Puppet::ResourceApi::PuppetContext do
   subject(:context) { described_class.new(definition) }
 
-  let(:definition) { { name: 'some_resource', attributes: {} } }
+  let(:definition) { { name: 'some_resource', desc: 'a test resource', attributes: {} } }
 
   describe '#device' do
     context 'when a NetworkDevice is configured' do

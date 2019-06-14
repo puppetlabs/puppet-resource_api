@@ -4,22 +4,27 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
   subject(:type) { described_class.new(definition, :attributes) }
 
   let(:definition) do
-    { name: 'some_resource', attributes: {
-      ensure:      {
-        type:    'Enum[present, absent]',
-        desc:    'Whether this resource should be present or absent on the target system.',
-        default: 'present',
+    {
+      name: 'some_resource',
+      desc: 'some desc',
+      attributes: {
+        ensure:      {
+          type:    'Enum[present, absent]',
+          desc:    'Whether this resource should be present or absent on the target system.',
+          default: 'present',
+        },
+        name:        {
+          type:      'String',
+          desc:      'The name of the resource you want to manage.',
+          behaviour: :namevar,
+        },
+        prop:        {
+          type:      'Integer',
+          desc:      'A mandatory property, that MUST NOT be validated on deleting.',
+        },
       },
-      name:        {
-        type:      'String',
-        desc:      'The name of the resource you want to manage.',
-        behaviour: :namevar,
-      },
-      prop:        {
-        type:      'Integer',
-        desc:      'A mandatory property, that MUST NOT be validated on deleting.',
-      },
-    }, features: feature_support }
+      features: feature_support,
+    }
   end
   let(:feature_support) { [] }
 
@@ -76,6 +81,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       let(:definition) do
         {
           name: 'some_transport',
+          desc: 'some desc',
           connection_info: {
             username:        {
               type:      'String',
@@ -215,17 +221,17 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       it { expect { type }.to raise_error Puppet::DevError, %r{has no type} }
     end
 
-    context 'when an attribute has no descrption' do
-      let(:definition) { { name: 'some_resource', attributes: { name: { type: 'String' } } } }
+    context 'when an attribute has no description' do
+      let(:definition) { { name: 'some_resource', desc: 'some desc', attributes: { name: { type: 'String' } } } }
 
       it 'Raises a warning message' do
-        expect(Puppet).to receive(:warning).with('`some_resource.name` has no docs')
+        expect(Puppet).to receive(:warning).with('`some_resource.name` has no documentation, add it using a `desc` key')
         type
       end
     end
 
     context 'when an attribute has an unsupported type' do
-      let(:definition) { { name: 'some_resource', attributes: { name: { type: 'basic' } } } }
+      let(:definition) { { name: 'some_resource', desc: 'some desc', attributes: { name: { type: 'basic' } } } }
 
       it { expect { type }.to raise_error %r{<basic> is not a valid type specification} }
     end

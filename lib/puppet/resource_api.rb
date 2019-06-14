@@ -35,7 +35,7 @@ module Puppet::ResourceApi
     end
 
     Puppet::Type.newtype(definition[:name].to_sym) do
-      @docs = definition[:docs]
+      @docs = definition[:desc]
       @type_definition = type_def
 
       # Keeps a copy of the provider around. Weird naming to avoid clashes with puppet's own `provider` member
