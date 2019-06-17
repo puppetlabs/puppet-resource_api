@@ -1814,22 +1814,29 @@ CODE
       allow(provider_class).to receive(:new).and_return(provider)
     end
 
+    after(:each) do
+      # reset cached provider between tests
+      type.instance_variable_set(:@my_provider, nil)
+    end
+
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
-    it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter})
-      expect { described_class.register_type(definition) }.not_to raise_error
-    end
+    context 'with the type registered' do
+      it 'is seen as a supported feature' do
+        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter})
+        expect { described_class.register_type(definition) }.not_to raise_error
+      end
 
-    it 'passes through the an empty array to `get`' do
-      expect(provider).to receive(:get).with(anything, []).and_return([])
-      type.instances
-    end
+      it 'passes through the an empty array to `get`' do
+        expect(provider).to receive(:get).with(anything, []).and_return([])
+        type.instances
+      end
 
-    it 'passes through the resource title to `get`' do
-      instance = type.new(name: 'bar', ensure: 'present')
-      expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
-      instance.retrieve
+      it 'passes through the resource title to `get`' do
+        instance = type.new(name: 'bar', ensure: 'present')
+        expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
+        instance.retrieve
+      end
     end
   end
 
