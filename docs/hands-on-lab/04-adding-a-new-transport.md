@@ -1,6 +1,6 @@
 # Add a new transport
 
-[Eventually](https://github.com/puppetlabs/pdk/pull/666) there will be a `pdk new transport`, for now you'll need to copy in a few files for this workshop.
+[Eventually](https://github.com/puppetlabs/pdk/pull/666) there will be a `pdk new transport` command. For now, you'll need to copy the files below.
 
 Copy the files from [this directory](./04-adding-a-new-transport/) into your new module:
 
@@ -11,7 +11,7 @@ Copy the files from [this directory](./04-adding-a-new-transport/) into your new
 * spec/unit/puppet/transport/hue_spec.rb
 * spec/unit/puppet/transport/schema/hue_spec.rb
 
-Afterwards run `pdk update --force` to enable a few future defaults that are required for these templates:
+Run `pdk update --force` to enable a few future defaults that are required for these templates:
 
 ```
 david@davids:~/tmp/hue$ pdk update --force
@@ -36,7 +36,7 @@ david@davids:~/tmp/hue$
 
 ## Checkpoint
 
-To make sure that everything went well with creating the module and copying in the files you can run `pdk validate --parallel` and `pdk test unit`:
+To validate your new module and transport, run `pdk validate --parallel` and `pdk test unit`:
 
 ```
 david@davids:~/tmp/hue$ pdk validate --parallel
@@ -62,7 +62,7 @@ Run options: exclude {:bolt=>true}
 david@davids:~/tmp/hue$
 ```
 
-If you're working with a version control system, this would also be a good point to make the first commit to store away all the boilerplate code and later revisit the changes you made. Here I'm showing how to initialise a local git repository and storing all files in an initial commit:
+If you're working with a version control system, now would be a good time to make your first commit and store the boilerplate code, and then you can revisit the changes you made later. For example: 
 
 ```
 david@davids:~/tmp/hue$ git init
@@ -102,4 +102,4 @@ david@davids:~/tmp/hue$
 
 ## Next up
 
-Once you have everything ready, head on to [implement the transport](./05-implementing-the-transport.md).
+Now that you have everything ready, you'll [implement the transport](./05-implementing-the-transport.md).

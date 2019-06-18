@@ -1,12 +1,12 @@
-# Implementing the Provider
+# Implementing the provider
 
-To expose resources from the HUE Hub to puppet, a type and provider define and implement the desired interactions. The *type*, like the transport schema, defines the shape of the data using Puppet Data Types. The implementation in the *provider* takes care of the communication and data transformation.
+To expose resources from the HUE Hub to Puppet, a type and provider define and implement the desired interactions. The *type*, like the transport schema, defines the shape of the data using Puppet data types. The implementation in the *provider* takes care of the communication and data transformation.
 
 For this hands on lab, we'll now go through implementing a simple `hue_light` type and provider to manage the state of the light bulbs connected to the HUE Hub.
 
 ## Generating the Boilerplate
 
-In your module directory, run `pdk new provider hue_light`. This will create another set of files with a bare-bones type and provider, as well as unit tests.
+In your module directory, run `pdk new provider hue_light`. This creates another set of files with a bare-bones type and provider, as well as unit tests.
 
 ```
 david@davids:~/tmp/hue_workshop$ pdk new provider hue_light
@@ -17,17 +17,17 @@ pdk (INFO): Creating '/home/david/tmp/hue_workshop/spec/unit/puppet/type/hue_lig
 david@davids:~/tmp/hue_workshop$
 ```
 
-## Defining the Type
+## Defining the type
 
 The type defines the attributes and allowed values, as well as a couple of other bits of information that concerns the processing of this provider.
 
-For remote resources like this, adding the `'remote_resource'` feature is necessary to alert puppet of its specific needs. Add the string to the existing `features` array.
+For remote resources like this, adding the `'remote_resource'` feature is necessary to alert Puppet of its specific needs. Add the string to the existing `features` array.
 
-Browsing through the Hub API (TODO: insert link), we can identify a few basic properties we want to manage:
+Browsing through the Hub API (TODO: insert link), we can identify a few basic properties we want to manage, for example:
 
-* whether the lamp is on or off
-* the colour of the light (hue and saturation)
-* the brightness of the light
+* Whether the lamp is on or off
+* The colour of the light (hue and saturation)
+* The brightness of the light
 
 To define the necessary attributes, insert the following snippet into the `attributes` hash, after the `name`:
 
@@ -54,11 +54,11 @@ DESC
 
 ## Implementing the Provider
 
-Every provider needs a `get` method, that returns a list of currently existing resources and their attributes from the remote target. For the HUE Hub, this is requires a call to the `lights` endpoint and some data transformation to the format puppet expects.
+Every provider needs a `get` method, that returns a list of currently existing resources and their attributes from the remote target. For the HUE Hub, this is requires a call to the `lights` endpoint and some data transformation to the format Puppet expects.
 
 ### Reading the state of the lights
 
-Replace the example `get` function in `lib/puppet/provider/hue_light/hue_light.rb` with the following snippet:
+Replace the example `get` function in `lib/puppet/provider/hue_light/hue_light.rb` with the following code:
 
 ```
   # @summary
@@ -81,7 +81,7 @@ Replace the example `get` function in `lib/puppet/provider/hue_light/hue_light.r
   end
 ```
 
-This method will return all connected lights from the HUE Hub and allow puppet to process those. To try this out, you need to setup a test configuration and then `puppet device` can be used to drive your testing.
+This method returns all connected lights from the HUE Hub and allows Puppet to process them. To try this out, you need to setup a test configuration and use `puppet device` to drive your testing.
 
 > TODO: explain steps to gain access to API keys for real device
 
@@ -147,7 +147,7 @@ The final step here is to implement enforcing the desired state of the lights. T
 
 For the HUE Hub API, we can remove the `create` and `delete` method. Since the attribute names and data definitions line up with the HUE Hub API, the `update` method is very short.
 
-Replace the `create`, `update`, and `delete` methods with this snippet:
+Replace the `create`, `update`, and `delete` methods with the following code:
 
 ```
   def update(context, name, should)
@@ -190,9 +190,9 @@ david@davids:~/git/hue_workshop$
 
 ## Exercise
 
-To round out the API support, add a `effect` attribute that defaults to `none`, but can be set to `colorloop`, and an `alert` attribute that defaults to `none` and can be set to `select`.
+To round out the API support, add an `effect` attribute that defaults to `none`, but can be set to `colorloop`, and an `alert` attribute that defaults to `none` and can be set to `select`.
 
-Note that this exercise will require exploring new data types and Resource API options.
+Note that this exercise requires exploring new data types and Resource API options.
 
 > TODO: add exercise hints
 

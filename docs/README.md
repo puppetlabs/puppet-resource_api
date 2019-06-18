@@ -1,7 +1,7 @@
 # Resource API hands-on lab
 
-This lab will walk you through the basic steps of creating a native integration with puppet. After this you will have a fully functioning module to manage Philips HUE lights and have seen all the bits fall into place.
+The Resource API hands-on lab walks you through creating a native integration with Puppet. After completely this lab, you will have a fully functioning module to manage Philips HUE lights.
 
-These labs are intended for new and experienced developers alike. Please post feedback and suggestions for improvement in the [issues section](https://github.com/puppetlabs/puppet-resource_api/issues).
+>Note: These labs are intended for both new and experienced developers. If you have any feedback or suggestions for improvement, post it in the [issues section](https://github.com/puppetlabs/puppet-resource_api/issues).
 
-Start with [installing the Puppet Development Kit](./hands-on-lab/01-installing-prereqs.md)
+To start with, we'll go through [installing Puppet Development Kit](./hands-on-lab/01-installing-prereqs.md)(PDK).
