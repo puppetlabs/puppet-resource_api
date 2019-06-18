@@ -131,6 +131,10 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         Puppet.settings[:strict] = strict_level
       end
 
+      after(:each) do
+        Puppet::ResourceApi.warning_count = 0
+      end
+
       context 'when puppet strict is set to default (warning)' do
         it 'displays up to 100 warnings' do
           expect(Puppet).to receive(:warning).with(message).exactly(100).times
@@ -166,6 +170,10 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       before(:each) do
         Puppet::ResourceApi.warning_count = 0
         Puppet.settings[:strict] = strict_level
+      end
+
+      after(:each) do
+        Puppet::ResourceApi.warning_count = 0
       end
 
       context 'when puppet strict is set to default (warning)' do
