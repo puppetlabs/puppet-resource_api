@@ -27,13 +27,7 @@ class Puppet::ResourceApi::TypeDefinition
 
   # rubocop complains when this is named has_feature?
   def feature?(feature)
-    supported = (definition[:features] && definition[:features].include?(feature))
-    if supported
-      Puppet.debug("#{definition[:name]} supports `#{feature}`")
-    else
-      Puppet.debug("#{definition[:name]} does not support `#{feature}`")
-    end
-    supported
+    (definition[:features] && definition[:features].include?(feature))
   end
 
   # validates a resource hash against its type schema
