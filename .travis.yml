@@ -14,8 +14,8 @@ branches:
 matrix:
   include:
     - rvm: 2.4.3
-      env: PUPPET_GEM_VERSION='~> 5' COVERAGE=yes # 5.5
-    - env: RVM="jruby-1.7.26" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug" COVERAGE=yes
+      env: PUPPET_GEM_VERSION='~> 5' SIMPLECOV=yes # 5.5
+    - env: RVM="jruby-1.7.26" PUPPET_GEM_VERSION='~> 5' JRUBY_OPTS="--debug" SIMPLECOV=yes
       before_cache: pushd ~/.rvm && rm -rf archives rubies/ruby-2.2.7 rubies/ruby-2.3.4 && popd
       cache:
         bundler: true
@@ -45,7 +45,7 @@ matrix:
     - rvm: 2.4.1
       env: PUPPET_GEM_VERSION='~> 5.0.0'
     - rvm: 2.1.9
-      env: PUPPET_GEM_VERSION='~> 4'  COVERAGE=yes # 4.10
+      env: PUPPET_GEM_VERSION='~> 4'  SIMPLECOV=yes # 4.10
       before_install:
         - gem install bundler -v '< 2'
     - rvm: 2.1.9
