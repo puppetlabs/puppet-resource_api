@@ -30,3 +30,14 @@ require 'puppet/resource_api'
 
 # exclude the `version.rb` which already gets loaded by bundler via the gemspec, and doesn't need coverage testing anyways.
 SimpleCov.add_filter 'lib/puppet/resource_api/version.rb' if ENV['SIMPLECOV'] == 'yes'
+
+# configure this hook after Resource API is loaded to get access to Puppet::ResourceApi::Transport
+RSpec.configure do |config|
+  config.after(:each) do
+    # reset registered transports between tests to reduce cross-test poisoning
+    Puppet::ResourceApi::Transport.instance_variable_set(:@transports, nil)
+    if (autoloader = Puppet::ResourceApi::Transport.instance_variable_get(:@autoloader))
+      autoloader.class.loaded.clear
+    end
+  end
+end

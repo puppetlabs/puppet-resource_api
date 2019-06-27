@@ -1,13 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe 'Resource API Transport integration tests:' do
-  after(:each) do
-    # reset registered transports between tests to reduce cross-test poisoning
-    Puppet::ResourceApi::Transport.instance_variable_set(:@transports, nil)
-    autoloader = Puppet::ResourceApi::Transport.instance_variable_get(:@autoloader)
-    autoloader.class.loaded.clear
-  end
-
   describe '#list_all_transports' do
     subject(:transports) { Puppet::ResourceApi::Transport.list_all_transports('rp_env') }
 
