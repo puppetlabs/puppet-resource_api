@@ -20,10 +20,34 @@ module Puppet::ResourceApi::Transport
   module_function :register # rubocop:disable Style/AccessModifierDeclarations
 
   # retrieve a Hash of transport schemas, keyed by their name.
+  # Only already loaded transports are returned.
   def list
     Marshal.load(Marshal.dump(transports))
   end
   module_function :list # rubocop:disable Style/AccessModifierDeclarations
+
+  # retrieve a Hash of transport schemas, keyed by their name.
+  # This uses the Puppet autoloader, provide a  environment name as `force_environment`
+  # to choose where to load from.
+  # @api private
+  def list_all_transports(force_environment)
+    env = Puppet.lookup(:environments).get!(force_environment)
+    Puppet.override({ current_environment: env }, 'current env for list_all_transports') do
+      load_all_schemas
+      Marshal.load(Marshal.dump(transports))
+    end
+  end
+  module_function :list_all_transports # rubocop:disable Style/AccessModifierDeclarations
+
+  # Loads all schemas using the Puppet Autoloader.
+  def self.load_all_schemas
+    require 'puppet'
+    require 'puppet/settings'
+    require 'puppet/util/autoload'
+    @autoloader ||= Puppet::Util::Autoload.new(self, 'puppet/transport/schema')
+    @autoloader.loadall(Puppet.lookup(:current_environment))
+  end
+  private_class_method :load_all_schemas
 
   def connect(name, connection_info)
     validate(name, connection_info)

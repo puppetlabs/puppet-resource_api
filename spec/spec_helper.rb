@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'rspec-puppet'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -13,6 +14,9 @@ RSpec.configure do |config|
 
   # override legacy default from puppetlabs_spec_helper
   config.mock_with :rspec
+
+  # enable rspec-puppet support everywhere
+  config.include RSpec::Puppet::Support
 
   # reset the warning suppression count
   config.before(:each) do
