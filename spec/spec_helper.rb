@@ -1,36 +1,4 @@
-if ENV['COVERAGE'] == 'yes'
-  require 'simplecov'
-  require 'simplecov-console'
-  require 'codecov'
-
-  SimpleCov.formatters = [
-    SimpleCov::Formatter::HTMLFormatter,
-    SimpleCov::Formatter::Console,
-    SimpleCov::Formatter::Codecov,
-  ]
-  SimpleCov.start do
-    track_files 'lib/**/*.rb'
-
-    add_filter 'lib/puppet/resource_api/version.rb'
-
-    add_filter '/spec'
-
-    # do not track vendored files
-    add_filter '/vendor'
-    add_filter '/.vendor'
-
-    # do not track gitignored files
-    # this adds about 4 seconds to the coverage check
-    # this could definitely be optimized
-    add_filter do |f|
-      # system returns true if exit status is 0, which with git-check-ignore means file is ignored
-      system("git check-ignore --quiet #{f.filename}")
-    end
-  end
-end
-
 require 'bundler/setup'
-require 'puppet/resource_api'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -47,4 +15,9 @@ RSpec.configure do |config|
   config.mock_with :rspec
 end
 
+# load puppet spec support and coverage setup before loading our code
 require 'puppetlabs_spec_helper/module_spec_helper'
+require 'puppet/resource_api'
+
+# exclude the `version.rb` which already gets loaded by bundler via the gemspec, and doesn't need coverage testing anyways.
+SimpleCov.add_filter 'lib/puppet/resource_api/version.rb' if ENV['SIMPLECOV'] == 'yes'

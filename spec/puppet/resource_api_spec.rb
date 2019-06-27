@@ -1782,7 +1782,7 @@ CODE
   context 'with a `simple_get_filter` provider', agent_test: true do
     let(:definition) do
       {
-        name: 'test_simple_get_filter',
+        name: 'test_simple_get_filter_2',
         features: ['simple_get_filter'],
         attributes:   {
           ensure:      {
@@ -1796,7 +1796,7 @@ CODE
         },
       }
     end
-    let(:type) { Puppet::Type.type(:test_simple_get_filter) }
+    let(:type) { Puppet::Type.type(:test_simple_get_filter_2) }
     let(:provider_class) do
       Class.new do
         def get(_context, _names = nil)
@@ -1806,11 +1806,11 @@ CODE
         def set(_context, changes) end
       end
     end
-    let(:provider) { instance_double('Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter', 'provider') }
+    let(:provider) { instance_double('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', 'provider') }
 
     before(:each) do
-      stub_const('Puppet::Provider::TestSimpleGetFilter', Module.new)
-      stub_const('Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter', provider_class)
+      stub_const('Puppet::Provider::TestSimpleGetFilter2', Module.new)
+      stub_const('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
     end
 
@@ -1823,7 +1823,7 @@ CODE
 
     context 'with the type registered' do
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter})
+        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter_2})
         expect { described_class.register_type(definition) }.not_to raise_error
       end
 
