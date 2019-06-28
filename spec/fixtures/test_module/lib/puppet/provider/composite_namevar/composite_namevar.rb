@@ -14,7 +14,8 @@ class Puppet::Provider::CompositeNamevar::CompositeNamevar < Puppet::ResourceApi
     ]
   end
 
-  def get(_context)
+  def get(context, names = nil)
+    context.notice("Looking for #{names.inspect}")
     @current_values
   end
 
