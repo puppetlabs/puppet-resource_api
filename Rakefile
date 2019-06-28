@@ -19,6 +19,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   if RUBY_PLATFORM == 'java'
     excludes += ['acceptance/**/*.rb', 'integration/**/*.rb', 'puppet/resource_api/*_context_spec.rb', 'puppet/util/network_device/simple/device_spec.rb']
     t.rspec_opts = '--tag ~agent_test'
+    t.rspec_opts << ' --tag ~j17_exclude' if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.0.0')
   end
   t.exclude_pattern = "spec/{#{excludes.join ','}}"
 end

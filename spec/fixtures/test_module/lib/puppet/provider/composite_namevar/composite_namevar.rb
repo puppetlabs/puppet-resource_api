@@ -1,7 +1,7 @@
 require 'puppet/resource_api'
 require 'puppet/resource_api/simple_provider'
 
-# Implementation for the title_provider type using the Resource API.
+# Implementation for the composite_namevar type using the Resource API.
 class Puppet::Provider::CompositeNamevar::CompositeNamevar < Puppet::ResourceApi::SimpleProvider
   def initialize
     @current_values ||= [

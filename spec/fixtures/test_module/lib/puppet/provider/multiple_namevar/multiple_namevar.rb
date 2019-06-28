@@ -4,12 +4,12 @@ require 'puppet/resource_api'
 class Puppet::Provider::MultipleNamevar::MultipleNamevar
   def initialize
     @current_values ||= [
-      { package: 'php', manager: 'yum', ensure: 'present' },
-      { package: 'php', manager: 'gem', ensure: 'present' },
-      { package: 'mysql', manager: 'yum', ensure: 'present' },
-      { package: 'mysql', manager: 'gem', ensure: 'present' },
-      { package: 'foo', manager: 'bar', ensure: 'present' },
-      { package: 'bar', manager: 'foo', ensure: 'present' },
+      { title: 'php-yum', package: 'php', manager: 'yum', ensure: 'present' },
+      { title: 'php-gem', package: 'php', manager: 'gem', ensure: 'present' },
+      { title: 'mysql-yum', package: 'mysql', manager: 'yum', ensure: 'present' },
+      { title: 'mysql-gem', package: 'mysql', manager: 'gem', ensure: 'present' },
+      { title: 'foo-bar', package: 'foo', manager: 'bar', ensure: 'present' },
+      { title: 'bar-foo', package: 'bar', manager: 'foo', ensure: 'present' },
     ]
   end
 
