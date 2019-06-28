@@ -1,4 +1,5 @@
 module Puppet; end # rubocop:disable Style/Documentation
+
 module Puppet::ResourceApi
   # This class provides a default implementation for set(), when your resource does not benefit from batching.
   # Instead of processing changes yourself, the `create`, `update`, and `delete` functions, are called for you,
@@ -19,12 +20,12 @@ module Puppet::ResourceApi
 
         raise 'SimpleProvider cannot be used with a Type that is not ensurable' unless context.type.ensurable?
 
-        is = { name: name, ensure: 'absent' } if is.nil?
-        should = { name: name, ensure: 'absent' } if should.nil?
+        is = SimpleProvider.create_absent(:name, name) if is.nil?
+        should = SimpleProvider.create_absent(:name, name) if should.nil?
 
         name_hash = if context.type.namevars.length > 1
                       # pass a name_hash containing the values of all namevars
-                      name_hash = { title: name }
+                      name_hash = {}
                       context.type.namevars.each do |namevar|
                         name_hash[namevar] = change[:should][namevar]
                       end
@@ -59,6 +60,17 @@ module Puppet::ResourceApi
 
     def delete(_context, _name)
       raise "#{self.class} has not implemented `delete`"
+    end
+
+    # @api private
+    def self.create_absent(namevar, title)
+      result = if title.is_a? Hash
+                 title.dup
+               else
+                 { namevar => title }
+               end
+      result[:ensure] = 'absent'
+      result
     end
   end
 end

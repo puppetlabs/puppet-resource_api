@@ -214,33 +214,26 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
   end
 
-  context 'with a type with multiple namevars' do
-    let(:should_values) { { name: 'title', parent: 'foo', wibble: 'wub', ensure: 'present' } }
-    let(:title) { 'foo#wub' }
+  context 'with changes from a composite namevar type' do
     let(:changes) do
-      { title =>
-        {
-          should: should_values,
-        } }
-    end
-    let(:name_hash) do
       {
-        title: title,
-        parent: 'foo',
-        wibble: 'wub',
+        { name1: 'value1', name2: 'value2' } =>
+          {
+            should: { name1: 'value1', name2: 'value2', ensure: 'present' },
+          },
       }
     end
 
     before(:each) do
-      allow(context).to receive(:creating).with(title).and_yield
-      allow(context).to receive(:type).and_return(type_def)
-      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(context).to receive(:creating).with(name1: 'value1', name2: 'value2').and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
+      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:parent, :wibble])
     end
 
-    it 'calls create once' do
-      expect(provider).to receive(:create).with(context, name_hash, should_values).once
+    it 'calls the crud methods with the right title' do
+      expect(provider).to receive(:create).with(context, { name1: 'value1', name2: 'value2' }, hash_including(name1: 'value1'))
+
       provider.set(context, changes)
     end
   end
