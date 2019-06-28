@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'rspec-puppet'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -14,6 +15,9 @@ RSpec.configure do |config|
   # override legacy default from puppetlabs_spec_helper
   config.mock_with :rspec
 
+  # enable rspec-puppet support everywhere
+  config.include RSpec::Puppet::Support
+
   # reset the warning suppression count
   config.before(:each) do
     Puppet::ResourceApi.warning_count = 0
@@ -26,3 +30,14 @@ require 'puppet/resource_api'
 
 # exclude the `version.rb` which already gets loaded by bundler via the gemspec, and doesn't need coverage testing anyways.
 SimpleCov.add_filter 'lib/puppet/resource_api/version.rb' if ENV['SIMPLECOV'] == 'yes'
+
+# configure this hook after Resource API is loaded to get access to Puppet::ResourceApi::Transport
+RSpec.configure do |config|
+  config.after(:each) do
+    # reset registered transports between tests to reduce cross-test poisoning
+    Puppet::ResourceApi::Transport.instance_variable_set(:@transports, nil)
+    if (autoloader = Puppet::ResourceApi::Transport.instance_variable_get(:@autoloader))
+      autoloader.class.loaded.clear
+    end
+  end
+end

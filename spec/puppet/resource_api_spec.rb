@@ -1847,7 +1847,7 @@ CODE
   context 'when loading a type with unknown features' do
     let(:definition) do
       {
-        name: 'test_noop_support',
+        name: 'test_noop_support_2',
         desc: 'a test resource',
         features: ['no such feature'],
         attributes: {},
