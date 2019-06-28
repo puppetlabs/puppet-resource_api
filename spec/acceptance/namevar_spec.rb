@@ -24,11 +24,12 @@ RSpec.describe 'a type with multiple namevars' do
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
       expect(status).to eq 0
     end
-    it 'returns the match if title matches a namevar value' do
-      stdout_str, status = Open3.capture2e("puppet resource #{common_args} multiple_namevar php")
-      expect(stdout_str.strip).to match %r{^multiple_namevar \{ \'php\'}
+    it 'returns the match if title matches a title value' do
+      stdout_str, status = Open3.capture2e("puppet resource #{common_args} multiple_namevar php-gem")
+      expect(stdout_str.strip).to match %r{^multiple_namevar \{ \'php-gem\'}
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
       expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
+      expect(stdout_str.strip).to match %r{manager\s*=> \'gem\'}
       expect(status).to eq 0
     end
     it 'creates a previously absent resource if all namevars are provided' do

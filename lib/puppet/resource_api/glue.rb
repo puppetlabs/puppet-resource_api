@@ -57,4 +57,19 @@ module Puppet::ResourceApi
       values.keys.reject { |k| k == :title || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
     end
   end
+
+  # this hash allows key-value based ordering comparisons between instances of this and instances of this and other classes
+  # this is required for `lib/puppet/indirector/resource/ral.rb`'s `search` method which expects all titles to be comparable
+  class MonkeyHash < Hash
+    def <=>(other)
+      result = self.class.name <=> other.class.name
+      if result.zero?
+        result = keys.sort <=> other.keys.sort
+      end
+      if result.zero?
+        result = keys.sort.map { |k| self[k] } <=> other.keys.sort.map { |k| other[k] }
+      end
+      result
+    end
+  end
 end

@@ -7,11 +7,26 @@ RSpec.describe 'Resource API integrated tests:' do
     let(:definition) do
       {
         name: 'integration',
+        title_patterns: [
+          {
+            pattern: %r{^(?<name>.*[^-])-(?<name2>.*)$},
+            desc: 'Where the name and the name2 are provided with a hyphen separator',
+          },
+          {
+            pattern: %r{^(?<name>.*)$},
+            desc: 'Where only the name is provided',
+          },
+        ],
         attributes: {
           name: {
             type: 'String',
             behaviour: :namevar,
             desc: 'the title',
+          },
+          name2: {
+            type: 'String',
+            behaviour: :namevar,
+            desc: 'the other title',
           },
           string: {
             type: 'String',
@@ -170,7 +185,18 @@ RSpec.describe 'Resource API integrated tests:' do
       s = setter
       Class.new do
         def get(_context)
-          []
+          [
+            {
+              name: 'foo',
+              name2: 'bar',
+              title: 'foo-bar',
+            },
+            {
+              name: 'foo2',
+              name2: 'bar2',
+              title: 'foo2-bar2',
+            },
+          ]
         end
 
         attr_reader :last_changes
@@ -198,7 +224,7 @@ RSpec.describe 'Resource API integrated tests:' do
       # See spec/acceptance/metaparam_spec.rb for more in-depth testing with a full puppet apply
       let(:catalog) { instance_double('Puppet::Resource::Catalog', 'catalog') }
       let(:instance) do
-        type.new(name: 'somename', ensure: 'present', boolean: true, integer: 15, float: 1.23,
+        type.new(name: 'somename', name2: 'othername', ensure: 'present', boolean: true, integer: 15, float: 1.23,
                  variant_pattern: '0x1234ABCD', url: 'http://www.google.com', sensitive: Puppet::Pops::Types::PSensitiveType::Sensitive.new('a password'),
                  string_array: %w[a b c],
                  variant_array: 'not_an_array', array_of_arrays: [%w[a b c], %w[d e f]],
@@ -225,7 +251,7 @@ RSpec.describe 'Resource API integrated tests:' do
         end
 
         it 'can serialize to json' do
-          expect({ 'resources' => [instance.to_resource] }.to_json).to eq '{"resources":[{"somename":{"ensure":"absent","boolean_param":false,"integer_param":99,"float_param":3.21,"ensure_param":"present","variant_pattern_param":"1234ABCD","url_param":"http://www.puppet.com","string_array_param":"d","e":"f","string_param":"default value"}}]}' # rubocop:disable Metrics/LineLength
+          expect({ 'resources' => [instance.to_resource] }.to_json).to eq '{"resources":[{"somename":{"name":"somename","name2":"othername","ensure":"absent","boolean_param":false,"integer_param":99,"float_param":3.21,"ensure_param":"present","variant_pattern_param":"1234ABCD","url_param":"http://www.puppet.com","string_array_param":"d","e":"f","string_param":"default value"}}]}' # rubocop:disable Metrics/LineLength
         end
       end
 

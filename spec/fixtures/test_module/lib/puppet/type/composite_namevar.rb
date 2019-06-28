@@ -5,6 +5,7 @@ Puppet::ResourceApi.register_type(
   docs: <<-DOC,
     This type provides Puppet with the capabilities to manage ...
   DOC
+  features: [ 'simple_get_filter' ],
   title_patterns: [
     {
       pattern: %r{^(?<package>.*[^-])-(?<manager>.*)$},
@@ -13,6 +14,10 @@ Puppet::ResourceApi.register_type(
     {
       pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
       desc: 'Where the package and the manager are provided with a forward slash separator',
+    },
+    {
+      pattern: %r{^(?<package>[a-z]*[^/])$},
+      desc: 'Fallback pattern where only the package is provided',
     },
   ],
   attributes:   {

@@ -66,7 +66,7 @@ module Puppet::ResourceApi
         apply_to_device
       end
 
-      define_method(:initialize) do |attributes|
+      def initialize(attributes)
         # $stderr.puts "A: #{attributes.inspect}"
         if attributes.is_a? Puppet::Resource
           @title = attributes.title
@@ -94,7 +94,7 @@ module Puppet::ResourceApi
         # the `Puppet::Resource::Ral.find` method, when `instances` does not return a match, uses a Hash with a `:name` key to create
         # an "absent" resource. This is often hit by `puppet resource`. This needs to work, even if the namevar is not called `name`.
         # This bit here relies on the default `title_patterns` (see below) to match the title back to the first (and often only) namevar
-        if definition[:attributes][:name].nil? && attributes[:title].nil?
+        if type_definition.attributes[:name].nil? && attributes[:title].nil?
           attributes[:title] = attributes.delete(:name)
           if attributes[:title].nil? && !type_definition.namevars.empty?
             attributes[:title] = @title
@@ -108,11 +108,25 @@ module Puppet::ResourceApi
         title
       end
 
+      def self.build_title(type_definition, resource_hash)
+        if type_definition.namevars.size > 1
+          # use a MonkeyHash to allow searching in Puppet's RAL
+          Puppet::ResourceApi::MonkeyHash[type_definition.namevars.map { |attr| [attr, resource_hash[attr]] }]
+        else
+          resource_hash[type_definition.namevars[0]]
+        end
+      end
+
+      def rsapi_title
+        @rsapi_title ||= self.class.build_title(type_definition, self)
+        @rsapi_title
+      end
+
       def to_resource
         to_resource_shim(super)
       end
 
-      define_method(:to_resource_shim) do |resource|
+      def to_resource_shim(resource)
         resource_hash = Hash[resource.keys.map { |k| [k, resource[k]] }]
         resource_hash[:title] = resource.title
         ResourceShim.new(resource_hash, type_definition.name, type_definition.namevars, type_definition.attributes, catalog)
@@ -213,7 +227,7 @@ module Puppet::ResourceApi
         end
       end
 
-      define_singleton_method(:instances) do
+      def self.instances
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
@@ -230,16 +244,16 @@ module Puppet::ResourceApi
           result = if resource_hash.key? :title
                      new(title: resource_hash[:title])
                    else
-                     new(title: resource_hash[type_definition.namevars.first])
+                     new(title: build_title(type_definition, resource_hash))
                    end
           result.cache_current_state(resource_hash)
           result
         end
       end
 
-      define_method(:refresh_current_state) do
+      def refresh_current_state
         @rsapi_current_state = if type_definition.feature?('simple_get_filter')
-                                 my_provider.get(context, [title]).find { |h| namevar_match?(h) }
+                                 my_provider.get(context, [rsapi_title]).find { |h| namevar_match?(h) }
                                else
                                  my_provider.get(context).find { |h| namevar_match?(h) }
                                end
@@ -248,7 +262,11 @@ module Puppet::ResourceApi
           type_definition.check_schema(@rsapi_current_state)
           strict_check(@rsapi_current_state) if type_definition.feature?('canonicalize')
         else
-          @rsapi_current_state = { title: title }
+          @rsapi_current_state = if rsapi_title.is_a? Hash
+                                   rsapi_title.dup
+                                 else
+                                   { title: rsapi_title }
+                                 end
           @rsapi_current_state[:ensure] = :absent if type_definition.ensurable?
         end
       end
@@ -259,7 +277,7 @@ module Puppet::ResourceApi
         strict_check(@rsapi_current_state) if type_definition.feature?('canonicalize')
       end
 
-      define_method(:retrieve) do
+      def retrieve
         refresh_current_state unless @rsapi_current_state
 
         Puppet.debug("Current State: #{@rsapi_current_state.inspect}")
@@ -273,13 +291,13 @@ module Puppet::ResourceApi
         result
       end
 
-      define_method(:namevar_match?) do |item|
+      def namevar_match?(item)
         context.type.namevars.all? do |namevar|
           item[namevar] == @parameters[namevar].value if @parameters[namevar].respond_to? :value
         end
       end
 
-      define_method(:flush) do
+      def flush
         raise_missing_attrs
 
         # puts 'flush'
@@ -297,7 +315,7 @@ module Puppet::ResourceApi
         # enforce init_only attributes
         if Puppet.settings[:strict] != :off && @rsapi_current_state && (@rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
-            next unless definition[:attributes][name][:behaviour] == :init_only && value != @rsapi_current_state[name]
+            next unless type_definition.attributes[name][:behaviour] == :init_only && value != @rsapi_current_state[name]
             message = "Attempting to change `#{name}` init_only attribute value from `#{@rsapi_current_state[name]}` to `#{value}`"
             case Puppet.settings[:strict]
             when :warning
@@ -309,9 +327,9 @@ module Puppet::ResourceApi
         end
 
         if type_definition.feature?('supports_noop')
-          my_provider.set(context, { title => { is: @rsapi_current_state, should: target_state } }, noop: noop?)
+          my_provider.set(context, { rsapi_title => { is: @rsapi_current_state, should: target_state } }, noop: noop?)
         else
-          my_provider.set(context, title => { is: @rsapi_current_state, should: target_state }) unless noop?
+          my_provider.set(context, rsapi_title => { is: @rsapi_current_state, should: target_state }) unless noop?
         end
         raise 'Execution encountered an error' if context.failed?
 
@@ -319,17 +337,17 @@ module Puppet::ResourceApi
         @rsapi_current_state = target_state
       end
 
-      define_method(:raise_missing_attrs) do
+      def raise_missing_attrs
         error_msg = "The following mandatory attributes were not provided:\n    *  " + @missing_attrs.join(", \n    *  ")
         raise Puppet::ResourceError, error_msg if @missing_attrs.any? && (value(:ensure) != :absent && !value(:ensure).nil?)
       end
 
-      define_method(:raise_missing_params) do
+      def raise_missing_params
         error_msg = "The following mandatory parameters were not provided:\n    *  " + @missing_params.join(", \n    *  ")
         raise Puppet::ResourceError, error_msg
       end
 
-      define_method(:strict_check) do |current_state|
+      def strict_check(current_state)
         return if Puppet.settings[:strict] == :off
 
         # if strict checking is on we must notify if the values are changed by canonicalize
@@ -343,7 +361,7 @@ module Puppet::ResourceApi
         #:nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
         message = <<MESSAGE.strip
-#{definition[:name]}[#{@title}]#get has not provided canonicalized values.
+#{type_definition.name}[#{@title}]#get has not provided canonicalized values.
 Returned values:       #{current_state.inspect}
 Canonicalized values:  #{state_clone.inspect}
 MESSAGE
@@ -356,7 +374,7 @@ MESSAGE
           raise Puppet::DevError, message
         end
 
-        return nil
+        nil
       end
 
       define_singleton_method(:context) do
@@ -367,9 +385,9 @@ MESSAGE
         self.class.context
       end
 
-      define_singleton_method(:title_patterns) do
-        @title_patterns ||= if definition.key? :title_patterns
-                              parse_title_patterns(definition[:title_patterns])
+      def self.title_patterns
+        @title_patterns ||= if type_definition.definition.key? :title_patterns
+                              parse_title_patterns(type_definition.definition[:title_patterns])
                             else
                               [[%r{(.*)}m, [[type_definition.namevars.first]]]]
                             end

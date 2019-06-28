@@ -1052,7 +1052,9 @@ RSpec.describe Puppet::ResourceApi do
       }
     end
 
-    it { expect { described_class.register_type(definition) }.not_to raise_error }
+    before(:each) do
+      described_class.register_type(definition)
+    end
 
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:composite) }
@@ -1061,7 +1063,7 @@ RSpec.describe Puppet::ResourceApi do
       it { expect(type.parameters).to eq [:package, :manager] }
     end
 
-    describe 'an instance of the type' do
+    describe 'the type\'s class' do
       let(:provider_class) do
         Class.new do
           def get(_context)
@@ -1071,33 +1073,54 @@ RSpec.describe Puppet::ResourceApi do
           def set(_context, _changes); end
         end
       end
-      let(:instance) { Puppet::Type.type(:composite) }
+      let(:type_class) { Puppet::Type.type(:composite) }
 
       before(:each) do
         stub_const('Puppet::Provider::Composite', Module.new)
         stub_const('Puppet::Provider::Composite::Composite', provider_class)
       end
 
-      context 'when title_patterns called' do
+      describe '.title_patterns' do
         it 'returns correctly generated pattern' do
           # [[ %r{^(?<package>.*[^/])/(?<manager>.*)$},[[:package],[:manager]]],[%r{^(?<package>.*)$},[[:package]]]]
 
-          expect(instance.title_patterns.first[0]).to be_a Regexp
-          expect(instance.title_patterns.first[0]).to eq(%r{^(?<package>.*[^/])/(?<manager>.*)$})
-          expect(instance.title_patterns.first[1].size).to eq 2
-          expect(instance.title_patterns.first[1][0][0]).to eq :package
-          expect(instance.title_patterns.first[1][1][0]).to eq :manager
+          expect(type_class.title_patterns.first[0]).to be_a Regexp
+          expect(type_class.title_patterns.first[0]).to eq(%r{^(?<package>.*[^/])/(?<manager>.*)$})
+          expect(type_class.title_patterns.first[1].size).to eq 2
+          expect(type_class.title_patterns.first[1][0][0]).to eq :package
+          expect(type_class.title_patterns.first[1][1][0]).to eq :manager
 
-          expect(instance.title_patterns.last[0]).to be_a Regexp
-          expect(instance.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
-          expect(instance.title_patterns.last[1].size).to eq 1
-          expect(instance.title_patterns.last[1][0][0]).to eq :package
+          expect(type_class.title_patterns.last[0]).to be_a Regexp
+          expect(type_class.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
+          expect(type_class.title_patterns.last[1].size).to eq 1
+          expect(type_class.title_patterns.last[1][0][0]).to eq :package
         end
       end
 
-      context 'when instances called' do
+      describe '.instances' do
         it 'uses the title provided by the provider' do
-          expect(instance.instances[0].title).to eq('php/yum')
+          expect(type_class.instances[0].title).to eq('php/yum')
+        end
+      end
+
+      context 'when flushing an instance' do
+        let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
+
+        before(:each) do
+          allow(provider_class).to receive(:new).and_return(provider_instance)
+        end
+
+        after(:each) do
+          # reset cached provider between tests
+          type_class.instance_variable_set(:@my_provider, nil)
+        end
+
+        it 'uses a hash as `name` when setting values' do
+          allow(provider_instance).to receive(:get).and_return([{ title: 'php/yum', package: 'php', manager: 'yum', ensure: 'present' }])
+          expect(provider_instance).to receive(:set) { |_context, changes|
+            expect(changes.keys).to eq [{ package: 'php', manager: 'yum' }]
+          }
+          type_class.new(title: 'php/yum', ensure: :absent).flush
         end
       end
     end
