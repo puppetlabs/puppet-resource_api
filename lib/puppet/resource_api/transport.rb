@@ -12,7 +12,7 @@ module Puppet::ResourceApi::Transport
     unless transports[schema[:name]].nil?
       raise Puppet::DevError, 'Transport `%{name}` is already registered for `%{environment}`' % {
         name: schema[:name],
-        environment: current_environment,
+        environment: current_environment_name,
       }
     end
     transports[schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
@@ -27,7 +27,7 @@ module Puppet::ResourceApi::Transport
   module_function :list # rubocop:disable Style/AccessModifierDeclarations
 
   # retrieve a Hash of transport schemas, keyed by their name.
-  # This uses the Puppet autoloader, provide a  environment name as `force_environment`
+  # This uses the Puppet autoloader, provide an environment name as `force_environment`
   # to choose where to load from.
   # @api private
   def list_all_transports(force_environment)
@@ -45,7 +45,7 @@ module Puppet::ResourceApi::Transport
     require 'puppet/settings'
     require 'puppet/util/autoload'
     @autoloader ||= Puppet::Util::Autoload.new(self, 'puppet/transport/schema')
-    @autoloader.loadall(Puppet.lookup(:current_environment))
+    @autoloader.loadall(current_environment)
   end
   private_class_method :load_all_schemas
 
@@ -74,7 +74,7 @@ module Puppet::ResourceApi::Transport
     if transport_schema.nil?
       raise Puppet::DevError, 'Transport for `%{target}` not registered with `%{environment}`' % {
         target: name,
-        environment: current_environment,
+        environment: current_environment_name,
       }
     end
 
@@ -108,20 +108,25 @@ module Puppet::ResourceApi::Transport
   private_class_method :wrap_sensitive
 
   def self.transports
-    @transports ||= {}
-    @transports[current_environment] ||= {}
+    env = current_environment
+    if env
+      ObjectIdCacheAdapter.adapt(env).retrieve(:rsapi_transport_cache)
+    else
+      @transports_default ||= {}
+    end
   end
   private_class_method :transports
 
   def self.current_environment
-    if Puppet.respond_to? :lookup
-      env = Puppet.lookup(:current_environment)
-      env.nil? ? :transports_default : env.name
-    else
-      :transports_default
-    end
+    Puppet.lookup(:current_environment) if Puppet.respond_to? :lookup
   end
   private_class_method :current_environment
+
+  def self.current_environment_name
+    env = current_environment
+    env.nil? ? :transports_default : env.name
+  end
+  private_class_method :current_environment_name
 
   def self.clean_bolt_attributes(transport_schema, connection_info)
     context = get_context(transport_schema.name)
@@ -154,4 +159,19 @@ module Puppet::ResourceApi::Transport
     nil
   end
   private_class_method :clean_bolt_attributes
+
+  # copy from https://github.com/puppetlabs/puppet/blob/8cae8a17dbac08d2db0238d5bce2f1e4d1898d65/lib/puppet/pops/adapters.rb#L6-L17
+  # to keep backwards compatibility with puppet4 and 5, which don't have this yet.
+  class ObjectIdCacheAdapter < Puppet::Pops::Adaptable::Adapter
+    attr_accessor :cache
+
+    def initialize
+      @cache = {}
+    end
+
+    # Retrieves a mutable hash with all stored values
+    def retrieve(obj)
+      @cache[obj.__id__] ||= {}
+    end
+  end
 end
