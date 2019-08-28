@@ -10,8 +10,8 @@ This is an implementation of the [Resource API](https://github.com/puppetlabs/pu
 
 ## Related Documents
 
-* The [Resource API](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.
-* The [hue_rsapi module](https://github.com/da-ar/hue_rsapi) is a very simple example for using the Resource API for remote resources.
+* The [Resource API specs](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.
+* The [puppetlabs-hue module](https://github.com/puppetlabs/puppetlabs-hue) is a very simple example for using the Resource API for remote resources.
 * The [meraki module](https://github.com/meraki/puppet-module) is a full example for using the Resource API for remote resources.
 * This [Introduction to Testing Puppet Modules](https://www.netways.de/index.php?id=3445#c44135) talk describes rspec usage in more detail.
 * The [RSpec docs](https://relishapp.com/rspec) provide an overview of the capabilities of rspec.
@@ -311,9 +311,9 @@ module Puppet::Util::NetworkDevice::Device_type
 end
 ```
 
-##Summary
+## Summary
 
-###Getting Started
+### Getting Started
 1. Download the [Puppet Development Kit](https://puppet.com/download-puppet-development-kit).
 2. Create a [new module](https://puppet.com/docs/pdk/latest/pdk_generating_modules.html) by running `pdk new module <MODULE_NAME>`.
 3. Open `.sync.yml` and add the follwing code to to add the `puppet-resource-api` gem:
