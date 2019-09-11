@@ -5,9 +5,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
     environment = class_double(Puppet::Node::Environment)
 
     if name.nil?
-      allow(Puppet).to receive(:respond_to?).and_return(false)
+      allow(Puppet).to receive(:respond_to?).with(:lookup).and_return(false)
     else
-      allow(Puppet).to receive(:respond_to?).and_return(true)
+      allow(Puppet).to receive(:respond_to?).with(:lookup).and_return(true)
     end
 
     allow(Puppet).to receive(:lookup).with(:current_environment).and_return(environment)
@@ -73,64 +73,20 @@ RSpec.describe Puppet::ResourceApi::Transport do
           },
         }
       end
-      let(:schema2) do
-        {
-          name: 'schema2',
-          desc: 'basic transport',
-          connection_info: {
-            host: {
-              type: 'String',
-              desc: 'the host ip address or hostname',
-            },
-          },
-        }
-      end
-      let(:schema3) do
-        {
-          name: 'schema3',
-          desc: 'basic transport',
-          connection_info: {
-            user: {
-              type: 'String',
-              desc: 'the user to connect as',
-            },
-            password: {
-              type: 'String',
-              sensitive: true,
-              desc: 'the password to make the connection',
-            },
-          },
-        }
+
+      context 'when a environment is available' do
+        before(:each) { change_environment('production') }
+
+        it 'adds to the transports register' do
+          expect { described_class.register(schema) }.not_to raise_error
+        end
       end
 
-      it 'adds to the transports register' do
-        expect { described_class.register(schema) }.not_to raise_error
-      end
+      context 'when no environment is available' do
+        before(:each) { change_environment(nil) }
 
-      context 'when a transports are added to multiple environments' do
-        let(:transports) { described_class.instance_variable_get(:@transports) }
-
-        it 'will record the schemas in the correct structure' do
-          change_environment(nil)
-          described_class.register(schema)
-          expect(transports).to have_key(:transports_default)
-          expect(transports[:transports_default][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(transports[:transports_default][schema[:name]].definition).to eq(schema)
-
-          change_environment('foo')
-          described_class.register(schema)
-          described_class.register(schema2)
-          expect(transports).to have_key('foo')
-          expect(transports['foo'][schema[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(transports['foo'][schema[:name]].definition).to eq(schema)
-          expect(transports['foo'][schema2[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(transports['foo'][schema2[:name]].definition).to eq(schema2)
-
-          change_environment(:bar)
-          described_class.register(schema3)
-          expect(transports).to have_key(:bar)
-          expect(transports[:bar][schema3[:name]]).to be_a_kind_of(Puppet::ResourceApi::TransportSchemaDef)
-          expect(transports[:bar][schema3[:name]].definition).to eq(schema3)
+        it 'adds to the transports register' do
+          expect { described_class.register(schema) }.not_to raise_error
         end
       end
     end
