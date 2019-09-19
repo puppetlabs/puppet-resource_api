@@ -367,7 +367,6 @@ Currently working:
   * `puppet device` (if applicable)
 
 There are still a few notable gaps between the implementation and the specification:
-* Complex data types, like Hash, Tuple or Struct are not yet implemented.
 * Only a single runtime environment (the Puppet commands) is currently implemented.
 
 Restrictions of puppet:
