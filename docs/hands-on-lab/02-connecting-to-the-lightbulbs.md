@@ -4,9 +4,7 @@ There are no technical restrictions on the kinds of remote devices or APIs you c
 
 ## Hue Emulator
 
-Download the [HueEmulator-v0.8.jar](https://github.com/SteveyO/Hue-Emulator/blob/master/HueEmulator-v0.8.jar) from [SteveyO/Hue-Emulator](https://github.com/SteveyO/Hue-Emulator).
-
-To run the Hue Emulator, you need to have a Java Runtime installed. Use `java -jar` with the emulator's filename to run it, for example:
+Use `java -jar` with the emulator's filename to run it, for example:
 
 ```
 david@davids:~$ java -jar ~/Downloads/HueEmulator-v0.8.jar

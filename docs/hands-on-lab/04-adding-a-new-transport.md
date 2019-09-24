@@ -1,17 +1,9 @@
 # Add a new transport
 
-[Eventually](https://github.com/puppetlabs/pdk/pull/666) there will be a `pdk new transport` command. For now, you'll need to copy the files below.
+Starting with PDK 1.12.0 there is the `pdk new transport` command, that you can use to create the base files for your new transport:
 
-Copy the files from [this directory](./04-adding-a-new-transport/) into your new module:
-
-* .sync.yml
-* lib/puppet/transport/hue.rb
-* lib/puppet/transport/schema/hue.rb
-* lib/puppet/util/network_device/hue/device.rb
-* spec/unit/puppet/transport/hue_spec.rb
-* spec/unit/puppet/transport/schema/hue_spec.rb
-
-Run `pdk update --force` to enable a few future defaults that are required for these templates:
+Copy the [.sync.yml](./04-adding-a-new-transport/.sync.yml) into your new module, and run `pdk update --force` to enable a few future
+defaults that are required for this command:
 
 ```
 david@davids:~/tmp/hue$ pdk update --force
@@ -31,6 +23,18 @@ You can find a report of differences in update_report.txt.
 
 2 files modified.
 
+david@davids:~/tmp/hue$
+```
+
+Then, create the actual transport:
+
+```
+david@davids:~/tmp/hue$ pdk new transport hue
+pdk (INFO): Creating '/home/david/tmp/hue/lib/puppet/transport/hue.rb' from template.
+pdk (INFO): Creating '/home/david/tmp/hue/lib/puppet/transport/schema/hue.rb' from template.
+pdk (INFO): Creating '/home/david/tmp/hue/lib/puppet/util/network_device/hue/device.rb' from template.
+pdk (INFO): Creating '/home/david/tmp/hue/spec/unit/puppet/transport/hue_spec.rb' from template.
+pdk (INFO): Creating '/home/david/tmp/hue/spec/unit/puppet/transport/schema/hue_spec.rb' from template.
 david@davids:~/tmp/hue$
 ```
 
@@ -62,7 +66,7 @@ Run options: exclude {:bolt=>true}
 david@davids:~/tmp/hue$
 ```
 
-If you're working with a version control system, now would be a good time to make your first commit and store the boilerplate code, and then you can revisit the changes you made later. For example: 
+If you're working with a version control system, now would be a good time to make your first commit and store the boilerplate code, and then you can revisit the changes you made later. For example:
 
 ```
 david@davids:~/tmp/hue$ git init

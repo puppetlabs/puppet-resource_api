@@ -4,7 +4,7 @@ To start, install Puppet Development Kit (PDK), which provides all the necessary
 
 1. [Download PDK](https://puppet.com/download-puppet-development-kit) on your platform of choice.
 
-2. If you do not have a Philips HUE hub available, you can download the [Hue-Emulator](https://github.com/SteveyO/Hue-Emulator/raw/master/HueEmulator-v0.8.jar). You need to have Java installed to run this.
+2. If you do not have a Philips HUE hub and bulbs available, you can download the [Hue-Emulator](https://github.com/SteveyO/Hue-Emulator/raw/master/HueEmulator-v0.8.jar). You need to have Java installed to run this.
 
 3. To edit code, we recommend the cross-platform editor [VSCode](https://code.visualstudio.com/download), with the [Ruby](https://marketplace.visualstudio.com/items?itemName=rebornix.Ruby) and [Puppet](https://marketplace.visualstudio.com/items?itemName=jpogran.puppet-vscode) extensions. There are lots of other extensions that can help you with your development workflow.
 
