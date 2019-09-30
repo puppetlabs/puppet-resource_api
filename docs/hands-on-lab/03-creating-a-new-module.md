@@ -41,44 +41,6 @@ Open the new directory in your code editor:
 code -a hue_workshop
 ```
 
-Next, we'll active a few future defaults. In the `hue_workshop` directory, create a file called `.sync.yml` and paste the following:
-
-```
-# .sync.yml
----
-Gemfile:
-  optional:
-    ':development':
-      - gem: 'puppet-resource_api'
-      - gem: 'faraday'
-      - gem: 'rspec-json_expectations'
-spec/spec_helper.rb:
-  mock_with: ':rspec'
-```
-
-Run `pdk update` in the module's directory to deploy the changes in the module:
-
-```
-david@davids:~/tmp/hue_workshop$ pdk update
-pdk (INFO): Updating david-hue_workshop using the default template, from 1.10.0 to 1.10.0
-
-----------Files to be modified----------
-Gemfile
-spec/spec_helper.rb
-
-----------------------------------------
-
-You can find a report of differences in update_report.txt.
-
-Do you want to continue and make these changes to your module? Yes
-
-------------Update completed------------
-
-2 files modified.
-
-david@davids:~/tmp/hue_workshop$
-```
-
 
 ## Next up
 

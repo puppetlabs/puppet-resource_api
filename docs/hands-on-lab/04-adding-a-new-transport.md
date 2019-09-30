@@ -2,12 +2,26 @@
 
 Starting with PDK 1.12.0 there is the `pdk new transport` command, that you can use to create the base files for your new transport:
 
-Copy the [.sync.yml](./04-adding-a-new-transport/.sync.yml) into your new module, and run `pdk update --force` to enable a few future
-defaults that are required for this command:
+Next, we'll active a few future defaults. In the `hue_workshop` directory, create a file called `.sync.yml` and paste the following:
 
 ```
-david@davids:~/tmp/hue$ pdk update --force
-pdk (INFO): Updating david-hue using the default template, from master@c43fc26 to master@c43fc26
+# .sync.yml
+---
+Gemfile:
+  optional:
+    ':development':
+      - gem: 'puppet-resource_api'
+      - gem: 'faraday'
+      - gem: 'rspec-json_expectations'
+spec/spec_helper.rb:
+  mock_with: ':rspec'
+```
+
+Run `pdk update` in the module's directory to deploy the changes in the module:
+
+```
+david@davids:~/tmp/hue_workshop$ pdk update --force
+pdk (INFO): Updating david-hue_workshop using the default template, from 1.10.0 to 1.10.0
 
 ----------Files to be modified----------
 Gemfile
@@ -17,13 +31,13 @@ spec/spec_helper.rb
 
 You can find a report of differences in update_report.txt.
 
-[✔] Resolving default Gemfile dependencies.
+Do you want to continue and make these changes to your module? Yes
 
 ------------Update completed------------
 
 2 files modified.
 
-david@davids:~/tmp/hue$
+david@davids:~/tmp/hue_workshop$
 ```
 
 Then, create the actual transport:
