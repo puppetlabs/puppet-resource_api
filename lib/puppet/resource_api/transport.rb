@@ -21,6 +21,8 @@ module Puppet::ResourceApi::Transport
 
   # retrieve a Hash of transport schemas, keyed by their name.
   # Only already loaded transports are returned.
+  # use Puppet::Util::Autoload.new(self, 'puppet/transport/schema').loadall(current_environment) to load all transport schemas
+  # note that loadall uses `require` and thus does not re-load changed files, nor does it re-populate the internal cache
   def list
     Marshal.load(Marshal.dump(transports))
   end
@@ -39,13 +41,25 @@ module Puppet::ResourceApi::Transport
   end
   module_function :list_all_transports # rubocop:disable Style/AccessModifierDeclarations
 
-  # Loads all schemas using the Puppet Autoloader.
+  # Loads all schemas using the Puppet Autoloader. This method is clearing the cache and forcing `Kernel.load`, so that the cache is up-to-date.
   def self.load_all_schemas
     require 'puppet'
     require 'puppet/settings'
     require 'puppet/util/autoload'
-    @autoloader ||= Puppet::Util::Autoload.new(self, 'puppet/transport/schema')
-    @autoloader.loadall(current_environment)
+
+    # Since we're force-loading all schemas below, we can replace the cache here completely
+    @transports = {}
+
+    loader = Puppet::Util::Autoload
+    # from puppetlabs/puppet:lib/puppet/util/autoload.rb
+    # Puppet::Util::Autoload.loadall('puppet/transport/schema', current_environment)
+    path = 'puppet/transport/schema'
+    env = current_environment
+    # Load every instance of everything we can find.
+    loader.files_to_load(path, env).each do |file|
+      name = file.chomp('.rb')
+      loader.load_file(name, env)
+    end
   end
   private_class_method :load_all_schemas
 
@@ -108,12 +122,7 @@ module Puppet::ResourceApi::Transport
   private_class_method :wrap_sensitive
 
   def self.transports
-    env = current_environment
-    if env
-      ObjectIdCacheAdapter.adapt(env).retrieve(:rsapi_transport_cache)
-    else
-      @transports_default ||= {}
-    end
+    @transports ||= {}
   end
   private_class_method :transports
 
@@ -159,19 +168,4 @@ module Puppet::ResourceApi::Transport
     nil
   end
   private_class_method :clean_bolt_attributes
-
-  # copy from https://github.com/puppetlabs/puppet/blob/8cae8a17dbac08d2db0238d5bce2f1e4d1898d65/lib/puppet/pops/adapters.rb#L6-L17
-  # to keep backwards compatibility with puppet4 and 5, which don't have this yet.
-  class ObjectIdCacheAdapter < Puppet::Pops::Adaptable::Adapter
-    attr_accessor :cache
-
-    def initialize
-      @cache = {}
-    end
-
-    # Retrieves a mutable hash with all stored values
-    def retrieve(obj)
-      @cache[obj.__id__] ||= {}
-    end
-  end
 end
