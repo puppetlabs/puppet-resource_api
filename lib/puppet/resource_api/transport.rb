@@ -8,6 +8,11 @@ module Puppet::ResourceApi::Transport
     raise Puppet::DevError, 'requires `:desc`' unless schema.key? :desc
     raise Puppet::DevError, 'requires `:connection_info`' unless schema.key? :connection_info
     raise Puppet::DevError, '`:connection_info` must be a hash, not `%{other_type}`' % { other_type: schema[:connection_info].class } unless schema[:connection_info].is_a?(Hash)
+    if schema[:connection_info_order].nil?
+      schema[:connection_info_order] = schema[:connection_info].keys
+    else
+      raise Puppet::DevError, '`:connection_info_order` must be an array, not `%{other_type}`' % { other_type: schema[:connection_info_order].class } unless schema[:connection_info_order].is_a?(Array)
+    end
 
     unless transports[schema[:name]].nil?
       raise Puppet::DevError, 'Transport `%{name}` is already registered for `%{environment}`' % {

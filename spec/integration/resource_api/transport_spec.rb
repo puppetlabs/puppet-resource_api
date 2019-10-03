@@ -11,6 +11,10 @@ RSpec.describe 'Resource API Transport integration tests:' do
       expect(transports['test_device'].definition).to include(name: 'test_device')
     end
 
+    it 'adds connection_info_order' do
+      expect(transports['test_device'].definition).to include(connection_info_order: a_kind_of(Array))
+    end
+
     it 'can be called twice' do
       expect(Puppet::ResourceApi::Transport.list).to be_empty
       Puppet::ResourceApi::Transport.list_all_transports('rp_env')
