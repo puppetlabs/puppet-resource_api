@@ -30,12 +30,36 @@ RSpec.describe Puppet::ResourceApi::Transport do
   end
 
   describe '#register(schema)' do
-    context 'when registering a schema with missing keys' do
+    describe 'validation checks' do
       it { expect { described_class.register([]) }.to raise_error(Puppet::DevError, %r{requires a hash as schema}) }
       it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
       it { expect { described_class.register(name: 'no connection info', desc: 'some description') }.to raise_error(Puppet::DevError, %r{requires `:connection_info`}) }
       it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, %r{requires `:desc`}) }
-      it { expect { described_class.register(name: 'no hash attributes', desc: 'some description', connection_info: []) }.to raise_error(Puppet::DevError, %r{`:connection_info` must be a hash, not}) }
+      it {
+        expect {
+          described_class.register(name: 'no hash connection_info',
+                                   desc: 'some description',
+                                   connection_info: [])
+        } .to raise_error(Puppet::DevError, %r{`:connection_info` must be a hash, not})
+      }
+      it {
+        expect(described_class.register(name: 'no array connection_info_order',
+                                        desc: 'some description',
+                                        connection_info: {}).definition).to have_key(:connection_info_order)
+      }
+      it {
+        expect(described_class.register(name: 'no array connection_info_order',
+                                        desc: 'some description',
+                                        connection_info: {}).definition[:connection_info_order]).to eq []
+      }
+      it {
+        expect {
+          described_class.register(name: 'no array connection_info_order',
+                                   desc: 'some description',
+                                   connection_info: {},
+                                   connection_info_order: {})
+        }.to raise_error(Puppet::DevError, %r{`:connection_info_order` must be an array, not})
+      }
     end
 
     context 'when registering a minimal transport' do
