@@ -5,6 +5,16 @@ Puppet::ResourceApi.register_type(
   docs: <<-EOS,
     This type provides Puppet with the capabilities to manage ...
   EOS
+  title_patterns: [
+    {
+      pattern: %r{^(?<package>.*[^-])-(?<manager>.*)$},
+      desc: 'Package and manager with a hyphen seperator',
+    },
+    {
+      pattern: %r{^(?<package>.*)$},
+      desc: 'Package',
+    },
+  ],
   attributes:   {
     ensure:      {
       type:    'Enum[present, absent]',

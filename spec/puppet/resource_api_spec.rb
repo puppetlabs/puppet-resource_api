@@ -1026,6 +1026,7 @@ RSpec.describe Puppet::ResourceApi do
     let(:definition) do
       {
         name: 'composite',
+        desc: 'some desc',
         title_patterns: [
           {
             pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
@@ -1039,13 +1040,16 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
+            desc: '',
           },
           package: {
             type: 'String',
+            desc: '',
             behavior: :namevar,
           },
           manager: {
             type: 'String',
+            desc: '',
             behavior: :namevar,
           },
         },
@@ -1121,6 +1125,120 @@ RSpec.describe Puppet::ResourceApi do
             expect(changes.keys).to eq [{ package: 'php', manager: 'yum' }]
           }
           type_class.new(title: 'php/yum', ensure: :absent).flush
+        end
+      end
+
+      context 'when no title is returned by get' do
+        let(:provider_class) do
+          Class.new do
+            def get(_context)
+              [{ package: 'php', manager: 'yum', ensure: 'present' }]
+            end
+
+            def set(_context, _changes); end
+          end
+        end
+        let(:type) { type_class.new(title: 'mytitle', package: 'php', manager: 'yum') }
+
+        context 'when Puppet strict setting is :off' do
+          let(:strict_level) { :off }
+
+          it 'instances will not log a warning' do
+            expect(Puppet).not_to receive(:warning)
+            type_class.instances
+          end
+
+          it 'refresh_current_state will not log a warning' do
+            expect(Puppet).not_to receive(:warning)
+            type.refresh_current_state
+          end
+        end
+
+        context 'when Puppet strict setting is :error' do
+          let(:strict_level) { :error }
+
+          it 'instances will throw an exception' do
+            expect {
+              type_class.instances
+            }.to raise_error(Puppet::DevError, %r{has not provided a title attribute})
+          end
+
+          it 'refresh_current_state will throw an exception' do
+            expect {
+              type.refresh_current_state
+            }.to raise_error(Puppet::DevError, %r{has not provided a title attribute})
+          end
+        end
+
+        context 'when Puppet strict setting is :warning' do
+          let(:strict_level) { :warning }
+
+          it 'instances will not log a warning' do
+            expect(Puppet).to receive(:warning).with(%r{has not provided a title attribute})
+            type_class.instances
+          end
+
+          it 'refresh_current_state will not log a warning' do
+            expect(Puppet).to receive(:warning).with(%r{has not provided a title attribute})
+            type.refresh_current_state
+          end
+        end
+      end
+
+      context 'when the title does not match a title pattern' do
+        let(:provider_class) do
+          Class.new do
+            def get(_context)
+              [{ title: 'Nomatch', package: 'php', manager: 'yum', ensure: 'present' }]
+            end
+
+            def set(_context, _changes); end
+          end
+        end
+        let(:type) { type_class.new(title: 'mytitle', package: 'php', manager: 'yum') }
+
+        context 'when Puppet strict setting is :off' do
+          let(:strict_level) { :off }
+
+          it 'instances will not log a warning' do
+            expect(Puppet).not_to receive(:warning)
+            type_class.instances
+          end
+
+          it 'refresh_current_state will not log a warning' do
+            expect(Puppet).not_to receive(:warning)
+            type.refresh_current_state
+          end
+        end
+
+        context 'when Puppet strict setting is :error' do
+          let(:strict_level) { :error }
+
+          it 'instances will throw an exception' do
+            expect {
+              type_class.instances
+            }.to raise_error(Puppet::DevError, %r{has provided a title attribute which does not match})
+          end
+
+          it 'refresh_current_state will throw an exception' do
+            expect {
+              type.refresh_current_state
+            }.to raise_error(Puppet::DevError, %r{has provided a title attribute which does not match})
+          end
+        end
+
+        context 'when Puppet strict setting is :warning' do
+          let(:strict_level) { :warning }
+
+          it 'instances will not log a warning' do
+            expect(Puppet).to receive(:warning).with(%r{has provided a title attribute which does not match})
+            type_class.instances
+          end
+
+          it 'refresh_current_state will not log a warning' do
+            expect(Puppet).to receive(:warning).with(%r{has provided a title attribute which does not match})
+            type.refresh_current_state
+          end
         end
       end
     end

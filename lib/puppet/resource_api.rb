@@ -261,7 +261,7 @@ module Puppet::ResourceApi
 
         if @rsapi_current_state
           type_definition.check_schema(@rsapi_current_state)
-          strict_check(@rsapi_current_state) if type_definition.feature?('canonicalize')
+          strict_check(@rsapi_current_state)
         else
           @rsapi_current_state = if rsapi_title.is_a? Hash
                                    rsapi_title.dup
@@ -275,7 +275,7 @@ module Puppet::ResourceApi
       # Use this to set the current state from the `instances` method
       def cache_current_state(resource_hash)
         @rsapi_current_state = resource_hash
-        strict_check(@rsapi_current_state) if type_definition.feature?('canonicalize')
+        strict_check(@rsapi_current_state)
       end
 
       def retrieve
@@ -354,6 +354,22 @@ module Puppet::ResourceApi
       def strict_check(current_state)
         return if Puppet.settings[:strict] == :off
 
+        strict_check_canonicalize(current_state) if type_definition.feature?('canonicalize')
+        strict_check_title_parameter(current_state) if type_definition.namevars.size > 1
+
+        nil
+      end
+
+      def strict_message(message)
+        case Puppet.settings[:strict]
+        when :warning
+          Puppet.warning(message)
+        when :error
+          raise Puppet::DevError, message
+        end
+      end
+
+      def strict_check_canonicalize(current_state)
         # if strict checking is on we must notify if the values are changed by canonicalize
         # make a deep copy to perform the operation on and to compare against later
         state_clone = Marshal.load(Marshal.dump(current_state))
@@ -370,15 +386,43 @@ Returned values:       #{current_state.inspect}
 Canonicalized values:  #{state_clone.inspect}
 MESSAGE
         #:nocov:
+        strict_message(message)
+      end
 
-        case Puppet.settings[:strict]
-        when :warning
-          Puppet.warning(message)
-        when :error
-          raise Puppet::DevError, message
+      def strict_check_title_parameter(current_state)
+        unless current_state.key?(:title)
+          strict_message("#{type_definition.name}[#{@title}]#get has not provided a title attribute.")
+          return
         end
 
-        nil
+        # Logic borrowed from Puppet::Resource.parse_title
+        title_hash = {}
+        self.class.title_patterns.each do |regexp, symbols|
+          captures = regexp.match(current_state[:title])
+          next if captures.nil?
+          symbols.zip(captures[1..-1]).each do |symbol_and_lambda, capture|
+            # The Resource API does not support passing procs in title_patterns
+            # so, unlike Puppet::Resource, we do not need to handle that here.
+            symbol = symbol_and_lambda[0]
+            title_hash[symbol] = capture
+          end
+          break
+        end
+
+        return if title_hash == rsapi_title
+
+        namevars = type_definition.namevars.reject { |namevar| title_hash[namevar] == rsapi_title[namevar] }
+
+        #:nocov:
+        # codecov fails to register this multiline as covered, even though simplecov does.
+        message = <<MESSAGE.strip
+#{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
+Namevars which do not match: #{namevars.inspect}
+Returned parsed title hash:  #{title_hash.inspect}
+Expected hash:               #{rsapi_title.inspect}
+MESSAGE
+        #:nocov:
+        strict_message(message)
       end
 
       define_singleton_method(:context) do
