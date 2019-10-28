@@ -1,5 +1,6 @@
 require 'bundler/setup'
 require 'rspec-puppet'
+require 'open3'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

@@ -364,4 +364,13 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       context.feature_support?('anything')
     }
   end
+
+  describe '#reset_failed' do
+    it 'resets the failure state' do
+      context.failing('bad_resource') { raise StandardError, 'Bad Resource!' }
+      expect(context).to be_failed
+      context.reset_failed
+      expect(context).not_to be_failed
+    end
+  end
 end

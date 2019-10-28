@@ -33,6 +33,10 @@ class Puppet::ResourceApi::BaseContext
     @failed
   end
 
+  def reset_failed
+    @failed = false
+  end
+
   def feature_support?(feature)
     Puppet.deprecation_warning('context.feature_support? is deprecated. Please use context.type.feature? instead.')
     type.feature?(feature)
