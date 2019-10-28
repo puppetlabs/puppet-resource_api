@@ -331,7 +331,10 @@ module Puppet::ResourceApi
         else
           my_provider.set(context, rsapi_title => { is: @rsapi_current_state, should: target_state }) unless noop?
         end
-        raise 'Execution encountered an error' if context.failed?
+        if context.failed?
+          context.reset_failed
+          raise 'Execution encountered an error'
+        end
 
         # remember that we have successfully reached our desired state
         @rsapi_current_state = target_state
