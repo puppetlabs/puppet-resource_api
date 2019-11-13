@@ -104,7 +104,8 @@ If that has been successful, we should get a `200` response with the user's API 
 ```
 [
   { "success":
-    { "username": "onmdTvd198bMrC6QYyVE9iasfYSeyAbAj3XyQzfL"
+    { 
+      "username": "onmdTvd198bMrC6QYyVE9iasfYSeyAbAj3XyQzfL"
     }
   }
 ]
