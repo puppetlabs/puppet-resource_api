@@ -21,7 +21,12 @@ david@davids:~/tmp/hue_workshop$
 
 The type defines the attributes and allowed values, as well as a couple of other bits of information that concerns the processing of this provider.
 
-For remote resources like this, adding the `'remote_resource'` feature is necessary to alert Puppet of its specific needs. Add the string to the existing `features` array.
+For remote resources like this, adding the `'remote_resource'` feature is necessary to alert Puppet of its specific needs. Add the string to the existing `features` array:
+
+```
+features: ['remote_resource'],
+attributes: {
+```
 
 Browsing through the Hub API (TODO: insert link), we can identify a few basic properties we want to manage, for example:
 
@@ -32,6 +37,11 @@ Browsing through the Hub API (TODO: insert link), we can identify a few basic pr
 To define the necessary attributes, insert the following snippet into the `attributes` hash, after the `name`:
 
 ```
+    ensure:     {
+      type:     'Enum[present, absent]',
+      desc:     'Whether this resource should be present or absent on the target system.',
+      default:  'present',      
+    },
     on:         {
       type:     'Optional[Boolean]',
       desc:     'Switches the light on or off',
@@ -83,10 +93,26 @@ Replace the example `get` function in `lib/puppet/provider/hue_light/hue_light.r
 
 This method returns all connected lights from the HUE Hub and allows Puppet to process them. To try this out, you need to setup a test configuration and use `puppet device` to drive your testing.
 
-> TODO: explain steps to gain access to API keys for real device
-
+### Obtaining an API key from the Philips Hue Bridge API
+We will need to create an authorized user on the Bridge API, which in turn will provide us with a token we can use for subsequent requests:
+- Press the 'Link' button on the Bridge device (**NOTE:** Linking expires after 10 seconds of inactivity by default)
+- Perform the following POST request to the API using curl:
 ```
+curl -X POST -d '{"devicetype":"puppetlabs#hue_light_mgmt"}' 'http://192.168.43.195:8000/api'
+```
+If that has been successful, we should get a `200` response with the user's API token:
+```
+[
+  { "success":
+    { 
+      "username": "onmdTvd198bMrC6QYyVE9iasfYSeyAbAj3XyQzfL"
+    }
+  }
+]
+```
+
 # hub1.conf
+```
 host: 192.168.43.195
 key: onmdTvd198bMrC6QYyVE9iasfYSeyAbAj3XyQzfL
 ```
