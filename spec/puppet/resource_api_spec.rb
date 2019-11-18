@@ -61,7 +61,7 @@ RSpec.describe Puppet::ResourceApi do
 
       it { is_expected.not_to be_nil }
       it { is_expected.to be_respond_to :instances }
-      it { expect(type.instance_variable_get(:@docs)).to eq 'the docs' }
+      it { expect(type.instance_variable_get(:@doc)).to eq 'the docs' }
     end
   end
 
