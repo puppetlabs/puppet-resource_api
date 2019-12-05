@@ -355,7 +355,7 @@ module Puppet::ResourceApi
         return if Puppet.settings[:strict] == :off
 
         strict_check_canonicalize(current_state) if type_definition.feature?('canonicalize')
-        strict_check_title_parameter(current_state) if type_definition.namevars.size > 1
+        strict_check_title_parameter(current_state) if type_definition.namevars.size > 1 && !type_definition.title_patterns.empty?
 
         nil
       end

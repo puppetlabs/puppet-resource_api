@@ -1055,15 +1055,60 @@ RSpec.describe Puppet::ResourceApi do
     end
 
     describe 'the registered type' do
-      subject(:type) { Puppet::Type.type(:with_patterns) }
+      subject(:type) { Puppet::Type.type(:multiple) }
 
       it { is_expected.not_to be_nil }
       it { expect(type.parameters).to eq [:package, :manager] }
     end
 
+    describe "the type's class" do
+      let(:provider_class) do
+        Class.new do
+          def get(_context)
+            [{ package: 'php', manager: 'yum', ensure: 'present' }]
+          end
+
+          def set(_context, _changes); end
+        end
+      end
+      let(:type_class) { Puppet::Type.type(:multiple) }
+
+      before(:each) do
+        stub_const('Puppet::Provider::Multiple', Module.new)
+        stub_const('Puppet::Provider::Multiple::Multiple', provider_class)
+      end
+
+      describe '.instances' do
+        it 'uses the title provided by the provider' do
+          expect(type_class.instances[0].title).to eq(manager: 'yum', package: 'php')
+        end
+      end
+
+      context 'when flushing an instance' do
+        let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
+
+        before(:each) do
+          allow(provider_class).to receive(:new).and_return(provider_instance)
+        end
+
+        after(:each) do
+          # reset cached provider between tests
+          type_class.instance_variable_set(:@my_provider, nil)
+        end
+
+        it 'uses the attributes when setting values' do
+          allow(provider_instance).to receive(:get).and_return([{ package: 'php', manager: 'yum', ensure: 'present' }])
+          expect(provider_instance).to receive(:set) { |_context, changes|
+            expect(changes.keys).to eq [{ package: 'php', manager: 'yum' }]
+          }
+          type_class.new(title: 'some title', package: 'php', manager: 'yum', ensure: :absent).flush
+        end
+      end
+    end
+
     context 'with title_patterns' do
       let(:name) { 'with_patterns' }
-      let(:title_patterns) {
+      let(:title_patterns) do
         [
           {
             pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
@@ -1074,7 +1119,7 @@ RSpec.describe Puppet::ResourceApi do
             desc: 'Where only the package is provided',
           },
         ]
-      }
+      end
 
       describe 'the registered type' do
         subject(:type) { Puppet::Type.type(:with_patterns) }
@@ -1083,7 +1128,7 @@ RSpec.describe Puppet::ResourceApi do
         it { expect(type.parameters).to eq [:package, :manager] }
       end
 
-      describe 'the type\'s class' do
+      describe "the type's class" do
         let(:provider_class) do
           Class.new do
             def get(_context)

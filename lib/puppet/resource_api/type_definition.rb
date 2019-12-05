@@ -18,6 +18,10 @@ module Puppet::ResourceApi
       (definition[:features] && definition[:features].include?(feature))
     end
 
+    def title_patterns
+      definition[:title_patterns] ||= []
+    end
+
     def validate_schema(definition, attr_key)
       super(definition, attr_key)
       [:title, :provider, :alias, :audit, :before, :consume, :export, :loglevel, :noop, :notify, :require, :schedule, :stage, :subscribe, :tag].each do |name|
