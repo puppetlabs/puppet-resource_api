@@ -15,6 +15,8 @@ group :tests do
     # load a rubocop version that works on java for the Rakefile
     gem 'parser', '2.3.3.1'
     gem 'rubocop', '0.41.2'
+    # JRuby 1.7 does not like json 2.3.0, jruby 9.1.9.0 has RUBY_VERSION == '2.3.3'
+    gem 'json', '2.2.0' if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.3.0')
   elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.2.0')
     gem 'rubocop', '0.57.2'
     # the last version of parallel to support ruby 2.1
