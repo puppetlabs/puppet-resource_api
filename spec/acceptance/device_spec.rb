@@ -57,7 +57,9 @@ RSpec.describe 'exercising a device provider' do
       it 'reads resources from the target system' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider")
         expected_values = 'device_provider { \'wibble\': \n\s+ensure => \'present\',\n\s+string => \'sample\',\n\#\s+string_ro => \'fixed\', # Read Only\n  string_param => \'default value\',\n}'
-        expect(stdout_str.strip).to match %r{\A(DL is deprecated, please use Fiddle\n)?#{expected_values}\Z}
+        fiddle_deprecate_msg = "DL is deprecated, please use Fiddle\n"
+        win32_deprecate_msg = ".*Struct layout is already defined for class Windows::ServiceStructs::SERVICE_STATUS_PROCESS.*\n"
+        expect(stdout_str.strip).to match %r{\A(#{fiddle_deprecate_msg}|#{win32_deprecate_msg})?#{expected_values}\Z}
         expect(status).to eq 0
       end
 
