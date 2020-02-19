@@ -3,7 +3,80 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [1.8.12](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.12) (2020-02-03)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.11...1.8.12)
+
+**Fixed bugs:**
+
+- json 2.3.0 fails on JRuby 1.7.26 [\#248](https://github.com/puppetlabs/puppet-resource_api/issues/248)
+
+**Merged pull requests:**
+
+- Update dependency\_decisions for LicenseFinder 6.0; Fix deprecation warning with outdated win32-service gem pulled in by puppet [\#252](https://github.com/puppetlabs/puppet-resource_api/pull/252) ([DavidS](https://github.com/DavidS))
+
+## [1.8.11](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.11) (2019-12-30)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.10...1.8.11)
+
+**Implemented enhancements:**
+
+- add consistency checks for title attribute on multi-namevar providers [\#219](https://github.com/puppetlabs/puppet-resource_api/issues/219)
+- Add title consistency checks for multi-namevar providers [\#240](https://github.com/puppetlabs/puppet-resource_api/pull/240) ([seanmil](https://github.com/seanmil))
+
+**Fixed bugs:**
+
+- puppet describe does not show top-level docs [\#208](https://github.com/puppetlabs/puppet-resource_api/issues/208)
+- \(PUP-10025\) fix top-level docs output from `puppet describe` [\#247](https://github.com/puppetlabs/puppet-resource_api/pull/247) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Pin json gem to older version for JRuby 1.7 [\#249](https://github.com/puppetlabs/puppet-resource_api/pull/249) ([DavidS](https://github.com/DavidS))
+
+## [1.8.10](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.10) (2019-11-14)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.9...1.8.10)
+
+**Implemented enhancements:**
+
+- \(FM-8079\) Resource API and Transports Hands-on-Lab [\#181](https://github.com/puppetlabs/puppet-resource_api/pull/181) ([DavidS](https://github.com/DavidS))
+
+**Fixed bugs:**
+
+- failing resource poisons the context/flush implementation [\#214](https://github.com/puppetlabs/puppet-resource_api/issues/214)
+- Reset context.failed? between resources [\#241](https://github.com/puppetlabs/puppet-resource_api/pull/241) ([seanmil](https://github.com/seanmil))
+
+**Merged pull requests:**
+
+- \(FM-8740\): Documentation tweaks based on most recent walkthrough [\#246](https://github.com/puppetlabs/puppet-resource_api/pull/246) ([cmccrisken-puppet](https://github.com/cmccrisken-puppet))
+
+## [1.8.9](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.9) (2019-10-03)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.8...1.8.9)
+
+**Implemented enhancements:**
+
+- \(FM-8336\) Capture and expose attribute ordering from transport schema [\#238](https://github.com/puppetlabs/puppet-resource_api/pull/238) ([DavidS](https://github.com/DavidS))
+
+**Fixed bugs:**
+
+- \(FM-8553\) Remove all caching from list\_all\_transports [\#237](https://github.com/puppetlabs/puppet-resource_api/pull/237) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- \(packaging\) Bump to version '1.8.9' [\#239](https://github.com/puppetlabs/puppet-resource_api/pull/239) ([mihaibuzgau](https://github.com/mihaibuzgau))
+
+## [1.8.8](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.8) (2019-09-25)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.7...1.8.8)
+
+**Merged pull requests:**
+
+- \(MODULES-9258\) Remove obsolete documentation [\#229](https://github.com/puppetlabs/puppet-resource_api/pull/229) ([DavidS](https://github.com/DavidS))
+- CHANGELOG for 1.8.7 [\#206](https://github.com/puppetlabs/puppet-resource_api/pull/206) ([DavidS](https://github.com/DavidS))
+
 ## [1.8.7](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.7) (2019-09-11)
+
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.6...1.8.7)
 
 **Fixed bugs:**
