@@ -1,5 +1,5 @@
 module Puppet
   module ResourceApi
-    VERSION = '1.8.13'.freeze
+    VERSION = '1.8.14'.freeze
   end
 end
