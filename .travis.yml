@@ -35,41 +35,16 @@ jobs:
     - rvm: 2.5.1
       env: CHECK=license_finder
       bundler_args: ""
-
-    - rvm: 2.4.3
-      env: PUPPET_GEM_VERSION='~> 5.4.0'
-    - rvm: 2.4.2
-      env: PUPPET_GEM_VERSION='~> 5.3.0'
-    - rvm: 2.4.1
-      env: PUPPET_GEM_VERSION='~> 5.2.0'
-    - rvm: 2.4.1
-      env: PUPPET_GEM_VERSION='~> 5.1.0'
-    - rvm: 2.4.1
-      env: PUPPET_GEM_VERSION='~> 5.0.0'
     - rvm: 2.1.9
       env: PUPPET_GEM_VERSION='~> 4'  SIMPLECOV=yes # 4.10
       before_install:
         - gem install bundler -v '< 2'
-    - rvm: 2.1.9
-      env: PUPPET_GEM_VERSION='~> 4.9.0'
-      before_install:
-        - gem install bundler -v '< 2'
-    - rvm: 2.1.9
-      env: PUPPET_GEM_VERSION='~> 4.8.0'
-      before_install:
-        - gem install bundler -v '< 2'
-    - rvm: 2.1.9
-      env: PUPPET_GEM_VERSION='~> 4.7.0'
-      before_install:
-        - gem install bundler -v '< 2'
-    - rvm: 2.5.1
-      env: PUPPET_GEM_VERSION='~> 6' # 6.0, soon 6.1
-    - rvm: 2.5.1
-      env: PUPPET_GEM_VERSION='~> 6.0'
-    - rvm: 2.5.1
+    - rvm: 2.5.7
+      env: PUPPET_GEM_VERSION='~> 6' SIMPLECOV=yes # latest 6 release
+    - rvm: 2.5.7
+      env: PUPPET_GEM_VERSION='~> 6.14.0'
+    - rvm: 2.5.7
       env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#master'
-    - rvm: 2.5.1
-      env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#6.0.x'
     - rvm: 2.4.3
       env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#5.5.x'
     - rvm: 2.1.9
