@@ -10,6 +10,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
 
         it 'will not throw an error' do
           allow(File).to receive(:exist?).and_return(true)
+          allow(Hocon).to receive(:load).and_call_original
           expect(Puppet::ResourceApi::Transport).to receive(:connect)
           expect(Hocon).to receive(:load).with('/etc/credentials', any_args).and_return('foo' => %w[a b], 'bar' => 2)
           expect { described_class.new('wibble', url) }.not_to raise_error
@@ -27,7 +28,8 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       let(:config) { {} }
 
       it 'will use the configuration directly' do
-        expect(Hocon).not_to receive(:load)
+        allow(Hocon).to receive(:load).and_call_original
+        expect(Hocon).not_to receive(:load).with('/etc/credentials', any_args)
         expect(Puppet::ResourceApi::Transport).to receive(:connect)
         described_class.new('wibble', config)
       end
