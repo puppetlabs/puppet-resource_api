@@ -15,11 +15,11 @@ group :tests do
     gem 'rake', '~> 10.0'
     # load a rubocop version that works on java for the Rakefile
     gem 'parser', '2.3.3.1'
-    gem 'rubocop', '0.41.2'
+    gem 'rubocop', '~> 0.82.0'
     # JRuby 1.7 does not like json 2.3.0, jruby 9.1.9.0 has RUBY_VERSION == '2.3.3'
     gem 'json', '2.2.0' if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.3.0')
   elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.2.0')
-    gem 'rubocop', '0.57.2'
+    gem 'rubocop', '~> 0.82.0'
     # the last version of parallel to support ruby 2.1
     gem 'parallel', '1.13.0'
     gem 'rubocop-rspec'
@@ -28,7 +28,7 @@ group :tests do
     gem 'rake', '~> 12.3'
     # 2.1-compatible analysis was dropped after version 0.58
     # This needs to be removed once we drop puppet4 support.
-    gem 'rubocop', '~> 0.57.0'
+    gem 'rubocop', '~> 0.82.0'
     gem 'rubocop-rspec'
     # license_finder does not install on windows using older versions of rubygems.
     # ruby 2.4 is confirmed working on appveyor.
