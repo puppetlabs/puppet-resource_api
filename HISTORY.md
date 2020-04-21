@@ -1,8 +1,3 @@
-# Changelog
-
-All significant changes to this repo will be summarized in this file.
-
-
 ## [v1.8.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.1) (2019-03-13)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.8.0...v1.8.1)
 

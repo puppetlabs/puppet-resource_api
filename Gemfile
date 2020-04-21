@@ -58,7 +58,7 @@ group :tests do
 end
 
 group :development do
-  gem 'github_changelog_generator', '~> 1.14'
+  gem 'github_changelog_generator', '~> 1.15' if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
   gem 'pry-byebug'
 end
 
