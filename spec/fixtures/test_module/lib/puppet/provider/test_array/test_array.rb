@@ -9,6 +9,7 @@ class Puppet::Provider::TestArray::TestArray < Puppet::ResourceApi::SimpleProvid
         name: 'foo',
         ensure: 'present',
         some_array: %w[a b c],
+        untyped: %w[e f],
       },
       {
         name: 'bar',

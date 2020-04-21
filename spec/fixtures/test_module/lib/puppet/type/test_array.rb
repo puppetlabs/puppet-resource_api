@@ -37,5 +37,9 @@ Puppet::ResourceApi.register_type(
       type: 'Optional[Array[String]]',
       desc: 'An optional attribute to exercise Array handling.',
     },
+    untyped: {
+      type: 'Optional[Any]',
+      desc: 'Testing array handling in `Any` typed properties.',
+    },
   },
 )
