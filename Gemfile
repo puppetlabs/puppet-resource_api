@@ -35,15 +35,15 @@ group :tests do
   if RUBY_PLATFORM == 'java'
     # load a rubocop version that works on java for the Rakefile
     gem 'parser', '2.3.3.1'
-    gem 'rubocop', '0.41.2'
+    gem 'rubocop', '~> 0.85.1'
   elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.2.0')
     # rubocop 0.58 throws when testing against ruby 2.1, so pin to the latest version that works
-    gem 'rubocop', '0.57.2'
+    gem 'rubocop', '~> 0.85.1'
     gem 'rubocop-rspec'
   else
     # 2.1-compatible analysis was dropped after version 0.58
     # This needs to be removed once we drop puppet4 support.
-    gem 'rubocop', '~> 0.57.0'
+    gem 'rubocop', '~> 0.85.1'
     gem 'rubocop-rspec'
   end
 
