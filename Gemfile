@@ -26,9 +26,9 @@ group :tests do
 
   # `rake` dropped support for older versions of ruby a while back
   if RUBY_PLATFORM == 'java'
-    gem 'rake', '~> 10.0'
+    gem 'rake', '~> 13.0'
   else
-    gem 'rake', '~> 12.3'
+    gem 'rake', '~> 13.0'
   end
 
   # rubocop is special, as usual
