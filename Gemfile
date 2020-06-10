@@ -17,6 +17,13 @@ group :tests do
   # since the Resource API runs inside the puppetserver, test against the JRuby versions we ship
   # these require special dependencies to have everything load properly
 
+  # `codecov` 0.1.17 introduced usage of %i[] which is not recognised by JRuby 1.7
+  if RUBY_PLATFORM == 'java' && Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.3.0')
+    gem 'codecov', '= 0.1.16'
+  else
+    gem 'codecov'
+  end
+
   # `rake` dropped support for older versions of ruby a while back
   if RUBY_PLATFORM == 'java'
     gem 'rake', '~> 10.0'
