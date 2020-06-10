@@ -3,6 +3,34 @@
 All significant changes to this repo will be summarized in this file.
 
 
+## [v1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.14) (2020-06-10)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.13...v1.8.14)
+
+**Fixed bugs:**
+
+- Git tag 1.8.13 exists, but missing on rubygems.org / in CHANGELOG.md [\#266](https://github.com/puppetlabs/puppet-resource_api/issues/266)
+
+**Closed issues:**
+
+- CHANGELOG.md entries are missing for latest releases? [\#258](https://github.com/puppetlabs/puppet-resource_api/issues/258)
+
+**Merged pull requests:**
+
+- \(maint\) Cleanup gemfile and fix codecov dependency [\#275](https://github.com/puppetlabs/puppet-resource_api/pull/275) ([DavidS](https://github.com/DavidS))
+- Language correction [\#270](https://github.com/puppetlabs/puppet-resource_api/pull/270) ([epackorigan](https://github.com/epackorigan))
+- \(maint\) update test matrix for current supported versions; remove older versions to cut down on resource usage [\#265](https://github.com/puppetlabs/puppet-resource_api/pull/265) ([DavidS](https://github.com/DavidS))
+- \(maint\) Mock Hocon.load\(...\) [\#263](https://github.com/puppetlabs/puppet-resource_api/pull/263) ([IrimieBogdan](https://github.com/IrimieBogdan))
+- \(maint\) update Gemfile to allow use of non-vulnerable rake version 12.3.3 [\#260](https://github.com/puppetlabs/puppet-resource_api/pull/260) ([DavidS](https://github.com/DavidS))
+
+## [1.8.13](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.13) (2020-02-19)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.12...1.8.13)
+
+**Merged pull requests:**
+
+- \(IAC-274\) update CHANGELOG [\#259](https://github.com/puppetlabs/puppet-resource_api/pull/259) ([DavidS](https://github.com/DavidS))
+
 ## [1.8.12](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.12) (2020-02-03)
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.11...1.8.12)
@@ -48,7 +76,7 @@ All significant changes to this repo will be summarized in this file.
 
 **Merged pull requests:**
 
-- \(FM-8740\): Documentation tweaks based on most recent walkthrough [\#246](https://github.com/puppetlabs/puppet-resource_api/pull/246) ([cmccrisken-puppet](https://github.com/cmccrisken-puppet))
+- \(FM-8740\): Documentation tweaks based on most recent walkthrough [\#246](https://github.com/puppetlabs/puppet-resource_api/pull/246) ([sanfrancrisko](https://github.com/sanfrancrisko))
 
 ## [1.8.9](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.9) (2019-10-03)
 
@@ -74,6 +102,7 @@ All significant changes to this repo will be summarized in this file.
 
 - \(MODULES-9258\) Remove obsolete documentation [\#229](https://github.com/puppetlabs/puppet-resource_api/pull/229) ([DavidS](https://github.com/DavidS))
 - CHANGELOG for 1.8.7 [\#206](https://github.com/puppetlabs/puppet-resource_api/pull/206) ([DavidS](https://github.com/DavidS))
+- \(MODULES-9258\) Improve referencing and add summary [\#199](https://github.com/puppetlabs/puppet-resource_api/pull/199) ([MaxMagill](https://github.com/MaxMagill))
 
 ## [1.8.7](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.7) (2019-09-11)
 
@@ -86,18 +115,26 @@ All significant changes to this repo will be summarized in this file.
 **Merged pull requests:**
 
 - \(FM-8485\) - Addition of CODEOWNERS file [\#203](https://github.com/puppetlabs/puppet-resource_api/pull/203) ([david22swan](https://github.com/david22swan))
-- \(MODULES-9258\) Improve referencing and add summary [\#199](https://github.com/puppetlabs/puppet-resource_api/pull/199) ([MaxMagill](https://github.com/MaxMagill))
 - \(maint\) Pin both Jruby cells to use `dist: trusty` [\#197](https://github.com/puppetlabs/puppet-resource_api/pull/197) ([da-ar](https://github.com/da-ar))
 
 ## [1.8.6](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.6) (2019-07-04)
-[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.6.5...1.8.6)
 
-## [1.6.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.6.5) (2019-07-04)
-[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.5...1.6.5)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.6.5...1.8.6)
 
 **Implemented enhancements:**
 
 - \(SERVER-2470\) list\_all\_transports implementation for puppetserver [\#187](https://github.com/puppetlabs/puppet-resource_api/pull/187) ([DavidS](https://github.com/DavidS))
+
+**Merged pull requests:**
+
+- Merge 1.6.x [\#194](https://github.com/puppetlabs/puppet-resource_api/pull/194) ([da-ar](https://github.com/da-ar))
+- \(packaging\) Revert to version '1.8.5' \[no-promote\] [\#192](https://github.com/puppetlabs/puppet-resource_api/pull/192) ([gimmyxd](https://github.com/gimmyxd))
+- \(packaging\) Bump to version '1.9.0' \[no-promote\] [\#191](https://github.com/puppetlabs/puppet-resource_api/pull/191) ([gimmyxd](https://github.com/gimmyxd))
+- \(maint\) retrofitting changelog for the last couple of releases [\#190](https://github.com/puppetlabs/puppet-resource_api/pull/190) ([DavidS](https://github.com/DavidS))
+
+## [1.6.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.6.5) (2019-07-04)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.5...1.6.5)
 
 **Fixed bugs:**
 
@@ -106,18 +143,17 @@ All significant changes to this repo will be summarized in this file.
 **Merged pull requests:**
 
 - \(packaging\) Bump to 1.6.5 [\#196](https://github.com/puppetlabs/puppet-resource_api/pull/196) ([gimmyxd](https://github.com/gimmyxd))
-- Merge 1.6.x [\#194](https://github.com/puppetlabs/puppet-resource_api/pull/194) ([da-ar](https://github.com/da-ar))
 - \(maint\) test fixes [\#193](https://github.com/puppetlabs/puppet-resource_api/pull/193) ([DavidS](https://github.com/DavidS))
-- \(packaging\) Revert to version '1.8.5' \[no-promote\] [\#192](https://github.com/puppetlabs/puppet-resource_api/pull/192) ([gimmyxd](https://github.com/gimmyxd))
-- \(packaging\) Bump to version '1.9.0' \[no-promote\] [\#191](https://github.com/puppetlabs/puppet-resource_api/pull/191) ([gimmyxd](https://github.com/gimmyxd))
-- \(maint\) retrofitting changelog for the last couple of releases [\#190](https://github.com/puppetlabs/puppet-resource_api/pull/190) ([DavidS](https://github.com/DavidS))
 
 ## [1.8.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.5) (2019-06-24)
+
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.4...1.8.5)
 
 **Fixed bugs:**
 
 - \(maint\) Mergeup 1.6.x: FM-7839, desc/docs cleanup [\#186](https://github.com/puppetlabs/puppet-resource_api/pull/186) ([DavidS](https://github.com/DavidS))
+- \(maint\) backport minor fixes from master to 1.6.x [\#184](https://github.com/puppetlabs/puppet-resource_api/pull/184) ([DavidS](https://github.com/DavidS))
+- \(maint\) implement `desc`/`docs` fallback [\#177](https://github.com/puppetlabs/puppet-resource_api/pull/177) ([DavidS](https://github.com/DavidS))
 
 **Merged pull requests:**
 
@@ -127,6 +163,7 @@ All significant changes to this repo will be summarized in this file.
 - \(maint\) make test order really random [\#175](https://github.com/puppetlabs/puppet-resource_api/pull/175) ([DavidS](https://github.com/DavidS))
 
 ## [1.8.4](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.4) (2019-06-12)
+
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.3...1.8.4)
 
 **Implemented enhancements:**
@@ -135,10 +172,8 @@ All significant changes to this repo will be summarized in this file.
 
 **Fixed bugs:**
 
-- \(maint\) backport minor fixes from master to 1.6.x [\#184](https://github.com/puppetlabs/puppet-resource_api/pull/184) ([DavidS](https://github.com/DavidS))
 - \(PUP-9747\) Relax validation for bolt [\#182](https://github.com/puppetlabs/puppet-resource_api/pull/182) ([DavidS](https://github.com/DavidS))
 - \(maint\) Add to\_hash function to resourceShim for compatibility [\#180](https://github.com/puppetlabs/puppet-resource_api/pull/180) ([da-ar](https://github.com/da-ar))
-- \(maint\) implement `desc`/`docs` fallback [\#177](https://github.com/puppetlabs/puppet-resource_api/pull/177) ([DavidS](https://github.com/DavidS))
 
 **Closed issues:**
 
@@ -152,6 +187,7 @@ All significant changes to this repo will be summarized in this file.
 - \(packaging\) Update reported version to 1.8.4 \[no-promote\] [\#171](https://github.com/puppetlabs/puppet-resource_api/pull/171) ([gimmyxd](https://github.com/gimmyxd))
 
 ## [1.8.3](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.3) (2019-04-12)
+
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.2...1.8.3)
 
 **Fixed bugs:**
@@ -163,30 +199,22 @@ All significant changes to this repo will be summarized in this file.
 - \(PA-2496\) Bump version and remove v from version number [\#170](https://github.com/puppetlabs/puppet-resource_api/pull/170) ([mihaibuzgau](https://github.com/mihaibuzgau))
 
 ## [1.8.2](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.2) (2019-04-10)
+
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.4...1.8.2)
 
 **Merged pull requests:**
 
 - \(packaging\) Update reported version to 1.8.2 \[no-promote\] [\#167](https://github.com/puppetlabs/puppet-resource_api/pull/167) ([mihaibuzgau](https://github.com/mihaibuzgau))
+- Add `implementations` to reserved bolt keywords [\#165](https://github.com/puppetlabs/puppet-resource_api/pull/165) ([DavidS](https://github.com/DavidS))
+- Release prep for v1.8.1 [\#163](https://github.com/puppetlabs/puppet-resource_api/pull/163) ([DavidS](https://github.com/DavidS))
 
 ## [v1.6.4](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.4) (2019-03-25)
+
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.8.1...v1.6.4)
-
-**Implemented enhancements:**
-
-- \(PDK-1271\) Allow a transport to be wrapped and used like a device [\#155](https://github.com/puppetlabs/puppet-resource_api/pull/155) ([da-ar](https://github.com/da-ar))
 
 **Merged pull requests:**
 
-- Add `implementations` to reserved bolt keywords [\#165](https://github.com/puppetlabs/puppet-resource_api/pull/165) ([DavidS](https://github.com/DavidS))
 - \(MAINT\) Bump version [\#164](https://github.com/puppetlabs/puppet-resource_api/pull/164) ([sebastian-miclea](https://github.com/sebastian-miclea))
-- Release prep for v1.8.1 [\#163](https://github.com/puppetlabs/puppet-resource_api/pull/163) ([DavidS](https://github.com/DavidS))
-- 1.6.x mergeup [\#162](https://github.com/puppetlabs/puppet-resource_api/pull/162) ([DavidS](https://github.com/DavidS))
-
-# Changelog
-
-All significant changes to this repo will be summarized in this file.
-
 
 ## [v1.8.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.1) (2019-03-13)
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.8.0...v1.8.1)
@@ -598,4 +626,4 @@ All significant changes to this repo will be summarized in this file.
 - Workaround missing report back from here to flush\(\) [\#1](https://github.com/puppetlabs/puppet-resource_api/pull/1) ([james-stocks](https://github.com/james-stocks))
 
 
-\* *This Change Log was automatically generated by [github_changelog_generator](https://github.com/skywinder/Github-Changelog-Generator)*
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
