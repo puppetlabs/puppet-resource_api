@@ -25,8 +25,10 @@ group :tests do
   end
 
   # `rake` dropped support for older versions of ruby a while back
-  if RUBY_PLATFORM == 'java'
-    gem 'rake', '~> 13.0'
+  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.1.0')
+    gem 'rake', '11.3.0'
+  elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.2.0')
+    gem 'rake', '12.3.3'
   else
     gem 'rake', '~> 13.0'
   end
