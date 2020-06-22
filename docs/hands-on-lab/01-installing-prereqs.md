@@ -6,7 +6,7 @@ To start, install Puppet Development Kit (PDK), which provides all the necessary
 
 2. If you do not have a Philips HUE hub and bulbs available, you can download the [Hue-Emulator](https://github.com/SteveyO/Hue-Emulator/raw/master/HueEmulator-v0.8.jar). You need to have Java installed to run this.
 
-3. To edit code, we recommend the cross-platform editor [VSCode](https://code.visualstudio.com/download), with the [Ruby](https://marketplace.visualstudio.com/items?itemName=rebornix.Ruby) and [Puppet](https://marketplace.visualstudio.com/items?itemName=jpogran.puppet-vscode) extensions. There are lots of other extensions that can help you with your development workflow.
+3. To edit code, we recommend the cross-platform editor [VS Code](https://code.visualstudio.com/download), with the [Ruby](https://marketplace.visualstudio.com/items?itemName=rebornix.Ruby) and [Puppet](https://marketplace.visualstudio.com/items?itemName=puppet.puppet-vscode) extensions. There are lots of other extensions that can help you with your development workflow.
 
 4. Git is a version control system that helps you keep track of changes and collaborate with others. As we go through hands-on lab, we will show you some integrations with cloud services. If you have never used git before, ignore this and all related steps.
 
