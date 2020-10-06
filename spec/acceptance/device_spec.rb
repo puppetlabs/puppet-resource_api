@@ -63,6 +63,13 @@ RSpec.describe 'exercising a device provider' do
         expect(status).to eq 0
       end
 
+      it 'outputs resources as yaml' do
+        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider --to_yaml")
+        expected_values = "device_provider: |2\n\s+wibble:\n\s+ensure: :present\n\s+string: sample\n\s+string_ro: fixed\n\s+string_param: default value\n"
+        expect(stdout_str.strip).to match %r{#{expected_values}\Z}
+        expect(status).to eq 0
+      end
+
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Notice: /Device_provider\[wibble\]/string: string changed \'sample\' to \'changed\''
