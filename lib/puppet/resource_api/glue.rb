@@ -35,6 +35,7 @@ module Puppet::ResourceApi
       end + ['}']).compact.join("\n")
     end
 
+    # Required to enable `puppet device --resource ... --to_yaml` workflow
     def to_hiera_hash
       to_hierayaml
     end
