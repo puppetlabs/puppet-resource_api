@@ -35,6 +35,11 @@ module Puppet::ResourceApi
       end + ['}']).compact.join("\n")
     end
 
+    # Required to enable `puppet device --resource ... --to_yaml` workflow
+    def to_hiera_hash
+      to_hierayaml
+    end
+
     # Convert our resource to yaml for Hiera purposes.
     def to_hierayaml
       attributes = Hash[filtered_keys.map { |k| [k.to_s, values[k]] }]
