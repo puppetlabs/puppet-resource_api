@@ -74,6 +74,16 @@ RSpec.describe 'the dirty bits' do
       end
     end
 
+    describe '.to_hiera_hash' do
+      it { expect(instance.to_hiera_hash).to eq "  title:\n    attr: value\n    attr_ro: fixed\n" }
+
+      context 'when the title contains YAML special characters' do
+        let(:title) { "foo:\nbar" }
+
+        it { expect(instance.to_hiera_hash).to eq "  ? |-\n    foo:\n    bar\n  : attr: value\n    attr_ro: fixed\n" }
+      end
+    end
+
     describe '.to_hash' do
       it { expect(instance.to_hash).to eq(namevarname: 'title', attr: 'value', attr_ro: 'fixed') }
     end
