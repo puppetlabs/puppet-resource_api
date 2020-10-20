@@ -194,7 +194,7 @@ module Puppet::ResourceApi
         if is_sensitive
           bad_vals[key] = '<< redacted value >> ' + error_message unless error_message.nil?
         else
-          bad_vals[key] = value unless error_message.nil?
+          bad_vals[key] = "#{value} #{error_message}" unless error_message.nil?
         end
       end
       bad_vals
