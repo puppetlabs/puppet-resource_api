@@ -69,8 +69,11 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       context 'when resource contains invalid values' do
         let(:resource) { { name: 'test_string', prop: 'foo', ensure: 1 } }
 
-        it 'returns a hash of the keys that have invalid values' do
-          expect(type.check_schema_values(resource)).to eq(prop: 'foo', ensure: 1)
+        it 'returns a hash of the keys that have invalid values and error messages' do
+          expect(type.check_schema_values(resource)).to eq(
+            prop: 'foo (expects an Integer value, got String)',
+            ensure: "1 (expects a match for Enum['absent', 'present'], got Integer)",
+          )
         end
       end
     end
