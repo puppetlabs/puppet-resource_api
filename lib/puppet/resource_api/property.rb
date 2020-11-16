@@ -18,7 +18,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
     # Define class method insync?(is) if the name is :ensure
     def_insync? if @attribute_name == :ensure && self.class != Puppet::ResourceApi::Property
     # Pass resource to parent Puppet class.
-    super(resource_hash)
+    super(**resource_hash)
   end
 
   # This method returns value of the property.

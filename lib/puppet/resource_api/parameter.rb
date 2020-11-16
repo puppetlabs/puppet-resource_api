@@ -17,7 +17,7 @@ class Puppet::ResourceApi::Parameter < Puppet::Parameter
     @type_name = type_name
     @data_type = data_type
     @attribute_name = attribute_name
-    super(resource_hash) # Pass resource to parent Puppet class.
+    super(**resource_hash) # Pass resource to parent Puppet class.
   end
 
   # This method assigns value to the parameter and cleans value.
