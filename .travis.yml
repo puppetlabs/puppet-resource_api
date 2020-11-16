@@ -33,7 +33,9 @@ jobs:
     - rvm: 2.5.7
       env: PUPPET_GEM_VERSION='~> 6.14.0'
     - rvm: 2.5.7
-      env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#master'
+      env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#main'
+    - rvm: 2.7
+      env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#main'
     - rvm: 2.4.3
       env: PUPPET_GEM_VERSION='https://github.com/puppetlabs/puppet.git#5.5.x'
 notifications:
