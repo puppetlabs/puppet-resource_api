@@ -87,7 +87,7 @@ david@davids:~/tmp/hue$ git init
 Initialized empty Git repository in ~/tmp/hue/.git/
 david@davids:~/tmp/hue$ git add -A
 david@davids:~/tmp/hue$ git commit -m 'initial commit'
-[master (root-commit) 67951dd] initial commit
+[main (root-commit) 67951dd] initial commit
  26 files changed, 887 insertions(+)
  create mode 100644 .fixtures.yml
  create mode 100644 .gitattributes

@@ -84,7 +84,7 @@ I, [2019-06-04T13:43:58.577944 #9390]  INFO -- : Creating symlink from spec/fixt
 david@davids:~/tmp/hue_workshop$
 ```
 
-* `pdk new task` based on https://github.com/puppetlabs/puppetlabs-panos/blob/master/tasks/apikey.rb
+* `pdk new task` based on https://github.com/puppetlabs/puppetlabs-panos/blob/main/tasks/apikey.rb
 
 ```
 david@davids:~/tmp/hue_workshop$ pdk new task alarm
