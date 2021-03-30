@@ -9,6 +9,7 @@ module Puppet::ResourceApi; end
 # The runtime environment will inject an appropriate implementation.
 class Puppet::ResourceApi::BaseContext
   attr_reader :type
+  attr_accessor :catalog
 
   def initialize(definition)
     if definition.is_a?(Hash)

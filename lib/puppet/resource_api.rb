@@ -430,6 +430,7 @@ MESSAGE
       end
 
       def context
+        self.class.context.catalog = @catalog if type_definition.feature?('raw_catalog_access')
         self.class.context
       end
 

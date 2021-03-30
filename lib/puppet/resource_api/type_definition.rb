@@ -34,7 +34,7 @@ module Puppet::ResourceApi
       Puppet::ResourceApi::DataTypeHandling.validate_ensure(definition)
 
       definition[:features] ||= []
-      supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter].freeze
+      supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter raw_catalog_access].freeze
       unknown_features = definition[:features] - supported_features
       Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
     end
