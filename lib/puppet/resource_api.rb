@@ -430,8 +430,7 @@ MESSAGE
       end
 
       def context
-        self.class.context.catalog = @catalog if type_definition.feature?('raw_catalog_access')
-        self.class.context
+        @context ||= PuppetContext.new(TypeDefinition.new(definition), type_definition.feature?('raw_catalog_access') ? @catalog : nil)
       end
 
       def self.title_patterns
