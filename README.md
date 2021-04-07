@@ -1,12 +1,12 @@
-# Puppet::ResourceApi [![TravisCI Build Status](https://travis-ci.org/puppetlabs/puppet-resource_api.svg?branch=master)](https://travis-ci.org/puppetlabs/puppet-resource_api) [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/8o9s1ax0hs8lm5fd/branch/master?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api/branch/master) [![codecov](https://codecov.io/gh/puppetlabs/puppet-resource_api/branch/master/graph/badge.svg)](https://codecov.io/gh/puppetlabs/puppet-resource_api)
+# Puppet::ResourceApi [![TravisCI Build Status](https://travis-ci.org/puppetlabs/puppet-resource_api.svg?branch=main)](https://travis-ci.org/puppetlabs/puppet-resource_api) [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/8o9s1ax0hs8lm5fd/branch/main?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api/branch/main) [![codecov](https://codecov.io/gh/puppetlabs/puppet-resource_api/branch/main/graph/badge.svg)](https://codecov.io/gh/puppetlabs/puppet-resource_api)
 
-This is an implementation of the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md).
+This is an implementation of the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/blob/main/language/resource-api/README.md).
 
 Find a working example of a new-style providers in the [Palo Alto Firewall module](https://github.com/puppetlabs/puppetlabs-panos/):
-* [Type](https://github.com/puppetlabs/puppetlabs-panos/blob/master/lib/puppet/type/panos_address.rb)
-* [Base provider](https://github.com/puppetlabs/puppetlabs-panos/blob/master/lib/puppet/provider/panos_provider.rb)
-* [Actual provider with validation and xml processing](https://github.com/puppetlabs/puppetlabs-panos/blob/master/lib/puppet/provider/panos_address/panos_address.rb)
-* [New unit tests](https://github.com/puppetlabs/puppetlabs-panos/blob/master/spec/unit/puppet/provider/panos_provider_spec.rb) for 100% coverage.
+* [Type](https://github.com/puppetlabs/puppetlabs-panos/blob/main/lib/puppet/type/panos_address.rb)
+* [Base provider](https://github.com/puppetlabs/puppetlabs-panos/blob/main/lib/puppet/provider/panos_provider.rb)
+* [Actual provider with validation and xml processing](https://github.com/puppetlabs/puppetlabs-panos/blob/main/lib/puppet/provider/panos_address/panos_address.rb)
+* [New unit tests](https://github.com/puppetlabs/puppetlabs-panos/blob/main/spec/unit/puppet/provider/panos_provider_spec.rb) for 100% coverage.
 
 ## [Find the full Resource API documentation here](https://puppet.com/docs/puppet/latest/custom_resources.html)
 

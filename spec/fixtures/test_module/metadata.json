@@ -24,5 +24,5 @@
   ],
   "pdk-version": "1.7.0.pre (9)",
   "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
-  "template-ref": "heads/master-0-gc87eee3"
+  "template-ref": "heads/main-0-gc87eee3"
 }

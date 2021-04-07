@@ -29,7 +29,7 @@ matrix:
       rvm: 2.1.9
 branches:
   only:
-    - master
+    - main
     - /^v\d/
 notifications:
   email: false
