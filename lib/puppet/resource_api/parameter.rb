@@ -13,7 +13,7 @@ class Puppet::ResourceApi::Parameter < Puppet::Parameter
   # @param attribute_name the name of attribue of the parameter
   # @param resource_hash the resource hash instance which is passed to the
   # parent class.
-  def initialize(type_name, data_type, attribute_name, resource_hash)
+  def initialize(type_name, data_type, attribute_name, resource_hash, _referrable_type = nil)
     @type_name = type_name
     @data_type = data_type
     @attribute_name = attribute_name

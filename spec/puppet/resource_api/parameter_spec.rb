@@ -2,17 +2,18 @@ require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::Parameter do
   subject(:parameter) do
-    described_class.new(type_name, data_type, attribute_name, resource_hash)
+    described_class.new(type_name, data_type, attribute_name, resource_hash, referrable_type)
   end
 
   let(:type_name) { 'test_name' }
   let(:attribute_name) { 'some_parameter' }
   let(:data_type) { Puppet::Pops::Types::PStringType.new(nil) }
   let(:resource_hash) { { resource: {} } }
+  let(:referrable_type) { Puppet::ResourceApi.register_type(name: 'minimal', attributes: {}) }
 
-  describe '#new(type_name, data_type, attribute_name, resource_hash)' do
+  describe '#new(type_name, data_type, attribute_name, resource_hash, referrable_type)' do
     it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
-    it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash) }.not_to raise_error }
+    it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash, referrable_type) }.not_to raise_error }
   end
 
   describe 'value error handling' do

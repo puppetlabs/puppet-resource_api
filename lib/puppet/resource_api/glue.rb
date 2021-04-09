@@ -57,9 +57,9 @@ module Puppet::ResourceApi
       values
     end
 
-    # attribute names that are not title or namevars
+    # attribute names that are not title, namevars, or rsapi_custom_insync_trigger
     def filtered_keys
-      values.keys.reject { |k| k == :title || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
+      values.keys.reject { |k| k == :title || k == :rsapi_custom_insync_trigger || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
     end
   end
 

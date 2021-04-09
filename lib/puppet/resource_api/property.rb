@@ -11,12 +11,29 @@ class Puppet::ResourceApi::Property < Puppet::Property
   # @param attribute_name the name of attribue of the property
   # @param resource_hash the resource hash instance which is passed to the
   # parent class.
-  def initialize(type_name, data_type, attribute_name, resource_hash)
+  def initialize(type_name, data_type, attribute_name, resource_hash, referrable_type = nil)
     @type_name = type_name
     @data_type = data_type
     @attribute_name = attribute_name
-    # Define class method insync?(is) if the name is :ensure
-    def_insync? if @attribute_name == :ensure && self.class != Puppet::ResourceApi::Property
+    @resource = resource_hash[:resource]
+    @referrable_type = referrable_type
+
+    # Do not want to define insync on the base class because
+    # this overrides for everything instead of only for the
+    # appropriate instance/class of the property.
+    if self.class != Puppet::ResourceApi::Property
+      # Define class method insync?(is) if the custom_insync feature flag is set
+      if referrable_type&.type_definition&.feature?('custom_insync')
+        def_custom_insync?
+        if @attribute_name == :rsapi_custom_insync_trigger
+          @change_to_s_value = 'Custom insync logic determined that this resource is out of sync'
+        end
+      # Define class method insync?(is) if the name is :ensure and custom_insync feature flag is not set
+      elsif @attribute_name == :ensure
+        def_ensure_insync?
+      end
+    end
+
     # Pass resource to parent Puppet class.
     super(**resource_hash)
   end
@@ -69,8 +86,51 @@ class Puppet::ResourceApi::Property < Puppet::Property
   # method overloaded only for the :ensure property, add option to check if the
   # rs_value matches is. Only if the class is child of
   # Puppet::ResourceApi::Property.
-  def def_insync?
+  def def_ensure_insync?
     define_singleton_method(:insync?) { |is| rs_value.to_s == is.to_s }
+  end
+
+  def def_custom_insync?
+    define_singleton_method(:insync?) do |is|
+      provider    = @referrable_type.my_provider
+      context     = @referrable_type.context
+      should_hash = @resource.rsapi_canonicalized_target_state
+      is_hash     = @resource.rsapi_current_state
+      title       = @resource.rsapi_title
+
+      raise(Puppet::DevError, 'No insync? method defined in the provider; an insync? method must be defined if the custom_insync feature is defined for the type') unless provider.respond_to?(:insync?)
+
+      provider_insync_result = provider.insync?(context, title, @attribute_name, is_hash, should_hash)
+
+      case provider_insync_result
+      when nil
+        # If validating ensure and no custom insync was used, check if rs_value matches is.
+        return rs_value.to_s == is.to_s if @attribute_name == :ensure
+        # Otherwise, super and rely on Puppet::Property.insync?
+        super(is)
+      when TrueClass, FalseClass
+        # When returning an actual boolean, use default change messaging
+        return provider_insync_result
+      when String
+        # When returning a string, set the change message to the result and return false
+        @change_to_s_value = provider_insync_result
+        return false
+      else
+        # When returning anything else, warn about a non-idiomatic return and return false
+        context.warning("Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} instead of a String")
+        return false
+      end
+    end
+
+    define_singleton_method(:change_to_s) do |current_value, newvalue|
+      # As defined in the custom insync? method, it is sometimes useful to overwrite the default change messaging;
+      # The enables a user to return a more useful change report than a strict "is to should" report.
+      # If @change_to_s_value is not set, Puppet writes a generic change notification, like:
+      #   Notice: /Stage[main]/Main/<type_name>[<name_hash>]/<property name>: <property name> changed <is value> to <should value>
+      # If #change_to_s_value is *nil* Puppet writes a weird empty message like:
+      #   Notice: /Stage[main]/Main/<type_name>[<name_hash>]/<property name>:
+      @change_to_s_value || super(current_value, newvalue)
+    end
   end
 
   # puppet symbolizes some values through puppet/parameter/value.rb

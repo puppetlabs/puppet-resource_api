@@ -45,6 +45,18 @@ RSpec.describe 'the dirty bits' do
           expect(instance.to_manifest).to eq "typename { 'title': \n# attr_ro => 'fixed', # Read Only\n}"
         end
       end
+
+      context 'with hidden rsapi_custom_insync_trigger property' do
+        subject(:instance) do
+          described_class.new({ namevarname: title, rsapi_custom_insync_trigger: true }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              rsapi_custom_insync_trigger: { type: 'Boolean', desc: 'Hidden property' })
+        end
+
+        it 'doesn\'t output the hidden property' do
+          expect(instance.to_manifest).not_to match %r{rsapi_custom_insync_trigger}
+        end
+      end
     end
 
     describe '.to_json' do
@@ -62,6 +74,18 @@ RSpec.describe 'the dirty bits' do
           expect(instance.to_json).to eq '{"title":{"attr_ro":"fixed"}}'
         end
       end
+
+      context 'with hidden rsapi_custom_insync_trigger property' do
+        subject(:instance) do
+          described_class.new({ namevarname: title, rsapi_custom_insync_trigger: true }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              rsapi_custom_insync_trigger: { type: 'Boolean', desc: 'Hidden property' })
+        end
+
+        it 'doesn\'t output the hidden property' do
+          expect(instance.to_json).not_to match %r{rsapi_custom_insync_trigger}
+        end
+      end
     end
 
     describe '.to_hierayaml' do
@@ -71,6 +95,18 @@ RSpec.describe 'the dirty bits' do
         let(:title) { "foo:\nbar" }
 
         it { expect(instance.to_hierayaml).to eq "  ? |-\n    foo:\n    bar\n  : attr: value\n    attr_ro: fixed\n" }
+      end
+
+      context 'with hidden rsapi_custom_insync_trigger property' do
+        subject(:instance) do
+          described_class.new({ namevarname: title, rsapi_custom_insync_trigger: true }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              rsapi_custom_insync_trigger: { type: 'Boolean', desc: 'Hidden property' })
+        end
+
+        it 'doesn\'t output the hidden property' do
+          expect(instance.to_hierayaml).not_to match %r{rsapi_custom_insync_trigger}
+        end
       end
     end
 
