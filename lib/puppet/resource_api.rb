@@ -430,7 +430,7 @@ MESSAGE
       end
 
       def context
-        @context ||= PuppetContext.new(TypeDefinition.new(definition), type_definition.feature?('raw_catalog_access') ? @catalog : nil)
+        @context ||= PuppetContext.new(type_definition, type_definition.feature?('raw_catalog_access') ? @catalog : nil)
       end
 
       def self.title_patterns

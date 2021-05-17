@@ -11,7 +11,7 @@ class Puppet::ResourceApi::BaseContext
   attr_reader :type
   attr_reader :catalog
 
-  def initialize(definition)
+  def initialize(definition, catalog = nil)
     if definition.is_a?(Hash)
       # this is only for backwards compatibility
       @type = Puppet::ResourceApi::TypeDefinition.new(definition)
@@ -20,6 +20,7 @@ class Puppet::ResourceApi::BaseContext
     else
       raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%{actual_type}>' % { actual_type: definition.class }
     end
+    @catalog = catalog
   end
 
   def device
