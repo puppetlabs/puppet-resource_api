@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Provides accessor methods for the type being provided
 module Puppet::ResourceApi
   # pre-declare class
@@ -15,7 +17,7 @@ module Puppet::ResourceApi
 
     # rubocop complains when this is named has_feature?
     def feature?(feature)
-      (definition[:features] && definition[:features].include?(feature))
+      definition[:features]&.include?(feature)
     end
 
     def title_patterns

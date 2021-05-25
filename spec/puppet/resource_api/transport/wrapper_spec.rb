@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'puppet/resource_api/transport/wrapper'
 require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device'

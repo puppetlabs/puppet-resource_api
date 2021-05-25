@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi do
@@ -1503,7 +1505,7 @@ RSpec.describe Puppet::ResourceApi do
         def canonicalize(_context, resources)
           resources.map do |resource|
             result = resource.dup
-            unless resource[:test_string] && resource[:test_string].start_with?('canon')
+            unless resource[:test_string]&.start_with?('canon')
               result[:test_string] = ['canon', resource[:test_string]].compact.join
             end
             result

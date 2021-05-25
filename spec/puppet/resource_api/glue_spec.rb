@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 # The tests in here are only a light dusting to avoid accidents,

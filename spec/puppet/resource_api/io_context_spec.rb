@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'puppet/resource_api/io_context'
 
@@ -7,7 +9,7 @@ RSpec.describe Puppet::ResourceApi::IOContext do
   let(:definition) { { name: 'some_resource', attributes: {} } }
   let(:transport) { nil }
 
-  let(:io) { StringIO.new('', 'w') }
+  let(:io) { StringIO.new(+ '', 'w') }
 
   describe '#warning(msg)' do
     it 'outputs the message' do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::Transport do
@@ -309,13 +311,13 @@ RSpec.describe Puppet::ResourceApi::Transport do
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: remote-reserved')
           expect(context).to receive(:info).with('Discarding superfluous bolt attribute: user')
           expect(context).to receive(:warning).with('Discarding unknown attribute: bar')
-          described_class.send :validate, 'validate', :"remote-transport" => 'validate',
-                                                      :host => 'host value',
-                                                      :foo => 'foo value',
-                                                      :user => 'superfluous bolt value',
-                                                      :query => 'metaparameter value',
-                                                      :"remote-reserved" => 'reserved value',
-                                                      :bar => 'unknown attribute'
+          described_class.send :validate, 'validate', 'remote-transport': 'validate',
+                                                      host: 'host value',
+                                                      foo: 'foo value',
+                                                      user: 'superfluous bolt value',
+                                                      query: 'metaparameter value',
+                                                      'remote-reserved': 'reserved value',
+                                                      bar: 'unknown attribute'
         end
       end
     end

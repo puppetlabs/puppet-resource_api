@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'hocon'
 require 'hocon/config_syntax'
 

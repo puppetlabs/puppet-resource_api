@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Puppet::ResourceApi; end # rubocop:disable Style/Documentation
 
 # Remote target transport API

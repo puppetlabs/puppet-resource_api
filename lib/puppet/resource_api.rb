@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pathname'
 require 'puppet/resource_api/data_type_handling'
 require 'puppet/resource_api/glue'

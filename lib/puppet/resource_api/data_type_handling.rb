@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
 
 # This module is used to handle data inside types, contains methods for munging

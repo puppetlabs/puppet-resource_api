@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Puppet; end # rubocop:disable Style/Documentation
 
 module Puppet::ResourceApi
