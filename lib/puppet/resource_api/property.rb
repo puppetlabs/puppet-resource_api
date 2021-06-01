@@ -102,7 +102,11 @@ class Puppet::ResourceApi::Property < Puppet::Property
 
       raise(Puppet::DevError, 'No insync? method defined in the provider; an insync? method must be defined if the custom_insync feature is defined for the type') unless provider.respond_to?(:insync?)
 
-      provider_insync_result = provider.insync?(context, title, @attribute_name, is_hash, should_hash)
+      provider_insync_result, change_message = provider.insync?(context, title, @attribute_name, is_hash, should_hash)
+
+      unless provider_insync_result.nil? || change_message.nil? || change_message.empty?
+        @change_to_s_value = change_message
+      end
 
       case provider_insync_result
       when nil
@@ -111,16 +115,10 @@ class Puppet::ResourceApi::Property < Puppet::Property
         # Otherwise, super and rely on Puppet::Property.insync?
         super(is)
       when TrueClass, FalseClass
-        # When returning an actual boolean, use default change messaging
         return provider_insync_result
-      when String
-        # When returning a string, set the change message to the result and return false
-        @change_to_s_value = provider_insync_result
-        return false
       else
-        # When returning anything else, warn about a non-idiomatic return and return false
-        context.warning("Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} instead of a String")
-        return false
+        # When returning anything else, raise a DevError for a non-idiomatic return
+        raise(Puppet::DevError, "Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} with a value of #{provider_insync_result.inspect} instead of true/false; insync? MUST return nil or the boolean true or false") # rubocop:disable Metrics/LineLength
       end
     end
 

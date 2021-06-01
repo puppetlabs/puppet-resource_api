@@ -23,7 +23,7 @@ RSpec.describe Puppet::Provider::TestCustomInsyncHiddenProperty::TestCustomInsyn
     let(:is_hash) { { name: 'example' } }
 
     before(:each) do
-      allow(context).to receive(:notice).with(%r{\AChecking whether rsapi_custom_insync_trigger is out of sync})
+      allow(context).to receive(:notice).with(%r{\AChecking whether example is out of sync})
     end
 
     it 'checks insync for rsapi_custom_insync_trigger' do

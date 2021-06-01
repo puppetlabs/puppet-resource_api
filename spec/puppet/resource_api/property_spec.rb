@@ -157,7 +157,7 @@ RSpec.describe Puppet::ResourceApi::Property do
             end
           end
 
-          context 'when custom insync from the provider returns a boolean' do
+          context 'when custom insync from the provider returns a boolean for the result' do
             it 'returns true if the result was true' do
               expect(test_provider_with_insync).to receive(:insync?).and_return(true)
               expect(custom_insync_property.insync?('Foo')).to be true
@@ -168,18 +168,24 @@ RSpec.describe Puppet::ResourceApi::Property do
             end
           end
 
-          context 'when custom insync from the provider returns a string' do
-            it 'returns false if custom insync from the provider returns a string' do
-              expect(test_provider_with_insync).to receive(:insync?).and_return('custom change report message')
-              expect(custom_insync_property.insync?('Foo')).to be false
+          context 'when custom insync from the provider returns a string for the result' do
+            it 'raises an explanatory DevError' do
+              expect(test_provider_with_insync).to receive(:insync?).and_return('true')
+              expect { custom_insync_property.insync?('foo') }.to raise_error(Puppet::DevError, %r{returned a String with a value of "true" instead of true/false})
             end
           end
 
-          context 'when custom insync from the provider returns an invalid result' do
-            it 'writes a warning and returns false' do
-              expect(test_provider_with_insync).to receive(:insync?).and_return({})
-              expect(context).to receive(:warning).with("Custom insync for #{custom_insync_attribute_name} returned a Hash instead of a String")
-              expect(custom_insync_property.insync?('Foo')).to be false
+          context 'when custom insync from the provider returns a symbol for the result' do
+            it 'raises an explanatory DevError' do
+              expect(test_provider_with_insync).to receive(:insync?).and_return(:true) # rubocop:disable Lint/BooleanSymbol
+              expect { custom_insync_property.insync?('foo') }.to raise_error(Puppet::DevError, %r{returned a Symbol with a value of :true instead of true/false})
+            end
+          end
+
+          context 'when insync? returned an unexpected result class' do
+            it 'raises an explanatory DevError' do
+              expect(test_provider_with_insync).to receive(:insync?).and_return(foo: 1)
+              expect { custom_insync_property.insync?('foo') }.to raise_error(Puppet::DevError, %r{returned a Hash with a value of \{:foo=>1\} instead of true/false})
             end
           end
         end
@@ -199,46 +205,43 @@ RSpec.describe Puppet::ResourceApi::Property do
             custom_insync_property.should = 'foo'
           end
 
-          context 'when insync? returned a boolean' do
+          context 'when insync? returns nil for the result' do
             it 'relies on Puppet::Property.change_to_s for change reporting' do
-              expect(test_provider_with_insync).to receive(:insync?).and_return(false)
-              custom_insync_property.insync?('Foo')
+              expect(test_provider_with_insync).to receive(:insync?).and_return([nil, 'custom change message'])
+              expect(custom_insync_property.insync?('Foo')).to be(false)
               expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
             end
           end
 
-          context 'when insync? returned nil' do
-            it 'relies on Puppet::Property.change_to_s for change reporting' do
-              expect(test_provider_with_insync).to receive(:insync?).and_return(nil)
-              custom_insync_property.insync?('Foo')
-              expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
+          context 'when insync? returns a change message' do
+            context 'when the message is empty' do
+              it 'relies on Puppet::Property.change_to_s for change reporting' do
+                expect(test_provider_with_insync).to receive(:insync?).and_return([false, ''])
+                expect(custom_insync_property.insync?('Foo')).to be(false)
+                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
+              end
             end
-          end
 
-          context 'when insync? returned a string' do
-            let(:insync_result) { 'Custom Change Notification' }
-
-            it 'passes the string returned by insync? for change reporting' do
-              expect(test_provider_with_insync).to receive(:insync?).and_return(insync_result)
-              custom_insync_property.insync?('Foo')
-              expect(custom_insync_property.change_to_s('Foo', 'foo')).to eq insync_result
+            context 'when the result is nil' do
+              it 'relies on Puppet::Property.change_to_s for change reporting' do
+                expect(test_provider_with_insync).to receive(:insync?).and_return(nil)
+                expect(custom_insync_property.insync?('Foo')).to be(false)
+                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
+              end
             end
-          end
 
-          context 'when insync? returned something else' do
-            let(:insync_result) { ['a'] }
-
-            it 'relies on Puppet::Property.change_to_s for change reporting' do
-              expect(test_provider_with_insync).to receive(:insync?).and_return(insync_result)
-              expect(context).to receive(:warning)
-              custom_insync_property.insync?('Foo')
-              expect(custom_insync_property.change_to_s('Foo', insync_result)).to match(%r{changed 'Foo' to \['a'\]})
+            context 'when the result is not nil and the message is not empty' do
+              it 'passes the message for change_to_s' do
+                expect(test_provider_with_insync).to receive(:insync?).and_return([false, 'custom change log'])
+                expect(custom_insync_property.insync?('Foo')).to be(false)
+                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{custom change log})
+              end
             end
           end
         end
 
         context 'when the property is rsapi_custom_insync_trigger' do
-          let(:insync_result) { 'Custom Change Notification' }
+          let(:insync_result) { [false, 'Custom Change Notification'] }
           let(:custom_insync_attribute_name) { :rsapi_custom_insync_trigger }
           let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
 
@@ -254,7 +257,7 @@ RSpec.describe Puppet::ResourceApi::Property do
           it 'passes the string returned by insync? for change reporting' do
             expect(test_provider_with_insync).to receive(:insync?).and_return(insync_result)
             custom_insync_property.insync?('Foo')
-            expect(custom_insync_property.change_to_s(false, true)).to be insync_result
+            expect(custom_insync_property.change_to_s(false, true)).to be insync_result[1]
           end
         end
       end

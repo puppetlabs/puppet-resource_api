@@ -10,20 +10,31 @@ RSpec.describe Puppet::Provider::TestCustomInsync::TestCustomInsync do
   let(:context) { instance_double('Puppet::ResourceApi::BaseContext', 'context') }
   let(:name) { 'example' }
   let(:base_should_hash) { { name: 'example', ensure: 'present' } }
-  let(:is_hash) do
-    {
-      name: 'example',
-      ensure: 'present',
-      some_array: ['a', 'b'],
-      case_sensitive_string: 'FooBar',
-      case_insensitive_string: 'FooBar',
-      version: '1.2.3',
-    }
+  let(:all_resources) do
+    [
+      {
+        name: 'example',
+        ensure: 'present',
+        some_array: ['a', 'b'],
+        case_sensitive_string: 'FooBar',
+        case_insensitive_string: 'FooBar',
+        version: '1.2.3',
+      },
+      {
+        name: 'dependent',
+        ensure: 'present',
+        some_array: ['a', 'b'],
+        case_sensitive_string: 'FooBar',
+        case_insensitive_string: 'FooBar',
+        version: '1.2.3',
+      }
+    ]
   end
+  let(:is_hash) { all_resources.select { |hash| hash[:name] == 'example' }.first }
 
   describe '#get' do
     it 'processes resources' do
-      expect(provider.get(context)).to eq [is_hash]
+      expect(provider.get(context)).to eq all_resources
     end
   end
 
@@ -83,7 +94,7 @@ RSpec.describe Puppet::Provider::TestCustomInsync::TestCustomInsync do
         context 'when the actual value is missing an array member' do
           let(:should_hash) { base_should_hash.merge({ some_array: ['c'] }) }
 
-          it { is_expected.to eq 'Adding missing members ["c"]' }
+          it { is_expected.to eq [false, 'Adding missing members ["c"]'] }
         end
 
         context 'when the actual value has an extra array member' do
@@ -153,7 +164,7 @@ RSpec.describe Puppet::Provider::TestCustomInsync::TestCustomInsync do
         context 'when the custom version string condition is not satisfied' do
           let(:should_hash) { base_should_hash.merge({ version: '> 2.0.0' }) }
 
-          it { is_expected.to eq 'The actual version (1.2.3) does not meet the custom version bound (> 2.0.0); updating to a version that does' }
+          it { is_expected.to eq [false, 'The actual version (1.2.3) does not meet the custom version bound (> 2.0.0); updating to a version that does'] }
         end
       end
       context 'with a minimum version bound' do
@@ -168,7 +179,7 @@ RSpec.describe Puppet::Provider::TestCustomInsync::TestCustomInsync do
         context 'when it is not satisfied' do
           let(:should_hash) { base_should_hash.merge({ version: '', minimum_version: '2.0.0' }) }
 
-          it { is_expected.to eq 'The actual version (1.2.3) does not meet the minimum version bound (2.0.0); updating to a version that does' }
+          it { is_expected.to eq [false, 'The actual version (1.2.3) does not meet the minimum version bound (2.0.0); updating to a version that does'] }
         end
       end
       context 'with a maximum version bound' do
@@ -183,7 +194,7 @@ RSpec.describe Puppet::Provider::TestCustomInsync::TestCustomInsync do
         context 'when it is not satisfied' do
           let(:should_hash) { base_should_hash.merge({ version: '', maximum_version: '1.0.0' }) }
 
-          it { is_expected.to eq 'The actual version (1.2.3) does not meet the maximum version bound (1.0.0); updating to a version that does' }
+          it { is_expected.to eq [false, 'The actual version (1.2.3) does not meet the maximum version bound (1.0.0); updating to a version that does'] }
         end
       end
       context 'with combined minimum & maximum version bounds' do
@@ -198,7 +209,7 @@ RSpec.describe Puppet::Provider::TestCustomInsync::TestCustomInsync do
         context 'when they are not satisfied' do
           let(:should_hash) { base_should_hash.merge({ version: '', minimum_version: '2.0.0', maximum_version: '3.0.0' }) }
 
-          it { is_expected.to eq 'The actual version (1.2.3) does not meet the combined minimum (2.0.0) and maximum (3.0.0) bounds; updating to a version which does.' }
+          it { is_expected.to eq [false, 'The actual version (1.2.3) does not meet the combined minimum (2.0.0) and maximum (3.0.0) bounds; updating to a version which does.'] }
         end
       end
     end
