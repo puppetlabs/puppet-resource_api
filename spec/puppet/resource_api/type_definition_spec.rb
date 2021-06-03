@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::TypeDefinition do
@@ -52,6 +54,87 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
       let(:feature_support) { ['cannonicalize'] }
 
       it { expect(type).not_to be_feature('simple_get_filter') }
+    end
+  end
+
+  describe '#create_attribute_in' do
+    let(:puppet_type) { instance_double('Puppet::Type', 'example_type') }
+    let(:foo_options) do
+      {
+        type: 'String',
+        desc: 'Example description for foo',
+        default: 'bar',
+      }
+    end
+    let(:definition) { { name: 'example_type', attributes: { foo: foo_options } } }
+
+    context 'when creating a valid attribute' do
+      it 'creates a Puppet::Property object' do
+        expect(puppet_type).to receive(:send).with(:newproperty, :foo, parent: Puppet::ResourceApi::Property)
+        type.create_attribute_in(puppet_type, :foo, :newproperty, Puppet::ResourceApi::Property, foo_options)
+      end
+    end
+
+    context 'when creating an invalid attribute' do
+      it 'errors cleanly'
+    end
+  end
+
+  describe '#insyncable_attributes' do
+    context 'when the definition includes an insyncable attribute' do
+      let(:definition) { { name: 'insyncer', attributes: { name: { type: 'String' } } } }
+
+      it { expect(type.insyncable_attributes).to eq([:name]) }
+    end
+
+    context 'when the definition does not include an insyncable attribute' do
+      let(:definition) do
+        {
+          name: 'insyncer',
+          attributes: {
+            name: { type: 'String', behaviour: :namevar },
+            only_readable: { type: 'String', behaviour: :read_only },
+            only_settable: { type: 'String', behaviour: :parameter },
+            only_initable: { type: 'String', behaviour: :init_only },
+          },
+        }
+      end
+
+      it { expect(type.insyncable_attributes).to eq([]) }
+    end
+  end
+
+  describe '#initialize' do
+    context 'when the custom_insync feature is specified' do
+      context 'when the definition includes an insyncable attribute' do
+        let(:definition) { { name: 'insyncer', features: ['custom_insync'], attributes: { name: { type: 'String' } } } }
+
+        it { expect(type.attributes).to be_key(:name) }
+        it { expect(type.attributes).not_to be_key(:rsapi_custom_insync_trigger) }
+      end
+
+      context 'when the definition does not include an insyncable attribute' do
+        let(:definition) { { name: 'insyncer', features: ['custom_insync'], attributes: { name: { type: 'String', behaviour: :parameter } } } }
+
+        it { expect(type.attributes).to be_key(:name) }
+        it { expect(type.attributes).not_to be_key(:rsapi_custom_insync_trigger) }
+      end
+    end
+
+    context 'when the custom_insync feature is not specified' do
+      context 'when the definition includes an insyncable attribute' do
+        let(:definition) { { name: 'insyncer', attributes: { name: { type: 'String' } } } }
+
+        it { expect(type.attributes).to be_key(:name) }
+        it { expect(type.attributes).not_to be_key(:rsapi_custom_insync_trigger) }
+      end
+
+      context 'when the definition does not include an insyncable attribute' do
+        let(:definition) { { name: 'insyncer', attributes: { name: { type: 'String', behaviour: :parameter } } } }
+
+        it { expect(type.attributes).to be_key(:name) }
+        it { expect(type.attributes).not_to be_key(:rsapi_custom_insync_trigger) }
+      end
     end
   end
 

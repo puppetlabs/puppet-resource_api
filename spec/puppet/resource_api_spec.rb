@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi do
@@ -1503,7 +1505,7 @@ RSpec.describe Puppet::ResourceApi do
         def canonicalize(_context, resources)
           resources.map do |resource|
             result = resource.dup
-            unless resource[:test_string] && resource[:test_string].start_with?('canon')
+            unless resource[:test_string]&.start_with?('canon')
               result[:test_string] = ['canon', resource[:test_string]].compact.join
             end
             result
@@ -1834,6 +1836,129 @@ RSpec.describe Puppet::ResourceApi do
               expect { described_class.register_type(definition) }.not_to raise_error
             }
           end
+        end
+      end
+    end
+  end
+
+  context 'with a provider that does custom insync', agent_test: true do
+    let(:provider_class) do
+      Class.new do
+        def insync?(_context, _title, _attribute_name, _is_hash, _should_hash)
+          context.notice('Calling custom insync? method')
+        end
+
+        def get(_context)
+          [{ name: 'insync_check' }]
+        end
+
+        attr_reader :last_changes
+        def set(_context, changes)
+          @last_changes = changes
+        end
+      end
+    end
+
+    before(:each) do
+      stub_const('Puppet::Provider::Insyncer', Module.new)
+      stub_const('Puppet::Provider::Insyncer::Insyncer', provider_class)
+    end
+
+    context 'when the definition has an insyncable attribute' do
+      let(:definition) do
+        {
+          name: 'insyncer',
+          desc: 'some desc',
+          attributes: {
+            name: {
+              type: 'String',
+              desc: '',
+              behaviour: :namevar,
+            },
+            test_array: {
+              type: 'Array[String]',
+              desc: '',
+            },
+            behaviour_changer: {
+              type: 'Boolean',
+              desc: '',
+              default: false,
+              behaviour: :parameter,
+            },
+          },
+          features: ['custom_insync'],
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+      it 'is seen as a supported feature' do
+        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+      end
+
+      describe 'the registered type' do
+        subject(:type) { Puppet::Type.type(:insyncer) }
+
+        let(:instance) { type.new(name: 'insync_check') }
+
+        it { is_expected.not_to be_nil }
+
+        it 'returns true for feature_support?' do
+          expect(instance).not_to be_nil
+          expect(type.context.type).to be_feature('custom_insync')
+        end
+
+        it 'does not have rsapi_custom_insync_trigger as an insyncable attribute' do
+          expect(type.context.type.insyncable_attributes).to eq([:test_array])
+        end
+      end
+    end
+
+    context 'when the definition does not have an insyncable attribute' do
+      let(:definition) do
+        {
+          name: 'insyncer',
+          desc: 'some desc',
+          attributes: {
+            name: {
+              type: 'String',
+              desc: '',
+              behaviour: :namevar,
+            },
+            behaviour_changer: {
+              type: 'Boolean',
+              desc: '',
+              default: false,
+              behaviour: :parameter,
+            },
+          },
+          features: ['custom_insync'],
+        }
+      end
+
+      it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+      it 'is seen as a supported feature' do
+        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+      end
+
+      describe 'the registered type' do
+        subject(:type) { Puppet::Type.type(:insyncer) }
+
+        let(:instance) { type.new(name: 'insync_check') }
+
+        it { is_expected.not_to be_nil }
+
+        it 'returns true for feature_support?' do
+          expect(instance).not_to be_nil
+          expect(type.context.type).to be_feature('custom_insync')
+        end
+
+        it 'has no insyncable attributes' do
+          expect(type.context.type.insyncable_attributes).to eq([])
+        end
+        it 'has the hidden rsapi_custom_insync_trigger property' do
+          expect(type.properties).to eq([Puppet::Type::Insyncer::Rsapi_custom_insync_trigger])
         end
       end
     end

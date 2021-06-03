@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Provides accessor methods for the type being provided
 module Puppet::ResourceApi
   # pre-declare class
@@ -15,7 +17,7 @@ module Puppet::ResourceApi
 
     # rubocop complains when this is named has_feature?
     def feature?(feature)
-      (definition[:features] && definition[:features].include?(feature))
+      definition[:features]&.include?(feature)
     end
 
     def title_patterns
@@ -34,9 +36,55 @@ module Puppet::ResourceApi
       Puppet::ResourceApi::DataTypeHandling.validate_ensure(definition)
 
       definition[:features] ||= []
-      supported_features = %w[supports_noop canonicalize remote_resource simple_get_filter].freeze
+      supported_features = %w[supports_noop canonicalize custom_insync remote_resource simple_get_filter].freeze
       unknown_features = definition[:features] - supported_features
       Puppet.warning("Unknown feature detected: #{unknown_features.inspect}") unless unknown_features.empty?
+    end
+
+    # This call creates a new parameter or property with all work-arounds or
+    # customizations required by the Resource API applied. Under the hood,
+    # this maps to the relevant DSL methods in Puppet::Type. See
+    # https://puppet.com/docs/puppet/6.0/custom_types.html#reference-5883
+    # for details.
+    #
+    # type: the Resource API Type the attribute is being created in
+    # attribute_name: the name of the attribute being created
+    # param_or_property: Whether to call the :newparam or :newproperty method
+    # parent: The type of attribute to create: Property, ReadOnly, or Parameter
+    # options: The hash of attribute options, including type, desc, default, and behaviour
+    def create_attribute_in(type, attribute_name, param_or_property, parent, options)
+      type.send(param_or_property, attribute_name.to_sym, parent: parent) do
+        if options[:desc]
+          desc "#{options[:desc]} (a #{options[:type]})"
+        end
+
+        # The initialize method is called when puppet core starts building up
+        # type objects. The core passes in a hash of shape { resource:
+        # #<Puppet::Type::TypeName> }. We use this to pass through the
+        # required configuration data to the parent (see
+        # Puppet::ResourceApi::Property, Puppet::ResourceApi::Parameter and
+        # Puppet::ResourceApi::ReadOnlyParameter).
+        define_method(:initialize) do |resource_hash|
+          super(type.name, self.class.data_type, attribute_name, resource_hash, type)
+        end
+
+        # get pops data type object for this parameter or property
+        define_singleton_method(:data_type) do
+          @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
+            attribute_name,
+            options[:type],
+          )
+        end
+
+        # from ValueCreator call create_values which makes alias values and
+        # default values for properties and params
+        Puppet::ResourceApi::ValueCreator.create_values(
+          self,
+          data_type,
+          param_or_property,
+          options,
+        )
+      end
     end
   end
 
@@ -88,6 +136,13 @@ module Puppet::ResourceApi
       }.keys
     end
 
+    def insyncable_attributes
+      @insyncable_attributes ||= attributes.reject { |_name, options|
+        # Only attributes without any behavior are normal Puppet Properties and get insynced
+        options.key?(:behaviour)
+      }.keys
+    end
+
     def validate_schema(definition, attr_key)
       raise Puppet::DevError, '%{type_class} must be a Hash, not `%{other_type}`' % { type_class: self.class.name, other_type: definition.class } unless definition.is_a?(Hash)
       @attributes = definition[attr_key]
@@ -110,6 +165,7 @@ module Puppet::ResourceApi
       Puppet.warning('`%{name}` has no documentation, add it using a `desc` key' % { name: definition[:name] }) unless definition.key? :desc
 
       attributes.each do |key, attr|
+        raise Puppet::DevError, '`rsapi_custom_insync_trigger` cannot be specified as an attribute; it is reserved for propertyless types with the custom_insync feature' if key == :rsapi_custom_insync_trigger # rubocop:disable Metrics/LineLength
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` must be a Hash, not a #{attr.class}" unless attr.is_a? Hash
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` has no type" unless attr.key? :type
         Puppet.warning('`%{name}.%{key}` has no documentation, add it using a `desc` key' % { name: definition[:name], key: key }) unless attr.key? :desc

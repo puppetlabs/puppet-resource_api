@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'open3'
 require 'puppet/version'
 require 'spec_helper'

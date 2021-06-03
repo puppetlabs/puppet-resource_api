@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pathname'
 require 'puppet/resource_api/data_type_handling'
 require 'puppet/resource_api/glue'
@@ -123,6 +125,22 @@ module Puppet::ResourceApi
         @rsapi_title
       end
 
+      def rsapi_canonicalized_target_state
+        @rsapi_canonicalized_target_state ||= begin
+          # skip puppet's injected metaparams
+          actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
+          target_state = Hash[actual_params.map { |k, v| [k, v.rs_value] }]
+          target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
+          target_state
+        end
+        @rsapi_canonicalized_target_state
+      end
+
+      def rsapi_current_state
+        refresh_current_state unless @rsapi_current_state
+        @rsapi_current_state
+      end
+
       def to_resource
         to_resource_shim(super)
       end
@@ -166,6 +184,21 @@ module Puppet::ResourceApi
         raise_missing_params if @missing_params.any?
       end
 
+      # If the custom_insync feature is specified but no insyncable attributes are included
+      # in the definition, add the hidden rsapi_custom_insync_trigger property.
+      # This property exists *only* to allow a resource without properties to still execute an
+      # insync check; there's no point in specifying it in a manifest as it can only have one
+      # value; it cannot be specified in a type definition as it should only exist in this case.
+      if type_definition.feature?('custom_insync') && type_definition.insyncable_attributes.empty?
+        custom_insync_trigger_options = {
+          type: 'Enum[do_not_specify_in_manifest]',
+          desc: 'A hidden property which enables a type with custom insync to perform an insync check without specifying any insyncable properties',
+          default: 'do_not_specify_in_manifest',
+        }
+
+        type_definition.create_attribute_in(self, :rsapi_custom_insync_trigger, :newproperty, Puppet::ResourceApi::Property, custom_insync_trigger_options)
+      end
+
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
@@ -189,43 +222,7 @@ module Puppet::ResourceApi
           parent = Puppet::ResourceApi::Property
         end
 
-        # This call creates a new parameter or property with all work-arounds or
-        # customizations required by the Resource API applied. Under the hood,
-        # this maps to the relevant DSL methods in Puppet::Type. See
-        # https://puppet.com/docs/puppet/6.0/custom_types.html#reference-5883
-        # for details.
-        send(param_or_property, name.to_sym, parent: parent) do
-          if options[:desc]
-            desc "#{options[:desc]} (a #{options[:type]})"
-          end
-
-          # The initialize method is called when puppet core starts building up
-          # type objects. The core passes in a hash of shape { resource:
-          # #<Puppet::Type::TypeName> }. We use this to pass through the
-          # required configuration data to the parent (see
-          # Puppet::ResourceApi::Property, Puppet::ResourceApi::Parameter and
-          # Puppet::ResourceApi::ReadOnlyParameter).
-          define_method(:initialize) do |resource_hash|
-            super(definition[:name], self.class.data_type, name, resource_hash)
-          end
-
-          # get pops data type object for this parameter or property
-          define_singleton_method(:data_type) do
-            @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
-              name,
-              options[:type],
-            )
-          end
-
-          # from ValueCreator call create_values which makes alias values and
-          # default values for properties and params
-          Puppet::ResourceApi::ValueCreator.create_values(
-            self,
-            data_type,
-            param_or_property,
-            options,
-          )
-        end
+        type_definition.create_attribute_in(self, name, param_or_property, parent, options)
       end
 
       def self.instances
@@ -279,11 +276,9 @@ module Puppet::ResourceApi
       end
 
       def retrieve
-        refresh_current_state unless @rsapi_current_state
+        Puppet.debug("Current State: #{rsapi_current_state.inspect}")
 
-        Puppet.debug("Current State: #{@rsapi_current_state.inspect}")
-
-        result = Puppet::Resource.new(self.class, title, parameters: @rsapi_current_state)
+        result = Puppet::Resource.new(self.class, title, parameters: rsapi_current_state)
         # puppet needs ensure to be a symbol
         result[:ensure] = result[:ensure].to_sym if type_definition.ensurable? && result[:ensure].is_a?(String)
 
@@ -302,10 +297,7 @@ module Puppet::ResourceApi
         raise_missing_attrs
 
         # puts 'flush'
-        # skip puppet's injected metaparams
-        actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
-        target_state = Hash[actual_params.map { |k, v| [k, v.rs_value] }]
-        target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
+        target_state = rsapi_canonicalized_target_state
 
         retrieve unless @rsapi_current_state
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'puppet/resource_api/base_context'
 
 # Implement Resource API Conext to log through an IO object, defaulting to `$stderr`.

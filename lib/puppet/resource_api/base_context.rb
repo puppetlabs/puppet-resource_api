@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'puppet/resource_api/type_definition'
 
 # rubocop:disable Style/Documentation

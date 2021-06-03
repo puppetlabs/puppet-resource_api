@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'puppet/resource_api/transport'
 require 'hocon'
 require 'hocon/config_syntax'

@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 # Code modified from: https://gist.github.com/hanloong/9849098
 require 'English'
 
