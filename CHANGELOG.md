@@ -3,9 +3,15 @@
 All significant changes to this repo will be summarized in this file.
 
 
-## [v1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.14) (2020-06-10)
+## [v1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.14) (2021-06-09)
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.13...v1.8.14)
+
+**Implemented enhancements:**
+
+- \(GH-225\) Add support for custom insync [\#285](https://github.com/puppetlabs/puppet-resource_api/pull/285) ([michaeltlombardi](https://github.com/michaeltlombardi))
+- Improve type validation error messages to show expected types [\#279](https://github.com/puppetlabs/puppet-resource_api/pull/279) ([timidri](https://github.com/timidri))
+- Support `puppet device --resource ... --to_yaml` invocation; drop puppet4 and jruby 1.7 testing [\#278](https://github.com/puppetlabs/puppet-resource_api/pull/278) ([timidri](https://github.com/timidri))
 
 **Fixed bugs:**
 
@@ -17,10 +23,17 @@ All significant changes to this repo will be summarized in this file.
 
 **Merged pull requests:**
 
+- Upgrade to GitHub-native Dependabot [\#287](https://github.com/puppetlabs/puppet-resource_api/pull/287) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- \(IAC-1455\) - Removal of Inappropriate Terminology [\#283](https://github.com/puppetlabs/puppet-resource_api/pull/283) ([david22swan](https://github.com/david22swan))
+- Update puppetlabs\_spec\_helper requirement from ~\> 2.7 to ~\> 3.0 [\#281](https://github.com/puppetlabs/puppet-resource_api/pull/281) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
+- \(maint\) Update Puppet VS Code Extension ID [\#277](https://github.com/puppetlabs/puppet-resource_api/pull/277) ([jpogran](https://github.com/jpogran))
+- \(IAC-859\) Add ruby 2.7 to test matrix [\#276](https://github.com/puppetlabs/puppet-resource_api/pull/276) ([DavidS](https://github.com/DavidS))
 - \(maint\) Cleanup gemfile and fix codecov dependency [\#275](https://github.com/puppetlabs/puppet-resource_api/pull/275) ([DavidS](https://github.com/DavidS))
 - Language correction [\#270](https://github.com/puppetlabs/puppet-resource_api/pull/270) ([epackorigan](https://github.com/epackorigan))
+- \(maint\) Update CHANGELOG [\#268](https://github.com/puppetlabs/puppet-resource_api/pull/268) ([DavidS](https://github.com/DavidS))
 - \(maint\) update test matrix for current supported versions; remove older versions to cut down on resource usage [\#265](https://github.com/puppetlabs/puppet-resource_api/pull/265) ([DavidS](https://github.com/DavidS))
 - \(maint\) Mock Hocon.load\(...\) [\#263](https://github.com/puppetlabs/puppet-resource_api/pull/263) ([IrimieBogdan](https://github.com/IrimieBogdan))
+- Update rake requirement from ~\> 10.0 to ~\> 13.0 [\#262](https://github.com/puppetlabs/puppet-resource_api/pull/262) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - \(maint\) update Gemfile to allow use of non-vulnerable rake version 12.3.3 [\#260](https://github.com/puppetlabs/puppet-resource_api/pull/260) ([DavidS](https://github.com/DavidS))
 
 ## [1.8.13](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.13) (2020-02-19)
@@ -102,7 +115,6 @@ All significant changes to this repo will be summarized in this file.
 
 - \(MODULES-9258\) Remove obsolete documentation [\#229](https://github.com/puppetlabs/puppet-resource_api/pull/229) ([DavidS](https://github.com/DavidS))
 - CHANGELOG for 1.8.7 [\#206](https://github.com/puppetlabs/puppet-resource_api/pull/206) ([DavidS](https://github.com/DavidS))
-- \(MODULES-9258\) Improve referencing and add summary [\#199](https://github.com/puppetlabs/puppet-resource_api/pull/199) ([MaxMagill](https://github.com/MaxMagill))
 
 ## [1.8.7](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.7) (2019-09-11)
 
@@ -115,6 +127,7 @@ All significant changes to this repo will be summarized in this file.
 **Merged pull requests:**
 
 - \(FM-8485\) - Addition of CODEOWNERS file [\#203](https://github.com/puppetlabs/puppet-resource_api/pull/203) ([david22swan](https://github.com/david22swan))
+- \(MODULES-9258\) Improve referencing and add summary [\#199](https://github.com/puppetlabs/puppet-resource_api/pull/199) ([maxiegit](https://github.com/maxiegit))
 - \(maint\) Pin both Jruby cells to use `dist: trusty` [\#197](https://github.com/puppetlabs/puppet-resource_api/pull/197) ([da-ar](https://github.com/da-ar))
 
 ## [1.8.6](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.6) (2019-07-04)
@@ -168,7 +181,7 @@ All significant changes to this repo will be summarized in this file.
 
 **Implemented enhancements:**
 
-- \(FM-7839\) Implement `to\_json` method for ResourceShim [\#168](https://github.com/puppetlabs/puppet-resource_api/pull/168) ([da-ar](https://github.com/da-ar))
+- \(FM-7839\) Implement `to_json` method for ResourceShim [\#168](https://github.com/puppetlabs/puppet-resource_api/pull/168) ([da-ar](https://github.com/da-ar))
 
 **Fixed bugs:**
 
