@@ -17,8 +17,8 @@ Gem::Specification.new do |spec|
                          `git ls-files -z`.split("\x0")
                        else
                          Dir.glob('**/*')
-                       end.reject do |f|
-                         f.match(%r{^(test|spec|features)/})
+                       end.select do |f|
+                         f.match(%r{^(lib|docs|(CHANGELOG|CONTRIBUTING|README)\.md|LICENSE|NOTICE|puppet-resource_api\.gemspec)})
                        end
 
   spec.bindir        = 'exe'
