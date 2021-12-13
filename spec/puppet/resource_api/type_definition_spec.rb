@@ -35,6 +35,20 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
       it { expect(type.attributes).to be_key(:ensure) }
     end
 
+    context 'when type is ensurable with an optional ensure specified with Optional' do
+      let(:definition) { { name: 'ensurable', attributes: { ensure: { type: 'Optional[Enum[absent, present]]' } } } }
+
+      it { expect(type).to be_ensurable }
+      it { expect(type.attributes).to be_key(:ensure) }
+    end
+
+    context 'when type is ensurable with an optional ensure specified with Variant' do
+      let(:definition) { { name: 'ensurable', attributes: { ensure: { type: 'Variant[Enum[absent, present], Undef]' } } } }
+
+      it { expect(type).to be_ensurable }
+      it { expect(type.attributes).to be_key(:ensure) }
+    end
+
     context 'when type is not ensurable' do
       let(:definition) { { name: 'ensurable', attributes: { name: { type: 'String' } } } }
 
