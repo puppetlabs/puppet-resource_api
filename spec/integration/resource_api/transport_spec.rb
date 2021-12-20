@@ -20,9 +20,9 @@ RSpec.describe 'Resource API Transport integration tests:' do
     it 'can be called twice' do
       expect(Puppet::ResourceApi::Transport.list).to be_empty
       Puppet::ResourceApi::Transport.list_all_transports('rp_env')
-      expect(Puppet::ResourceApi::Transport.list.length).to eq 2
+      expect(Puppet::ResourceApi::Transport.list.length).to eq 3
       Puppet::ResourceApi::Transport.list_all_transports('rp_env')
-      expect(Puppet::ResourceApi::Transport.list.length).to eq 2
+      expect(Puppet::ResourceApi::Transport.list.length).to eq 3
     end
   end
 end

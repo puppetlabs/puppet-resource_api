@@ -103,6 +103,7 @@ module Puppet::ResourceApi::Transport
       clean_bolt_attributes(transport_schema, connection_info)
     end
 
+    apply_defaults(transport_schema, connection_info)
     message_prefix = 'The connection info provided does not match the Transport Schema'
     transport_schema.check_schema(connection_info, message_prefix)
     transport_schema.validate(connection_info)
@@ -127,6 +128,18 @@ module Puppet::ResourceApi::Transport
     connection_info
   end
   private_class_method :wrap_sensitive
+
+  def self.apply_defaults(transport_schema, connection_info)
+    context = get_context(transport_schema.name)
+    transport_schema.attributes.each do |attr_name, options|
+      if options.key?(:default) && connection_info.key?(attr_name) == false
+        context.debug('Using default value for attribute: %{attribute_name}, value: %{default_value}' % { attribute_name: attr_name, default_value: options[:default].inspect })
+        connection_info[attr_name] = options[:default]
+      end
+    end
+    connection_info
+  end
+  private_class_method :apply_defaults
 
   def self.transports
     @transports ||= {}
