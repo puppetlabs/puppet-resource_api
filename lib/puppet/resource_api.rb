@@ -456,7 +456,7 @@ MESSAGE
         definition[auto].each do |type, values|
           Puppet.debug("Registering #{auto} for #{type}: #{values.inspect}")
           send(auto, type.downcase.to_sym) do
-            [values].flatten.map do |v|
+            resolved = [values].flatten.map do |v|
               match = %r{\A\$(.*)\Z}.match(v) if v.is_a? String
               if match.nil?
                 v
@@ -464,6 +464,9 @@ MESSAGE
                 self[match[1].to_sym]
               end
             end
+            # Flatten to handle any resolved array properties and filter any nil
+            # values resulting from unspecified optional parameters:
+            resolved.flatten.reject { |v| v.nil? }
           end
         end
       end
