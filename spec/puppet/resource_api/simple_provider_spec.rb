@@ -129,6 +129,38 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
   end
 
+  context 'with a single change to update a resource with an optional ensure' do
+    let(:is_values) { { name: 'title', ensure: 'present', prop: 'a' } }
+    let(:should_values) { { name: 'title', prop: 'b' } }
+    let(:changes) do
+      { 'title' =>
+        {
+          is: is_values,
+          should: should_values,
+        } }
+    end
+
+    before(:each) do
+      allow(context).to receive(:updating).with('title').and_yield
+      allow(context).to receive(:type).and_return(type_def)
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:namevars).and_return([:name])
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'calls update once' do
+      expect(provider).to receive(:update).with(context, 'title', should_values).once
+      provider.set(context, changes)
+    end
+    it 'does not call delete' do
+      expect(provider).to receive(:delete).never
+      provider.set(context, changes)
+    end
+  end
+
   context 'with a single change to delete a resource' do
     let(:is_values) { { name: 'title', ensure: 'present' } }
     let(:should_values) { { name: 'title', ensure: 'absent' } }

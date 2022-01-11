@@ -184,8 +184,15 @@ module Puppet::ResourceApi::DataTypeHandling
     options = definition[:attributes][:ensure]
     type = parse_puppet_type(:ensure, options[:type])
 
+    # If the type is wrapped in optional, then check it unwrapped:
+    type = type.type if type.is_a?(Puppet::Pops::Types::POptionalType)
     return if type.is_a?(Puppet::Pops::Types::PEnumType) && type.values.sort == %w[absent present].sort
-    raise Puppet::DevError, '`:ensure` attribute must have a type of: `Enum[present, absent]`'
+
+    # If Variant was used instead, then construct one and use the built-in type comparison:
+    variant_type = Puppet::Pops::Types::TypeParser.singleton.parse('Variant[Undef, Enum[present, absent]]')
+    return if variant_type == type
+
+    raise Puppet::DevError, '`:ensure` attribute must have a type of: `Enum[present, absent]` or `Optional[Enum[present, absent]]`'
   end
 
   def self.parse_puppet_type(attr_name, type)

@@ -40,13 +40,13 @@ module Puppet::ResourceApi
           context.creating(name) do
             create(context, name_hash, should)
           end
-        elsif is[:ensure].to_s == 'present' && should[:ensure].to_s == 'present'
-          context.updating(name) do
-            update(context, name_hash, should)
-          end
         elsif is[:ensure].to_s == 'present' && should[:ensure].to_s == 'absent'
           context.deleting(name) do
             delete(context, name_hash)
+          end
+        elsif is[:ensure].to_s == 'present'
+          context.updating(name) do
+            update(context, name_hash, should)
           end
         end
       end
