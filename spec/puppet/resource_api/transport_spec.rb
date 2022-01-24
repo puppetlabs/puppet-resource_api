@@ -279,11 +279,13 @@ RSpec.describe Puppet::ResourceApi::Transport do
       let(:attributes) { {} }
       let(:schema) { { name: 'validate', desc: 'a  minimal connection', connection_info: attributes } }
       let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
+      let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
       before(:each) do
         allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
         allow(schema_def).to receive(:attributes).with(no_args).and_return(attributes)
         allow(schema_def).to receive(:name).with(no_args).and_return(schema[:name])
+        allow(described_class).to receive(:get_context).with('validate').and_return(context)
 
         described_class.register(schema)
       end
@@ -298,11 +300,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
       context 'when validating bolt _target information' do
         let(:attributes) { { host: {}, foo: {} } }
-        let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
         it 'cleans the connection_info' do
-          allow(described_class).to receive(:get_context).with('validate').and_return(context)
-
           expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
           expect(schema_def).to receive(:validate).with(host: 'host value', foo: 'foo value').and_return(nil)
 
@@ -318,6 +317,18 @@ RSpec.describe Puppet::ResourceApi::Transport do
                                                       query: 'metaparameter value',
                                                       'remote-reserved': 'reserved value',
                                                       bar: 'unknown attribute'
+        end
+      end
+
+      context 'when applying defaults' do
+        let(:attributes) { { host: { default: 'example.com' }, port: { default: 443 } } }
+
+        it 'sets defaults in the connection info' do
+          expect(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String)).and_return(nil)
+          expect(schema_def).to receive(:validate).with(host: 'host value', port: 443).and_return(nil)
+
+          expect(context).to receive(:debug).with('Using default value for attribute: port, value: 443')
+          described_class.send :validate, 'validate', host: 'host value'
         end
       end
     end
