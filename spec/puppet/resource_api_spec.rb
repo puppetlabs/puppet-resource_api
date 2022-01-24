@@ -111,6 +111,10 @@ RSpec.describe Puppet::ResourceApi do
             type: 'Optional[String]',
             desc: 'a optional string value',
           },
+          test_array: {
+            type: 'Array',
+            desc: 'an array value',
+          },
         },
         autorequire: {
           var: '$test_string',
@@ -122,7 +126,7 @@ RSpec.describe Puppet::ResourceApi do
           list: %w[foo bar],
         },
         autonotify: {
-          mixed: [10, '$test_integer'],
+          mixed: [10, '$test_integer', '$test_optional_string', '$test_array'],
         },
       }
     end
@@ -145,7 +149,7 @@ RSpec.describe Puppet::ResourceApi do
           # rely on the fact that the resource api is doing `self[]` internally to find the value
           # see https://github.com/puppetlabs/puppet/blob/9f2c143962803a72c68f35be3462944e851bcdce/lib/puppet/type.rb#L2143
           # for details
-          result += { test_string: 'foo', test_integer: 100 }.instance_eval(&values)
+          result += { test_string: 'foo', test_integer: 100, test_array: %w[a b c] }.instance_eval(&values)
         end
         result
       end
@@ -173,8 +177,8 @@ RSpec.describe Puppet::ResourceApi do
 
       describe 'autonotify' do
         it('yields the block for `mixed`') { expect { |b| type.eachautonotify(&b) }.to yield_with_args(:mixed, be_a(Proc)) }
-        it('the yielded block returns multiple integer values') do
-          expect(extract_values(:eachautonotify)).to eq [10, 100]
+        it('the yielded block returns multiple integer values, the flattened array results, and no nils') do
+          expect(extract_values(:eachautonotify)).to eq [10, 100, 'a', 'b', 'c']
         end
       end
     end
