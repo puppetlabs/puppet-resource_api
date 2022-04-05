@@ -2,6 +2,6 @@
 
 module Puppet
   module ResourceApi
-    VERSION = '1.8.16'
+    VERSION = '1.8.15'
   end
 end
