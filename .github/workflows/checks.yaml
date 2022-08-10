@@ -1,0 +1,48 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  rubocop:
+    name: RuboCop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Update rubygems and install gems
+        run: |
+          gem update --system --silent --no-document
+          bundle config set without development
+          bundle install --jobs 4 --retry 3
+      - run: bundle exec rake rubocop
+
+  license_finder:
+    name: License Finder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Update rubygems and install gems
+        run: |
+          # We typically skip over groups such as development in the Gemfile, but
+          # for this check we need all the gems so we skip the `bundle config set without`
+          gem update --system --silent --no-document
+          bundle install --jobs 4 --retry 3
+      - run: bundle exec rake license_finder
