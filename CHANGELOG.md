@@ -3,9 +3,9 @@
 All significant changes to this repo will be summarized in this file.
 
 
-## [1.8.15](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.15) (2022-10-03)
+## [1.8.16](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.16) (2022-10-03)
 
-[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.14...1.8.15)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.14...1.8.16)
 
 **Merged pull requests:**
 
