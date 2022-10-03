@@ -3,9 +3,24 @@
 All significant changes to this repo will be summarized in this file.
 
 
-## [v1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.14) (2021-06-09)
+## [1.8.15](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.15) (2022-10-03)
 
-[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.13...v1.8.14)
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.14...1.8.15)
+
+**Merged pull requests:**
+
+- \(PA-4558\) Replaces Travis CI with GitHub Actions [\#298](https://github.com/puppetlabs/puppet-resource_api/pull/298) ([mhashizume](https://github.com/mhashizume))
+- Add snyk monitoring [\#297](https://github.com/puppetlabs/puppet-resource_api/pull/297) ([joshcooper](https://github.com/joshcooper))
+- \(packaging\) Sets version to 1.8.15 for release [\#296](https://github.com/puppetlabs/puppet-resource_api/pull/296) ([mhashizume](https://github.com/mhashizume))
+- Update CODEOWNERS [\#295](https://github.com/puppetlabs/puppet-resource_api/pull/295) ([binford2k](https://github.com/binford2k))
+- Add array support to autorequire variable expansion [\#294](https://github.com/puppetlabs/puppet-resource_api/pull/294) ([seanmil](https://github.com/seanmil))
+- \(GH-231\) Add default to transport attributes [\#293](https://github.com/puppetlabs/puppet-resource_api/pull/293) ([seanmil](https://github.com/seanmil))
+- Support ensure parameter with Optional data type [\#292](https://github.com/puppetlabs/puppet-resource_api/pull/292) ([seanmil](https://github.com/seanmil))
+- Only ship needed files [\#289](https://github.com/puppetlabs/puppet-resource_api/pull/289) ([ekohl](https://github.com/ekohl))
+
+## [1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.14) (2021-06-09)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.13...1.8.14)
 
 **Implemented enhancements:**
 
@@ -32,7 +47,7 @@ All significant changes to this repo will be summarized in this file.
 - Language correction [\#270](https://github.com/puppetlabs/puppet-resource_api/pull/270) ([epackorigan](https://github.com/epackorigan))
 - \(maint\) Update CHANGELOG [\#268](https://github.com/puppetlabs/puppet-resource_api/pull/268) ([DavidS](https://github.com/DavidS))
 - \(maint\) update test matrix for current supported versions; remove older versions to cut down on resource usage [\#265](https://github.com/puppetlabs/puppet-resource_api/pull/265) ([DavidS](https://github.com/DavidS))
-- \(maint\) Mock Hocon.load\(...\) [\#263](https://github.com/puppetlabs/puppet-resource_api/pull/263) ([IrimieBogdan](https://github.com/IrimieBogdan))
+- \(maint\) Mock Hocon.load\(...\) [\#263](https://github.com/puppetlabs/puppet-resource_api/pull/263) ([BogdanIrimie](https://github.com/BogdanIrimie))
 - Update rake requirement from ~\> 10.0 to ~\> 13.0 [\#262](https://github.com/puppetlabs/puppet-resource_api/pull/262) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - \(maint\) update Gemfile to allow use of non-vulnerable rake version 12.3.3 [\#260](https://github.com/puppetlabs/puppet-resource_api/pull/260) ([DavidS](https://github.com/DavidS))
 
