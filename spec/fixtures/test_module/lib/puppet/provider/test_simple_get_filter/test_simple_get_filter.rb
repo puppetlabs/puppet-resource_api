@@ -4,9 +4,7 @@ require 'puppet/resource_api/simple_provider'
 # Implementation for the test_simple_get_filter type using the Resource API.
 class Puppet::Provider::TestSimpleGetFilter::TestSimpleGetFilter < Puppet::ResourceApi::SimpleProvider
   def get(_context, names = nil)
-    raise Puppet::DevError, 'names parameter must be provided to TestSimpleGetFilter#get()' if names.nil?
-
-    result = if names.empty?
+    result = if names.nil?
                # rather than fething everything from your large dataset, return a subset of the data that you are happy to show.
                # This will be cached by Puppet. If a resource requested exists in the cache, then no futher calls are made to the provider.
                [{
