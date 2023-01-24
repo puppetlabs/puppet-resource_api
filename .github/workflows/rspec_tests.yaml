@@ -30,7 +30,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
       - name: Update rubygems and install gems
         run: |
-          gem update --system --silent --no-document
+          gem update --system 3.3.26 --silent --no-document
           bundle config set without development
           bundle install --jobs 4 --retry 3
       - run: bundle exec rake
