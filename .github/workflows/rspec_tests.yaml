@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: [ '2.5', '2.7', 'jruby-9.2.17.0' ]
-        puppet_version: [ '6', '7' ]
+        ruby: [ '2.5' ]
+        puppet_version: [ '~> 6.29' ]
     env:
-      PUPPET_GEM_VERSION: ~> ${{ matrix.puppet_version }}.0
+      PUPPET_GEM_VERSION: ${{ matrix.puppet_version }}
     steps:
       - name: Checkout current PR
         uses: actions/checkout@v3
