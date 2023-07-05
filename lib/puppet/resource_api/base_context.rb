@@ -90,7 +90,7 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
-  def processing(title, is, should, message: 'Processing')
+  def processing(title, is, should, message = 'Processing')
     raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
     start_time = Time.now
     setup_context(title, message)
