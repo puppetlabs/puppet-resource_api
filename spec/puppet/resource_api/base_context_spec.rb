@@ -362,7 +362,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
   describe '#feature_support?' do
     it {
-      expect(Puppet::Util::Log).to receive(:create).with(level: :warning, source: 'Puppet', message: match(%r{context.feature_support\? is deprecated. Please use context.type.feature\? instead\.}))
+      expect(Puppet::Util::Log).to receive(:create).with(level: :warning, source: 'Puppet', message: match(%r{context.feature_support\? is deprecated\. Please use context.type.feature\? instead\.}))
       context.feature_support?('anything')
     }
   end
