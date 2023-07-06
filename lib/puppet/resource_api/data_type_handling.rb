@@ -86,7 +86,7 @@ module Puppet::ResourceApi::DataTypeHandling
     when Puppet::Pops::Types::PIntegerType,
          Puppet::Pops::Types::PFloatType,
          Puppet::Pops::Types::PNumericType
-      if value =~ %r{^-?\d+$} || value =~ Puppet::Pops::Patterns::NUMERIC
+      if value.is_a?(String) && (value.match?(%r{^-?\d+$}) || value.match?(Puppet::Pops::Patterns::NUMERIC))
         value = Puppet::Pops::Utils.to_n(value)
       end
     when Puppet::Pops::Types::PEnumType,
