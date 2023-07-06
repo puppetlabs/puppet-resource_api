@@ -259,7 +259,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     before(:each) do
-      allow(context).to receive(:creating).with(name1: 'value1', name2: 'value2').and_yield
+      allow(context).to receive(:creating).with({ name1: 'value1', name2: 'value2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       allow(type_def).to receive(:namevars).and_return([:name1, :name2])
       allow(type_def).to receive(:check_schema)

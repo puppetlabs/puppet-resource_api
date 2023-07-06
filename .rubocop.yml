@@ -121,10 +121,9 @@ Lint/NestedMethodDefinition:
 RSpec/MessageSpies:
   Enabled: false
 
-# If neighbouring parameters are both hashes, it helps to have braces round both.
+# This cop causes issues on our current version of Rubocop (0.57.2) and newer (>= 3.0) Rubies because of keyword arguments.
 Style/BracesAroundHashParameters:
-  Exclude:
-    - 'spec/puppet/resource_api/base_context_spec.rb'
+  Enabled: false
 
 # requires 2.3's squiggly HEREDOC support, which we can't use, yet
 # see http://www.virtuouscode.com/2016/01/06/about-the-ruby-squiggly-heredoc-syntax/

@@ -188,7 +188,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when the transport file does not exist' do
       it 'throws a LoadError' do
-        expect(described_class).to receive(:validate).with(name, host: 'example.com')
+        expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
         expect { described_class.connect(name, host: 'example.com') }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/test_target}
       end
     end
@@ -198,10 +198,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
         it 'throws a NameError' do
           described_class.register(schema)
 
-          expect(described_class).to receive(:validate).with(name, host: 'example.com')
+          expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
-          expect { described_class.connect(name, host: 'example.com') }.to raise_error NameError,
-                                                                                       %r{uninitialized constant (Puppet::Transport|TestTarget)}
+          expect { described_class.connect(name, { host: 'example.com' }) }.to raise_error NameError,
+                                                                                           %r{uninitialized constant (Puppet::Transport|TestTarget)}
         end
       end
 
@@ -214,13 +214,13 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
           allow(described_class).to receive(:require).with('puppet/resource_api/puppet_context').and_call_original
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
-          expect(described_class).to receive(:validate).with(name, host: 'example.com')
+          expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
           expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)
 
           stub_const('Puppet::Transport::TestTarget', test_target)
-          expect(test_target).to receive(:new).with(context, host: 'example.com')
+          expect(test_target).to receive(:new).with(context, { host: 'example.com' })
 
-          described_class.connect(name, host: 'example.com')
+          described_class.connect(name, { host: 'example.com' })
         end
       end
     end
@@ -303,7 +303,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
         it 'cleans the connection_info' do
           expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
-          expect(schema_def).to receive(:validate).with(host: 'host value', foo: 'foo value').and_return(nil)
+          expect(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' }).and_return(nil)
 
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: query')
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: remote-transport')
@@ -325,7 +325,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
         it 'sets defaults in the connection info' do
           expect(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String)).and_return(nil)
-          expect(schema_def).to receive(:validate).with(host: 'host value', port: 443).and_return(nil)
+          expect(schema_def).to receive(:validate).with({ host: 'host value', port: 443 }).and_return(nil)
 
           expect(context).to receive(:debug).with('Using default value for attribute: port, value: 443')
           described_class.send :validate, 'validate', host: 'host value'

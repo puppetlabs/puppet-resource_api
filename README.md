@@ -1,6 +1,6 @@
-# Puppet::ResourceApi [![TravisCI Build Status](https://travis-ci.org/puppetlabs/puppet-resource_api.svg?branch=main)](https://travis-ci.org/puppetlabs/puppet-resource_api) [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/8o9s1ax0hs8lm5fd/branch/main?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api/branch/main) [![codecov](https://codecov.io/gh/puppetlabs/puppet-resource_api/branch/main/graph/badge.svg)](https://codecov.io/gh/puppetlabs/puppet-resource_api)
+# Puppet::ResourceApi [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/8o9s1ax0hs8lm5fd/branch/main?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api/branch/main) [![codecov](https://codecov.io/gh/puppetlabs/puppet-resource_api/branch/main/graph/badge.svg)](https://codecov.io/gh/puppetlabs/puppet-resource_api)
 
-This is an implementation of the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/blob/main/language/resource-api/README.md).
+This is an implementation of the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md).
 
 Find a working example of a new-style providers in the [Palo Alto Firewall module](https://github.com/puppetlabs/puppetlabs-panos/):
 * [Type](https://github.com/puppetlabs/puppetlabs-panos/blob/main/lib/puppet/type/panos_address.rb)
@@ -15,18 +15,18 @@ Find a working example of a new-style providers in the [Palo Alto Firewall modul
 * The [Resource API specs](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md) describes details of all the capabilities of this gem.
 * The [puppetlabs-hue module](https://github.com/puppetlabs/puppetlabs-hue) is a very simple example for using the Resource API for remote resources.
 * The [meraki module](https://github.com/meraki/puppet-module) is a full example for using the Resource API for remote resources.
-* This [Introduction to Testing Puppet Modules](https://www.netways.de/index.php?id=3445#c44135) talk describes rspec usage in more detail.
-* The [RSpec docs](https://relishapp.com/rspec) provide an overview of the capabilities of rspec.
+* This [Introduction to Testing Puppet Modules](https://www.youtube.com/watch?v=GgNrxLfoDF8) talk describes rspec usage in more detail.
+* The [RSpec docs](https://rspec.info/documentation/) provide an overview of the capabilities of rspec.
 * Read [betterspecs](http://www.betterspecs.org/) for general guidelines on what is considered good specs.
 
 
 ## Deployment
 
-The `puppet-resource_api` gem is part of the [Puppet 6 Platform](https://puppet.com/blog/introducing-puppet-6). With older versions of Puppet, you can use the [puppetlabs-resource_api module](https://forge.puppet.com/puppetlabs/resource_api) to install the gem on your servers and agents.
+The `puppet-resource_api` gem is part of Puppet from version 6 onward.
 
 
 ## Contributing
-We are always welcoming bug reports and pull requests on the Resource API, so that we can continue to improve it to the best of our ability. If you would like to contribute, [have a look at our GitHub](https://github.com/puppetlabs/puppet-resource_api) and the [Resource API Backlog](https://github.com/puppetlabs/puppet-resource_api/projects/1).
+We welcome bug reports and pull requests on the Resource API so that we can continue to improve it to the best of our ability. If you would like to contribute, [have a look at our GitHub](https://github.com/puppetlabs/puppet-resource_api) and the [Resource API Backlog](https://github.com/puppetlabs/puppet-resource_api/projects/1).
 
 
 ## Known Issues
