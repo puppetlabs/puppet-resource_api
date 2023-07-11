@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  rspec_tests:
-    name: Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
+  linux_tests:
+    name: Linux, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,5 +34,35 @@ jobs:
       - name: Update rubygems and install gems
         run: |
           bundle config set without development
+          bundle install --jobs 4 --retry 3
+      - run: bundle exec rake
+
+  # Starting with version 3.2, Ruby no longer bundles libffi, which is necessary for tests on Windows. Due to a discrepancy between the C
+  # library the Windows Puppet gem is built against and what GitHub runners use (MinGW and ucrt, respectively) we can't install the
+  # Windows-specific Puppet gem that includes libffi. To work around these issues, we have a separate "integration" group that we include
+  # when testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
+  windows_tests:
+    name: Windows, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        cfg:
+          - {puppet_version: '7', ruby: '2.7'}
+          - {puppet_version: '8', ruby: '3.2', extra: 'bundle config set with integration'}
+    env:
+      PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install Ruby version ${{ matrix.cfg.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.cfg.ruby }}
+      - name: Update rubygems and install gems
+        run: |
+          bundle config set without development
+          ${{ matrix.cfg.extra }}
           bundle install --jobs 4 --retry 3
       - run: bundle exec rake

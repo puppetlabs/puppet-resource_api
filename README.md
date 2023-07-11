@@ -1,4 +1,4 @@
-# Puppet::ResourceApi [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/8o9s1ax0hs8lm5fd/branch/main?svg=true)](https://ci.appveyor.com/project/puppetlabs/puppet-resource-api/branch/main) [![codecov](https://codecov.io/gh/puppetlabs/puppet-resource_api/branch/main/graph/badge.svg)](https://codecov.io/gh/puppetlabs/puppet-resource_api)
+# Puppet::ResourceApi [![codecov](https://codecov.io/gh/puppetlabs/puppet-resource_api/branch/main/graph/badge.svg)](https://codecov.io/gh/puppetlabs/puppet-resource_api)
 
 This is an implementation of the [Resource API specification](https://github.com/puppetlabs/puppet-specifications/blob/master/language/resource-api/README.md).
 
