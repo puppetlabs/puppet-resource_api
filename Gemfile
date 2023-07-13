@@ -38,6 +38,14 @@ group :development do
   gem 'pry-byebug'
 end
 
+# Starting with version 3.2, Ruby no longer bundles libffi, which is necessary for tests on Windows. Due to a discrepancy between the C
+# library the Windows Puppet gem is built against and what GitHub runners use (MinGW and ucrt, respectively) we can't install the Windows-
+# specific Puppet gem that includes libffi. To work around these issues, we have a separate "integration" group that we include when
+# testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
+group :integration do
+  gem 'ffi'
+end
+
 # Find a location or specific version for a gem. place_or_version can be a
 # version, which is most often used. It can also be git, which is specified as
 # `git://somewhere.git#branch`. You can also use a file source location, which
