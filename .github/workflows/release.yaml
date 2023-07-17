@@ -31,6 +31,6 @@ jobs:
       - name: Publish gem
         uses: scarhand/actions-ruby@master
         env:
-          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
+          RUBYGEMS_AUTH_TOKEN: ${{ secrets.RUBYGEMS_JENKINS_GH_ACTIONS_PUSH }}
         with:
           args: push *.gem
