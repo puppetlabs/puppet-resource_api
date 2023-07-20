@@ -2,10 +2,8 @@ name: Tag and release
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'lib/puppet/resource_api/version.rb'
+    tags:
+      - '*'
 
 jobs:
   release:
@@ -14,16 +12,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: '0'
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.67.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch
-          TAG_CONTEXT: branch
-          WITH_V: false
-          # Uncomment this if the tag and version file become out-of-sync and
-          # you need to tag at a specific version.
-          # CUSTOM_TAG:
       - name: Build gem
         uses: scarhand/actions-ruby@master
         with:
