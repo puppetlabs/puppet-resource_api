@@ -1690,6 +1690,61 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
+      context 'with a provider that has a custom
+       generate', agent_test: true do
+        let(:definition) do
+          {
+            name: 'generator',
+            desc: 'some desc',
+            attributes: {
+              name: {
+                type: 'String',
+                desc: '',
+                behaviour: :namevar,
+              },
+              test_string: {
+                type: 'String',
+                desc: '',
+              },
+            },
+            features: ['custom_generate'],
+          }
+        end
+        let(:provider_class) do
+          Class.new do
+            def generate(_context, _title, _is, should)
+              # Unless purge is true, return an empty array
+              return [] unless should[:purge]
+
+              # gather a list of all rules present on the system
+              rules_resources = Puppet::Type.type(:iptables).instances
+
+              rules_resources
+            end
+
+            def get(_context)
+              []
+            end
+
+            attr_reader :last_changes
+            def set(_context, changes)
+              @last_changes = changes
+            end
+          end
+        end
+
+        before(:each) do
+          stub_const('Puppet::Provider::Generator', Module.new)
+          stub_const('Puppet::Provider::Generator::Generator', provider_class)
+        end
+
+        it { expect { described_class.register_type(definition) }.not_to raise_error }
+
+        it 'is seen as a supported feature' do
+          expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+        end
+      end
+
       context 'when retrieving instances' do
         it('returns an Array') { expect(type.instances).to be_a Array }
         it('returns an array of Type instances') { expect(type.instances[0]).to be_a Puppet::Type.type(:canonicalizer) }

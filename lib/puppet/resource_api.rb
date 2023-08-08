@@ -136,6 +136,23 @@ module Puppet::ResourceApi
         @rsapi_canonicalized_target_state
       end
 
+      # Method is used to custom generate resources which are then applied by Puppet
+      def generate
+        # If feature `custom_generate` has been set then call the generate function within the provider and return the given results
+        return unless type_definition&.feature?('custom_generate')
+        should_hash = rsapi_canonicalized_target_state
+        is_hash     = rsapi_current_state
+        title       = rsapi_title
+
+        # Ensure that a custom `generate` method has been created within the provider
+        raise(Puppet::DevError, 'No generate method found within the types provider') unless my_provider.respond_to?(:generate)
+        # Call the providers custom `generate` method
+        rules_resources = my_provider.generate(context, title, is_hash, should_hash)
+
+        # Return array of resources
+        rules_resources
+      end
+
       def rsapi_current_state
         refresh_current_state unless @rsapi_current_state
         @rsapi_current_state
