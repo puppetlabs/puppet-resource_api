@@ -3,18 +3,31 @@
 All significant changes to this repo will be summarized in this file.
 
 
-## [1.8.18](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.18) (2023-07-17)
+## [1.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.0) (2023-08-08)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.18...1.9.0)
+
+**Implemented enhancements:**
+
+- \(CAT-761\) Add custom\_generate as a feature [\#316](https://github.com/puppetlabs/puppet-resource_api/pull/316) ([david22swan](https://github.com/david22swan))
+
+## [1.8.18](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.18) (2023-07-21)
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.16...1.8.18)
 
 **Merged pull requests:**
 
-- \(PA-5641\) Add release job via PR [\#321](https://github.com/puppetlabs/puppet-resource_api/pull/321) [\#322](https://github.com/puppetlabs/puppet-resource_api/pull/322) [\#323](https://github.com/puppetlabs/puppet-resource_api/pull/323) ([tvpartytonight](https://github.com/tvpartytonight))
-- Remove old Ruby logic from Gemfile [\#320](https://github.com/puppetlabs/puppet-resource_api/pull/320) ([mhashizume](https://github.com/mhashizume))
+- \(PA-5641\) Release only to rubygems, do not bump and release [\#326](https://github.com/puppetlabs/puppet-resource_api/pull/326) ([tvpartytonight](https://github.com/tvpartytonight))
+- \(PA-5641\) Prep for 1.8.18 release [\#324](https://github.com/puppetlabs/puppet-resource_api/pull/324) ([tvpartytonight](https://github.com/tvpartytonight))
+- \(PA-5641\) Use new organizational token for rubygem pushing [\#323](https://github.com/puppetlabs/puppet-resource_api/pull/323) ([tvpartytonight](https://github.com/tvpartytonight))
+- \(PA-5641\) prefer auto-generated GITHUB\_TOKEN [\#322](https://github.com/puppetlabs/puppet-resource_api/pull/322) ([tvpartytonight](https://github.com/tvpartytonight))
+- \(PA-5641\) Add release job via PR [\#321](https://github.com/puppetlabs/puppet-resource_api/pull/321) ([tvpartytonight](https://github.com/tvpartytonight))
+- \(maint\) Remove old Ruby logic from Gemfile [\#320](https://github.com/puppetlabs/puppet-resource_api/pull/320) ([mhashizume](https://github.com/mhashizume))
 - \(PA-4639\) Migrate away from AppVeyor [\#319](https://github.com/puppetlabs/puppet-resource_api/pull/319) ([mhashizume](https://github.com/mhashizume))
-- Don't require git [\#318](https://github.com/puppetlabs/puppet-resource_api/pull/318) ([joshcooper](https://github.com/joshcooper))
+- \(maint\) Don't require git [\#318](https://github.com/puppetlabs/puppet-resource_api/pull/318) ([joshcooper](https://github.com/joshcooper))
 - \(PA-5641\) Update rspec tests with modern Ruby [\#317](https://github.com/puppetlabs/puppet-resource_api/pull/317) ([mhashizume](https://github.com/mhashizume))
-- Update to Mend [\#311](https://github.com/puppetlabs/puppet-resource_api/pull/311) ([cthorn42](https://github.com/cthorn42))
+- \(maint\) Update to Mend [\#311](https://github.com/puppetlabs/puppet-resource_api/pull/311) ([cthorn42](https://github.com/cthorn42))
+- \(packaging\) Bump to version '1.8.17' \[no-promote\] [\#301](https://github.com/puppetlabs/puppet-resource_api/pull/301) ([tvpartytonight](https://github.com/tvpartytonight))
 
 ## [1.8.16](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.16) (2022-10-03)
 
