@@ -1,4 +1,4 @@
-name: Tag and release
+name: release to rubygems
 
 on:
   push:
