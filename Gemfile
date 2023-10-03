@@ -43,7 +43,8 @@ end
 # specific Puppet gem that includes libffi. To work around these issues, we have a separate "integration" group that we include when
 # testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
 group :integration do
-  gem 'ffi'
+  # Pin due to an issue with FFI, Windows, and Facter. See FACT-3434
+  gem 'ffi', '1.15.5'
 end
 
 # Find a location or specific version for a gem. place_or_version can be a
