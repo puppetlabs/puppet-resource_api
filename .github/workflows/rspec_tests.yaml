@@ -24,7 +24,7 @@ jobs:
       PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
     steps:
       - name: Checkout current PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install Ruby version ${{ matrix.cfg.ruby }}
@@ -53,7 +53,7 @@ jobs:
       PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
     steps:
       - name: Checkout current PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install Ruby version ${{ matrix.cfg.ruby }}
