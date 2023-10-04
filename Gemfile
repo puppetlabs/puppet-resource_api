@@ -44,7 +44,7 @@ end
 # testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
 group :integration do
   # Pin due to an issue with FFI, Windows, and Facter. See FACT-3434
-  gem 'ffi', '1.15.5'
+  gem 'ffi', '1.16.3'
 end
 
 # Find a location or specific version for a gem. place_or_version can be a
