@@ -83,6 +83,10 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(provider).to receive(:delete).never
       provider.set(context, changes)
     end
+    it 'calls get once' do
+      expect(provider).to receive(:get).once
+      provider.set(context, changes)
+    end
 
     context 'with a type that supports `simple_get_filter`' do
       before(:each) do
@@ -97,7 +101,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
   end
 
-  context 'with a single change to update a resource' do
+  context 'with a single change to update a resource with :is supplied' do
     let(:is_values) { { name: 'title', ensure: 'present' } }
     let(:should_values) { { name: 'title', ensure: 'present' } }
     let(:changes) do
@@ -126,6 +130,67 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     it 'does not call delete' do
       expect(provider).to receive(:delete).never
       provider.set(context, changes)
+    end
+    it 'does not call get' do
+      expect(provider).to receive(:get).never
+      provider.set(context, changes)
+    end
+    it 'does not check the schema' do
+      expect(type_def).to receive(:check_schema).never
+      provider.set(context, changes)
+    end
+  end
+
+  context 'with a single change to update a resource without :is supplied' do
+    let(:is_values) { [{ name: 'title', ensure: 'present' }] }
+    let(:should_values) { { name: 'title', ensure: 'present' } }
+    let(:changes) do
+      { 'title' =>
+        {
+          should: should_values,
+        } }
+    end
+
+    before(:each) do
+      allow(context).to receive(:updating).with('title').and_yield
+      allow(context).to receive(:type).and_return(type_def)
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:name])
+      allow(provider).to receive(:get).with(context).and_return(is_values)
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'calls update once' do
+      expect(provider).to receive(:update).with(context, 'title', should_values).once
+      provider.set(context, changes)
+    end
+    it 'calls get once' do
+      expect(provider).to receive(:get).with(context).once
+      provider.set(context, changes)
+    end
+    it 'does not check the schema' do
+      expect(type_def).to receive(:check_schema).with(is_values.first)
+      provider.set(context, changes)
+    end
+    it 'does not call delete' do
+      expect(provider).to receive(:delete).never
+      provider.set(context, changes)
+    end
+
+    context 'with a type that supports `simple_get_filter`' do
+      before(:each) do
+        allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
+        allow(provider).to receive(:get).with(context, ['title']).and_return(is_values)
+      end
+
+      it 'calls `get` with name' do
+        expect(provider).to receive(:get).with(context, ['title'])
+        provider.set(context, changes)
+      end
     end
   end
 
@@ -161,7 +226,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
   end
 
-  context 'with a single change to delete a resource' do
+  context 'with a single change to delete a resource with :is supplied' do
     let(:is_values) { { name: 'title', ensure: 'present' } }
     let(:should_values) { { name: 'title', ensure: 'absent' } }
     let(:changes) do
@@ -174,7 +239,6 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
     before(:each) do
       allow(context).to receive(:deleting).with('title').and_yield
-      allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:namevars).and_return([:name])
     end
@@ -190,6 +254,61 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     it 'calls delete once' do
       expect(provider).to receive(:delete).with(context, 'title').once
       provider.set(context, changes)
+    end
+    it 'does not call get' do
+      expect(provider).to receive(:get).never
+      provider.set(context, changes)
+    end
+  end
+
+  context 'with a single change to delete a resource without :is supplied' do
+    let(:is_values) { [{ name: 'title', ensure: 'present' }] }
+    let(:should_values) { { name: 'title', ensure: 'absent' } }
+    let(:changes) do
+      { 'title' =>
+        {
+          should: should_values,
+        } }
+    end
+
+    before(:each) do
+      allow(context).to receive(:deleting).with('title').and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:name])
+      allow(provider).to receive(:get).with(context).and_return(is_values)
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'does not call update' do
+      expect(provider).to receive(:update).never
+      provider.set(context, changes)
+    end
+    it 'calls delete once' do
+      expect(provider).to receive(:delete).with(context, 'title').once
+      provider.set(context, changes)
+    end
+    it 'calls check_schema' do
+      expect(type_def).to receive(:check_schema).once
+      provider.set(context, changes)
+    end
+    it 'calls get once to retrieve "is"' do
+      expect(provider).to receive(:get).with(context).once
+      provider.set(context, changes)
+    end
+
+    context 'with a type that supports `simple_get_filter`' do
+      before(:each) do
+        allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
+      end
+
+      it 'calls `get` with name' do
+        expect(provider).to receive(:get).with(context, ['title'])
+        provider.set(context, changes)
+      end
     end
   end
 
@@ -248,27 +367,220 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
   end
 
-  context 'with changes from a composite namevar type' do
+  context 'with a single change to create a composite namevar resource' do
+    let(:should_values) { { name1: 'title1', name2: 'title2', ensure: 'present' } }
     let(:changes) do
       {
-        { name1: 'value1', name2: 'value2' } =>
+        { name1: 'title1', name2: 'title2' } =>
           {
-            should: { name1: 'value1', name2: 'value2', ensure: 'present' },
+            should: should_values,
           },
       }
     end
 
     before(:each) do
-      allow(context).to receive(:creating).with({ name1: 'value1', name2: 'value2' }).and_yield
+      allow(context).to receive(:creating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       allow(type_def).to receive(:namevars).and_return([:name1, :name2])
       allow(type_def).to receive(:check_schema)
     end
 
-    it 'calls the crud methods with the right title' do
-      expect(provider).to receive(:create).with(context, { name1: 'value1', name2: 'value2' }, hash_including(name1: 'value1'))
-
+    it 'calls create once' do
+      expect(provider).to receive(:create).with(context, { name1: 'title1', name2: 'title2' }, should_values).once
       provider.set(context, changes)
+    end
+    it 'does not call update' do
+      expect(provider).to receive(:update).never
+      provider.set(context, changes)
+    end
+    it 'does not call delete' do
+      expect(provider).to receive(:delete).never
+      provider.set(context, changes)
+    end
+
+    context 'with a type that supports `simple_get_filter`' do
+      before(:each) do
+        allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
+      end
+
+      it 'calls `get` with name' do
+        expect(provider).to receive(:get).with(context, [{ name1: 'title1', name2: 'title2' }])
+        provider.set(context, changes)
+      end
+    end
+  end
+
+  context 'with a single change to update a composite namevar resource with :is supplied' do
+    let(:is_values) { { name1: 'title1', name2: 'title2', ensure: 'present' } }
+    let(:should_values) { { name1: 'title1', name2: 'title2', ensure: 'present' } }
+    let(:changes) do
+      {
+        { name1: 'title1', name2: 'title2' } =>
+          {
+            is: is_values,
+            should: should_values,
+          },
+      }
+    end
+
+    before(:each) do
+      allow(context).to receive(:updating).with({ name1: 'title1', name2: 'title2' }).and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'calls update once' do
+      expect(provider).to receive(:update).with(context, { name1: 'title1', name2: 'title2' }, should_values).once
+      provider.set(context, changes)
+    end
+    it 'does not call delete' do
+      expect(provider).to receive(:delete).never
+      provider.set(context, changes)
+    end
+    it 'does not call get' do
+      expect(provider).to receive(:get).never
+      provider.set(context, changes)
+    end
+  end
+
+  context 'with a single change to update a composite namevar resource without :is supplied' do
+    let(:is_values) { [{ name1: 'title1', name2: 'title2', ensure: 'present' }] }
+    let(:should_values) { { name1: 'title1', name2: 'title2', ensure: 'present' } }
+    let(:changes) do
+      {
+        { name1: 'title1', name2: 'title2' } =>
+          {
+            should: should_values,
+          },
+      }
+    end
+
+    before(:each) do
+      allow(context).to receive(:updating).with({ name1: 'title1', name2: 'title2' }).and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(provider).to receive(:get).with(context).and_return(is_values)
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'calls update once' do
+      expect(provider).to receive(:update).with(context, { name1: 'title1', name2: 'title2' }, should_values).once
+      provider.set(context, changes)
+    end
+    it 'does not call delete' do
+      expect(provider).to receive(:delete).never
+      provider.set(context, changes)
+    end
+    it 'calls get once' do
+      expect(provider).to receive(:get).once
+      provider.set(context, changes)
+    end
+
+    context 'with a type that supports `simple_get_filter`' do
+      before(:each) do
+        allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
+        allow(provider).to receive(:get).with(context, [{ name1: 'title1', name2: 'title2' }]).and_return(is_values)
+      end
+
+      it 'calls `get` with name' do
+        expect(provider).to receive(:get).with(context, [{ name1: 'title1', name2: 'title2' }]).once
+        provider.set(context, changes)
+      end
+    end
+  end
+
+  context 'with a single change to delete a composite namevar resource with :is supplied' do
+    let(:is_values) { { name1: 'title1', name2: 'title2', ensure: 'present' } }
+    let(:should_values) { { name1: 'title1', name2: 'title2', ensure: 'absent' } }
+    let(:changes) do
+      {
+        { name1: 'title1', name2: 'title2' } =>
+          {
+            is: is_values,
+            should: should_values,
+          },
+      }
+    end
+
+    before(:each) do
+      allow(context).to receive(:deleting).with({ name1: 'title1', name2: 'title2' }).and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'does not call update' do
+      expect(provider).to receive(:update).never
+      provider.set(context, changes)
+    end
+    it 'calls delete once' do
+      expect(provider).to receive(:delete).with(context, { name1: 'title1', name2: 'title2' }).once
+      provider.set(context, changes)
+    end
+    it 'does not call get' do
+      expect(provider).to receive(:get).never
+      provider.set(context, changes)
+    end
+  end
+
+  context 'with a single change to delete a composite namevar resource without :is supplied' do
+    let(:is_values) { [{ name1: 'title1', name2: 'title2', ensure: 'present' }] }
+    let(:should_values) { { name1: 'title1', name2: 'title2', ensure: 'absent' } }
+    let(:changes) do
+      {
+        { name1: 'title1', name2: 'title2' } =>
+          {
+            should: should_values,
+          },
+      }
+    end
+
+    before(:each) do
+      allow(context).to receive(:deleting).with({ name1: 'title1', name2: 'title2' }).and_yield
+      allow(type_def).to receive(:feature?).with('simple_get_filter')
+      allow(type_def).to receive(:check_schema)
+      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(provider).to receive(:get).with(context).and_return(is_values)
+    end
+
+    it 'does not call create' do
+      expect(provider).to receive(:create).never
+      provider.set(context, changes)
+    end
+    it 'does not call update' do
+      expect(provider).to receive(:update).never
+      provider.set(context, changes)
+    end
+    it 'calls delete once' do
+      expect(provider).to receive(:delete).with(context, { name1: 'title1', name2: 'title2' }).once
+      provider.set(context, changes)
+    end
+    it 'calls get once' do
+      expect(provider).to receive(:get).once
+      provider.set(context, changes)
+    end
+
+    context 'with a type that supports `simple_get_filter`' do
+      before(:each) do
+        allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
+      end
+
+      it 'calls `get` with name' do
+        expect(provider).to receive(:get).with(context, [{ name1: 'title1', name2: 'title2' }])
+        provider.set(context, changes)
+      end
     end
   end
 end
