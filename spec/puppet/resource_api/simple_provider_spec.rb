@@ -143,6 +143,20 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(type_def).to receive(:check_schema).never
       provider.set(context, changes)
     end
+
+    context 'when the namevar is not name' do
+      let(:is_values) { { key: 'title', ensure: 'present' } }
+      let(:should_values) { { key: 'title', ensure: 'present' } }
+
+      before(:each) do
+        allow(type_def).to receive(:namevars).and_return([:key])
+      end
+
+      it 'calls update once' do
+        expect(provider).to receive(:update).with(context, 'title', should_values).once
+        provider.set(context, changes)
+      end
+    end
   end
 
   context 'with a single change to update a resource without :is supplied' do
@@ -193,6 +207,20 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
       it 'calls `get` with name' do
         expect(provider).to receive(:get).with(context, ['title'])
+        provider.set(context, changes)
+      end
+    end
+
+    context 'when the namevar is not name' do
+      let(:is_values) { [{ key: 'title', ensure: 'present' }] }
+      let(:should_values) { { key: 'title', ensure: 'present' } }
+
+      before(:each) do
+        allow(type_def).to receive(:namevars).and_return([:key])
+      end
+
+      it 'calls update once' do
+        expect(provider).to receive(:update).with(context, 'title', should_values).once
         provider.set(context, changes)
       end
     end
@@ -263,6 +291,20 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(provider).to receive(:get).never
       provider.set(context, changes)
     end
+
+    context 'when the namevar is not name' do
+      let(:is_values) { { key: 'title', ensure: 'present' } }
+      let(:should_values) { { key: 'title', ensure: 'absent' } }
+
+      before(:each) do
+        allow(type_def).to receive(:namevars).and_return([:key])
+      end
+
+      it 'calls delete once' do
+        expect(provider).to receive(:delete).with(context, 'title').once
+        provider.set(context, changes)
+      end
+    end
   end
 
   context 'with a single change to delete a resource without :is supplied' do
@@ -311,6 +353,20 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
       it 'calls `get` with name' do
         expect(provider).to receive(:get).with(context, ['title'])
+        provider.set(context, changes)
+      end
+    end
+
+    context 'when the namevar is not name' do
+      let(:is_values) { [{ key: 'title', ensure: 'present' }] }
+      let(:should_values) { { key: 'title', ensure: 'absent' } }
+
+      before(:each) do
+        allow(type_def).to receive(:namevars).and_return([:key])
+      end
+
+      it 'calls delete once' do
+        expect(provider).to receive(:delete).with(context, 'title').once
         provider.set(context, changes)
       end
     end

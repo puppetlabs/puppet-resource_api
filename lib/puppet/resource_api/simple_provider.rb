@@ -6,8 +6,8 @@ module Puppet::ResourceApi
   # This class provides a default implementation for set(), when your resource does not benefit from batching.
   # Instead of processing changes yourself, the `create`, `update`, and `delete` functions, are called for you,
   # with proper logging already set up.
-  # Note that your type needs to use `name` as its namevar, and `ensure` in the conventional way to signal presence
-  # and absence of resources.
+  # Note that your type needs to use `ensure` in the conventional way with values of `prsesent`
+  # and `absent` to signal presence and absence of resources.
   class SimpleProvider
     def set(context, changes)
       namevars = context.type.namevars
