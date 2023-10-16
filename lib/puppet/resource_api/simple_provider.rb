@@ -10,11 +10,13 @@ module Puppet::ResourceApi
   # and absence of resources.
   class SimpleProvider
     def set(context, changes)
+      namevars = context.type.namevars
+
       changes.each do |name, change|
         is = if context.type.feature?('simple_get_filter')
-               change.key?(:is) ? change[:is] : (get(context, [name]) || []).find { |r| r[:name] == name }
+               change.key?(:is) ? change[:is] : (get(context, [name]) || []).find { |r| SimpleProvider.build_name(namevars, r) == name }
              else
-               change.key?(:is) ? change[:is] : (get(context) || []).find { |r| r[:name] == name }
+               change.key?(:is) ? change[:is] : (get(context) || []).find { |r| SimpleProvider.build_name(namevars, r) == name }
              end
         context.type.check_schema(is) unless change.key?(:is)
 
@@ -25,10 +27,10 @@ module Puppet::ResourceApi
         is = SimpleProvider.create_absent(:name, name) if is.nil?
         should = SimpleProvider.create_absent(:name, name) if should.nil?
 
-        name_hash = if context.type.namevars.length > 1
+        name_hash = if namevars.length > 1
                       # pass a name_hash containing the values of all namevars
                       name_hash = {}
-                      context.type.namevars.each do |namevar|
+                      namevars.each do |namevar|
                         name_hash[namevar] = change[:should][namevar]
                       end
                       name_hash
@@ -73,6 +75,15 @@ module Puppet::ResourceApi
                end
       result[:ensure] = 'absent'
       result
+    end
+
+    # @api private
+    def self.build_name(namevars, resource_hash)
+      if namevars.size > 1
+        Hash[namevars.map { |attr| [attr, resource_hash[attr]] }]
+      else
+        resource_hash[namevars[0]]
+      end
     end
   end
 end

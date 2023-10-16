@@ -40,6 +40,10 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
   context 'with no changes' do
     let(:changes) { {} }
 
+    before(:each) do
+      allow(type_def).to receive(:namevars)
+    end
+
     it 'does not call create' do
       expect(provider).to receive(:create).never
       provider.set(context, changes)
@@ -362,6 +366,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:updating).with('title').and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:ensurable?).and_return(false)
+      allow(type_def).to receive(:namevars).and_return([:name])
     end
 
     it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
