@@ -24,8 +24,8 @@ module Puppet::ResourceApi
 
         raise 'SimpleProvider cannot be used with a Type that is not ensurable' unless context.type.ensurable?
 
-        is = SimpleProvider.create_absent(:name, name) if is.nil?
-        should = SimpleProvider.create_absent(:name, name) if should.nil?
+        is_ensure = is.nil? ? 'absent' : is[:ensure].to_s
+        should_ensure = should.nil? ? 'absent' : should[:ensure].to_s
 
         name_hash = if namevars.length > 1
                       # pass a name_hash containing the values of all namevars
@@ -38,15 +38,15 @@ module Puppet::ResourceApi
                       name
                     end
 
-        if is[:ensure].to_s == 'absent' && should[:ensure].to_s == 'present'
+        if is_ensure == 'absent' && should_ensure == 'present'
           context.creating(name) do
             create(context, name_hash, should)
           end
-        elsif is[:ensure].to_s == 'present' && should[:ensure].to_s == 'absent'
+        elsif is_ensure == 'present' && should_ensure == 'absent'
           context.deleting(name) do
             delete(context, name_hash)
           end
-        elsif is[:ensure].to_s == 'present'
+        elsif is_ensure == 'present'
           context.updating(name) do
             update(context, name_hash, should)
           end
@@ -64,17 +64,6 @@ module Puppet::ResourceApi
 
     def delete(_context, _name)
       raise "#{self.class} has not implemented `delete`"
-    end
-
-    # @api private
-    def self.create_absent(namevar, title)
-      result = if title.is_a? Hash
-                 title.dup
-               else
-                 { namevar => title }
-               end
-      result[:ensure] = 'absent'
-      result
     end
 
     # @api private
