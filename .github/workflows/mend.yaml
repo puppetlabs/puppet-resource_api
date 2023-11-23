@@ -1,34 +1,15 @@
----
-name: Mend Monitor
+name: "mend"
+
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - "main"
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
 jobs:
-  mend_monitor:
-    if: ${{ github.repository_owner == 'puppetlabs' }}
-    runs-on: ubuntu-latest
-    name: Mend Monitor
-    steps:
-      - name: Checkout current PR
-        uses: actions/checkout@v4
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7
-      - name: Create lock
-        run: bundle lock
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Download Mend
-        run: curl -o wss-unified-agent.jar https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar
-      - name: Run Mend
-        run: java -jar wss-unified-agent.jar
-        env:
-          WS_APIKEY: ${{ secrets.MEND_API_KEY }}
-          WS_WSS_URL: https://saas-eu.whitesourcesoftware.com/agent
-          WS_USERKEY: ${{ secrets.MEND_TOKEN }}
-          WS_PRODUCTNAME: Puppet Agent
-          WS_PROJECTNAME: ${{ github.event.repository.name }}
+
+  mend:
+    uses: "puppetlabs/cat-github-actions/.github/workflows/tooling_mend_ruby.yml@main"
+    secrets: "inherit"
