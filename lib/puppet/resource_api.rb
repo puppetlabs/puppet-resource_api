@@ -5,6 +5,7 @@ require 'puppet/resource_api/data_type_handling'
 require 'puppet/resource_api/glue'
 require 'puppet/resource_api/parameter'
 require 'puppet/resource_api/property'
+require 'puppet/resource_api/provider_get_cache'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
 require 'puppet/resource_api/transport'
@@ -67,6 +68,15 @@ module Puppet::ResourceApi
 
       if type_definition.feature?('remote_resource')
         apply_to_device
+      end
+
+      define_singleton_method(:rsapi_provider_get_cache) do
+        # This gives a new cache per resource provider on each Puppet run:
+        @rsapi_provider_get_cache ||= Puppet::ResourceApi::ProviderGetCache.new
+      end
+
+      def rsapi_provider_get_cache
+        self.class.rsapi_provider_get_cache
       end
 
       def initialize(attributes)
@@ -154,10 +164,16 @@ module Puppet::ResourceApi
       end
 
       def rsapi_current_state
-        @rsapi_current_state
+        return @rsapi_current_state if @rsapi_current_state
+        # If the current state is not set, then check the cache and, if a value is
+        # found, ensure it passes strict_check before allowing it to be used:
+        cached_value = rsapi_provider_get_cache.get(rsapi_title)
+        strict_check(cached_value) if cached_value
+        @rsapi_current_state = cached_value
       end
 
       def rsapi_current_state=(value)
+        rsapi_provider_get_cache.add(rsapi_title, value)
         @rsapi_current_state = value
       end
 
@@ -299,7 +315,7 @@ module Puppet::ResourceApi
       # does not help with that:
       def cache_current_state(resource_hash)
         self.rsapi_current_state = resource_hash
-        strict_check(rsapi_current_state)
+        strict_check(resource_hash)
       end
 
       def retrieve

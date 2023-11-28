@@ -24,12 +24,10 @@ RSpec.describe 'minimizing provider get calls' do
       expect(stdout_str).not_to match %r{Creating}
     end
 
-    it 'calls get 3 times with resource purging' do
+    it 'calls get 1 time with resource purging' do
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_get_calls_basic { foo: } test_get_calls_basic { bar: } resources { test_get_calls_basic: purge => true }\"")
       expect(stdout_str).to match %r{Notice: test_get_calls_basic: Provider get called 1 times}
-      expect(stdout_str).to match %r{Notice: test_get_calls_basic: Provider get called 2 times}
-      expect(stdout_str).to match %r{Notice: test_get_calls_basic: Provider get called 3 times}
-      expect(stdout_str).not_to match %r{Notice: test_get_calls_basic: Provider get called 4 times}
+      expect(stdout_str).not_to match %r{Notice: test_get_calls_basic: Provider get called 2 times}
       expect(stdout_str).not_to match %r{Creating}
     end
   end
@@ -52,12 +50,10 @@ RSpec.describe 'minimizing provider get calls' do
       expect(stdout_str).not_to match %r{Creating}
     end
 
-    it 'calls get 3 times when resource purging' do
+    it 'calls get 1 time when resource purging' do
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_get_calls_sgf { foo: } test_get_calls_sgf { bar: } resources { test_get_calls_sgf: purge => true }\"")
       expect(stdout_str).to match %r{Notice: test_get_calls_sgf: Provider get called 1 times}
-      expect(stdout_str).to match %r{Notice: test_get_calls_sgf: Provider get called 2 times}
-      expect(stdout_str).to match %r{Notice: test_get_calls_sgf: Provider get called 3 times}
-      expect(stdout_str).not_to match %r{Notice: test_get_calls_sgf: Provider get called 4 times}
+      expect(stdout_str).not_to match %r{Notice: test_get_calls_sgf: Provider get called 2 times}
       expect(stdout_str).not_to match %r{Creating}
     end
   end
