@@ -36,7 +36,7 @@ RSpec.describe 'exercising a device provider' do
                    'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match %r{#{stdmatch}}
-        expect(status).to be_success
+        expect(status).not_to be_success
       end
     end
 
