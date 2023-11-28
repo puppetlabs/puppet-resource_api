@@ -261,19 +261,36 @@ module Puppet::ResourceApi
         type_definition.create_attribute_in(self, name, param_or_property, parent, options)
       end
 
+      def self.rsapi_provider_get(names = nil)
+        # If the cache has been marked as having all instances, then just return the
+        # full contents:
+        return rsapi_provider_get_cache.all if rsapi_provider_get_cache.cached_all? && names.nil?
+
+        fetched = if type_definition.feature?('simple_get_filter')
+                    my_provider.get(context, names)
+                  else
+                    my_provider.get(context)
+                  end
+
+        fetched.each do |resource_hash|
+          type_definition.check_schema(resource_hash)
+          rsapi_provider_get_cache.add(build_title(type_definition, resource_hash), resource_hash)
+        end
+
+        if names.nil? && !type_definition.feature?('simple_get_filter')
+          # Mark the cache as having all possible instances:
+          rsapi_provider_get_cache.cached_all
+        end
+
+        fetched
+      end
+
       def self.instances
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
 
-        initial_fetch = if type_definition.feature?('simple_get_filter')
-                          my_provider.get(context, nil)
-                        else
-                          my_provider.get(context)
-                        end
-
-        initial_fetch.map do |resource_hash|
-          type_definition.check_schema(resource_hash)
+        rsapi_provider_get.map do |resource_hash|
           # allow a :title from the provider to override the default
           result = if resource_hash.key? :title
                      new(title: resource_hash[:title])
@@ -288,14 +305,9 @@ module Puppet::ResourceApi
       end
 
       def refresh_current_state
-        current_state = if type_definition.feature?('simple_get_filter')
-                          my_provider.get(context, [rsapi_title]).find { |h| namevar_match?(h) }
-                        else
-                          my_provider.get(context).find { |h| namevar_match?(h) }
-                        end
+        current_state = self.class.rsapi_provider_get([rsapi_title]).find { |h| namevar_match?(h) }
 
         if current_state
-          type_definition.check_schema(current_state)
           strict_check(current_state)
         else
           current_state = if rsapi_title.is_a? Hash

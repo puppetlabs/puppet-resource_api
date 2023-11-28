@@ -2197,6 +2197,10 @@ CODE
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     context 'with the type registered' do
+      before(:each) do
+        type.rsapi_provider_get_cache.clear
+      end
+
       it 'is seen as a supported feature' do
         expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter_2})
         expect { described_class.register_type(definition) }.not_to raise_error
