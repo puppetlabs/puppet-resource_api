@@ -2196,7 +2196,7 @@ CODE
       end
 
       it 'passes through the an empty array to `get`' do
-        expect(provider).to receive(:get).with(anything, []).and_return([])
+        expect(provider).to receive(:get).with(anything, nil).and_return([])
         type.instances
       end
 

@@ -248,7 +248,7 @@ module Puppet::ResourceApi
         provider(type_definition.name)
 
         initial_fetch = if type_definition.feature?('simple_get_filter')
-                          my_provider.get(context, [])
+                          my_provider.get(context, nil)
                         else
                           my_provider.get(context)
                         end

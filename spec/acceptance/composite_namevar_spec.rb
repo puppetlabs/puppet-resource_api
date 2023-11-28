@@ -11,7 +11,7 @@ RSpec.describe 'a type with composite namevars' do
     it 'is returns the values correctly' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar")
       expect(stdout_str.strip).to match %r{^composite_namevar}
-      expect(stdout_str.strip).to match %r{Looking for \[\]}
+      expect(stdout_str.strip).to match %r{Looking for nil}
       expect(status).to eq 0
     end
     it 'returns the required resource correctly' do
@@ -20,7 +20,7 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
       expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
       expect(stdout_str.strip).to match %r{manager\s*=> \'yum\'}
-      expect(stdout_str.strip).to match %r{Looking for \[\]}
+      expect(stdout_str.strip).to match %r{Looking for nil}
       expect(status.exitstatus).to eq 0
     end
     it 'throws error if title is not a matching title_pattern' do
