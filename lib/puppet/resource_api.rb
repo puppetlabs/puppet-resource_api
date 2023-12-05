@@ -5,6 +5,7 @@ require 'puppet/resource_api/data_type_handling'
 require 'puppet/resource_api/glue'
 require 'puppet/resource_api/parameter'
 require 'puppet/resource_api/property'
+require 'puppet/resource_api/provider_get_cache'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
 require 'puppet/resource_api/transport'
@@ -67,6 +68,15 @@ module Puppet::ResourceApi
 
       if type_definition.feature?('remote_resource')
         apply_to_device
+      end
+
+      define_singleton_method(:rsapi_provider_get_cache) do
+        # This gives a new cache per resource provider on each Puppet run:
+        @rsapi_provider_get_cache ||= Puppet::ResourceApi::ProviderGetCache.new
+      end
+
+      def rsapi_provider_get_cache
+        self.class.rsapi_provider_get_cache
       end
 
       def initialize(attributes)
@@ -154,8 +164,17 @@ module Puppet::ResourceApi
       end
 
       def rsapi_current_state
-        refresh_current_state unless @rsapi_current_state
-        @rsapi_current_state
+        return @rsapi_current_state if @rsapi_current_state
+        # If the current state is not set, then check the cache and, if a value is
+        # found, ensure it passes strict_check before allowing it to be used:
+        cached_value = rsapi_provider_get_cache.get(rsapi_title)
+        strict_check(cached_value) if cached_value
+        @rsapi_current_state = cached_value
+      end
+
+      def rsapi_current_state=(value)
+        rsapi_provider_get_cache.add(rsapi_title, value)
+        @rsapi_current_state = value
       end
 
       def to_resource
@@ -242,57 +261,77 @@ module Puppet::ResourceApi
         type_definition.create_attribute_in(self, name, param_or_property, parent, options)
       end
 
+      def self.rsapi_provider_get(names = nil)
+        # If the cache has been marked as having all instances, then just return the
+        # full contents:
+        return rsapi_provider_get_cache.all if rsapi_provider_get_cache.cached_all? && names.nil?
+
+        fetched = if type_definition.feature?('simple_get_filter')
+                    my_provider.get(context, names)
+                  else
+                    my_provider.get(context)
+                  end
+
+        fetched.each do |resource_hash|
+          type_definition.check_schema(resource_hash)
+          rsapi_provider_get_cache.add(build_title(type_definition, resource_hash), resource_hash)
+        end
+
+        if names.nil? && !type_definition.feature?('simple_get_filter')
+          # Mark the cache as having all possible instances:
+          rsapi_provider_get_cache.cached_all
+        end
+
+        fetched
+      end
+
       def self.instances
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
 
-        initial_fetch = if type_definition.feature?('simple_get_filter')
-                          my_provider.get(context, nil)
-                        else
-                          my_provider.get(context)
-                        end
-
-        initial_fetch.map do |resource_hash|
-          type_definition.check_schema(resource_hash)
+        rsapi_provider_get.map do |resource_hash|
           # allow a :title from the provider to override the default
           result = if resource_hash.key? :title
                      new(title: resource_hash[:title])
                    else
                      new(title: build_title(type_definition, resource_hash))
                    end
+          # Cache the state in the generated resource, but unfortunately
+          # this only benefits "puppet resource", not apply runs:
           result.cache_current_state(resource_hash)
           result
         end
       end
 
       def refresh_current_state
-        @rsapi_current_state = if type_definition.feature?('simple_get_filter')
-                                 my_provider.get(context, [rsapi_title]).find { |h| namevar_match?(h) }
-                               else
-                                 my_provider.get(context).find { |h| namevar_match?(h) }
-                               end
+        current_state = self.class.rsapi_provider_get([rsapi_title]).find { |h| namevar_match?(h) }
 
-        if @rsapi_current_state
-          type_definition.check_schema(@rsapi_current_state)
-          strict_check(@rsapi_current_state)
+        if current_state
+          strict_check(current_state)
         else
-          @rsapi_current_state = if rsapi_title.is_a? Hash
-                                   rsapi_title.dup
-                                 else
-                                   { title: rsapi_title }
-                                 end
-          @rsapi_current_state[:ensure] = :absent if type_definition.ensurable?
+          current_state = if rsapi_title.is_a? Hash
+                            rsapi_title.dup
+                          else
+                            { title: rsapi_title }
+                          end
+          current_state[:ensure] = :absent if type_definition.ensurable?
         end
+        self.rsapi_current_state = current_state
       end
 
-      # Use this to set the current state from the `instances` method
+      # Use this to set the current state from the `instances` method. "puppet resources"
+      # needs this to minimize provider get() calls, but during a Puppet apply run
+      # the instances() method is only used by resource generation, and resource
+      # generators use and then discard the resources created by `instances``, so this
+      # does not help with that:
       def cache_current_state(resource_hash)
-        @rsapi_current_state = resource_hash
-        strict_check(@rsapi_current_state)
+        self.rsapi_current_state = resource_hash
+        strict_check(resource_hash)
       end
 
       def retrieve
+        refresh_current_state unless rsapi_current_state
         Puppet.debug("Current State: #{rsapi_current_state.inspect}")
 
         result = Puppet::Resource.new(self.class, title, parameters: rsapi_current_state)
@@ -316,17 +355,17 @@ module Puppet::ResourceApi
         # puts 'flush'
         target_state = rsapi_canonicalized_target_state
 
-        retrieve unless @rsapi_current_state
+        retrieve unless rsapi_current_state
 
-        return if @rsapi_current_state == target_state
+        return if rsapi_current_state == target_state
 
         Puppet.debug("Target State: #{target_state.inspect}")
 
         # enforce init_only attributes
-        if Puppet.settings[:strict] != :off && @rsapi_current_state && (@rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
+        if Puppet.settings[:strict] != :off && rsapi_current_state && (rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
-            next unless type_definition.attributes[name][:behaviour] == :init_only && value != @rsapi_current_state[name]
-            message = "Attempting to change `#{name}` init_only attribute value from `#{@rsapi_current_state[name]}` to `#{value}`"
+            next unless type_definition.attributes[name][:behaviour] == :init_only && value != rsapi_current_state[name]
+            message = "Attempting to change `#{name}` init_only attribute value from `#{rsapi_current_state[name]}` to `#{value}`"
             case Puppet.settings[:strict]
             when :warning
               Puppet.warning(message)
@@ -337,9 +376,9 @@ module Puppet::ResourceApi
         end
 
         if type_definition.feature?('supports_noop')
-          my_provider.set(context, { rsapi_title => { is: @rsapi_current_state, should: target_state } }, noop: noop?)
+          my_provider.set(context, { rsapi_title => { is: rsapi_current_state, should: target_state } }, noop: noop?)
         else
-          my_provider.set(context, rsapi_title => { is: @rsapi_current_state, should: target_state }) unless noop?
+          my_provider.set(context, rsapi_title => { is: rsapi_current_state, should: target_state }) unless noop?
         end
         if context.failed?
           context.reset_failed
@@ -347,7 +386,7 @@ module Puppet::ResourceApi
         end
 
         # remember that we have successfully reached our desired state
-        @rsapi_current_state = target_state
+        self.rsapi_current_state = target_state
       end
 
       def raise_missing_attrs

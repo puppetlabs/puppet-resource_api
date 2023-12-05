@@ -865,6 +865,10 @@ RSpec.describe Puppet::ResourceApi do
       context 'when a manifest wants to change the value of an init_only attribute' do
         let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: 'present', something_init_only: 'lies', mutable: 'overdraft') }
 
+        before(:each) do
+          instance.rsapi_provider_get_cache.clear
+        end
+
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
 
@@ -1630,6 +1634,8 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:canonicalizer) }
 
       before(:each) do
+        type.rsapi_provider_get_cache.clear
+
         allow(type.my_provider).to receive(:get)
           .with(kind_of(Puppet::ResourceApi::BaseContext))
           .and_return([{ name: 'somename', test_string: 'canonfoo' },
@@ -1818,6 +1824,7 @@ RSpec.describe Puppet::ResourceApi do
           .with(kind_of(Puppet::ResourceApi::BaseContext))
           .and_return([{ name: 'somename', test_string: 'foo' },
                        { name: 'other', test_string: 'bar' }])
+        type.rsapi_provider_get_cache.clear
       end
 
       it { is_expected.not_to be_nil }
@@ -2190,6 +2197,10 @@ CODE
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     context 'with the type registered' do
+      before(:each) do
+        type.rsapi_provider_get_cache.clear
+      end
+
       it 'is seen as a supported feature' do
         expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter_2})
         expect { described_class.register_type(definition) }.not_to raise_error
