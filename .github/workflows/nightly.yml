@@ -1,13 +1,8 @@
-name: RSpec tests
+name: "nightly"
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   linux_tests:
