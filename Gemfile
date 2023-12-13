@@ -15,7 +15,6 @@ group :tests do
   gem 'rspec-puppet'
   gem 'codecov'
   gem 'rake', '~> 13.0'
-  gem 'license_finder'
 
   # since the Resource API runs inside the puppetserver, test against the JRuby versions we ship
   # these require special dependencies to have everything load properly
