@@ -18,18 +18,10 @@ group :tests do
 
   # since the Resource API runs inside the puppetserver, test against the JRuby versions we ship
   # these require special dependencies to have everything load properly
-
-  # rubocop is special, as usual
-  if RUBY_PLATFORM == 'java'
-    # load a rubocop version that works on java for the Rakefile
-    gem 'parser', '2.3.3.1'
-    gem 'rubocop', '0.41.2'
-  else
-    # 2.1-compatible analysis was dropped after version 0.58
-    # This needs to be removed once we drop puppet4 support.
-    gem 'rubocop', '~> 0.57.0'
-    gem 'rubocop-rspec'
-  end
+  # rubocop 1.48 supports JRuby 9.3+, which includes coverage for versions we support
+  gem 'rubocop', '~> 1.48.1', require: false
+  gem 'rubocop-rspec', '~> 2.19', require: false
+  gem 'rubocop-performance', '~> 1.16', require: false
 end
 
 group :development do
