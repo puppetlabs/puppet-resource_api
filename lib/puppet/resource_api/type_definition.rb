@@ -106,7 +106,7 @@ module Puppet::ResourceApi
         end
       end
 
-      error_msg = "The following mandatory attributes were not provided:\n    *  " + missing_attrs.join(", \n    *  ")
+      error_msg = "The following mandatory attributes were not provided:\n    *  #{missing_attrs.join(", \n    *  ")}"
       raise Puppet::ResourceError, error_msg if missing_attrs.any?
     end
 
@@ -145,9 +145,11 @@ module Puppet::ResourceApi
 
     def validate_schema(definition, attr_key)
       raise Puppet::DevError, '%{type_class} must be a Hash, not `%{other_type}`' % { type_class: self.class.name, other_type: definition.class } unless definition.is_a?(Hash)
+
       @attributes = definition[attr_key]
       raise Puppet::DevError, '%{type_class} must have a name' % { type_class: self.class.name } unless definition.key? :name
       raise Puppet::DevError, '%{type_class} must have `%{attr_key}`' % { type_class: self.class.name, attrs: attr_key } unless definition.key? attr_key
+
       unless attributes.is_a?(Hash)
         raise Puppet::DevError, '`%{name}.%{attrs}` must be a hash, not `%{other_type}`' % {
           name: definition[:name], attrs: attr_key, other_type: attributes.class
@@ -159,6 +161,7 @@ module Puppet::ResourceApi
         if definition[:desc]
           raise Puppet::DevError, '`%{name}` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] }
         end
+
         definition[:desc] = definition[:docs]
         definition.delete(:docs)
       end
@@ -168,6 +171,7 @@ module Puppet::ResourceApi
         raise Puppet::DevError, '`rsapi_custom_insync_trigger` cannot be specified as an attribute; it is reserved for propertyless types with the custom_insync feature' if key == :rsapi_custom_insync_trigger # rubocop:disable Metrics/LineLength
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` must be a Hash, not a #{attr.class}" unless attr.is_a? Hash
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` has no type" unless attr.key? :type
+
         Puppet.warning('`%{name}.%{key}` has no documentation, add it using a `desc` key' % { name: definition[:name], key: key }) unless attr.key? :desc
 
         # validate the type by attempting to parse into a puppet type
@@ -182,6 +186,7 @@ module Puppet::ResourceApi
         if attr[:behaviour]
           raise Puppet::DevError, "the '#{key}' attribute has both a `behavior` and a `behaviour`, only use one"
         end
+
         attr[:behaviour] = attr[:behavior]
         attr.delete(:behavior)
       end
@@ -216,12 +221,13 @@ module Puppet::ResourceApi
     end
 
     def notify_schema_errors(message)
-      if Puppet.settings[:strict] == :off
+      case Puppet.settings[:strict]
+      when :off
         Puppet.debug(message)
-      elsif Puppet.settings[:strict] == :warning
+      when :warning
         Puppet::ResourceApi.warning_count += 1
         Puppet.warning(message) if Puppet::ResourceApi.warning_count <= 100 # maximum number of schema warnings to display in a run
-      elsif Puppet.settings[:strict] == :error
+      when :error
         raise Puppet::DevError, message
       end
     end
@@ -240,6 +246,7 @@ module Puppet::ResourceApi
       bad_vals = {}
       resource.each do |key, value|
         next unless attributes[key]
+
         type = @data_type_cache[attributes[key][:type]]
         is_sensitive = (attributes[key].key?(:sensitive) && (attributes[key][:sensitive] == true))
         error_message = Puppet::ResourceApi::DataTypeHandling.try_validate(
@@ -248,7 +255,7 @@ module Puppet::ResourceApi
           '',
         )
         if is_sensitive
-          bad_vals[key] = '<< redacted value >> ' + error_message unless error_message.nil?
+          bad_vals[key] = "<< redacted value >> #{error_message}" unless error_message.nil?
         else
           bad_vals[key] = "#{value} (#{error_message})" unless error_message.nil?
         end

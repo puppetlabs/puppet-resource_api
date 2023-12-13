@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
+module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation
 
 # This module is responsible for setting default and alias values for the
 # resource class.

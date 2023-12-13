@@ -29,9 +29,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     it 'create fails' do
       expect { described_class.new.create(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*create}
     end
+
     it 'update fails' do
       expect { described_class.new.update(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*update}
     end
+
     it 'delete fails' do
       expect { described_class.new.delete(context, nil) }.to raise_error StandardError, %r{has not implemented.*delete}
     end
@@ -45,15 +47,17 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
   end
@@ -79,14 +83,17 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(provider).to receive(:create).with(context, 'title', should_values).once
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
+
     it 'calls get once' do
       expect(provider).to receive(:get).once
       provider.set(context, changes)
@@ -124,23 +131,27 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'calls update once' do
       expect(provider).to receive(:update).with(context, 'title', should_values).once
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
+
     it 'does not call get' do
-      expect(provider).to receive(:get).never
+      expect(provider).not_to receive(:get)
       provider.set(context, changes)
     end
+
     it 'does not check the schema' do
-      expect(type_def).to receive(:check_schema).never
+      expect(type_def).not_to receive(:check_schema)
       provider.set(context, changes)
     end
 
@@ -179,23 +190,27 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'calls update once' do
       expect(provider).to receive(:update).with(context, 'title', should_values).once
       provider.set(context, changes)
     end
+
     it 'calls get once' do
       expect(provider).to receive(:get).with(context).once
       provider.set(context, changes)
     end
+
     it 'does not check the schema' do
       expect(type_def).to receive(:check_schema).with(is_values.first)
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
 
@@ -245,15 +260,17 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'calls update once' do
       expect(provider).to receive(:update).with(context, 'title', should_values).once
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
   end
@@ -276,19 +293,22 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'calls delete once' do
       expect(provider).to receive(:delete).with(context, 'title').once
       provider.set(context, changes)
     end
+
     it 'does not call get' do
-      expect(provider).to receive(:get).never
+      expect(provider).not_to receive(:get)
       provider.set(context, changes)
     end
 
@@ -326,21 +346,25 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'calls delete once' do
       expect(provider).to receive(:delete).with(context, 'title').once
       provider.set(context, changes)
     end
+
     it 'calls check_schema' do
       expect(type_def).to receive(:check_schema).once
       provider.set(context, changes)
     end
+
     it 'calls get once to retrieve "is"' do
       expect(provider).to receive(:get).with(context).once
       provider.set(context, changes)
@@ -450,12 +474,14 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       expect(provider).to receive(:create).with(context, { name1: 'title1', name2: 'title2' }, should_values).once
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
 
@@ -492,19 +518,22 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'calls update once' do
       expect(provider).to receive(:update).with(context, { name1: 'title1', name2: 'title2' }, should_values).once
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
+
     it 'does not call get' do
-      expect(provider).to receive(:get).never
+      expect(provider).not_to receive(:get)
       provider.set(context, changes)
     end
   end
@@ -530,17 +559,20 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'calls update once' do
       expect(provider).to receive(:update).with(context, { name1: 'title1', name2: 'title2' }, should_values).once
       provider.set(context, changes)
     end
+
     it 'does not call delete' do
-      expect(provider).to receive(:delete).never
+      expect(provider).not_to receive(:delete)
       provider.set(context, changes)
     end
+
     it 'calls get once' do
       expect(provider).to receive(:get).once
       provider.set(context, changes)
@@ -579,19 +611,22 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'calls delete once' do
       expect(provider).to receive(:delete).with(context, { name1: 'title1', name2: 'title2' }).once
       provider.set(context, changes)
     end
+
     it 'does not call get' do
-      expect(provider).to receive(:get).never
+      expect(provider).not_to receive(:get)
       provider.set(context, changes)
     end
   end
@@ -617,17 +652,20 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     it 'does not call create' do
-      expect(provider).to receive(:create).never
+      expect(provider).not_to receive(:create)
       provider.set(context, changes)
     end
+
     it 'does not call update' do
-      expect(provider).to receive(:update).never
+      expect(provider).not_to receive(:update)
       provider.set(context, changes)
     end
+
     it 'calls delete once' do
       expect(provider).to receive(:delete).with(context, { name1: 'title1', name2: 'title2' }).once
       provider.set(context, changes)
     end
+
     it 'calls get once' do
       expect(provider).to receive(:get).once
       provider.set(context, changes)

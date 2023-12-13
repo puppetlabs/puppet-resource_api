@@ -3,7 +3,7 @@
 require 'puppet/util'
 require 'puppet/parameter'
 
-module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
+module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation
 
 # Class containing parameter functionality for ResourceApi.
 class Puppet::ResourceApi::Parameter < Puppet::Parameter

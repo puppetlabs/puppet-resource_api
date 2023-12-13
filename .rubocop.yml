@@ -1,4 +1,6 @@
 ---
+inherit_from: .rubocop_todo.yml
+
 require: rubocop-rspec
 AllCops:
   TargetRubyVersion: '2.5'
@@ -12,7 +14,7 @@ AllCops:
   - pkg/**/*
   - spec/fixtures/**/*
   - vendor/**/*
-Metrics/LineLength:
+Layout/LineLength:
   Description: People have wide screens, use them.
   Max: 200
 RSpec/BeforeAfterAll:
@@ -34,8 +36,7 @@ Style/ClassAndModuleChildren:
   Description: Compact style reduces the required amount of indentation.
   EnforcedStyle: compact
 # this needs to be easily usable in the gemspec
-  Exclude:
-    - 'lib/puppet/resource_api/version.rb'
+  Enabled: false
 Style/EmptyElse:
   Description: Enforce against empty else clauses, but allow `nil` for clarity.
   EnforcedStyle: empty
@@ -121,13 +122,9 @@ Lint/NestedMethodDefinition:
 RSpec/MessageSpies:
   Enabled: false
 
-# This cop causes issues on our current version of Rubocop (0.57.2) and newer (>= 3.0) Rubies because of keyword arguments.
-Style/BracesAroundHashParameters:
-  Enabled: false
-
 # requires 2.3's squiggly HEREDOC support, which we can't use, yet
 # see http://www.virtuouscode.com/2016/01/06/about-the-ruby-squiggly-heredoc-syntax/
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false
 
 # Updated in 0.53 (or thereabouts)
@@ -141,7 +138,7 @@ Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: comma
 
 # Add allowing "is", as it is a technical term in puppet
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Description: Checks for method parameter names that contain capital letters, end in
     numbers, or do not meet a minimal length.
   Enabled: true

@@ -8,13 +8,13 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
   let(:definition) do
     { name: 'some_target',
       connection_info: {
-        host:        {
-          type:      'String',
-          desc:      'The IP address or hostname',
+        host: {
+          type: 'String',
+          desc: 'The IP address or hostname',
         },
-        user:        {
-          type:      'String',
-          desc:      'The user to connect as',
+        user: {
+          type: 'String',
+          desc: 'The user to connect as',
         },
       } }
   end

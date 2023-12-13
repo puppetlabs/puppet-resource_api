@@ -16,6 +16,7 @@ RSpec.describe Puppet::ResourceApi::IOContext do
       context.warning('message')
       expect(io.string).to match %r{message}
     end
+
     it 'outputs at the correct level' do
       context.warning('message')
       expect(io.string).to match %r{warning}i
@@ -24,6 +25,7 @@ RSpec.describe Puppet::ResourceApi::IOContext do
 
   describe '#transport' do
     it { expect(context.transport).to be_nil }
+
     context 'when passing in a transport' do
       let(:transport) { instance_double(Object, 'transport') }
 

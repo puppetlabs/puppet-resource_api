@@ -139,7 +139,7 @@ module Puppet::ResourceApi
         @rsapi_canonicalized_target_state ||= begin
           # skip puppet's injected metaparams
           actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
-          target_state = Hash[actual_params.map { |k, v| [k, v.rs_value] }]
+          target_state = actual_params.transform_values { |v| v.rs_value }
           target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
           target_state
         end
@@ -150,21 +150,23 @@ module Puppet::ResourceApi
       def generate
         # If feature `custom_generate` has been set then call the generate function within the provider and return the given results
         return unless type_definition&.feature?('custom_generate')
+
         should_hash = rsapi_canonicalized_target_state
         is_hash     = rsapi_current_state
         title       = rsapi_title
 
         # Ensure that a custom `generate` method has been created within the provider
         raise(Puppet::DevError, 'No generate method found within the types provider') unless my_provider.respond_to?(:generate)
+
         # Call the providers custom `generate` method
-        rules_resources = my_provider.generate(context, title, is_hash, should_hash)
+        my_provider.generate(context, title, is_hash, should_hash)
 
         # Return array of resources
-        rules_resources
       end
 
       def rsapi_current_state
         return @rsapi_current_state if @rsapi_current_state
+
         # If the current state is not set, then check the cache and, if a value is
         # found, ensure it passes strict_check before allowing it to be used:
         cached_value = rsapi_provider_get_cache.get(rsapi_title)
@@ -238,10 +240,8 @@ module Puppet::ResourceApi
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
-        if options[:behaviour]
-          unless [:read_only, :namevar, :parameter, :init_only].include? options[:behaviour]
-            raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
-          end
+        if options[:behaviour] && !([:read_only, :namevar, :parameter, :init_only].include? options[:behaviour])
+          raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
         end
 
         # TODO: using newparam everywhere would suppress change reporting
@@ -365,6 +365,7 @@ module Puppet::ResourceApi
         if Puppet.settings[:strict] != :off && rsapi_current_state && (rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
             next unless type_definition.attributes[name][:behaviour] == :init_only && value != rsapi_current_state[name]
+
             message = "Attempting to change `#{name}` init_only attribute value from `#{rsapi_current_state[name]}` to `#{value}`"
             case Puppet.settings[:strict]
             when :warning
@@ -390,12 +391,12 @@ module Puppet::ResourceApi
       end
 
       def raise_missing_attrs
-        error_msg = "The following mandatory attributes were not provided:\n    *  " + @missing_attrs.join(", \n    *  ")
+        error_msg = "The following mandatory attributes were not provided:\n    *  #{@missing_attrs.join(", \n    *  ")}"
         raise Puppet::ResourceError, error_msg if @missing_attrs.any? && (value(:ensure) != :absent && !value(:ensure).nil?)
       end
 
       def raise_missing_params
-        error_msg = "The following mandatory parameters were not provided:\n    *  " + @missing_params.join(", \n    *  ")
+        error_msg = "The following mandatory parameters were not provided:\n    *  #{@missing_params.join(", \n    *  ")}"
         raise Puppet::ResourceError, error_msg
       end
 
@@ -426,14 +427,14 @@ module Puppet::ResourceApi
         # compare the clone against the current state to see if changes have been made by canonicalize
         return unless state_clone && (current_state != state_clone)
 
-        #:nocov:
+        # :nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
         message = <<MESSAGE.strip
 #{type_definition.name}[#{@title}]#get has not provided canonicalized values.
 Returned values:       #{current_state.inspect}
 Canonicalized values:  #{state_clone.inspect}
 MESSAGE
-        #:nocov:
+        # :nocov:
         strict_message(message)
       end
 
@@ -448,6 +449,7 @@ MESSAGE
         self.class.title_patterns.each do |regexp, symbols|
           captures = regexp.match(current_state[:title])
           next if captures.nil?
+
           symbols.zip(captures[1..-1]).each do |symbol_and_lambda, capture|
             # The Resource API does not support passing procs in title_patterns
             # so, unlike Puppet::Resource, we do not need to handle that here.
@@ -461,7 +463,7 @@ MESSAGE
 
         namevars = type_definition.namevars.reject { |namevar| title_hash[namevar] == rsapi_title[namevar] }
 
-        #:nocov:
+        # :nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
         message = <<MESSAGE.strip
 #{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
@@ -469,7 +471,7 @@ Namevars which do not match: #{namevars.inspect}
 Returned parsed title hash:  #{title_hash.inspect}
 Expected hash:               #{rsapi_title.inspect}
 MESSAGE
-        #:nocov:
+        # :nocov:
         strict_message(message)
       end
 
@@ -528,7 +530,7 @@ MESSAGE
       end
     end
   end
-  module_function :register_type # rubocop:disable Style/AccessModifierDeclarations
+  module_function :register_type
 
   def load_provider(type_name)
     class_name = class_name_from_type_name(type_name)
@@ -557,14 +559,14 @@ MESSAGE
       raise Puppet::DevError, "provider class Puppet::Provider::#{class_name}::#{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
     end
   end
-  module_function :load_provider # rubocop:disable Style/AccessModifierDeclarations
+  module_function :load_provider
 
   def load_default_provider(class_name, type_name_sym)
     # loads the "puppet/provider/#{type_name}/#{type_name}" file through puppet
     Puppet::Type.type(type_name_sym).provider(type_name_sym)
     Puppet::Provider.const_get(class_name, false).const_get(class_name, false)
   end
-  module_function :load_default_provider # rubocop:disable Style/AccessModifierDeclarations
+  module_function :load_default_provider
 
   def load_device_provider(class_name, type_name_sym, device_class_name, device_name_sym)
     # loads the "puppet/provider/#{type_name}/#{device_name}" file through puppet
@@ -576,13 +578,13 @@ MESSAGE
       load_default_provider(class_name, type_name_sym)
     end
   end
-  module_function :load_device_provider # rubocop:disable Style/AccessModifierDeclarations
+  module_function :load_device_provider
 
   # keeps the existing register API format. e.g. Puppet::ResourceApi.register_type
   def register_transport(schema)
     Puppet::ResourceApi::Transport.register(schema)
   end
-  module_function :register_transport # rubocop:disable Style/AccessModifierDeclarations
+  module_function :register_transport
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join

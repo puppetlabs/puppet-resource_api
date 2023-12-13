@@ -7,6 +7,7 @@ require 'hocon/config_syntax'
 module Puppet::Util; end
 # avoid loading puppet code base
 class Puppet::Util::NetworkDevice; end
+
 module Puppet::Util::NetworkDevice::Simple
   # A basic device class, that reads its configuration from the provided URL.
   # The URL has to be a local file URL.
@@ -26,6 +27,7 @@ module Puppet::Util::NetworkDevice::Simple
 
     def config
       raise "Trying to load config from '#{@url.path}, but file does not exist." if @url && !File.exist?(@url.path)
+
       @config ||= Hocon.load(@url.path, syntax: Hocon::ConfigSyntax::HOCON)
     end
   end

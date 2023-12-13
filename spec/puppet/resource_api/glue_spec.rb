@@ -35,6 +35,7 @@ RSpec.describe 'the dirty bits' do
 
     describe '.to_manifest' do
       it { expect(instance.to_manifest).to eq "typename { 'title': \n  attr => 'value',\n# attr_ro => 'fixed', # Read Only\n}" }
+
       context 'with nil values' do
         subject(:instance) do
           described_class.new({ namevarname: title, attr: nil, attr_ro: 'fixed' }, 'typename', [:namevarname],
