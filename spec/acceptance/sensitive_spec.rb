@@ -32,6 +32,7 @@ RSpec.describe 'sensitive data' do
         expect(stdout_str).not_to match %r{variant sesitive_data}
         expect(stdout_str).not_to match %r{warn|error}i
       end
+
       it 'properly validates the sensitive type value' do
         stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), "\
           "optional_secret => Sensitive('optional sesitive_data'), variant_secret => [Sensitive(134679)] }\"")

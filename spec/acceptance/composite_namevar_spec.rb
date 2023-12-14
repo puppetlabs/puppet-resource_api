@@ -14,59 +14,65 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match %r{Looking for nil}
       expect(status).to eq 0
     end
+
     it 'returns the required resource correctly' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-yum")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php-yum\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
-      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
-      expect(stdout_str.strip).to match %r{manager\s*=> \'yum\'}
+      expect(stdout_str.strip).to match %r{^composite_namevar \{ 'php-yum'}
+      expect(stdout_str.strip).to match %r{ensure\s*=> 'present'}
+      expect(stdout_str.strip).to match %r{package\s*=> 'php'}
+      expect(stdout_str.strip).to match %r{manager\s*=> 'yum'}
       expect(stdout_str.strip).to match %r{Looking for nil}
       expect(status.exitstatus).to eq 0
     end
+
     it 'throws error if title is not a matching title_pattern' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php123 package=php manager=yum")
       expect(stdout_str.strip).to match %r{No set of title patterns matched the title "php123"}
       expect(stdout_str.strip).not_to match %r{Looking for}
       expect(status.exitstatus).to eq 1
     end
+
     it 'returns the match if alternative title_pattern matches' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php/gem")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php/gem\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
+      expect(stdout_str.strip).to match %r{^composite_namevar \{ 'php/gem'}
+      expect(stdout_str.strip).to match %r{ensure\s*=> 'present'}
       # "Looking for" will return nil as puppet resource will have already fetched
       # the resource in instances():
       expect(stdout_str.strip).to match %r{Looking for nil}
       expect(status.exitstatus).to eq 0
     end
+
     it 'properly identifies an absent resource if only the title is provided' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-wibble")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php-wibble\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'absent\'}
+      expect(stdout_str.strip).to match %r{^composite_namevar \{ 'php-wibble'}
+      expect(stdout_str.strip).to match %r{ensure\s*=> 'absent'}
       expect(stdout_str.strip).to match %r{Looking for \[\{:package=>"php", :manager=>"wibble"\}\]}
       expect(status.exitstatus).to eq 0
     end
+
     it 'creates a previously absent resource' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-wibble ensure='present'")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php-wibble\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'present\'}
-      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
-      expect(stdout_str.strip).to match %r{manager\s*=> \'wibble\'}
+      expect(stdout_str.strip).to match %r{^composite_namevar \{ 'php-wibble'}
+      expect(stdout_str.strip).to match %r{ensure\s*=> 'present'}
+      expect(stdout_str.strip).to match %r{package\s*=> 'php'}
+      expect(stdout_str.strip).to match %r{manager\s*=> 'wibble'}
       expect(stdout_str.strip).to match %r{Looking for \[\{:package=>"php", :manager=>"wibble"\}\]}
       expect(status.exitstatus).to eq 0
     end
+
     it 'will remove an existing resource' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-gem ensure=absent")
-      expect(stdout_str.strip).to match %r{^composite_namevar \{ \'php-gem\'}
-      expect(stdout_str.strip).to match %r{package\s*=> \'php\'}
-      expect(stdout_str.strip).to match %r{manager\s*=> \'gem\'}
-      expect(stdout_str.strip).to match %r{ensure\s*=> \'absent\'}
+      expect(stdout_str.strip).to match %r{^composite_namevar \{ 'php-gem'}
+      expect(stdout_str.strip).to match %r{package\s*=> 'php'}
+      expect(stdout_str.strip).to match %r{manager\s*=> 'gem'}
+      expect(stdout_str.strip).to match %r{ensure\s*=> 'absent'}
       expect(stdout_str.strip).to match %r{Looking for \[\{:package=>"php", :manager=>"gem"\}\]}
       expect(status.exitstatus).to eq 0
     end
   end
 
   describe 'using `puppet apply`' do
-    let(:common_args) { super() + ' --detailed-exitcodes' }
+    let(:common_args) { "#{super()} --detailed-exitcodes" }
 
     # run Open3.capture2e only once to get both output, and exitcode
     # rubocop:disable RSpec/InstanceVariable

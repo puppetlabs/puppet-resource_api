@@ -1,13 +1,10 @@
-name: RSpec tests
+name: "ci"
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
+    branches:
+      - "main"
+  workflow_dispatch:
 
 jobs:
   linux_tests:
@@ -35,7 +32,14 @@ jobs:
         run: |
           bundle config set without development
           bundle install --jobs 4 --retry 3
-      - run: bundle exec rake
+
+      - name: Rubocop
+        run: |
+          bundle exec rake rubocop
+
+      - name: Run tests
+        run: |
+          bundle exec rake spec
 
   # Starting with version 3.2, Ruby no longer bundles libffi, which is necessary for tests on Windows. Due to a discrepancy between the C
   # library the Windows Puppet gem is built against and what GitHub runners use (MinGW and ucrt, respectively) we can't install the
@@ -65,4 +69,11 @@ jobs:
           bundle config set without development
           ${{ matrix.cfg.extra }}
           bundle install --jobs 4 --retry 3
-      - run: bundle exec rake
+
+      - name: Rubocop
+        run: |
+          bundle exec rake rubocop
+
+      - name: Run tests
+        run: |
+          bundle exec rake spec

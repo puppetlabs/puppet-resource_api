@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe Puppet::ResourceApi::BaseContext do
   class TestContext < described_class
     attr_reader :last_level, :last_message
+
     def send_log(log, msg)
       @last_level = log
       @last_message = msg
@@ -29,6 +30,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
   let(:feature_support) { [] }
 
   it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition} }
+
   describe 'legacy hash definition support' do
     let(:definition) { definition_hash }
 
@@ -45,6 +47,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       context.warning('message')
       expect(context.last_message).to eq 'some_resource: message'
     end
+
     it 'outputs at the correct level' do
       context.warning('message')
       expect(context.last_level).to eq :warning
@@ -56,14 +59,17 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       context.warning([], 'message')
       expect(context.last_message).to eq 'some_resource: message'
     end
+
     it 'formats an empty title correctly' do
       context.warning('', 'message')
       expect(context.last_message).to eq 'some_resource[]: message'
     end
+
     it 'formats a single title' do
       context.warning('a', 'message')
       expect(context.last_message).to eq 'some_resource[a]: message'
     end
+
     it 'formats multiple titles' do
       context.warning(%w[a b], 'message')
       expect(context.last_message).to eq 'some_resource[a, b]: message'
@@ -81,8 +87,8 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     describe "##{method}(title, &block)" do
       it 'outputs the start and stop messages' do
         allow(context).to receive(:send_log)
-        expect(context).to receive(:send_log).with(:debug, %r{some_title.*#{method.to_s}.*start}i)
-        expect(context).to receive(:send_log).with(:notice, %r{some_title.*#{method.to_s}.*finished}i)
+        expect(context).to receive(:send_log).with(:debug, %r{some_title.*#{method}.*start}i)
+        expect(context).to receive(:send_log).with(:notice, %r{some_title.*#{method}.*finished}i)
         context.send(method, 'some_title') {}
       end
 
@@ -94,7 +100,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
       it 'does not leak state between invocations' do
         context.send(method, 'resource_one') {}
-        expect(context).to receive(:send_log).with(:debug, %r{resource_two.*#{method.to_s}.*start}i)
+        expect(context).to receive(:send_log).with(:debug, %r{resource_two.*#{method}.*start}i)
         expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
         context.send(method, 'resource_two') {}
       end
@@ -108,13 +114,13 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
         it 'logs an error' do
           allow(context).to receive(:send_log)
-          expect(context).to receive(:send_log).with(:err, %r{bad_resource.*#{method.to_s}.*failed.*reasons}i)
+          expect(context).to receive(:send_log).with(:err, %r{bad_resource.*#{method}.*failed.*reasons}i)
           context.send(method, 'bad_resource') { raise StandardError, 'Reasons' }
         end
 
         it 'does not leak state into next invocation' do
           context.send(method, 'resource_one') { raise StandardError, 'Bad Resource!' }
-          expect(context).to receive(:send_log).with(:debug, %r{resource_two.*#{method.to_s}.*start}i)
+          expect(context).to receive(:send_log).with(:debug, %r{resource_two.*#{method}.*start}i)
           expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
           context.send(method, 'resource_two') {}
         end
@@ -136,7 +142,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
           expect {
             context.send(method, 'resource_one') { raise LoadError, 'Uh oh' }
           }.to raise_error(LoadError, 'Uh oh')
-          expect(context).to receive(:send_log).with(:debug, %r{resource_two.*#{method.to_s}.*start}i)
+          expect(context).to receive(:send_log).with(:debug, %r{resource_two.*#{method}.*start}i)
           expect(context).not_to receive(:send_log).with(anything, %r{.*resource_one.*})
           context.send(method, 'resource_two') {}
         end
@@ -212,12 +218,12 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
   [:created, :updated, :deleted].each do |method|
     describe "##{method}(titles, message: '#{method.to_s.capitalize}')" do
       it 'logs the action at :notice level' do
-        expect(context).to receive(:send_log).with(:notice, %r{#{method.to_s.capitalize}: \[\"Thing\[one\]\", \"Thing\[two\]\"\]}i)
+        expect(context).to receive(:send_log).with(:notice, %r{#{method.to_s.capitalize}: \["Thing\[one\]", "Thing\[two\]"\]}i)
         context.send(method, ['Thing[one]', 'Thing[two]'])
       end
 
       it 'logs a custom message if provided' do
-        expect(context).to receive(:send_log).with(:notice, %r{My provider did the action: \[\"Thing\[one\]\", \"Thing\[two\]\"\]}i)
+        expect(context).to receive(:send_log).with(:notice, %r{My provider did the action: \["Thing\[one\]", "Thing\[two\]"\]}i)
         context.send(method, ['Thing[one]', 'Thing[two]'], message: 'My provider did the action')
       end
     end
@@ -259,7 +265,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
     it 'logs a succesful change' do
       allow(context).to receive(:send_log)
-      expect(context).to receive(:send_log).with(:notice, %r{Finished processing some_title in .* seconds: \{:name=>\"some_title\", :ensure=>\"present\"\}}i)
+      expect(context).to receive(:send_log).with(:notice, %r{Finished processing some_title in .* seconds: \{:name=>"some_title", :ensure=>"present"\}}i)
       context.processing('some_title', { ensure: 'absent' }, { name: 'some_title', ensure: 'present' }) {}
     end
 

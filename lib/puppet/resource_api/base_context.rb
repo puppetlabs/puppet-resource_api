@@ -92,6 +92,7 @@ class Puppet::ResourceApi::BaseContext
 
   def processing(title, is, should, message = 'Processing')
     raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
+
     start_time = Time.now
     setup_context(title, message)
     begin
@@ -114,11 +115,13 @@ class Puppet::ResourceApi::BaseContext
 
   def processed(title, is, should)
     raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
+
     notice("Processed #{title} from #{is} to #{should}")
   end
 
   def attribute_changed(title, attribute, is, should, message: nil)
     raise "#{__method__} only accepts a single resource title" if title.respond_to?(:each)
+
     printable_is = 'nil'
     printable_should = 'nil'
     if is
@@ -156,7 +159,7 @@ class Puppet::ResourceApi::BaseContext
   private
 
   def format_titles(titles)
-    if titles.length.zero? && !titles.is_a?(String)
+    if titles.empty? && !titles.is_a?(String)
       @type.name
     else
       "#{@type.name}[#{[titles].flatten.compact.join(', ')}]"
@@ -170,6 +173,7 @@ class Puppet::ResourceApi::BaseContext
 
   def format_seconds(seconds)
     return '%.6f' % seconds if seconds < 1
+
     '%.2f' % seconds
   end
 end

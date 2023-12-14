@@ -12,7 +12,7 @@ RSpec.describe 'a transport' do
   end
 
   describe 'using `puppet device`' do
-    let(:common_args) { super() + ' --target the_node' }
+    let(:common_args) { "#{super()} --target the_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
       <<DEVICE_CONF

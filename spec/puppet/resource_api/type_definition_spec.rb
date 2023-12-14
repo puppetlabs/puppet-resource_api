@@ -7,19 +7,19 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
 
   let(:definition) do
     { name: 'some_resource', attributes: {
-      ensure:      {
-        type:    'Enum[present, absent]',
-        desc:    'Whether this resource should be present or absent on the target system.',
+      ensure: {
+        type: 'Enum[present, absent]',
+        desc: 'Whether this resource should be present or absent on the target system.',
         default: 'present',
       },
-      name:        {
-        type:      'String',
-        desc:      'The name of the resource you want to manage.',
+      name: {
+        type: 'String',
+        desc: 'The name of the resource you want to manage.',
         behaviour: :namevar,
       },
-      prop:        {
-        type:      'Integer',
-        desc:      'A mandatory property, that MUST NOT be validated on deleting.',
+      prop: {
+        type: 'Integer',
+        desc: 'A mandatory property, that MUST NOT be validated on deleting.',
       },
     }, features: feature_support }
   end

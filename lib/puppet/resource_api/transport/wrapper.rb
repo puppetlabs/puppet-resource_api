@@ -13,6 +13,7 @@ class Puppet::ResourceApi::Transport::Wrapper
       url = URI.parse(url_or_config_or_transport)
       raise "Unexpected url '#{url_or_config_or_transport}' found. Only file:/// URLs for configuration supported at the moment." unless url.scheme == 'file'
       raise "Trying to load config from '#{url.path}, but file does not exist." if url && !File.exist?(url.path)
+
       config = self.class.deep_symbolize(Hocon.load(url.path, syntax: Hocon::ConfigSyntax::HOCON) || {})
     elsif url_or_config_or_transport.is_a? Hash
       config = url_or_config_or_transport
@@ -52,6 +53,7 @@ class Puppet::ResourceApi::Transport::Wrapper
   def self.deep_symbolize(obj)
     return obj.each_with_object({}) { |(k, v), memo| memo[k.to_sym] = deep_symbolize(v); } if obj.is_a? Hash
     return obj.each_with_object([]) { |v, memo| memo << deep_symbolize(v); } if obj.is_a? Array
+
     obj
   end
 end

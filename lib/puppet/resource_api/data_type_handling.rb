@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
+module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation
 
 # This module is used to handle data inside types, contains methods for munging
 # and validation of the type values.
@@ -49,6 +49,7 @@ module Puppet::ResourceApi::DataTypeHandling
       # to 1 (an integer)
       cleaned_value, error_msg = try_mungify(type, value, error_msg_prefix)
       raise Puppet::ResourceError, error_msg if error_msg
+
       cleaned_value
     elsif value == :false # rubocop:disable Lint/BooleanSymbol
       # work around https://tickets.puppetlabs.com/browse/PUP-2368
@@ -121,6 +122,7 @@ module Puppet::ResourceApi::DataTypeHandling
 
     error_msg = try_validate(type, value, error_msg_prefix)
     return [nil, error_msg] if error_msg # an error
+
     [value, nil]                         # match
   end
 
@@ -171,16 +173,16 @@ module Puppet::ResourceApi::DataTypeHandling
 
     # an error :-(
     inferred_type = Puppet::Pops::Types::TypeCalculator.infer_set(value)
-    error_msg = Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(
+    Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(
       error_msg_prefix,
       type,
       inferred_type,
     )
-    error_msg
   end
 
   def self.validate_ensure(definition)
     return unless definition[:attributes].key? :ensure
+
     options = definition[:attributes][:ensure]
     type = parse_puppet_type(:ensure, options[:type])
 

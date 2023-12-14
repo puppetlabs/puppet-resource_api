@@ -6,6 +6,12 @@ require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device
 
 RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
   describe '#initialize(name, url_or_config)' do
+    before(:each) do
+      module Puppet::Transport
+        class SomethingSomethingDarkside; end
+      end
+    end
+
     context 'when called with a url' do
       context 'with a file:// prefix' do
         let(:url) { 'file:///etc/credentials' }
@@ -34,12 +40,6 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
         expect(Hocon).not_to receive(:load).with('/etc/credentials', any_args)
         expect(Puppet::ResourceApi::Transport).to receive(:connect)
         described_class.new('wibble', config)
-      end
-    end
-
-    before(:each) do
-      module Puppet::Transport
-        class SomethingSomethingDarkside; end
       end
     end
 

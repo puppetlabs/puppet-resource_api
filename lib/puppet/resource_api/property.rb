@@ -3,7 +3,7 @@
 require 'puppet/util'
 require 'puppet/property'
 
-module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation,Style/ClassAndModuleChildren
+module Puppet; module ResourceApi; end; end # predeclare the main module # rubocop:disable Style/Documentation
 
 # Class containing property functionality for ResourceApi.
 class Puppet::ResourceApi::Property < Puppet::Property
@@ -112,10 +112,11 @@ class Puppet::ResourceApi::Property < Puppet::Property
       when nil
         # If validating ensure and no custom insync was used, check if rs_value matches is.
         return rs_value.to_s == is.to_s if @attribute_name == :ensure
+
         # Otherwise, super and rely on Puppet::Property.insync?
         super(is)
       when TrueClass, FalseClass
-        return provider_insync_result
+        provider_insync_result
       else
         # When returning anything else, raise a DevError for a non-idiomatic return
         raise(Puppet::DevError, "Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} with a value of #{provider_insync_result.inspect} instead of true/false; insync? MUST return nil or the boolean true or false") # rubocop:disable Metrics/LineLength

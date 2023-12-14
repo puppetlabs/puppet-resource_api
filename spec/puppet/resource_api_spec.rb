@@ -156,6 +156,7 @@ RSpec.describe Puppet::ResourceApi do
 
       describe 'autorequire' do
         it('yields the block for `var`') { expect { |b| type.eachautorequire(&b) }.to yield_with_args(:var, be_a(Proc)) }
+
         it 'the yielded block returns the `test_string` value' do
           expect(extract_values(:eachautorequire)).to eq ['foo']
         end
@@ -163,6 +164,7 @@ RSpec.describe Puppet::ResourceApi do
 
       describe 'autobefore' do
         it('yields the block for `const`') { expect { |b| type.eachautobefore(&b) }.to yield_with_args(:const, be_a(Proc)) }
+
         it('the yielded block returns the constant "value"') do
           expect(extract_values(:eachautobefore)).to eq ['value']
         end
@@ -170,6 +172,7 @@ RSpec.describe Puppet::ResourceApi do
 
       describe 'autosubscribe' do
         it('yields the block for `list`') { expect { |b| type.eachautosubscribe(&b) }.to yield_with_args(:list, be_a(Proc)) }
+
         it('the yielded block returns the multiple values') do
           expect(extract_values(:eachautosubscribe)).to eq %w[foo bar]
         end
@@ -177,6 +180,7 @@ RSpec.describe Puppet::ResourceApi do
 
       describe 'autonotify' do
         it('yields the block for `mixed`') { expect { |b| type.eachautonotify(&b) }.to yield_with_args(:mixed, be_a(Proc)) }
+
         it('the yielded block returns multiple integer values, the flattened array results, and no nils') do
           expect(extract_values(:eachautonotify)).to eq [10, 100, 'a', 'b', 'c']
         end
@@ -300,7 +304,8 @@ RSpec.describe Puppet::ResourceApi do
             expect {
               instance.validate
               instance.retrieve
-            }.not_to raise_exception }
+            }.not_to raise_exception
+          }
         end
       end
     end
@@ -347,7 +352,8 @@ RSpec.describe Puppet::ResourceApi do
           it {
             expect {
               instance.retrieve
-            }.to raise_error Puppet::DevError, message }
+            }.to raise_error Puppet::DevError, message
+          }
         end
 
         context 'when strict is :off' do
@@ -427,7 +433,8 @@ RSpec.describe Puppet::ResourceApi do
             expect {
               instance.validate
               instance.retrieve
-            }.not_to raise_exception }
+            }.not_to raise_exception
+          }
         end
 
         context 'when loading from a Puppet::Resource' do
@@ -524,17 +531,17 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
+      before(:each) do
+        stub_const('Puppet::Provider::WithEnsure', Module.new)
+        stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
+      end
+
       it { expect { described_class.register_type(definition) }.not_to raise_error }
 
       describe 'the registered type' do
         subject(:type) { Puppet::Type.type(:with_ensure) }
 
         it { is_expected.not_to be_nil }
-      end
-
-      before(:each) do
-        stub_const('Puppet::Provider::WithEnsure', Module.new)
-        stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
       end
 
       describe 'an instance of this type' do
@@ -556,7 +563,8 @@ RSpec.describe Puppet::ResourceApi do
             expect {
               instance.validate
               instance.retrieve
-            }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided} }
+            }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided}
+          }
         end
 
         describe 'an absent instance' do
@@ -572,9 +580,11 @@ RSpec.describe Puppet::ResourceApi do
           end
 
           it('its title is set correctly') { expect(retrieved_info[:title]).to eq 'does_not_exist' }
+
           it('its properties are set correctly') {
             expect(retrieved_info[:test_string]).to be_nil
           }
+
           it { expect(retrieved_info[:ensure]).to eq(:absent) }
 
           it { expect { retrieved_info }.not_to raise_exception }
@@ -835,6 +845,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :error }
 
           it { expect { instance.flush }.not_to raise_error }
+
           it {
             expect(Puppet).not_to receive(:warning)
             instance.flush
@@ -845,6 +856,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :warning }
 
           it { expect { instance.flush }.not_to raise_error }
+
           it {
             expect(Puppet).not_to receive(:warning)
             instance.flush
@@ -855,6 +867,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :off }
 
           it { expect { instance.flush }.not_to raise_error }
+
           it {
             expect(Puppet).not_to receive(:warning)
             instance.flush
@@ -888,6 +901,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :off }
 
           it { expect { instance.flush }.not_to raise_error }
+
           it {
             expect(Puppet).not_to receive(:warning)
             instance.flush
@@ -1380,6 +1394,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       it { expect { described_class.register_type(definition) }.not_to raise_error }
+
       context 'with the type registered' do
         it { expect(instance.flush).to eq(final_hash) }
       end
@@ -1394,6 +1409,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       it { expect { described_class.register_type(definition) }.not_to raise_error }
+
       context 'with the type registered' do
         it { expect(instance.flush).to eq(final_hash) }
       end
@@ -1525,6 +1541,7 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         attr_reader :last_changes
+
         def set(_context, changes)
           @last_changes = changes
         end
@@ -1723,9 +1740,7 @@ RSpec.describe Puppet::ResourceApi do
               return [] unless should[:purge]
 
               # gather a list of all rules present on the system
-              rules_resources = Puppet::Type.type(:iptables).instances
-
-              rules_resources
+              Puppet::Type.type(:iptables).instances
             end
 
             def get(_context)
@@ -1733,6 +1748,7 @@ RSpec.describe Puppet::ResourceApi do
             end
 
             attr_reader :last_changes
+
             def set(_context, changes)
               @last_changes = changes
             end
@@ -1772,6 +1788,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:instance) { type.new(name: 'somename') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
+
           it('its properties are set correctly') do
             expect(resource[:test_string]).to eq 'canonfoo'
             expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
@@ -1803,6 +1820,7 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         attr_reader :last_changes
+
         def set(_context, changes)
           @last_changes = changes
         end
@@ -1892,10 +1910,12 @@ RSpec.describe Puppet::ResourceApi do
           let(:instance) { type.new(name: 'somename', test_string: 'foo') }
 
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
+
           it('its properties are set correctly') do
             expect(resource[:test_string]).to eq 'foo'
             expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
           end
+
           context 'when strict checking is on' do
             it('will not throw') {
               Puppet.settings[:strict] = :error
@@ -1919,6 +1939,7 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         attr_reader :last_changes
+
         def set(_context, changes)
           @last_changes = changes
         end
@@ -2023,6 +2044,7 @@ RSpec.describe Puppet::ResourceApi do
         it 'has no insyncable attributes' do
           expect(type.context.type.insyncable_attributes).to eq([])
         end
+
         it 'has the hidden rsapi_custom_insync_trigger property' do
           expect(type.properties).to eq([Puppet::Type::Insyncer::Rsapi_custom_insync_trigger])
         end
@@ -2106,13 +2128,13 @@ RSpec.describe Puppet::ResourceApi do
       {
         name: 'test_noop_support',
         features: ['supports_noop'],
-        attributes:   {
-          ensure:      {
-            type:    'Enum[present, absent]',
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
             default: 'present',
           },
-          name:        {
-            type:      'String',
+          name: {
+            type: 'String',
             behaviour: :namevar,
           },
         },
@@ -2159,13 +2181,13 @@ CODE
       {
         name: 'test_simple_get_filter_2',
         features: ['simple_get_filter'],
-        attributes:   {
-          ensure:      {
-            type:    'Enum[present, absent]',
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
             default: 'present',
           },
-          name:        {
-            type:      'String',
+          name: {
+            type: 'String',
             behaviour: :namevar,
           },
         },

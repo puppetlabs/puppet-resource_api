@@ -3,6 +3,7 @@
 require 'yaml'
 
 module Puppet; end # rubocop:disable Style/Documentation
+
 module Puppet::ResourceApi
   # A trivial class to provide the functionality required to push data through the existing type/provider parts of puppet
   class ResourceShim
@@ -45,7 +46,7 @@ module Puppet::ResourceApi
     # Convert our resource to yaml for Hiera purposes.
     def to_hierayaml
       attributes = Hash[filtered_keys.map { |k| [k.to_s, values[k]] }]
-      YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n") + "\n"
+      "#{YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n")}\n"
     end
 
     def to_json(*)

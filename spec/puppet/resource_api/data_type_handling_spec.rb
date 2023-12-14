@@ -33,6 +33,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
         let(:result) { ['result', nil] }
 
         it('returns the cleaned result') { expect(described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app)).to eq 'result' }
+
         it('validates the cleaned result') do
           described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app)
           expect(described_class).to have_received(:validate).with('type', 'result', 'error prefix').once
@@ -48,13 +49,14 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
 
     context 'when called from something else' do
       before(:each) do
-        allow(described_class).to receive(:try_mungify).never
+        allow(described_class).to receive(:try_mungify).at_most(0).times
         allow(described_class).to receive(:validate)
       end
 
       let(:caller_is_resource_app) { false }
 
       it('returns the value') { expect(described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app)).to eq 'input' }
+
       it('validates the value') do
         described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app)
         expect(described_class).to have_received(:validate).with('type', 'input', 'error prefix')
@@ -62,8 +64,8 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
     end
   end
 
-  # keep test data consistent # rubocop:disable Style/WordArray
-  # run try_mungify only once to get both value, and error # rubocop:disable RSpec/InstanceVariable
+  # keep test data consistent
+  # run try_mungify only once to get both value, and error
   describe '#try_validate(type, value)' do
     let(:error_msg) do
       pops_type = Puppet::Pops::Types::TypeParser.singleton.parse(type)
@@ -73,7 +75,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
     [
       {
         type: 'String',
-        valid: ['a', 'true'],
+        valid: %w[a true],
         invalid: [1, true],
       },
       {
@@ -176,18 +178,18 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
       {
         type: 'Enum[absent, present]',
         transformations: [
-          ['absent', 'absent'],
-          ['absent', 'absent'],
-          ['present', 'present'],
-          ['present', 'present'],
+          %w[absent absent],
+          %w[absent absent],
+          %w[present present],
+          %w[present present],
         ],
         errors: ['enabled', :something, 1, 'y', 'true', ''],
       },
       {
         type: 'Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/]',
         transformations: [
-          ['0xABCD1234', '0xABCD1234'],
-          ['ABCD1234', 'ABCD1234'],
+          %w[0xABCD1234 0xABCD1234],
+          %w[ABCD1234 ABCD1234],
           [:'0xABCD1234', '0xABCD1234'],
         ],
         errors: [0xABCD1234, '1234567', 'enabled', 0, ''],
@@ -199,7 +201,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [[[]], [[]]],
           [['a'], ['a']],
           [['a', 1], ['a', 1]],
-          [['a', 'b', 'c'], ['a', 'b', 'c']],
+          [%w[a b c], %w[a b c]],
           [[true, 'a', 1], [true, 'a', 1]],
         ],
         errors: ['enabled', :something, 1, 'y', 'true', ''],
@@ -257,7 +259,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
         transformations: [
           [[], []],
           [['a'], ['a']],
-          [['a', 'b', 'c'], ['a', 'b', 'c']],
+          [%w[a b c], %w[a b c]],
         ],
         errors: ['enabled', :something, 1, 'y', 'true', '', [1], ['a', 1, 'b'], [true, 'a'], [[]]],
       },
@@ -289,9 +291,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
         type: 'Variant[Integer, Enum[a, "2", "3"]]',
         transformations: [
           [1, 1],
-          ['a', 'a'],
+          %w[a a],
         ],
-        errors: ['2', '3'],
+        errors: %w[2 3],
       },
       {
         type: 'Variant[Array[Variant[Integer,String]],Boolean]',
@@ -300,7 +302,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [:false, false], # rubocop:disable Lint/BooleanSymbol
           [[1], [1]],
           [['1'], [1]],
-          [['1', 'a'], [1, 'a']],
+          [%w[1 a], [1, 'a']],
         ],
         errors: [
           [:something, [1.0]],
@@ -407,6 +409,4 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
       end
     end
   end
-  # rubocop:enable Style/WordArray
-  # rubocop:enable RSpec/InstanceVariable
 end

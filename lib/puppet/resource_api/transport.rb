@@ -10,6 +10,7 @@ module Puppet::ResourceApi::Transport
     raise Puppet::DevError, 'requires `:desc`' unless schema.key? :desc
     raise Puppet::DevError, 'requires `:connection_info`' unless schema.key? :connection_info
     raise Puppet::DevError, '`:connection_info` must be a hash, not `%{other_type}`' % { other_type: schema[:connection_info].class } unless schema[:connection_info].is_a?(Hash)
+
     if schema[:connection_info_order].nil?
       schema[:connection_info_order] = schema[:connection_info].keys
     else
@@ -24,7 +25,7 @@ module Puppet::ResourceApi::Transport
     end
     transports[schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
   end
-  module_function :register # rubocop:disable Style/AccessModifierDeclarations
+  module_function :register
 
   # retrieve a Hash of transport schemas, keyed by their name.
   # Only already loaded transports are returned.
@@ -33,7 +34,7 @@ module Puppet::ResourceApi::Transport
   def list
     Marshal.load(Marshal.dump(transports))
   end
-  module_function :list # rubocop:disable Style/AccessModifierDeclarations
+  module_function :list
 
   # retrieve a Hash of transport schemas, keyed by their name.
   # This uses the Puppet autoloader, provide an environment name as `force_environment`
@@ -46,7 +47,7 @@ module Puppet::ResourceApi::Transport
       Marshal.load(Marshal.dump(transports))
     end
   end
-  module_function :list_all_transports # rubocop:disable Style/AccessModifierDeclarations
+  module_function :list_all_transports
 
   # Loads all schemas using the Puppet Autoloader. This method is clearing the cache and forcing `Kernel.load`, so that the cache is up-to-date.
   def self.load_all_schemas
@@ -76,7 +77,7 @@ module Puppet::ResourceApi::Transport
     class_name = name.split('_').map { |e| e.capitalize }.join
     Puppet::Transport.const_get(class_name).new(get_context(name), wrap_sensitive(name, connection_info))
   end
-  module_function :connect # rubocop:disable Style/AccessModifierDeclarations
+  module_function :connect
 
   def inject_device(name, transport)
     transport_wrapper = Puppet::ResourceApi::Transport::Wrapper.new(name, transport)
@@ -87,7 +88,7 @@ module Puppet::ResourceApi::Transport
       Puppet::Util::NetworkDevice.instance_variable_set(:@current, transport_wrapper)
     end
   end
-  module_function :inject_device # rubocop:disable Style/AccessModifierDeclarations
+  module_function :inject_device
 
   def self.validate(name, connection_info)
     require "puppet/transport/schema/#{name}" unless transports.key? name
@@ -177,7 +178,7 @@ module Puppet::ResourceApi::Transport
     end
 
     # remove any other attributes the transport is not prepared to handle
-    connection_info.keys.each do |attribute_name|
+    connection_info.each_key do |attribute_name|
       if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
         context.warning('Discarding unknown attribute: %{attribute_name}' % { attribute_name: attribute_name })
         connection_info.delete(attribute_name)

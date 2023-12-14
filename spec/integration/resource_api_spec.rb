@@ -202,6 +202,7 @@ RSpec.describe 'Resource API integrated tests:' do
         end
 
         attr_reader :last_changes
+
         define_method(:set) do |context, changes|
           @last_changes = changes
           s.call(context, changes)

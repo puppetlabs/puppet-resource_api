@@ -37,23 +37,27 @@ RSpec.describe Puppet::ResourceApi::Transport do
       it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
       it { expect { described_class.register(name: 'no connection info', desc: 'some description') }.to raise_error(Puppet::DevError, %r{requires `:connection_info`}) }
       it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, %r{requires `:desc`}) }
+
       it {
         expect {
           described_class.register(name: 'no hash connection_info',
                                    desc: 'some description',
                                    connection_info: [])
-        } .to raise_error(Puppet::DevError, %r{`:connection_info` must be a hash, not})
+        }.to raise_error(Puppet::DevError, %r{`:connection_info` must be a hash, not})
       }
+
       it {
         expect(described_class.register(name: 'no array connection_info_order',
                                         desc: 'some description',
                                         connection_info: {}).definition).to have_key(:connection_info_order)
       }
+
       it {
         expect(described_class.register(name: 'no array connection_info_order',
                                         desc: 'some description',
                                         connection_info: {}).definition[:connection_info_order]).to eq []
       }
+
       it {
         expect {
           described_class.register(name: 'no array connection_info_order',
@@ -165,6 +169,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
 
       it { expect(described_class.list['test_target'].definition).to eq schema }
+
       it 'returns a new object' do
         expect(described_class.list['test_target'].definition.object_id).not_to eq schema.object_id
       end
@@ -341,9 +346,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
         desc: 'a  secret',
         connection_info: {
           secret: {
-            type:      'String',
-            desc:      'A secret to protect.',
-            sensitive:  true,
+            type: 'String',
+            desc: 'A secret to protect.',
+            sensitive: true,
           },
         },
       }

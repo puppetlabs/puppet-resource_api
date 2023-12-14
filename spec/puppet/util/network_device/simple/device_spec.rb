@@ -9,7 +9,7 @@ RSpec.describe Puppet::Util::NetworkDevice::Simple::Device do
   context 'when initialized with a file:// URL' do
     context 'when the file exists' do
       let(:tempfile) { Tempfile.new('foo.txt') }
-      let(:url_or_config) { 'file://' + tempfile.path }
+      let(:url_or_config) { "file://#{tempfile.path}" }
 
       before(:each) do
         tempfile.write('{ foo: bar }')

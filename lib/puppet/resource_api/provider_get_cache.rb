@@ -19,6 +19,7 @@ class Puppet::ResourceApi::ProviderGetCache
 
   def all
     raise 'all method called, but cached_all not called' unless @cached_all
+
     @cache.values
   end
 

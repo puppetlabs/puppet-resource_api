@@ -162,6 +162,7 @@ RSpec.describe Puppet::ResourceApi::Property do
               expect(test_provider_with_insync).to receive(:insync?).and_return(true)
               expect(custom_insync_property.insync?('Foo')).to be true
             end
+
             it 'returns false if result was false' do
               expect(test_provider_with_insync).to receive(:insync?).and_return(false)
               expect(custom_insync_property.insync?('Foo')).to be false
@@ -254,6 +255,7 @@ RSpec.describe Puppet::ResourceApi::Property do
             custom_insync_property.insync?('Foo')
             expect(custom_insync_property.change_to_s(false, true)).to match(%r{Custom insync logic determined that this resource is out of sync})
           end
+
           it 'passes the string returned by insync? for change reporting' do
             expect(test_provider_with_insync).to receive(:insync?).and_return(insync_result)
             custom_insync_property.insync?('Foo')
