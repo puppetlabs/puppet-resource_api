@@ -142,8 +142,8 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(type_name.to_sym) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.properties.map(&:doc)).to include a_string_matching(/the description/) }
-      it { expect(type.properties.map(&:name)).to include :test_string }
+      it { expect(type.properties.map { |p| p.doc }).to include a_string_matching(/the description/) }
+      it { expect(type.properties.map { |p| p.name }).to include :test_string }
 
       def extract_values(function)
         result = []
@@ -783,7 +783,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.key_attribute_parameters.map(&:name)).to eq [:some_name] }
+      it { expect(type.key_attribute_parameters.map { |p| p.name }).to eq [:some_name] }
     end
   end
 
@@ -2326,7 +2326,7 @@ CODE
       it { expect { described_class.register_type(definition) }.not_to raise_error }
     end
 
-    context 'with :namevar behaviour' do
+    context 'with invalid behaviour' do
       let(:definition) do
         {
           name: 'test_behaviour',

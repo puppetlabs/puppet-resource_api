@@ -73,11 +73,6 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/NestedGroups:
   Max: 7
 
-# Offense count: 2
-RSpec/RepeatedExampleGroupDescription:
-  Exclude:
-    - 'spec/puppet/resource_api_spec.rb'
-
 # Offense count: 25
 RSpec/StubbedMock:
   Exclude:
