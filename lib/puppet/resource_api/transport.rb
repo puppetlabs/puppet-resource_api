@@ -20,7 +20,7 @@ module Puppet::ResourceApi::Transport
     unless transports[schema[:name]].nil?
       raise Puppet::DevError, 'Transport `%{name}` is already registered for `%{environment}`' % {
         name: schema[:name],
-        environment: current_environment_name,
+        environment: current_environment_name
       }
     end
     transports[schema[:name]] = Puppet::ResourceApi::TransportSchemaDef.new(schema)
@@ -96,7 +96,7 @@ module Puppet::ResourceApi::Transport
     if transport_schema.nil?
       raise Puppet::DevError, 'Transport for `%{target}` not registered with `%{environment}`' % {
         target: name,
-        environment: current_environment_name,
+        environment: current_environment_name
       }
     end
 

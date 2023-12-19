@@ -12,174 +12,174 @@ RSpec.describe 'Resource API integrated tests:' do
         title_patterns: [
           {
             pattern: %r{^(?<name>.*[^-])-(?<name2>.*)$},
-            desc: 'Where the name and the name2 are provided with a hyphen separator',
+            desc: 'Where the name and the name2 are provided with a hyphen separator'
           },
           {
             pattern: %r{^(?<name>.*)$},
-            desc: 'Where only the name is provided',
+            desc: 'Where only the name is provided'
           }
         ],
         attributes: {
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           name2: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the other title',
+            desc: 'the other title'
           },
           string: {
             type: 'String',
             desc: 'a string attribute',
-            default: 'default value',
+            default: 'default value'
           },
           boolean: {
             type: 'Boolean',
-            desc: 'a boolean attribute',
+            desc: 'a boolean attribute'
           },
           integer: {
             type: 'Integer',
-            desc: 'an integer attribute',
+            desc: 'an integer attribute'
           },
           float: {
             type: 'Float',
-            desc: 'a floating point attribute',
+            desc: 'a floating point attribute'
           },
           ensure: {
             type: 'Enum[present, absent]',
-            desc: 'a ensure attribute',
+            desc: 'a ensure attribute'
           },
           variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
-            desc: 'a pattern attribute',
+            desc: 'a pattern attribute'
           },
           url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
-            desc: 'a hkp or http(s) url attribute',
+            desc: 'a hkp or http(s) url attribute'
           },
           sensitive: {
             type: 'Sensitive[String]',
-            desc: 'A sensitive string, like a password',
+            desc: 'A sensitive string, like a password'
           },
           string_array: {
             type: 'Array[String]',
-            desc: 'An attribute to exercise Array handling.',
+            desc: 'An attribute to exercise Array handling.'
           },
           variant_array: {
             type: 'Variant[Array[String], String]',
-            desc: 'an array, or a string',
+            desc: 'an array, or a string'
           },
           array_of_arrays: {
             type: 'Array[Array[String]]',
-            desc: 'an array of arrays',
+            desc: 'an array of arrays'
           },
           array_from_hell: {
             type: 'Array[Variant[Array[String], String]]',
-            desc: 'an array of weird things',
+            desc: 'an array of weird things'
           },
           optional_string_array: {
             type: 'Optional[Array[String]]',
-            desc: 'An optional attribute to exercise Array handling.',
+            desc: 'An optional attribute to exercise Array handling.'
           },
           optional_string: {
             type: 'Optional[String]',
-            desc: 'a optional string attribute',
+            desc: 'a optional string attribute'
           },
           string_param: {
             type: 'String',
             desc: 'a string parameter',
             default: 'default value',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           boolean_param: {
             type: 'Boolean',
             desc: 'a boolean parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           integer_param: {
             type: 'Integer',
             desc: 'an integer parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           float_param: {
             type: 'Float',
             desc: 'a floating point parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           ensure_param: {
             type: 'Enum[present, absent]',
             desc: 'a ensure parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           variant_pattern_param: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           url_param: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           string_array_param: {
             type: 'Array[String]',
             desc: 'A parameter to exercise Array handling.',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           optional_string_param: {
             type: 'Optional[String]',
             desc: 'a optional string parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           string_ro: {
             type: 'String',
             desc: 'a string readonly',
             default: 'default value',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           boolean_ro: {
             type: 'Boolean',
             desc: 'a boolean readonly',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           integer_ro: {
             type: 'Integer',
             desc: 'an integer readonly',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           float_ro: {
             type: 'Float',
             desc: 'a floating point readonly',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           ensure_ro: {
             type: 'Enum[present, absent]',
             desc: 'a ensure readonly',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           variant_pattern_ro: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern readonly',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           url_ro: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url readonly',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           string_array_ro: {
             type: 'Array[String]',
             desc: 'A readonly parameter to exercise Array handling.',
-            behaviour: :read_only,
+            behaviour: :read_only
           },
           optional_string_ro: {
             type: 'Optional[String]',
             desc: 'a optional string readonly',
-            behaviour: :read_only,
-          },
-        },
+            behaviour: :read_only
+          }
+        }
       }
     end
     let(:provider_class) do
@@ -191,12 +191,12 @@ RSpec.describe 'Resource API integrated tests:' do
             {
               name: 'foo',
               name2: 'bar',
-              title: 'foo-bar',
+              title: 'foo-bar'
             },
             {
               name: 'foo2',
               name2: 'bar2',
-              title: 'foo2-bar2',
+              title: 'foo2-bar2'
             }
           ]
         end

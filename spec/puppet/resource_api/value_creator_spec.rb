@@ -14,7 +14,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     {
       type: 'Enum[present, absent]',
       desc: 'Whether this resource should be present or absent on the target system.',
-      default: 'present',
+      default: 'present'
     }
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Boolean',
-            desc: 'Boolean test.',
+            desc: 'Boolean test.'
           }
         end
 
@@ -75,7 +75,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'String',
-            desc: 'String test.',
+            desc: 'String test.'
           }
         end
 
@@ -89,7 +89,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Integer',
-            desc: 'Integer test.',
+            desc: 'Integer test.'
           }
         end
 
@@ -103,7 +103,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Float',
-            desc: 'Float test.',
+            desc: 'Float test.'
           }
         end
 
@@ -127,7 +127,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           {
             type: 'String',
             desc: 'Namevar test',
-            behaviour: :namevar,
+            behaviour: :namevar
           }
         end
 
@@ -141,7 +141,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           {
             type: 'Boolean',
             desc: 'Default value test',
-            default: true,
+            default: true
           }
         end
 
@@ -154,7 +154,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Boolean',
-            desc: 'No default value test',
+            desc: 'No default value test'
           }
         end
 
@@ -168,7 +168,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Boolean',
-            desc: 'Boolean test.',
+            desc: 'Boolean test.'
           }
         end
 
@@ -189,7 +189,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'String',
-            desc: 'String test.',
+            desc: 'String test.'
           }
         end
 
@@ -203,7 +203,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Integer',
-            desc: 'Integer test.',
+            desc: 'Integer test.'
           }
         end
 
@@ -217,7 +217,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Float',
-            desc: 'Float test.',
+            desc: 'Float test.'
           }
         end
 

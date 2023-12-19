@@ -67,7 +67,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'title' =>
         {
-          should: should_values,
+          should: should_values
         } }
     end
 
@@ -119,7 +119,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
         {
           is: is_values,
-          should: should_values,
+          should: should_values
         } }
     end
 
@@ -176,7 +176,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'title' =>
         {
-          should: should_values,
+          should: should_values
         } }
     end
 
@@ -248,7 +248,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
         {
           is: is_values,
-          should: should_values,
+          should: should_values
         } }
     end
 
@@ -282,7 +282,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
         {
           is: is_values,
-          should: should_values,
+          should: should_values
         } }
     end
 
@@ -333,7 +333,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'title' =>
         {
-          should: should_values,
+          should: should_values
         } }
     end
 
@@ -400,17 +400,17 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'to create' =>
         {
-          should: { name: 'to create', ensure: 'present' },
+          should: { name: 'to create', ensure: 'present' }
         },
         'to update' =>
         {
           is: { name: 'to update', ensure: 'present' },
-          should: { name: 'to update', ensure: 'present' },
+          should: { name: 'to update', ensure: 'present' }
         },
         'to delete' =>
         {
           is: { name: 'to create', ensure: 'present' },
-          should: { name: 'to create', ensure: 'absent' },
+          should: { name: 'to create', ensure: 'absent' }
         } }
     end
 
@@ -438,7 +438,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
             {
               is: is_values,
-              should: should_values,
+              should: should_values
             } }
     end
 
@@ -458,8 +458,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       {
         { name1: 'title1', name2: 'title2' } =>
           {
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
@@ -505,8 +505,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
         { name1: 'title1', name2: 'title2' } =>
           {
             is: is_values,
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
@@ -545,8 +545,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       {
         { name1: 'title1', name2: 'title2' } =>
           {
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
@@ -599,8 +599,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
         { name1: 'title1', name2: 'title2' } =>
           {
             is: is_values,
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
@@ -638,8 +638,8 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       {
         { name1: 'title1', name2: 'title2' } =>
           {
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 

@@ -13,19 +13,19 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         ensure: {
           type: 'Enum[present, absent]',
           desc: 'Whether this resource should be present or absent on the target system.',
-          default: 'present',
+          default: 'present'
         },
         name: {
           type: 'String',
           desc: 'The name of the resource you want to manage.',
-          behaviour: :namevar,
+          behaviour: :namevar
         },
         prop: {
           type: 'Integer',
-          desc: 'A mandatory property, that MUST NOT be validated on deleting.',
-        },
+          desc: 'A mandatory property, that MUST NOT be validated on deleting.'
+        }
       },
-      features: feature_support,
+      features: feature_support
     }
   end
   let(:feature_support) { [] }
@@ -90,14 +90,14 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
           connection_info: {
             username: {
               type: 'String',
-              desc: 'The username to connect with',
+              desc: 'The username to connect with'
             },
             secret: {
               type: 'String',
               desc: 'A sensitive value',
-              sensitive: true,
-            },
-          },
+              sensitive: true
+            }
+          }
         }
       end
 
@@ -257,9 +257,9 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
             name: {
               type: 'String',
               behaviour: :namevar,
-              behavior: :namevar,
-            },
-          },
+              behavior: :namevar
+            }
+          }
         }
       end
 
@@ -272,9 +272,9 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
           name: 'bad_syntax',
           attributes: {
             name: {
-              type: 'Optional[String',
-            },
-          },
+              type: 'Optional[String'
+            }
+          }
         }
       end
 

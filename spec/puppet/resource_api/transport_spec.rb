@@ -89,18 +89,18 @@ RSpec.describe Puppet::ResourceApi::Transport do
           connection_info: {
             host: {
               type: 'String',
-              desc: 'the host ip address or hostname',
+              desc: 'the host ip address or hostname'
             },
             user: {
               type: 'String',
-              desc: 'the user to connect as',
+              desc: 'the user to connect as'
             },
             password: {
               type: 'String',
               sensitive: true,
-              desc: 'the password to make the connection',
-            },
-          },
+              desc: 'the password to make the connection'
+            }
+          }
         }
       end
 
@@ -129,9 +129,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
           connection_info: {
             host: {
               type: 'garbage',
-              desc: 'the host ip address or hostname',
-            },
-          },
+              desc: 'the host ip address or hostname'
+            }
+          }
         }
       end
 
@@ -158,9 +158,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
           connection_info: {
             host: {
               type: 'String',
-              desc: 'the host ip address or hostname',
-            },
-          },
+              desc: 'the host ip address or hostname'
+            }
+          }
         }
       end
 
@@ -185,9 +185,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
         connection_info: {
           host: {
             type: 'String',
-            desc: 'the host ip address or hostname',
-          },
-        },
+            desc: 'the host ip address or hostname'
+          }
+        }
       }
     end
 
@@ -348,9 +348,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
           secret: {
             type: 'String',
             desc: 'A secret to protect.',
-            sensitive: true,
-          },
-        },
+            sensitive: true
+          }
+        }
       }
     end
     let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
@@ -363,7 +363,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
     context 'when the connection info contains a `Sensitive` type' do
       let(:connection_info) do
         {
-          secret: 'sup3r_secret_str1ng',
+          secret: 'sup3r_secret_str1ng'
         }
       end
 

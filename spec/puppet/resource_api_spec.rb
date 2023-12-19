@@ -76,58 +76,58 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           test_string: {
             type: 'String',
             desc: 'the description',
-            default: 'default value',
+            default: 'default value'
           },
           test_boolean: {
             type: 'Boolean',
-            desc: 'a boolean value',
+            desc: 'a boolean value'
           },
           test_integer: {
             type: 'Integer',
-            desc: 'an integer value',
+            desc: 'an integer value'
           },
           test_float: {
             type: 'Float',
-            desc: 'a floating point value',
+            desc: 'a floating point value'
           },
           test_enum: {
             type: 'Enum[a, b, c]',
-            desc: 'an enumeration',
+            desc: 'an enumeration'
           },
           test_variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
-            desc: 'a pattern value',
+            desc: 'a pattern value'
           },
           test_url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
-            desc: 'a hkp or http(s) url',
+            desc: 'a hkp or http(s) url'
           },
           test_optional_string: {
             type: 'Optional[String]',
-            desc: 'a optional string value',
+            desc: 'a optional string value'
           },
           test_array: {
             type: 'Array',
-            desc: 'an array value',
-          },
+            desc: 'an array value'
+          }
         },
         autorequire: {
-          var: '$test_string',
+          var: '$test_string'
         },
         autobefore: {
-          const: 'value',
+          const: 'value'
         },
         autosubscribe: {
-          list: %w[foo bar],
+          list: %w[foo bar]
         },
         autonotify: {
-          mixed: [10, '$test_integer', '$test_optional_string', '$test_array'],
-        },
+          mixed: [10, '$test_integer', '$test_optional_string', '$test_array']
+        }
       }
     end
     let(:type_name) { 'with_string' }
@@ -207,7 +207,7 @@ RSpec.describe Puppet::ResourceApi do
             test_float: -1.5,
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
-            test_url: 'hkp://example.com',
+            test_url: 'hkp://example.com'
           }
         end
 
@@ -228,7 +228,7 @@ RSpec.describe Puppet::ResourceApi do
             test_float: -1.5,
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
-            test_url: 'http://example.com',
+            test_url: 'http://example.com'
           }
         end
 
@@ -296,7 +296,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when mandatory attributes are missing' do
           let(:params) do
             {
-              title: 'test',
+              title: 'test'
             }
           end
 
@@ -376,13 +376,13 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           secret: {
             type: 'Sensitive[String]',
-            desc: 'a password',
-          },
-        },
+            desc: 'a password'
+          }
+        }
       }
     end
     let(:type_name) { 'with_sensitive' }
@@ -425,7 +425,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when mandatory attributes are missing' do
           let(:params) do
             {
-              title: 'test',
+              title: 'test'
             }
           end
 
@@ -458,7 +458,7 @@ RSpec.describe Puppet::ResourceApi do
               .with(anything,
                     'test' => {
                       is: { title: 'test' },
-                      should: { name: 'test', secret: a_kind_of(Puppet::Pops::Types::PSensitiveType::Sensitive) },
+                      should: { name: 'test', secret: a_kind_of(Puppet::Pops::Types::PSensitiveType::Sensitive) }
                     })
             instance.retrieve
             instance[:secret] = Puppet::Pops::Types::PSensitiveType::Sensitive.new('a new password')
@@ -478,46 +478,46 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               behaviour: :namevar,
-              desc: 'the title',
+              desc: 'the title'
             },
             ensure: {
               type: 'Enum[present, absent]',
-              desc: 'a ensure value',
+              desc: 'a ensure value'
             },
             test_string: {
               type: 'String',
               desc: 'the description',
-              default: 'default value',
+              default: 'default value'
             },
             test_boolean: {
               type: 'Boolean',
-              desc: 'a boolean value',
+              desc: 'a boolean value'
             },
             test_integer: {
               type: 'Integer',
-              desc: 'an integer value',
+              desc: 'an integer value'
             },
             test_float: {
               type: 'Float',
-              desc: 'a floating point value',
+              desc: 'a floating point value'
             },
             test_enum: {
               type: 'Enum[a, b, c]',
-              desc: 'an enumeration',
+              desc: 'an enumeration'
             },
             test_variant_pattern: {
               type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
-              desc: 'a pattern value',
+              desc: 'a pattern value'
             },
             test_url: {
               type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
-              desc: 'a hkp or http(s) url',
+              desc: 'a hkp or http(s) url'
             },
             test_optional_string: {
               type: 'Optional[String]',
-              desc: 'a optional string value',
-            },
-          },
+              desc: 'a optional string value'
+            }
+          }
         }
       end
 
@@ -555,7 +555,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:params) do
             {
               title: 'test',
-              ensure: 'present',
+              ensure: 'present'
             }
           end
 
@@ -575,7 +575,7 @@ RSpec.describe Puppet::ResourceApi do
 
           let(:params) do
             {
-              title: 'does_not_exist',
+              title: 'does_not_exist'
             }
           end
 
@@ -601,7 +601,7 @@ RSpec.describe Puppet::ResourceApi do
               test_float: -1.5,
               test_enum: 'a',
               test_variant_pattern: 'a' * 8,
-              test_url: 'hkp://example.com',
+              test_url: 'hkp://example.com'
             }
           end
 
@@ -627,13 +627,13 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               behaviour: :namevar,
-              desc: 'the title',
+              desc: 'the title'
             },
             ensure: {
               type: 'Enum[yes, no]',
-              desc: 'a bad ensure attribute',
-            },
-          },
+              desc: 'a bad ensure attribute'
+            }
+          }
         }
       end
 
@@ -649,45 +649,45 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           test_string: {
             type: 'String',
             desc: 'a string parameter',
             default: 'default value',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_boolean: {
             type: 'Boolean',
             desc: 'a boolean parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_integer: {
             type: 'Integer',
             desc: 'an integer parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_float: {
             type: 'Float',
             desc: 'a floating point parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_optional_string: {
             type: 'Optional[String]',
             desc: 'a optional string parameter',
-            behaviour: :parameter,
-          },
-        },
+            behaviour: :parameter
+          }
+        }
       }
     end
 
@@ -719,7 +719,7 @@ RSpec.describe Puppet::ResourceApi do
             test_integer: -1,
             test_float: -1.5,
             test_variant_pattern: 'a' * 8,
-            test_url: 'hkp://example.com',
+            test_url: 'hkp://example.com'
           } }
         end
 
@@ -747,9 +747,9 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'Optional[Integer]',
-            behaviour: :namevar,
-          },
-        },
+            behaviour: :namevar
+          }
+        }
       }
     end
 
@@ -769,9 +769,9 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           some_name: {
             type: 'String',
-            behavior: :namevar,
-          },
-        },
+            behavior: :namevar
+          }
+        }
       }
     end
 
@@ -793,23 +793,23 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            desc: '',
+            desc: ''
           },
           name: {
             type: 'String',
             desc: '',
-            behavior: :namevar,
+            behavior: :namevar
           },
           something_init_only: {
             type: 'String',
             desc: '',
-            behaviour: :init_only,
+            behaviour: :init_only
           },
           mutable: {
             type: 'String',
-            desc: '',
-          },
-        },
+            desc: ''
+          }
+        }
       }
     end
 
@@ -917,17 +917,17 @@ RSpec.describe Puppet::ResourceApi do
         name: 'read_only_behaviour',
         attributes: {
           ensure: {
-            type: 'Enum[present, absent]',
+            type: 'Enum[present, absent]'
           },
           name: {
             type: 'String',
-            behavior: :namevar,
+            behavior: :namevar
           },
           immutable: {
             type: 'String',
-            behaviour: :read_only,
-          },
-        },
+            behaviour: :read_only
+          }
+        }
       }
     end
 
@@ -978,9 +978,9 @@ RSpec.describe Puppet::ResourceApi do
           not_name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the name',
-          },
-        },
+            desc: 'the name'
+          }
+        }
       }
     end
 
@@ -1056,19 +1056,19 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            desc: '',
+            desc: ''
           },
           package: {
             type: 'String',
             desc: '',
-            behavior: :namevar,
+            behavior: :namevar
           },
           manager: {
             type: 'String',
             desc: '',
-            behavior: :namevar,
-          },
-        },
+            behavior: :namevar
+          }
+        }
       }
       result[:title_patterns] = title_patterns if title_patterns
       result
@@ -1136,11 +1136,11 @@ RSpec.describe Puppet::ResourceApi do
         [
           {
             pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
-            desc: 'Where the package and the manager are provided with a slash separator',
+            desc: 'Where the package and the manager are provided with a slash separator'
           },
           {
             pattern: %r{^(?<package>.*)$},
-            desc: 'Where only the package is provided',
+            desc: 'Where only the package is provided'
           }
         ]
       end
@@ -1346,29 +1346,29 @@ RSpec.describe Puppet::ResourceApi do
         name: type_name,
         attributes: {
           ensure: {
-            type: 'Enum[present, absent]',
+            type: 'Enum[present, absent]'
           },
           name: {
             type: 'String',
-            behavior: :namevar,
+            behavior: :namevar
           },
           bool: {
             type: 'Boolean',
-            default: default_value,
+            default: default_value
           },
           variant_bool: {
             type: 'Variant[String, Boolean]',
-            default: default_value,
+            default: default_value
           },
           optional_bool: {
             type: 'Optional[Boolean]',
-            default: default_value,
+            default: default_value
           },
           array_bool: {
             type: 'Array[Boolean]',
-            default: [default_value],
-          },
-        },
+            default: [default_value]
+          }
+        }
       }
     end
     let(:type_name) { "default_bool_#{default_value}" }
@@ -1381,7 +1381,7 @@ RSpec.describe Puppet::ResourceApi do
         bool: default_value,
         variant_bool: default_value,
         optional_bool: default_value,
-        array_bool: [default_value],
+        array_bool: [default_value]
       }
     end
 
@@ -1514,14 +1514,14 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             desc: '',
-            behaviour: :namevar,
+            behaviour: :namevar
           },
           test_string: {
             type: 'String',
-            desc: '',
-          },
+            desc: ''
+          }
         },
-        features: ['canonicalize'],
+        features: ['canonicalize']
       }
     end
     let(:provider_class) do
@@ -1699,7 +1699,7 @@ RSpec.describe Puppet::ResourceApi do
             it('set will be called with the correct structure') do
               expect(run_two.my_provider.last_changes).to eq('somename' => {
                                                                is: { name: 'somename', test_string: 'canonfoo' },
-                                                               should: { name: 'somename', test_string: 'canonbar' },
+                                                               should: { name: 'somename', test_string: 'canonbar' }
                                                              })
             end
 
@@ -1723,14 +1723,14 @@ RSpec.describe Puppet::ResourceApi do
               name: {
                 type: 'String',
                 desc: '',
-                behaviour: :namevar,
+                behaviour: :namevar
               },
               test_string: {
                 type: 'String',
-                desc: '',
-              },
+                desc: ''
+              }
             },
-            features: ['custom_generate'],
+            features: ['custom_generate']
           }
         end
         let(:provider_class) do
@@ -1805,12 +1805,12 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'String',
-            behaviour: :namevar,
+            behaviour: :namevar
           },
           test_string: {
-            type: 'String',
-          },
-        },
+            type: 'String'
+          }
+        }
       }
     end
     let(:provider_class) do
@@ -1877,7 +1877,7 @@ RSpec.describe Puppet::ResourceApi do
             it('set will be called with the correct structure') do
               expect(instance.my_provider.last_changes).to eq('somename' => {
                                                                 is: { name: 'somename', test_string: 'foo' },
-                                                                should: { name: 'somename', test_string: 'bar' },
+                                                                should: { name: 'somename', test_string: 'bar' }
                                                               })
 
               expect(log_sink.map(&:message)).to include(
@@ -1960,20 +1960,20 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               desc: '',
-              behaviour: :namevar,
+              behaviour: :namevar
             },
             test_array: {
               type: 'Array[String]',
-              desc: '',
+              desc: ''
             },
             behaviour_changer: {
               type: 'Boolean',
               desc: '',
               default: false,
-              behaviour: :parameter,
-            },
+              behaviour: :parameter
+            }
           },
-          features: ['custom_insync'],
+          features: ['custom_insync']
         }
       end
 
@@ -2010,16 +2010,16 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               desc: '',
-              behaviour: :namevar,
+              behaviour: :namevar
             },
             behaviour_changer: {
               type: 'Boolean',
               desc: '',
               default: false,
-              behaviour: :parameter,
-            },
+              behaviour: :parameter
+            }
           },
-          features: ['custom_insync'],
+          features: ['custom_insync']
         }
       end
 
@@ -2059,13 +2059,13 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'String',
-            behaviour: :namevar,
+            behaviour: :namevar
           },
           test_string: {
-            type: 'String',
-          },
+            type: 'String'
+          }
         },
-        features: ['remote_resource'],
+        features: ['remote_resource']
       }
     end
     let(:provider_class) { instance_double('Class', 'provider_class') }
@@ -2131,13 +2131,13 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            default: 'present',
+            default: 'present'
           },
           name: {
             type: 'String',
-            behaviour: :namevar,
-          },
-        },
+            behaviour: :namevar
+          }
+        }
       }
     end
     let(:type) { Puppet::Type.type(:test_noop_support) }
@@ -2184,13 +2184,13 @@ CODE
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            default: 'present',
+            default: 'present'
           },
           name: {
             type: 'String',
-            behaviour: :namevar,
-          },
-        },
+            behaviour: :namevar
+          }
+        }
       }
     end
     let(:type) { Puppet::Type.type(:test_simple_get_filter_2) }
@@ -2247,7 +2247,7 @@ CODE
         name: 'test_noop_support_2',
         desc: 'a test resource',
         features: ['no such feature'],
-        attributes: {},
+        attributes: {}
       }
     end
 
@@ -2266,9 +2266,9 @@ CODE
           attributes: {
             id: {
               type: 'String',
-              behavior: :namevar,
-            },
-          },
+              behavior: :namevar
+            }
+          }
         }
       end
 
@@ -2283,9 +2283,9 @@ CODE
           attributes: {
             param: {
               type: 'String',
-              behavior: :parameter,
-            },
-          },
+              behavior: :parameter
+            }
+          }
         }
       end
 
@@ -2300,9 +2300,9 @@ CODE
           attributes: {
             param_ro: {
               type: 'String',
-              behavior: :read_only,
-            },
-          },
+              behavior: :read_only
+            }
+          }
         }
       end
 
@@ -2317,9 +2317,9 @@ CODE
           attributes: {
             param_ro: {
               type: 'String',
-              behavior: :init_only,
-            },
-          },
+              behavior: :init_only
+            }
+          }
         }
       end
 
@@ -2334,9 +2334,9 @@ CODE
           attributes: {
             source: {
               type: 'String',
-              behavior: :bad,
-            },
-          },
+              behavior: :bad
+            }
+          }
         }
       end
 
@@ -2352,9 +2352,9 @@ CODE
         connection_info: {
           host: {
             type: 'String',
-            desc: 'hostname',
-          },
-        },
+            desc: 'hostname'
+          }
+        }
       }
     end
 

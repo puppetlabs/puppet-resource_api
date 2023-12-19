@@ -10,12 +10,12 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       connection_info: {
         host: {
           type: 'String',
-          desc: 'The IP address or hostname',
+          desc: 'The IP address or hostname'
         },
         user: {
           type: 'String',
-          desc: 'The user to connect as',
-        },
+          desc: 'The user to connect as'
+        }
       } }
   end
 

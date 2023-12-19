@@ -21,9 +21,9 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
       name: 'some_resource',
       desc: 'a test resource',
       attributes: {
-        name: { type: 'String', desc: 'message' },
+        name: { type: 'String', desc: 'message' }
       },
-      features: feature_support,
+      features: feature_support
     }
   end
   let(:definition) { Puppet::ResourceApi::TypeDefinition.new(definition_hash) }

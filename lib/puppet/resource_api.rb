@@ -231,7 +231,7 @@ module Puppet::ResourceApi
         custom_insync_trigger_options = {
           type: 'Enum[do_not_specify_in_manifest]',
           desc: 'A hidden property which enables a type with custom insync to perform an insync check without specifying any insyncable properties',
-          default: 'do_not_specify_in_manifest',
+          default: 'do_not_specify_in_manifest'
         }
 
         type_definition.create_attribute_in(self, :rsapi_custom_insync_trigger, :newproperty, Puppet::ResourceApi::Property, custom_insync_trigger_options)

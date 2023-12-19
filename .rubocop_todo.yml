@@ -231,26 +231,6 @@ Style/SymbolProc:
     - 'lib/puppet/resource_api/transport/wrapper.rb'
     - 'spec/puppet/resource_api_spec.rb'
 
-
-# Offense count: 289
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInHashLiteral:
-  Exclude:
-    - 'lib/puppet/resource_api.rb'
-    - 'lib/puppet/resource_api/transport.rb'
-    - 'spec/integration/resource_api_spec.rb'
-    - 'spec/puppet/resource_api/base_context_spec.rb'
-    - 'spec/puppet/resource_api/base_type_definition_spec.rb'
-    - 'spec/puppet/resource_api/data_type_handling_spec.rb'
-    - 'spec/puppet/resource_api/simple_provider_spec.rb'
-    - 'spec/puppet/resource_api/transport_schema_def_spec.rb'
-    - 'spec/puppet/resource_api/transport_spec.rb'
-    - 'spec/puppet/resource_api/type_definition_spec.rb'
-    - 'spec/puppet/resource_api/value_creator_spec.rb'
-    - 'spec/puppet/resource_api_spec.rb'
-
 # Offense count: 248
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns.
