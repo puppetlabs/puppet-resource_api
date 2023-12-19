@@ -38,3 +38,7 @@ Metrics/PerceivedComplexity:
 
 Style/ClassAndModuleChildren:
   Enabled: false
+
+Naming/MethodParameterName:
+  AllowedNames:
+    - is

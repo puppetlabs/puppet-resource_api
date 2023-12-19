@@ -30,22 +30,6 @@ Naming/MemoizedInstanceVariableName:
     - 'lib/puppet/resource_api/type_definition.rb'
 
 # Offense count: 4
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-# AllowedNames: as, at, by, cc, db, id, if, in, io, ip, of, on, os, pp, to
-Naming/MethodParameterName:
-  Exclude:
-    - 'lib/puppet/resource_api/base_context.rb'
-    - 'spec/puppet/resource_api_spec.rb'
-
-# Offense count: 1
-# Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.
-# SupportedStyles: snake_case, normalcase, non_integer
-# AllowedIdentifiers: capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339, x86_64
-# Naming/VariableNumber:
-#   Exclude:
-#     - 'spec/puppet/resource_api_spec.rb'
-
-# Offense count: 4
 RSpec/BeforeAfterAll:
   Exclude:
     - '**/spec/spec_helper.rb'
