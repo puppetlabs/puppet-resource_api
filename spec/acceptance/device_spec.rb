@@ -87,20 +87,20 @@ RSpec.describe 'exercising a device provider' do
     let(:common_args) { "#{super()} --target the_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
-      <<DEVICE_CONF
-[the_node]
-type test_device
-url  file://#{device_credentials.path}
-DEVICE_CONF
+      <<~DEVICE_CONF
+        [the_node]
+        type test_device
+        url  file://#{device_credentials.path}
+      DEVICE_CONF
     end
     let(:device_credentials) { Tempfile.new('credentials.txt') }
     let(:device_credentials_content) do
-      <<DEVICE_CREDS
-{
-  username: foo
-  secret: wibble
-}
-DEVICE_CREDS
+      <<~DEVICE_CREDS
+        {
+          username: foo
+          secret: wibble
+        }
+      DEVICE_CREDS
     end
 
     def is_device_apply_supported?

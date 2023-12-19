@@ -15,11 +15,11 @@ RSpec.describe 'a transport' do
     let(:common_args) { "#{super()} --target the_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
-      <<DEVICE_CONF
-[the_node]
-type test_device_default
-url  file://#{device_credentials.path}
-DEVICE_CONF
+      <<~DEVICE_CONF
+        [the_node]
+        type test_device_default
+        url  file://#{device_credentials.path}
+      DEVICE_CONF
     end
     let(:device_credentials) { Tempfile.new('credentials.txt') }
 
@@ -43,14 +43,14 @@ DEVICE_CONF
 
     context 'when all values are supplied' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  default_string: other
-  optional_default: bar
-  array_default: [z]
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            default_string: other
+            optional_default: bar
+            array_default: [z]
+          }
+        DEVICE_CREDS
       end
 
       it 'does not use default values' do
@@ -74,11 +74,11 @@ DEVICE_CREDS
 
     context 'when no values supplied for parameters with defaults' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+          }
+        DEVICE_CREDS
       end
 
       it 'uses the defaults specified' do

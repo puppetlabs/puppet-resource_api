@@ -15,11 +15,11 @@ RSpec.describe 'a transport' do
     let(:common_args) { "#{super()} --target the_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
-      <<DEVICE_CONF
-[the_node]
-type test_device_sensitive
-url  file://#{device_credentials.path}
-DEVICE_CONF
+      <<~DEVICE_CONF
+        [the_node]
+        type test_device_sensitive
+        url  file://#{device_credentials.path}
+      DEVICE_CONF
     end
     let(:device_credentials) { Tempfile.new('credentials.txt') }
 
@@ -43,15 +43,15 @@ DEVICE_CONF
 
     context 'when all sensitive values are valid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: bar
-  array_secret: [meep]
-  variant_secret: 1234567890
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: bar
+            array_secret: [meep]
+            variant_secret: 1234567890
+          }
+        DEVICE_CREDS
       end
 
       it 'does not throw' do
@@ -76,15 +76,15 @@ DEVICE_CREDS
 
     context 'with a sensitive string value that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: 12345
-  optional_secret: wibble
-  array_secret: [meep]
-  variant_secret: 21
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: 12345
+            optional_secret: wibble
+            array_secret: [meep]
+            variant_secret: 21
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -107,15 +107,15 @@ DEVICE_CREDS
 
     context 'with an optional sensitive string value that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: 12345
-  array_secret: [meep]
-  variant_secret: 21
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: 12345
+            array_secret: [meep]
+            variant_secret: 21
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -138,15 +138,15 @@ DEVICE_CREDS
 
     context 'with an array of sensitive strings that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: bar
-  array_secret: [17]
-  variant_secret: 21
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: bar
+            array_secret: [17]
+            variant_secret: 21
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -169,15 +169,15 @@ DEVICE_CREDS
 
     context 'with an variant containing a sensitive value that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: bar
-  array_secret: [meep]
-  variant_secret: wobble
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: bar
+            array_secret: [meep]
+            variant_secret: wobble
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do

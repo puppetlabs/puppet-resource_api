@@ -17,14 +17,14 @@ RSpec.describe 'exercising a type with device-specific providers' do
     let(:common_args) { super() + " --deviceconfig #{device_conf.path} --target some_node --target other_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
-      <<DEVICE_CONF
-[some_node]
-type some_device
-url  file:///etc/credentials.txt
-[other_node]
-type other_device
-url  file:///etc/credentials.txt
-DEVICE_CONF
+      <<~DEVICE_CONF
+        [some_node]
+        type some_device
+        url  file:///etc/credentials.txt
+        [other_node]
+        type other_device
+        url  file:///etc/credentials.txt
+      DEVICE_CONF
     end
 
     def is_device_apply_supported?

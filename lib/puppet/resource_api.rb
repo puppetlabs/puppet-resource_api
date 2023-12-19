@@ -429,11 +429,11 @@ module Puppet::ResourceApi
 
         # :nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
-        message = <<MESSAGE.strip
-#{type_definition.name}[#{@title}]#get has not provided canonicalized values.
-Returned values:       #{current_state.inspect}
-Canonicalized values:  #{state_clone.inspect}
-MESSAGE
+        message = <<~MESSAGE.strip
+          #{type_definition.name}[#{@title}]#get has not provided canonicalized values.
+          Returned values:       #{current_state.inspect}
+          Canonicalized values:  #{state_clone.inspect}
+        MESSAGE
         # :nocov:
         strict_message(message)
       end
@@ -465,12 +465,12 @@ MESSAGE
 
         # :nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
-        message = <<MESSAGE.strip
-#{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
-Namevars which do not match: #{namevars.inspect}
-Returned parsed title hash:  #{title_hash.inspect}
-Expected hash:               #{rsapi_title.inspect}
-MESSAGE
+        message = <<~MESSAGE.strip
+          #{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
+          Namevars which do not match: #{namevars.inspect}
+          Returned parsed title hash:  #{title_hash.inspect}
+          Expected hash:               #{rsapi_title.inspect}
+        MESSAGE
         # :nocov:
         strict_message(message)
       end
