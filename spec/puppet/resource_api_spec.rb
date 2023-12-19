@@ -1529,9 +1529,7 @@ RSpec.describe Puppet::ResourceApi do
         def canonicalize(_context, resources)
           resources.map do |resource|
             result = resource.dup
-            unless resource[:test_string]&.start_with?('canon')
-              result[:test_string] = ['canon', resource[:test_string]].compact.join
-            end
+            result[:test_string] = ['canon', resource[:test_string]].compact.join unless resource[:test_string]&.start_with?('canon')
             result
           end
         end

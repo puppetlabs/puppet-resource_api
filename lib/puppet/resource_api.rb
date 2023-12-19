@@ -33,9 +33,7 @@ module Puppet::ResourceApi
     # this has to happen before Puppet::Type.newtype starts autoloading providers
     # it also needs to be guarded against the namespace already being defined by something
     # else to avoid ruby warnings
-    unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
-      Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
-    end
+    Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new) unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
 
     Puppet::Type.newtype(definition[:name].to_sym) do
       # The :desc value is already cleaned up by the TypeDefinition validation
@@ -66,9 +64,7 @@ module Puppet::ResourceApi
         self.class.type_definition
       end
 
-      if type_definition.feature?('remote_resource')
-        apply_to_device
-      end
+      apply_to_device if type_definition.feature?('remote_resource')
 
       define_singleton_method(:rsapi_provider_get_cache) do
         # This gives a new cache per resource provider on each Puppet run:
@@ -94,24 +90,18 @@ module Puppet::ResourceApi
         # undo puppet's unwrapping of Sensitive values to provide a uniform experience for providers
         # See https://tickets.puppetlabs.com/browse/PDK-1091 for investigation and background
         sensitives.each do |name|
-          if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
-            attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name])
-          end
+          attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name]) if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
         end
 
         # $stderr.puts "B: #{attributes.inspect}"
-        if type_definition.feature?('canonicalize')
-          attributes = my_provider.canonicalize(context, [attributes])[0]
-        end
+        attributes = my_provider.canonicalize(context, [attributes])[0] if type_definition.feature?('canonicalize')
 
         # the `Puppet::Resource::Ral.find` method, when `instances` does not return a match, uses a Hash with a `:name` key to create
         # an "absent" resource. This is often hit by `puppet resource`. This needs to work, even if the namevar is not called `name`.
         # This bit here relies on the default `title_patterns` (see below) to match the title back to the first (and often only) namevar
         if type_definition.attributes[:name].nil? && attributes[:title].nil?
           attributes[:title] = attributes.delete(:name)
-          if attributes[:title].nil? && !type_definition.namevars.empty?
-            attributes[:title] = @title
-          end
+          attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
         super(attributes)
@@ -240,9 +230,7 @@ module Puppet::ResourceApi
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
-        if options[:behaviour] && !([:read_only, :namevar, :parameter, :init_only].include? options[:behaviour])
-          raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
-        end
+        raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value" if options[:behaviour] && !([:read_only, :namevar, :parameter, :init_only].include? options[:behaviour])
 
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,

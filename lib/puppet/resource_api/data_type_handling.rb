@@ -78,18 +78,14 @@ module Puppet::ResourceApi::DataTypeHandling
         end
         # only convert the values if none failed. otherwise fall through and
         # rely on puppet to render a proper error
-        if conversions.all? { |c| c[1].nil? }
-          value = conversions.map { |c| c[0] }
-        end
+        value = conversions.map { |c| c[0] } if conversions.all? { |c| c[1].nil? }
       end
     when Puppet::Pops::Types::PBooleanType
       value = boolean_munge(value)
     when Puppet::Pops::Types::PIntegerType,
          Puppet::Pops::Types::PFloatType,
          Puppet::Pops::Types::PNumericType
-      if value.is_a?(String) && (value.match?(/^-?\d+$/) || value.match?(Puppet::Pops::Patterns::NUMERIC))
-        value = Puppet::Pops::Utils.to_n(value)
-      end
+      value = Puppet::Pops::Utils.to_n(value) if value.is_a?(String) && (value.match?(/^-?\d+$/) || value.match?(Puppet::Pops::Patterns::NUMERIC))
     when Puppet::Pops::Types::PEnumType,
          Puppet::Pops::Types::PStringType,
          Puppet::Pops::Types::PPatternType
@@ -110,9 +106,7 @@ module Puppet::ResourceApi::DataTypeHandling
       return conversion_results[0] if conversion_results.length == 1
 
       # return an error if ambiguous
-      if conversion_results.length > 1
-        return [nil, ambiguous_error_msg(error_msg_prefix, value, type)]
-      end
+      return [nil, ambiguous_error_msg(error_msg_prefix, value, type)] if conversion_results.length > 1
 
       # try to interpret as string
       return try_mungify(string_type, value, error_msg_prefix) if string_type

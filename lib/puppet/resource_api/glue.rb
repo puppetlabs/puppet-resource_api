@@ -71,12 +71,8 @@ module Puppet::ResourceApi
   class MonkeyHash < Hash
     def <=>(other)
       result = self.class.name <=> other.class.name
-      if result.zero?
-        result = keys.sort <=> other.keys.sort
-      end
-      if result.zero?
-        result = keys.sort.map { |k| self[k] } <=> other.keys.sort.map { |k| other[k] }
-      end
+      result = keys.sort <=> other.keys.sort if result.zero?
+      result = keys.sort.map { |k| self[k] } <=> other.keys.sort.map { |k| other[k] } if result.zero?
       result
     end
   end

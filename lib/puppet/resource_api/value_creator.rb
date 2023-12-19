@@ -36,9 +36,7 @@ module Puppet::ResourceApi::ValueCreator
     end
 
     # provide hints to `puppet type generate` for better parsing
-    if data_type.instance_of? Puppet::Pops::Types::POptionalType
-      data_type = data_type.type
-    end
+    data_type = data_type.type if data_type.instance_of? Puppet::Pops::Types::POptionalType
 
     case data_type
     when Puppet::Pops::Types::PStringType

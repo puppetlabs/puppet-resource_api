@@ -100,9 +100,7 @@ module Puppet::ResourceApi::Transport
       }
     end
 
-    if connection_info.key?(:"remote-transport")
-      clean_bolt_attributes(transport_schema, connection_info)
-    end
+    clean_bolt_attributes(transport_schema, connection_info) if connection_info.key?(:"remote-transport")
 
     apply_defaults(transport_schema, connection_info)
     message_prefix = 'The connection info provided does not match the Transport Schema'

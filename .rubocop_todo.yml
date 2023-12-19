@@ -185,20 +185,6 @@ Style/FormatString:
 Style/FormatStringToken:
   EnforcedStyle: template
 
-# Offense count: 23
-# This cop supports safe autocorrection (--autocorrect).
-Style/IfUnlessModifier:
-  Exclude:
-    - 'contrib/pre-commit'
-    - 'lib/puppet/resource_api.rb'
-    - 'lib/puppet/resource_api/data_type_handling.rb'
-    - 'lib/puppet/resource_api/glue.rb'
-    - 'lib/puppet/resource_api/property.rb'
-    - 'lib/puppet/resource_api/transport.rb'
-    - 'lib/puppet/resource_api/type_definition.rb'
-    - 'lib/puppet/resource_api/value_creator.rb'
-    - 'spec/puppet/resource_api_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: respond_to_missing?

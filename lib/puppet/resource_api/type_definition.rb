@@ -54,9 +54,7 @@ module Puppet::ResourceApi
     # options: The hash of attribute options, including type, desc, default, and behaviour
     def create_attribute_in(type, attribute_name, param_or_property, parent, options)
       type.send(param_or_property, attribute_name.to_sym, parent: parent) do
-        if options[:desc]
-          desc "#{options[:desc]} (a #{options[:type]})"
-        end
+        desc "#{options[:desc]} (a #{options[:type]})" if options[:desc]
 
         # The initialize method is called when puppet core starts building up
         # type objects. The core passes in a hash of shape { resource:
@@ -101,9 +99,7 @@ module Puppet::ResourceApi
       attributes.each do |name, _options|
         type = @data_type_cache[attributes[name][:type]]
 
-        if resource[name].nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
-          missing_attrs << name
-        end
+        missing_attrs << name if resource[name].nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
       end
 
       error_msg = "The following mandatory attributes were not provided:\n    *  #{missing_attrs.join(", \n    *  ")}"
@@ -158,9 +154,7 @@ module Puppet::ResourceApi
 
       # fixup desc/docs backwards compatibility
       if definition.key? :docs
-        if definition[:desc]
-          raise Puppet::DevError, '`%{name}` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] }
-        end
+        raise Puppet::DevError, '`%{name}` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] } if definition[:desc]
 
         definition[:desc] = definition[:docs]
         definition.delete(:docs)
@@ -183,9 +177,7 @@ module Puppet::ResourceApi
 
         # fixup any weird behavior  ;-)
         next unless attr[:behavior]
-        if attr[:behaviour]
-          raise Puppet::DevError, "the '#{key}' attribute has both a `behavior` and a `behaviour`, only use one"
-        end
+        raise Puppet::DevError, "the '#{key}' attribute has both a `behavior` and a `behaviour`, only use one" if attr[:behaviour]
 
         attr[:behaviour] = attr[:behavior]
         attr.delete(:behavior)
@@ -195,9 +187,7 @@ module Puppet::ResourceApi
     # validates a resource hash against its type schema
     def check_schema(resource, message_prefix = nil)
       namevars.each do |namevar|
-        if resource[namevar].nil?
-          raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute"
-        end
+        raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute" if resource[namevar].nil?
       end
 
       message_prefix = 'Provider returned data that does not match the Type Schema' if message_prefix.nil?
