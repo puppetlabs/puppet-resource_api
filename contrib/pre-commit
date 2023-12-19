@@ -5,9 +5,9 @@
 require 'English'
 
 changed_files = `git diff --name-only --cached --diff-filter=ACM`.split(/\n/)
-changed_files = changed_files.select { |file_name|
+changed_files = changed_files.select do |file_name|
   File.extname(file_name) == '.rb'
-}.join(' ')
+end.join(' ')
 
 system("bundle exec rubocop -a #{changed_files}") unless changed_files.empty?
 

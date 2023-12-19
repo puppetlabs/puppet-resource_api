@@ -301,10 +301,10 @@ RSpec.describe Puppet::ResourceApi do
           end
 
           it {
-            expect {
+            expect do
               instance.validate
               instance.retrieve
-            }.not_to raise_exception
+            end.not_to raise_exception
           }
         end
       end
@@ -350,9 +350,9 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :error }
 
           it {
-            expect {
+            expect do
               instance.retrieve
-            }.to raise_error Puppet::DevError, message
+            end.to raise_error Puppet::DevError, message
           }
         end
 
@@ -430,10 +430,10 @@ RSpec.describe Puppet::ResourceApi do
           end
 
           it {
-            expect {
+            expect do
               instance.validate
               instance.retrieve
-            }.not_to raise_exception
+            end.not_to raise_exception
           }
         end
 
@@ -560,10 +560,10 @@ RSpec.describe Puppet::ResourceApi do
           end
 
           it {
-            expect {
+            expect do
               instance.validate
               instance.retrieve
-            }.to raise_exception Puppet::ResourceError, /The following mandatory attributes were not provided/
+            end.to raise_exception Puppet::ResourceError, /The following mandatory attributes were not provided/
           }
         end
 
@@ -1039,9 +1039,9 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       it('throws an error') {
-        expect {
+        expect do
           instance.instances
-        }.to  raise_error Puppet::ResourceError, /^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$/
+        end.to raise_error Puppet::ResourceError, /^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$/
       }
     end
   end
@@ -1243,15 +1243,15 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :error }
 
             it 'instances will throw an exception' do
-              expect {
+              expect do
                 type_class.instances
-              }.to raise_error(Puppet::DevError, /has not provided a title attribute/)
+              end.to raise_error(Puppet::DevError, /has not provided a title attribute/)
             end
 
             it 'refresh_current_state will throw an exception' do
-              expect {
+              expect do
                 type.refresh_current_state
-              }.to raise_error(Puppet::DevError, /has not provided a title attribute/)
+              end.to raise_error(Puppet::DevError, /has not provided a title attribute/)
             end
           end
 
@@ -1300,15 +1300,15 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :error }
 
             it 'instances will throw an exception' do
-              expect {
+              expect do
                 type_class.instances
-              }.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
+              end.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
             end
 
             it 'refresh_current_state will throw an exception' do
-              expect {
+              expect do
                 type.refresh_current_state
-              }.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
+              end.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
             end
           end
 
@@ -1577,9 +1577,9 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :error }
 
           it 'will throw an exception' do
-            expect {
+            expect do
               instance.strict_check({})
-            }.to raise_error(Puppet::DevError, /has not provided canonicalized values/)
+            end.to raise_error(Puppet::DevError, /has not provided canonicalized values/)
           end
         end
 
@@ -1638,9 +1638,9 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         it 'stills raise an error' do
-          expect {
+          expect do
             instance.strict_check({})
-          }.to raise_error(Puppet::Error, /has not provided canonicalized values/)
+          end.to raise_error(Puppet::Error, /has not provided canonicalized values/)
         end
       end
     end

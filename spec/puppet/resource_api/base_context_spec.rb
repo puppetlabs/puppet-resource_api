@@ -107,9 +107,9 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
       context 'when a StandardError is raised' do
         it 'swallows the exception' do
-          expect {
+          expect do
             context.send(method, 'bad_resource') { raise StandardError, 'Bad Resource!' }
-          }.not_to raise_error
+          end.not_to raise_error
         end
 
         it 'logs an error' do
@@ -133,15 +133,15 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
       context 'when an Exception that is not StandardError is raised' do
         it 'raises the exception' do
-          expect {
+          expect do
             context.send(method, 'total_failure') { raise LoadError, 'Disk Read Error' }
-          }.to raise_error(LoadError, 'Disk Read Error')
+          end.to raise_error(LoadError, 'Disk Read Error')
         end
 
         it 'does not leak state into next invocation' do
-          expect {
+          expect do
             context.send(method, 'resource_one') { raise LoadError, 'Uh oh' }
-          }.to raise_error(LoadError, 'Uh oh')
+          end.to raise_error(LoadError, 'Uh oh')
           expect(context).to receive(:send_log).with(:debug, /resource_two.*#{method}.*start/i)
           expect(context).not_to receive(:send_log).with(anything, /.*resource_one.*/)
           context.send(method, 'resource_two') {}
@@ -178,9 +178,9 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
     context 'when a StandardError is raised' do
       it 'swallows the exception' do
-        expect {
+        expect do
           context.failing('bad_resource') { raise StandardError, 'Bad Resource!' }
-        }.not_to raise_error
+        end.not_to raise_error
       end
 
       it 'logs an error' do
@@ -199,15 +199,15 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
     context 'when an Exception that is not StandardError is raised' do
       it 'raises the exception' do
-        expect {
+        expect do
           context.failing('total_failure') { raise LoadError, 'Disk Read Error' }
-        }.to raise_error(LoadError, 'Disk Read Error')
+        end.to raise_error(LoadError, 'Disk Read Error')
       end
 
       it 'does not leak state into next invocation' do
-        expect {
+        expect do
           context.failing('resource_one') { raise LoadError, 'Uh oh' }
-        }.to raise_error(LoadError, 'Uh oh')
+        end.to raise_error(LoadError, 'Uh oh')
         expect(context).to receive(:send_log).with(:debug, /resource_two.*failing.*start/i)
         expect(context).not_to receive(:send_log).with(anything, /.*resource_one.*/)
         context.failing('resource_two') {}

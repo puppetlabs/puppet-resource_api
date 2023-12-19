@@ -127,16 +127,16 @@ module Puppet::ResourceApi
     end
 
     def namevars
-      @namevars ||= attributes.select { |_name, options|
+      @namevars ||= attributes.select do |_name, options|
         options.key?(:behaviour) && options[:behaviour] == :namevar
-      }.keys
+      end.keys
     end
 
     def insyncable_attributes
-      @insyncable_attributes ||= attributes.reject { |_name, options|
+      @insyncable_attributes ||= attributes.reject do |_name, options|
         # Only attributes without any behavior are normal Puppet Properties and get insynced
         options.key?(:behaviour)
-      }.keys
+      end.keys
     end
 
     def validate_schema(definition, attr_key)

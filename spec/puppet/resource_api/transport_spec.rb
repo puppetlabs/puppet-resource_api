@@ -39,11 +39,11 @@ RSpec.describe Puppet::ResourceApi::Transport do
       it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, /requires `:desc`/) }
 
       it {
-        expect {
+        expect do
           described_class.register(name: 'no hash connection_info',
                                    desc: 'some description',
                                    connection_info: [])
-        }.to raise_error(Puppet::DevError, /`:connection_info` must be a hash, not/)
+        end.to raise_error(Puppet::DevError, /`:connection_info` must be a hash, not/)
       }
 
       it {
@@ -59,12 +59,12 @@ RSpec.describe Puppet::ResourceApi::Transport do
       }
 
       it {
-        expect {
+        expect do
           described_class.register(name: 'no array connection_info_order',
                                    desc: 'some description',
                                    connection_info: {},
                                    connection_info_order: {})
-        }.to raise_error(Puppet::DevError, /`:connection_info_order` must be an array, not/)
+        end.to raise_error(Puppet::DevError, /`:connection_info_order` must be an array, not/)
       }
     end
 
