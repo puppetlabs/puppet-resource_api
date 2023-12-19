@@ -42,3 +42,7 @@ Style/ClassAndModuleChildren:
 Naming/MethodParameterName:
   AllowedNames:
     - is
+
+Lint/NestedMethodDefinition:
+  Exclude:
+    - 'lib/puppet/resource_api.rb'
