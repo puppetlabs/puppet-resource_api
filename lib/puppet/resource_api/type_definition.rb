@@ -68,7 +68,7 @@ module Puppet::ResourceApi
 
         # get pops data type object for this parameter or property
         define_singleton_method(:data_type) do
-          @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
+          @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type( # rubocop:disable Naming/MemoizedInstanceVariableName
             attribute_name,
             options[:type]
           )

@@ -6,13 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyleForLeadingUnderscores.
-# SupportedStylesForLeadingUnderscores: disallowed, required, optional
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/puppet/resource_api/type_definition.rb'
-
 # Offense count: 4
 RSpec/BeforeAfterAll:
   Exclude:
@@ -104,14 +97,3 @@ RSpec/SubjectStub:
 Style/OptionalBooleanParameter:
   Exclude:
     - 'lib/puppet/resource_api/data_type_handling.rb'
-
-# # Offense count: 7
-# # This cop supports unsafe autocorrection (--autocorrect-all).
-# # Configuration parameters: AllowMethodsWithArguments, AllowedMethods, AllowedPatterns, AllowComments.
-# # AllowedMethods: define_method
-# Style/SymbolProc:
-#   Exclude:
-#     - 'lib/puppet/resource_api.rb'
-#     - 'lib/puppet/resource_api/transport.rb'
-#     - 'lib/puppet/resource_api/transport/wrapper.rb'
-#     - 'spec/puppet/resource_api_spec.rb'
