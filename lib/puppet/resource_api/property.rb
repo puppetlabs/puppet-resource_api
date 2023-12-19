@@ -119,7 +119,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
         provider_insync_result
       else
         # When returning anything else, raise a DevError for a non-idiomatic return
-        raise(Puppet::DevError, "Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} with a value of #{provider_insync_result.inspect} instead of true/false; insync? MUST return nil or the boolean true or false") # rubocop:disable Metrics/LineLength
+        raise(Puppet::DevError, "Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} with a value of #{provider_insync_result.inspect} instead of true/false; insync? MUST return nil or the boolean true or false") # rubocop:disable Layout/LineLength
       end
     end
 

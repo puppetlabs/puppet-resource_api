@@ -254,7 +254,7 @@ RSpec.describe 'Resource API integrated tests:' do
         end
 
         it 'can serialize to json' do
-          expect({ 'resources' => [instance.to_resource] }.to_json).to eq '{"resources":[{"somename":{"name":"somename","name2":"othername","ensure":"absent","boolean_param":false,"integer_param":99,"float_param":3.21,"ensure_param":"present","variant_pattern_param":"1234ABCD","url_param":"http://www.puppet.com","string_array_param":"d","e":"f","string_param":"default value"}}]}' # rubocop:disable Metrics/LineLength
+          expect({ 'resources' => [instance.to_resource] }.to_json).to eq '{"resources":[{"somename":{"name":"somename","name2":"othername","ensure":"absent","boolean_param":false,"integer_param":99,"float_param":3.21,"ensure_param":"present","variant_pattern_param":"1234ABCD","url_param":"http://www.puppet.com","string_array_param":"d","e":"f","string_param":"default value"}}]}' # rubocop:disable Layout/LineLength
         end
       end
 

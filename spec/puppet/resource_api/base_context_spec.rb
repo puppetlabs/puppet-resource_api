@@ -368,7 +368,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
 
   describe '#feature_support?' do
     it {
-      expect(Puppet::Util::Log).to receive(:create).with({ level: :warning, source: 'Puppet', message: start_with('context.feature_support? is deprecated. Please use context.type.feature? instead.') }) # rubocop:disable Metrics/LineLength
+      expect(Puppet::Util::Log).to receive(:create).with({ level: :warning, source: 'Puppet', message: start_with('context.feature_support? is deprecated. Please use context.type.feature? instead.') }) # rubocop:disable Layout/LineLength
       context.feature_support?('anything')
     }
   end
