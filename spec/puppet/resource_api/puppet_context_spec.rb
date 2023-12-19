@@ -11,7 +11,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
     context 'when a NetworkDevice is configured' do
       let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
 
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(device)
       end
 
@@ -24,7 +24,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
       let(:device) { instance_double('Puppet::Util::NetworkDevice::Test_device::Device', 'device') }
       let(:transport) { instance_double('Puppet::Transport::TestDevice', 'transport') }
 
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(device)
         allow(device).to receive(:transport).and_return(transport)
       end
@@ -35,7 +35,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
     end
 
     context 'with nothing configured' do
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(nil)
       end
 
@@ -70,7 +70,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
     end
 
     context 'when Puppet[:trace] is enabled' do
-      before(:each) do
+      before do
         allow(Puppet).to receive(:[]).and_call_original
         allow(Puppet).to receive(:[]).with(:trace).and_return(true)
       end
@@ -82,7 +82,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
     end
 
     context 'when Puppet[:trace] is disabled' do
-      before(:each) do
+      before do
         allow(Puppet).to receive(:[]).and_call_original
         allow(Puppet).to receive(:[]).with(:trace).and_return(false)
       end

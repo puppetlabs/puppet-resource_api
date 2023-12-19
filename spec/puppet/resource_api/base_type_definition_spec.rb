@@ -131,12 +131,12 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       let(:message) { /Provider returned data that does not match the Type Schema for `some_resource\[wibble\]`\n\s*Unknown attribute:\n\s*\* foo/ }
       let(:strict_level) { :warning }
 
-      before(:each) do
+      before do
         Puppet::ResourceApi.warning_count = 0
         Puppet.settings[:strict] = strict_level
       end
 
-      after(:each) do
+      after do
         Puppet::ResourceApi.warning_count = 0
       end
 
@@ -172,12 +172,12 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       let(:message) { /Provider returned data that does not match the Type Schema for `some_resource\[wibble\]`\n\s*Value type mismatch:\n\s*\* prop: foo/ }
       let(:strict_level) { :warning }
 
-      before(:each) do
+      before do
         Puppet::ResourceApi.warning_count = 0
         Puppet.settings[:strict] = strict_level
       end
 
-      after(:each) do
+      after do
         Puppet::ResourceApi.warning_count = 0
       end
 

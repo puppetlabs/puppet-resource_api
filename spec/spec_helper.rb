@@ -22,7 +22,7 @@ RSpec.configure do |config|
   config.include RSpec::Puppet::Support
 
   # reset the warning suppression count
-  config.before(:each) do
+  config.before do
     Puppet::ResourceApi.warning_count = 0
   end
 end
@@ -36,7 +36,7 @@ SimpleCov.add_filter 'lib/puppet/resource_api/version.rb' if ENV['SIMPLECOV'] ==
 
 # configure this hook after Resource API is loaded to get access to Puppet::ResourceApi::Transport
 RSpec.configure do |config|
-  config.after(:each) do
+  config.after do
     # reset registered transports between tests to reduce cross-test poisoning
     Puppet::ResourceApi::Transport.instance_variable_set(:@transports, nil)
     if (autoloader = Puppet::ResourceApi::Transport.instance_variable_get(:@autoloader))

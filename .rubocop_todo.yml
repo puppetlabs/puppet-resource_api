@@ -22,8 +22,6 @@ Lint/NestedMethodDefinition:
   Exclude:
     - 'lib/puppet/resource_api.rb'
 
-
-
 # Offense count: 1
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.
 # SupportedStylesForLeadingUnderscores: disallowed, required, optional
@@ -74,13 +72,6 @@ RSpec/ExampleLength:
 RSpec/FilePath:
   Exclude:
     - 'spec/acceptance/custom_insync_spec_hidden_property.rb'
-
-# Offense count: 128
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: .
-# SupportedStyles: implicit, each, example
-RSpec/HookArgument:
-  EnforcedStyle: each
 
 # Offense count: 18
 # Configuration parameters: AssignmentOnly.
@@ -160,13 +151,6 @@ Style/BlockDelimiters:
     - 'spec/puppet/resource_api/base_context_spec.rb'
     - 'spec/puppet/resource_api/transport_spec.rb'
     - 'spec/puppet/resource_api_spec.rb'
-
-# Offense count: 27
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: nested, compact
-Style/ClassAndModuleChildren:
-  Enabled: false
 
 # Offense count: 21
 # This cop supports safe autocorrection (--autocorrect).

@@ -23,7 +23,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
   let(:strict_level) { :error }
 
-  before(:each) do
+  before do
     # set default to strictest setting
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = strict_level
@@ -105,7 +105,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
 
       context 'when a environment is available' do
-        before(:each) { change_environment('production') }
+        before { change_environment('production') }
 
         it 'adds to the transports register' do
           expect { described_class.register(schema) }.not_to raise_error
@@ -113,7 +113,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
 
       context 'when no environment is available' do
-        before(:each) { change_environment(nil) }
+        before { change_environment(nil) }
 
         it 'adds to the transports register' do
           expect { described_class.register(schema) }.not_to raise_error
@@ -164,7 +164,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
         }
       end
 
-      before(:each) do
+      before do
         described_class.register(schema)
       end
 
@@ -236,13 +236,13 @@ RSpec.describe Puppet::ResourceApi::Transport do
     let(:transport) { instance_double(Puppet::Transport::Wibble, 'transport') }
     let(:wrapper) { instance_double(Puppet::ResourceApi::Transport::Wrapper, 'wrapper') }
 
-    before(:each) do
+    before do
       module Puppet::Transport
         class Wibble; end
       end
     end
 
-    after(:each) do
+    after do
       Puppet::Util::NetworkDevice.instance_variable_set(:@current, nil)
     end
 
@@ -286,7 +286,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
       let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
-      before(:each) do
+      before do
         allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
         allow(schema_def).to receive(:attributes).with(no_args).and_return(attributes)
         allow(schema_def).to receive(:name).with(no_args).and_return(schema[:name])
@@ -355,7 +355,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
     let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
 
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
       described_class.register(schema)
     end

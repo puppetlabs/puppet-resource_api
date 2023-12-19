@@ -6,7 +6,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
   let(:strict_level) { :error }
   let(:log_sink) { [] }
 
-  before(:each) do
+  before do
     # set default to strictest setting
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = strict_level
@@ -16,13 +16,13 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
     Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
   end
 
-  after(:each) do
+  after do
     Puppet::Util::Log.close_all
   end
 
   describe '#mungify(type, value, unpack_strings = false)' do
     context 'when called from `puppet resource`' do
-      before(:each) do
+      before do
         allow(described_class).to receive(:try_mungify).with('type', 'input', 'error prefix').and_return(result)
         allow(described_class).to receive(:validate)
       end
@@ -48,7 +48,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
     end
 
     context 'when called from something else' do
-      before(:each) do
+      before do
         allow(described_class).to receive(:try_mungify).at_most(0).times
         allow(described_class).to receive(:validate)
       end
@@ -106,7 +106,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
   end
 
   describe '#try_mungify(type, value)' do
-    before(:each) do
+    before do
       @value, @error = described_class.try_mungify(type, input, 'error prefix')
     end
 

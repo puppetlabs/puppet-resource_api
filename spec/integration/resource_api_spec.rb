@@ -213,7 +213,7 @@ RSpec.describe 'Resource API integrated tests:' do
       proc { |_context, _changes| }
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Integration', Module.new)
       stub_const('Puppet::Provider::Integration::Integration', provider_class)
       Puppet::ResourceApi.register_type(definition)
@@ -238,7 +238,7 @@ RSpec.describe 'Resource API integrated tests:' do
                  tag: %w[a b c], catalog: catalog)
       end
 
-      before(:each) do
+      before do
         allow(catalog).to receive(:resource).and_return nil
         allow(catalog).to receive(:alias).and_return nil
         allow(catalog).to receive(:host_config?).and_return true

@@ -31,13 +31,13 @@ RSpec.describe 'exercising a type with device-specific providers' do
       Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')
     end
 
-    before(:each) do
+    before do
       skip "No device --apply in puppet before v5.3.6 nor in v5.4.0 (v#{Puppet::PUPPETVERSION} is installed)" unless is_device_apply_supported?
       device_conf.write(device_conf_content)
       device_conf.close
     end
 
-    after(:each) do
+    after do
       device_conf.unlink
     end
 

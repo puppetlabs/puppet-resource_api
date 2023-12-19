@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Puppet::ResourceApi::ProviderGetCache do
   subject(:cache) { described_class.new }
 
-  before(:each) do
+  before do
     cache.add(:a, 'a')
     cache.add(:b, 'b')
   end

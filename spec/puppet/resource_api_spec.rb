@@ -6,7 +6,7 @@ RSpec.describe Puppet::ResourceApi do
   let(:strict_level) { :error }
   let(:log_sink) { [] }
 
-  before(:each) do
+  before do
     # set default to strictest setting
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = strict_level
@@ -16,7 +16,7 @@ RSpec.describe Puppet::ResourceApi do
     Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
   end
 
-  after(:each) do
+  after do
     Puppet::Util::Log.close_all
   end
 
@@ -132,7 +132,7 @@ RSpec.describe Puppet::ResourceApi do
     end
     let(:type_name) { 'with_string' }
 
-    before(:each) do
+    before do
       described_class.register_type(definition)
     end
 
@@ -288,7 +288,7 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::WithString', Module.new)
           stub_const('Puppet::Provider::WithString::WithString', provider_class)
         end
@@ -321,7 +321,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'with a bad provider', agent_test: true do
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::TypeCheck', Module.new)
           stub_const('Puppet::Provider::TypeCheck::TypeCheck', provider_class)
         end
@@ -387,7 +387,7 @@ RSpec.describe Puppet::ResourceApi do
     end
     let(:type_name) { 'with_sensitive' }
 
-    before(:each) do
+    before do
       described_class.register_type(definition)
     end
 
@@ -417,7 +417,7 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::WithSensitive', Module.new)
           stub_const('Puppet::Provider::WithSensitive::WithSensitive', provider_class)
         end
@@ -442,7 +442,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
           let(:catalog) { instance_double('Unknown', 'catalog') }
 
-          before(:each) do
+          before do
             allow(provider_class).to receive(:new).with(no_args).and_return(provider_instance)
             allow(provider_instance).to receive(:get).and_return([])
             allow(params).to receive(:is_a?).with(Puppet::Resource).and_return(true)
@@ -531,7 +531,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::WithEnsure', Module.new)
         stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
       end
@@ -833,7 +833,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::InitBehaviour', Module.new)
         stub_const('Puppet::Provider::InitBehaviour::InitBehaviour', provider_class)
       end
@@ -878,7 +878,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'when a manifest wants to change the value of an init_only attribute' do
         let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: 'present', something_init_only: 'lies', mutable: 'overdraft') }
 
-        before(:each) do
+        before do
           instance.rsapi_provider_get_cache.clear
         end
 
@@ -951,7 +951,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::ReadOnlyBehaviour', Module.new)
         stub_const('Puppet::Provider::ReadOnlyBehaviour::ReadOnlyBehaviour', provider_class)
       end
@@ -1033,7 +1033,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::NotNameNamevar', Module.new)
         stub_const('Puppet::Provider::NotNameNamevar::NotNameNamevar', provider_class)
       end
@@ -1074,7 +1074,7 @@ RSpec.describe Puppet::ResourceApi do
       result
     end
 
-    before(:each) do
+    before do
       described_class.register_type(definition)
     end
 
@@ -1097,7 +1097,7 @@ RSpec.describe Puppet::ResourceApi do
       end
       let(:type_class) { Puppet::Type.type(:multiple) }
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::Multiple', Module.new)
         stub_const('Puppet::Provider::Multiple::Multiple', provider_class)
       end
@@ -1111,11 +1111,11 @@ RSpec.describe Puppet::ResourceApi do
       context 'when flushing an instance' do
         let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
 
-        before(:each) do
+        before do
           allow(provider_class).to receive(:new).and_return(provider_instance)
         end
 
-        after(:each) do
+        after do
           # reset cached provider between tests
           type_class.instance_variable_set(:@my_provider, nil)
         end
@@ -1164,7 +1164,7 @@ RSpec.describe Puppet::ResourceApi do
         end
         let(:type_class) { Puppet::Type.type(:with_patterns) }
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::WithPatterns', Module.new)
           stub_const('Puppet::Provider::WithPatterns::WithPatterns', provider_class)
         end
@@ -1195,11 +1195,11 @@ RSpec.describe Puppet::ResourceApi do
         context 'when flushing an instance' do
           let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
 
-          before(:each) do
+          before do
             allow(provider_class).to receive(:new).and_return(provider_instance)
           end
 
-          after(:each) do
+          after do
             # reset cached provider between tests
             type_class.instance_variable_set(:@my_provider, nil)
           end
@@ -1388,7 +1388,7 @@ RSpec.describe Puppet::ResourceApi do
     context 'when the default value is true' do
       let(:default_value) { true }
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::DefaultBoolTrue', Module.new)
         stub_const('Puppet::Provider::DefaultBoolTrue::DefaultBoolTrue', provider_class)
       end
@@ -1403,7 +1403,7 @@ RSpec.describe Puppet::ResourceApi do
     context 'when the default value is false' do
       let(:default_value) { false }
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::DefaultBoolFalse', Module.new)
         stub_const('Puppet::Provider::DefaultBoolFalse::DefaultBoolFalse', provider_class)
       end
@@ -1417,7 +1417,7 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   describe '#load_provider', agent_test: true do
-    before(:each) { described_class.register_type(definition) }
+    before { described_class.register_type(definition) }
 
     context 'when loading a non-existing provider' do
       let(:definition) { { name: 'does_not_exist', attributes: {} } }
@@ -1442,7 +1442,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
       let(:device_class) { instance_double(Class, 'device_class') }
 
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(device)
         allow(device).to receive(:class).with(no_args).and_return(device_class)
         allow(device_class).to receive(:name).with(no_args).and_return(device_class_name)
@@ -1478,7 +1478,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:transport) { instance_double('Puppet::ResourceApi::Transport::Wrapper', 'transport') }
       let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
 
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(transport)
         allow(transport).to receive(:is_a?).with(Puppet::ResourceApi::Transport::Wrapper).and_return(true)
         allow(transport).to receive(:schema).and_return(schema_def)
@@ -1546,7 +1546,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Canonicalizer', Module.new)
       stub_const('Puppet::Provider::Canonicalizer::Canonicalizer', provider_class)
     end
@@ -1630,7 +1630,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'when canonicalize modifies current_state' do
         let(:strict_level) { :error }
 
-        before(:each) do
+        before do
           allow(instance.my_provider).to receive(:canonicalize) do |_context, resources|
             resources[0][:test_string] = 'canontest'
             resources
@@ -1648,7 +1648,7 @@ RSpec.describe Puppet::ResourceApi do
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:canonicalizer) }
 
-      before(:each) do
+      before do
         type.rsapi_provider_get_cache.clear
 
         allow(type.my_provider).to receive(:get)
@@ -1667,12 +1667,12 @@ RSpec.describe Puppet::ResourceApi do
         it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonfoo') }
 
         context 'when flushing' do
-          before(:each) do
+          before do
             Puppet.debug = true
             instance.my_provider.set(nil, nil) # reset the current_state
           end
 
-          after(:each) do
+          after do
             Puppet.debug = false
           end
 
@@ -1689,7 +1689,7 @@ RSpec.describe Puppet::ResourceApi do
             let(:run_one) { type.new(name: 'somename', test_string: 'foo') }
             let(:run_two) { type.new(name: 'somename', test_string: 'bar') }
 
-            before(:each) do
+            before do
               run_one.flush
               run_two.flush
             end
@@ -1753,7 +1753,7 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::Generator', Module.new)
           stub_const('Puppet::Provider::Generator::Generator', provider_class)
         end
@@ -1774,11 +1774,11 @@ RSpec.describe Puppet::ResourceApi do
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
 
-        before(:each) do
+        before do
           Puppet.debug = true
         end
 
-        after(:each) do
+        after do
           Puppet.debug = false
         end
 
@@ -1825,7 +1825,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Passthrough', Module.new)
       stub_const('Puppet::Provider::Passthrough::Passthrough', provider_class)
     end
@@ -1835,7 +1835,7 @@ RSpec.describe Puppet::ResourceApi do
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:passthrough) }
 
-      before(:each) do
+      before do
         allow(type.my_provider).to receive(:get)
           .with(kind_of(Puppet::ResourceApi::BaseContext))
           .and_return([{ name: 'somename', test_string: 'foo' },
@@ -1852,13 +1852,13 @@ RSpec.describe Puppet::ResourceApi do
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
 
         context 'when flushing' do
-          before(:each) do
+          before do
             Puppet.debug = true
             instance.my_provider.set(nil, nil) # reset the current_state
             instance.flush
           end
 
-          after(:each) do
+          after do
             Puppet.debug = false
           end
 
@@ -1896,11 +1896,11 @@ RSpec.describe Puppet::ResourceApi do
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
 
-        before(:each) do
+        before do
           Puppet.debug = true
         end
 
-        after(:each) do
+        after do
           Puppet.debug = false
         end
 
@@ -1944,7 +1944,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Insyncer', Module.new)
       stub_const('Puppet::Provider::Insyncer::Insyncer', provider_class)
     end
@@ -2069,7 +2069,7 @@ RSpec.describe Puppet::ResourceApi do
     let(:provider_class) { instance_double('Class', 'provider_class') }
     let(:provider) { instance_double('Puppet::Provider::Remoter::Remoter', 'provider_instance') }
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Remoter', Module.new)
       stub_const('Puppet::Provider::Remoter::Remoter', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
@@ -2103,7 +2103,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:wrapper) { instance_double('Puppet::ResourceApi::Transport::Wrapper', 'wrapper') }
       let(:transport) { instance_double('Puppet::Transport::Wibble', 'transport') }
 
-      before(:each) do
+      before do
         allow(described_class).to receive(:load_provider).and_return(provider)
         allow(provider).to receive(:new).and_return(provider)
       end
@@ -2153,7 +2153,7 @@ CODE
     end
     let(:provider) { instance_double('Puppet::Provider::TestNoopSupport::TestNoopSupport', 'provider') }
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::TestNoopSupport', Module.new)
       stub_const('Puppet::Provider::TestNoopSupport::TestNoopSupport', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
@@ -2203,13 +2203,13 @@ CODE
     end
     let(:provider) { instance_double('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', 'provider') }
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::TestSimpleGetFilter2', Module.new)
       stub_const('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
     end
 
-    after(:each) do
+    after do
       # reset cached provider between tests
       type.instance_variable_set(:@my_provider, nil)
     end
@@ -2217,7 +2217,7 @@ CODE
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     context 'with the type registered' do
-      before(:each) do
+      before do
         type.rsapi_provider_get_cache.clear
       end
 

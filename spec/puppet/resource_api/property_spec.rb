@@ -34,7 +34,7 @@ RSpec.describe Puppet::ResourceApi::Property do
     end
     let(:ensure_property) { ensure_property_class.new }
 
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
         .with(Puppet::Pops::Types::PEnumType.new(%w[absent present]), 'present', 'test_name.ensure', false)
         .and_return('present')
@@ -86,7 +86,7 @@ RSpec.describe Puppet::ResourceApi::Property do
     end
 
     context 'when the custom insync feature flag is not specified in the type' do
-      before(:each) do
+      before do
         property.should = 'foo'
       end
 
@@ -99,7 +99,7 @@ RSpec.describe Puppet::ResourceApi::Property do
     end
 
     context 'when the custom insync feature flag is specified in the type' do
-      before(:each) do
+      before do
         allow(resource).to receive(:rsapi_canonicalized_target_state)
         allow(resource).to receive(:rsapi_current_state)
         allow(resource).to receive(:rsapi_title)
@@ -107,7 +107,7 @@ RSpec.describe Puppet::ResourceApi::Property do
       end
 
       context 'when calling insync?' do
-        before(:each) do
+        before do
           custom_insync_property.should = 'foo'
         end
 
@@ -119,7 +119,7 @@ RSpec.describe Puppet::ResourceApi::Property do
         end
 
         context 'when insync? is defined in the provider' do
-          before(:each) do
+          before do
             allow(referrable_type_custom_insync).to receive(:my_provider).and_return(test_provider_with_insync)
           end
 
@@ -143,7 +143,7 @@ RSpec.describe Puppet::ResourceApi::Property do
               end
               let(:ensure_property) { ensure_property_class.new }
 
-              before(:each) do
+              before do
                 allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
                   .with(Puppet::Pops::Types::PEnumType.new(%w[absent present]), 'present', 'test_name.ensure', false)
                   .and_return('present')
@@ -193,7 +193,7 @@ RSpec.describe Puppet::ResourceApi::Property do
       end
 
       context 'when calling change_to_s' do
-        before(:each) do
+        before do
           allow(resource).to receive(:rsapi_canonicalized_target_state)
           allow(resource).to receive(:rsapi_current_state)
           allow(resource).to receive(:rsapi_title)
@@ -202,7 +202,7 @@ RSpec.describe Puppet::ResourceApi::Property do
         end
 
         context 'when the property is not rsapi_custom_insync_trigger' do
-          before(:each) do
+          before do
             custom_insync_property.should = 'foo'
           end
 
@@ -246,7 +246,7 @@ RSpec.describe Puppet::ResourceApi::Property do
           let(:custom_insync_attribute_name) { :rsapi_custom_insync_trigger }
           let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
 
-          before(:each) do
+          before do
             custom_insync_property.should = true
           end
 
@@ -278,7 +278,7 @@ RSpec.describe Puppet::ResourceApi::Property do
   end
 
   describe 'value munging and storage' do
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
         .with(data_type, value, 'test_name.some_property', false)
         .and_return(munged_value)

@@ -77,7 +77,7 @@ RSpec.describe 'a type with multiple namevars' do
     let(:common_args) { "#{super()} --detailed-exitcodes" }
 
     # run Open3.capture2e only once to get both output, and exitcode
-    before(:each) do
+    before do
       Tempfile.create('acceptance') do |f|
         f.write(manifest)
         f.close

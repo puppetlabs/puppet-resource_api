@@ -6,7 +6,7 @@ require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device
 
 RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
   describe '#initialize(name, url_or_config)' do
-    before(:each) do
+    before do
       module Puppet::Transport
         class SomethingSomethingDarkside; end
       end
@@ -100,7 +100,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     let(:instance) { described_class.new('wibble', {}) }
     let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
 
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
     end
 
@@ -119,7 +119,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     end
 
     context 'when the transport does support the function' do
-      before(:each) do
+      before do
         allow(transport).to receive(:close)
       end
 

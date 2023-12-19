@@ -30,7 +30,7 @@ RSpec.describe Puppet::ResourceApi::Parameter do
   end
 
   describe 'value munging and storage' do
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
         .with(data_type, value, 'test_name.some_parameter', false)
         .and_return(munged_value)

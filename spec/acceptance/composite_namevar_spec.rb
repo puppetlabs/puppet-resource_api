@@ -76,7 +76,7 @@ RSpec.describe 'a type with composite namevars' do
 
     # run Open3.capture2e only once to get both output, and exitcode
     # rubocop:disable RSpec/InstanceVariable
-    before(:each) do
+    before do
       Tempfile.create('acceptance') do |f|
         f.write(manifest)
         f.close

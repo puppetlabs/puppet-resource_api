@@ -34,7 +34,7 @@ RSpec.describe Puppet::ResourceApi::ReadOnlyParameter do
     end
 
     context 'when value is already set' do
-      before(:each) do
+      before do
         read_only_parameter.instance_variable_set(:@value, 'value')
       end
 

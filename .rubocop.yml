@@ -35,3 +35,6 @@ Metrics/ModuleLength:
 
 Metrics/PerceivedComplexity:
   Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false

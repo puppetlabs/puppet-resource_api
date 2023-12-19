@@ -18,7 +18,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     }
   end
 
-  before(:each) do
+  before do
     allow(attribute_class).to receive(:newvalue)
     allow(attribute_class).to receive(:newvalues)
     allow(attribute_class).to receive(:aliasvalue)
@@ -30,7 +30,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
   it { expect { value_creator }.not_to raise_error }
 
   describe '#create_values' do
-    before(:each) do
+    before do
       value_creator.create_values(attribute_class, data_type, param_or_property, options)
     end
 

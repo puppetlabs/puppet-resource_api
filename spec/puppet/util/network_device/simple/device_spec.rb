@@ -11,12 +11,12 @@ RSpec.describe Puppet::Util::NetworkDevice::Simple::Device do
       let(:tempfile) { Tempfile.new('foo.txt') }
       let(:url_or_config) { "file://#{tempfile.path}" }
 
-      before(:each) do
+      before do
         tempfile.write('{ foo: bar }')
         tempfile.close
       end
 
-      after(:each) { tempfile.unlink }
+      after { tempfile.unlink }
 
       it 'provides an empty facts set' do
         expect(device.facts).to eq({})
