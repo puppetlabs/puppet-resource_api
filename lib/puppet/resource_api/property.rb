@@ -75,7 +75,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
         value,
         "#{@type_name}.#{@attribute_name}",
         Puppet::ResourceApi.caller_is_resource_app?
-      ),
+      )
     ]
   end
 

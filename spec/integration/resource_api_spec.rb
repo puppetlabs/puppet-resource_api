@@ -17,7 +17,7 @@ RSpec.describe 'Resource API integrated tests:' do
           {
             pattern: %r{^(?<name>.*)$},
             desc: 'Where only the name is provided',
-          },
+          }
         ],
         attributes: {
           name: {
@@ -197,7 +197,7 @@ RSpec.describe 'Resource API integrated tests:' do
               name: 'foo2',
               name2: 'bar2',
               title: 'foo2-bar2',
-            },
+            }
           ]
         end
 

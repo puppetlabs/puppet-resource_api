@@ -1141,7 +1141,7 @@ RSpec.describe Puppet::ResourceApi do
           {
             pattern: %r{^(?<package>.*)$},
             desc: 'Where only the package is provided',
-          },
+          }
         ]
       end
 
