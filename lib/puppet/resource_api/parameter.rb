@@ -30,7 +30,7 @@ class Puppet::ResourceApi::Parameter < Puppet::Parameter
       @data_type,
       value,
       "#{@type_name}.#{@attribute_name}",
-      Puppet::ResourceApi.caller_is_resource_app?,
+      Puppet::ResourceApi.caller_is_resource_app?
     )
   end
 

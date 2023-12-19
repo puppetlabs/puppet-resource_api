@@ -231,21 +231,6 @@ Style/SymbolProc:
     - 'lib/puppet/resource_api/transport/wrapper.rb'
     - 'spec/puppet/resource_api_spec.rb'
 
-# Offense count: 14
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyleForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInArguments:
-  Exclude:
-    - 'lib/puppet/resource_api.rb'
-    - 'lib/puppet/resource_api/data_type_handling.rb'
-    - 'lib/puppet/resource_api/parameter.rb'
-    - 'lib/puppet/resource_api/property.rb'
-    - 'lib/puppet/resource_api/type_definition.rb'
-    - 'spec/puppet/resource_api/base_type_definition_spec.rb'
-    - 'spec/puppet/resource_api/read_only_parameter_spec.rb'
-    - 'spec/puppet/resource_api/value_creator_spec.rb'
-    - 'spec/puppet/resource_api_spec.rb'
 
 # Offense count: 24
 # This cop supports safe autocorrection (--autocorrect).

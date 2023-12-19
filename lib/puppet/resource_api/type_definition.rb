@@ -72,7 +72,7 @@ module Puppet::ResourceApi
         define_singleton_method(:data_type) do
           @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             attribute_name,
-            options[:type],
+            options[:type]
           )
         end
 
@@ -82,7 +82,7 @@ module Puppet::ResourceApi
           self,
           data_type,
           param_or_property,
-          options,
+          options
         )
       end
     end
@@ -178,7 +178,7 @@ module Puppet::ResourceApi
         @data_type_cache[attributes[key][:type]] ||=
           Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             key,
-            attributes[key][:type],
+            attributes[key][:type]
           )
 
         # fixup any weird behavior  ;-)
@@ -252,7 +252,7 @@ module Puppet::ResourceApi
         error_message = Puppet::ResourceApi::DataTypeHandling.try_validate(
           type,
           value,
-          '',
+          ''
         )
         if is_sensitive
           bad_vals[key] = "<< redacted value >> #{error_message}" unless error_message.nil?

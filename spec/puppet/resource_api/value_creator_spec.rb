@@ -223,7 +223,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
 
         it 'calls #newvalues once' do
           expect(attribute_class).to have_received(:newvalues).with(
-            %r{\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z},
+            %r{\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z}
           )
         end
       end

@@ -25,7 +25,7 @@ module Puppet::ResourceApi::DataTypeHandling
       type,
       value,
       error_msg_prefix,
-      unpack_strings,
+      unpack_strings
     )
     validate(type, cleaned_value, error_msg_prefix)
     cleaned_value
@@ -176,7 +176,7 @@ module Puppet::ResourceApi::DataTypeHandling
     Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(
       error_msg_prefix,
       type,
-      inferred_type,
+      inferred_type
     )
   end
 

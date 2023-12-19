@@ -23,7 +23,7 @@ RSpec.describe Puppet::ResourceApi::ReadOnlyParameter do
       it 'value set fails' do
         expect { read_only_parameter.value = 'value' }.to raise_error(
           Puppet::ResourceError,
-          %r{Attempting to set `some_parameter` read_only attribute value to `value`},
+          %r{Attempting to set `some_parameter` read_only attribute value to `value`}
         )
       end
     end

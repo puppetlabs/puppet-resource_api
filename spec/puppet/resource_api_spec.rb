@@ -1706,7 +1706,7 @@ RSpec.describe Puppet::ResourceApi do
             it 'logs correctly' do
               expect(log_sink.map(&:message)).to include(
                 'Current State: {:name=>"somename", :test_string=>"canonfoo"}',
-                'Target State: {:name=>"somename", :test_string=>"canonbar"}',
+                'Target State: {:name=>"somename", :test_string=>"canonbar"}'
               )
             end
           end
@@ -1882,7 +1882,7 @@ RSpec.describe Puppet::ResourceApi do
 
               expect(log_sink.map(&:message)).to include(
                 'Current State: {:name=>"somename", :test_string=>"foo"}',
-                'Target State: {:name=>"somename", :test_string=>"bar"}',
+                'Target State: {:name=>"somename", :test_string=>"bar"}'
               )
             end
           end

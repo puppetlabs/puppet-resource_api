@@ -200,7 +200,7 @@ module Puppet::ResourceApi
         definition[:attributes].each do |name, options|
           type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             :name,
-            options[:type],
+            options[:type]
           )
 
           # skip read only vars and the namevar
