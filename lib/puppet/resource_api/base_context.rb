@@ -19,7 +19,7 @@ class Puppet::ResourceApi::BaseContext
     elsif definition.is_a? Puppet::ResourceApi::BaseTypeDefinition
       @type = definition
     else
-      raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%{actual_type}>' % { actual_type: definition.class }
+      raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%<actual_type>s>' % { actual_type: definition.class }
     end
   end
 

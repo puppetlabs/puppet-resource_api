@@ -5,20 +5,23 @@ module Puppet::ResourceApi; end # rubocop:disable Style/Documentation
 # Remote target transport API
 module Puppet::ResourceApi::Transport
   def register(schema)
-    raise Puppet::DevError, 'requires a hash as schema, not `%{other_type}`' % { other_type: schema.class } unless schema.is_a? Hash
+    raise Puppet::DevError, 'requires a hash as schema, not `%<other_type>s`' % { other_type: schema.class } unless schema.is_a? Hash
     raise Puppet::DevError, 'requires a `:name`' unless schema.key? :name
     raise Puppet::DevError, 'requires `:desc`' unless schema.key? :desc
     raise Puppet::DevError, 'requires `:connection_info`' unless schema.key? :connection_info
-    raise Puppet::DevError, '`:connection_info` must be a hash, not `%{other_type}`' % { other_type: schema[:connection_info].class } unless schema[:connection_info].is_a?(Hash)
+    raise Puppet::DevError, '`:connection_info` must be a hash, not `%<other_type>s`' % { other_type: schema[:connection_info].class } unless schema[:connection_info].is_a?(Hash)
 
     if schema[:connection_info_order].nil?
       schema[:connection_info_order] = schema[:connection_info].keys
     else
-      raise Puppet::DevError, '`:connection_info_order` must be an array, not `%{other_type}`' % { other_type: schema[:connection_info_order].class } unless schema[:connection_info_order].is_a?(Array)
+      unless schema[:connection_info_order].is_a?(Array)
+        raise Puppet::DevError,
+              '`:connection_info_order` must be an array, not `%<other_type>s`' % { other_type: schema[:connection_info_order].class }
+      end
     end
 
     unless transports[schema[:name]].nil?
-      raise Puppet::DevError, 'Transport `%{name}` is already registered for `%{environment}`' % {
+      raise Puppet::DevError, 'Transport `%<name>s` is already registered for `%<environment>s`' % {
         name: schema[:name],
         environment: current_environment_name
       }
@@ -94,7 +97,7 @@ module Puppet::ResourceApi::Transport
     require "puppet/transport/schema/#{name}" unless transports.key? name
     transport_schema = transports[name]
     if transport_schema.nil?
-      raise Puppet::DevError, 'Transport for `%{target}` not registered with `%{environment}`' % {
+      raise Puppet::DevError, 'Transport for `%<target>s` not registered with `%<environment>s`' % {
         target: name,
         environment: current_environment_name
       }
@@ -132,7 +135,7 @@ module Puppet::ResourceApi::Transport
     context = get_context(transport_schema.name)
     transport_schema.attributes.each do |attr_name, options|
       if options.key?(:default) && connection_info.key?(attr_name) == false
-        context.debug('Using default value for attribute: %{attribute_name}, value: %{default_value}' % { attribute_name: attr_name, default_value: options[:default].inspect })
+        context.debug('Using default value for attribute: %<attribute_name>s, value: %<default_value>s' % { attribute_name: attr_name, default_value: options[:default].inspect })
         connection_info[attr_name] = options[:default]
       end
     end
@@ -162,7 +165,7 @@ module Puppet::ResourceApi::Transport
     # Attributes we expect from bolt, but want to ignore if the transport does not expect them
     %i[uri host protocol user port password].each do |attribute_name|
       if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
-        context.info('Discarding superfluous bolt attribute: %{attribute_name}' % { attribute_name: attribute_name })
+        context.info('Discarding superfluous bolt attribute: %<attribute_name>s' % { attribute_name: attribute_name })
         connection_info.delete(attribute_name)
       end
     end
@@ -170,7 +173,7 @@ module Puppet::ResourceApi::Transport
     # Attributes that bolt emits, but we want to ignore if the transport does not expect them
     (%i[name path query run-on remote-transport implementations] + connection_info.keys.select { |k| k.to_s.start_with? 'remote-' }).each do |attribute_name|
       if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
-        context.debug('Discarding bolt metaparameter: %{attribute_name}' % { attribute_name: attribute_name })
+        context.debug('Discarding bolt metaparameter: %<attribute_name>s' % { attribute_name: attribute_name })
         connection_info.delete(attribute_name)
       end
     end
@@ -178,7 +181,7 @@ module Puppet::ResourceApi::Transport
     # remove any other attributes the transport is not prepared to handle
     connection_info.each_key do |attribute_name|
       if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
-        context.warning('Discarding unknown attribute: %{attribute_name}' % { attribute_name: attribute_name })
+        context.warning('Discarding unknown attribute: %<attribute_name>s' % { attribute_name: attribute_name })
         connection_info.delete(attribute_name)
       end
     end
