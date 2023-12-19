@@ -27,10 +27,10 @@ module Puppet::ResourceApi
     def validate_schema(definition, attr_key)
       super(definition, attr_key)
       %i[title provider alias audit before consume export loglevel noop notify require schedule stage subscribe tag].each do |name|
-        raise Puppet::DevError, 'must not define an attribute called `%<name>s`' % { name: name.inspect } if definition[attr_key].key? name
+        raise Puppet::DevError, format('must not define an attribute called `%<name>s`', name: name.inspect) if definition[attr_key].key? name
       end
       if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)
-        raise Puppet::DevError, '`:title_patterns` must be an array, not `%<other_type>s`' % { other_type: definition[:title_patterns].class }
+        raise Puppet::DevError, format('`:title_patterns` must be an array, not `%<other_type>s`', other_type: definition[:title_patterns].class)
       end
 
       Puppet::ResourceApi::DataTypeHandling.validate_ensure(definition)
@@ -140,33 +140,29 @@ module Puppet::ResourceApi
     end
 
     def validate_schema(definition, attr_key)
-      raise Puppet::DevError, '%<type_class>s must be a Hash, not `%<other_type>s`' % { type_class: self.class.name, other_type: definition.class } unless definition.is_a?(Hash)
+      raise Puppet::DevError, format('%<type_class>s must be a Hash, not `%<other_type>s`', type_class: self.class.name, other_type: definition.class) unless definition.is_a?(Hash)
 
       @attributes = definition[attr_key]
-      raise Puppet::DevError, '%<type_class>s must have a name' % { type_class: self.class.name } unless definition.key? :name
-      raise Puppet::DevError, '%<type_class>s must have `%<attr_key>s`' % { type_class: self.class.name, attrs: attr_key } unless definition.key? attr_key
+      raise Puppet::DevError, format('%<type_class>s must have a name', type_class: self.class.name) unless definition.key? :name
+      raise Puppet::DevError, format('%<type_class>s must have `%<attr_key>s`', type_class: self.class.name, attrs: attr_key) unless definition.key? attr_key
 
-      unless attributes.is_a?(Hash)
-        raise Puppet::DevError, '`%<name>s.%<attrs>s` must be a hash, not `%<other_type>s`' % {
-          name: definition[:name], attrs: attr_key, other_type: attributes.class
-        }
-      end
+      raise Puppet::DevError, format('`%<name>s.%<attrs>s` must be a hash, not `%<other_type>s`', name: definition[:name], attrs: attr_key, other_type: attributes.class) unless attributes.is_a?(Hash)
 
       # fixup desc/docs backwards compatibility
       if definition.key? :docs
-        raise Puppet::DevError, '`%<name>s` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] } if definition[:desc]
+        raise Puppet::DevError, format('`%<name>s` has both `desc` and `docs`, prefer using `desc`', name: definition[:name]) if definition[:desc]
 
         definition[:desc] = definition[:docs]
         definition.delete(:docs)
       end
-      Puppet.warning('`%<name>s` has no documentation, add it using a `desc` key' % { name: definition[:name] }) unless definition.key? :desc
+      Puppet.warning(format('`%<name>s` has no documentation, add it using a `desc` key', name: definition[:name])) unless definition.key? :desc
 
       attributes.each do |key, attr|
         raise Puppet::DevError, '`rsapi_custom_insync_trigger` cannot be specified as an attribute; it is reserved for propertyless types with the custom_insync feature' if key == :rsapi_custom_insync_trigger # rubocop:disable Layout/LineLength
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` must be a Hash, not a #{attr.class}" unless attr.is_a? Hash
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` has no type" unless attr.key? :type
 
-        Puppet.warning('`%<name>s.%<key>s` has no documentation, add it using a `desc` key' % { name: definition[:name], key: key }) unless attr.key? :desc
+        Puppet.warning(format('`%<name>s.%<key>s` has no documentation, add it using a `desc` key', name: definition[:name], key: key)) unless attr.key? :desc
 
         # validate the type by attempting to parse into a puppet type
         @data_type_cache[attributes[key][:type]] ||=

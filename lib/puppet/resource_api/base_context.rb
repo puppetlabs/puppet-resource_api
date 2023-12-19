@@ -19,7 +19,7 @@ class Puppet::ResourceApi::BaseContext
     elsif definition.is_a? Puppet::ResourceApi::BaseTypeDefinition
       @type = definition
     else
-      raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%<actual_type>s>' % { actual_type: definition.class }
+      raise ArgumentError, format('BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%<actual_type>s>', actual_type: definition.class)
     end
   end
 
@@ -172,8 +172,8 @@ class Puppet::ResourceApi::BaseContext
   end
 
   def format_seconds(seconds)
-    return '%.6f' % seconds if seconds < 1
+    return format('%.6f', seconds) if seconds < 1
 
-    '%.2f' % seconds
+    format('%.2f', seconds)
   end
 end
