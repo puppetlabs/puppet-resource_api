@@ -42,23 +42,6 @@ RSpec/LeakyConstantDeclaration:
     - 'spec/puppet/resource_api/transport_spec.rb'
     - 'spec/puppet/resource_api_spec.rb'
 
-# Offense count: 192
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: have_received, receive
-RSpec/MessageSpies:
-  Exclude:
-    - 'spec/puppet/resource_api/base_context_spec.rb'
-    - 'spec/puppet/resource_api/base_type_definition_spec.rb'
-    - 'spec/puppet/resource_api/parameter_spec.rb'
-    - 'spec/puppet/resource_api/property_spec.rb'
-    - 'spec/puppet/resource_api/puppet_context_spec.rb'
-    - 'spec/puppet/resource_api/simple_provider_spec.rb'
-    - 'spec/puppet/resource_api/transport/wrapper_spec.rb'
-    - 'spec/puppet/resource_api/transport_spec.rb'
-    - 'spec/puppet/resource_api/type_definition_spec.rb'
-    - 'spec/puppet/resource_api/value_creator_spec.rb'
-    - 'spec/puppet/resource_api_spec.rb'
-
 # Offense count: 163
 RSpec/MultipleExpectations:
   Max: 11

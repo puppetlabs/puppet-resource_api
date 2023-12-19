@@ -49,3 +49,5 @@ Lint/NestedMethodDefinition:
 
 Layout/LineLength:
   Max: 200
+RSpec/MessageSpies:
+  Enabled: false
