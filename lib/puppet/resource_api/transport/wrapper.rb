@@ -26,7 +26,7 @@ class Puppet::ResourceApi::Transport::Wrapper
   end
 
   def transport_class?(name, transport)
-    class_name = name.split('_').map { |e| e.capitalize }.join
+    class_name = name.split('_').map(&:capitalize).join
     expected = Puppet::Transport.const_get(class_name).to_s
     expected == transport.class.to_s
   end

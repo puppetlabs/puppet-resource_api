@@ -129,7 +129,7 @@ module Puppet::ResourceApi
         @rsapi_canonicalized_target_state ||= begin
           # skip puppet's injected metaparams
           actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
-          target_state = actual_params.transform_values { |v| v.rs_value }
+          target_state = actual_params.transform_values(&:rs_value)
           target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
           target_state
         end
@@ -512,7 +512,7 @@ module Puppet::ResourceApi
             end
             # Flatten to handle any resolved array properties and filter any nil
             # values resulting from unspecified optional parameters:
-            resolved.flatten.reject { |v| v.nil? }
+            resolved.flatten.reject(&:nil?)
           end
         end
       end

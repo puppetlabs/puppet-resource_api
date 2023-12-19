@@ -73,7 +73,7 @@ module Puppet::ResourceApi::Transport
   def connect(name, connection_info)
     validate(name, connection_info)
     require "puppet/transport/#{name}"
-    class_name = name.split('_').map { |e| e.capitalize }.join
+    class_name = name.split('_').map(&:capitalize).join
     Puppet::Transport.const_get(class_name).new(get_context(name), wrap_sensitive(name, connection_info))
   end
   module_function :connect
