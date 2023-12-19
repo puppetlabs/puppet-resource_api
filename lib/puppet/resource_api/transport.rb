@@ -160,7 +160,7 @@ module Puppet::ResourceApi::Transport
     context = get_context(transport_schema.name)
 
     # Attributes we expect from bolt, but want to ignore if the transport does not expect them
-    [:uri, :host, :protocol, :user, :port, :password].each do |attribute_name|
+    %i[uri host protocol user port password].each do |attribute_name|
       if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
         context.info('Discarding superfluous bolt attribute: %{attribute_name}' % { attribute_name: attribute_name })
         connection_info.delete(attribute_name)
@@ -168,7 +168,7 @@ module Puppet::ResourceApi::Transport
     end
 
     # Attributes that bolt emits, but we want to ignore if the transport does not expect them
-    ([:name, :path, :query, :"run-on", :"remote-transport", :implementations] + connection_info.keys.select { |k| k.to_s.start_with? 'remote-' }).each do |attribute_name|
+    (%i[name path query run-on remote-transport implementations] + connection_info.keys.select { |k| k.to_s.start_with? 'remote-' }).each do |attribute_name|
       if connection_info.key?(attribute_name) && !transport_schema.attributes.key?(attribute_name)
         context.debug('Discarding bolt metaparameter: %{attribute_name}' % { attribute_name: attribute_name })
         connection_info.delete(attribute_name)

@@ -466,7 +466,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     before do
       allow(context).to receive(:creating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
       allow(type_def).to receive(:check_schema)
     end
 
@@ -514,7 +514,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:updating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
     end
 
     it 'does not call create' do
@@ -554,7 +554,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:updating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
       allow(provider).to receive(:get).with(context).and_return(is_values)
     end
 
@@ -607,7 +607,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     before do
       allow(context).to receive(:deleting).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
     end
 
     it 'does not call create' do
@@ -647,7 +647,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(context).to receive(:deleting).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
       allow(provider).to receive(:get).with(context).and_return(is_values)
     end
 

@@ -194,7 +194,7 @@ module Puppet::ResourceApi
           )
 
           # skip read only vars and the namevar
-          next if [:read_only, :namevar].include? options[:behaviour]
+          next if %i[read_only namevar].include? options[:behaviour]
 
           # skip properties if the resource is being deleted
           next if definition[:attributes][:ensure] &&
@@ -230,12 +230,12 @@ module Puppet::ResourceApi
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
-        raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value" if options[:behaviour] && !([:read_only, :namevar, :parameter, :init_only].include? options[:behaviour])
+        raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value" if options[:behaviour] && !(%i[read_only namevar parameter init_only].include? options[:behaviour])
 
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        if [:parameter, :namevar].include? options[:behaviour]
+        if %i[parameter namevar].include? options[:behaviour]
           param_or_property = :newparam
           parent = Puppet::ResourceApi::Parameter
         elsif options[:behaviour] == :read_only
@@ -496,7 +496,7 @@ module Puppet::ResourceApi
         end
       end
 
-      [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
+      %i[autorequire autobefore autosubscribe autonotify].each do |auto|
         next unless definition[auto]
 
         definition[auto].each do |type, values|

@@ -26,7 +26,7 @@ module Puppet::ResourceApi
 
     def validate_schema(definition, attr_key)
       super(definition, attr_key)
-      [:title, :provider, :alias, :audit, :before, :consume, :export, :loglevel, :noop, :notify, :require, :schedule, :stage, :subscribe, :tag].each do |name|
+      %i[title provider alias audit before consume export loglevel noop notify require schedule stage subscribe tag].each do |name|
         raise Puppet::DevError, 'must not define an attribute called `%{name}`' % { name: name.inspect } if definition[attr_key].key? name
       end
       if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)

@@ -83,7 +83,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
-  [:creating, :updating, :deleting].each do |method|
+  %i[creating updating deleting].each do |method|
     describe "##{method}(title, &block)" do
       it 'outputs the start and stop messages' do
         allow(context).to receive(:send_log)
@@ -215,7 +215,7 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 
-  [:created, :updated, :deleted].each do |method|
+  %i[created updated deleted].each do |method|
     describe "##{method}(titles, message: '#{method.to_s.capitalize}')" do
       it 'logs the action at :notice level' do
         expect(context).to receive(:send_log).with(:notice, /#{method.to_s.capitalize}: \["Thing\[one\]", "Thing\[two\]"\]/i)

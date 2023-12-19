@@ -48,7 +48,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
       let(:resource_copy) { { name: 'test_string', wibble: '1', foo: '2' } }
 
       it 'returns an array containing the bad keys' do
-        expect(type.check_schema_keys(resource)).to eq([:wibble, :foo])
+        expect(type.check_schema_keys(resource)).to eq(%i[wibble foo])
       end
 
       it 'does not modify the resource passed in' do

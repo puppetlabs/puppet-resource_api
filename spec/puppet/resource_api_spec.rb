@@ -1082,7 +1082,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:multiple) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters).to eq [:package, :manager] }
+      it { expect(type.parameters).to eq %i[package manager] }
     end
 
     describe "the type's class" do
@@ -1149,7 +1149,7 @@ RSpec.describe Puppet::ResourceApi do
         subject(:type) { Puppet::Type.type(:with_patterns) }
 
         it { is_expected.not_to be_nil }
-        it { expect(type.parameters).to eq [:package, :manager] }
+        it { expect(type.parameters).to eq %i[package manager] }
       end
 
       describe "the type's class" do
