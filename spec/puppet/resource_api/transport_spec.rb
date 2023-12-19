@@ -33,17 +33,17 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
   describe '#register(schema)' do
     describe 'validation checks' do
-      it { expect { described_class.register([]) }.to raise_error(Puppet::DevError, %r{requires a hash as schema}) }
-      it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
-      it { expect { described_class.register(name: 'no connection info', desc: 'some description') }.to raise_error(Puppet::DevError, %r{requires `:connection_info`}) }
-      it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, %r{requires `:desc`}) }
+      it { expect { described_class.register([]) }.to raise_error(Puppet::DevError, /requires a hash as schema/) }
+      it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, /requires a `:name`/) }
+      it { expect { described_class.register(name: 'no connection info', desc: 'some description') }.to raise_error(Puppet::DevError, /requires `:connection_info`/) }
+      it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, /requires `:desc`/) }
 
       it {
         expect {
           described_class.register(name: 'no hash connection_info',
                                    desc: 'some description',
                                    connection_info: [])
-        }.to raise_error(Puppet::DevError, %r{`:connection_info` must be a hash, not})
+        }.to raise_error(Puppet::DevError, /`:connection_info` must be a hash, not/)
       }
 
       it {
@@ -64,7 +64,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
                                    desc: 'some description',
                                    connection_info: {},
                                    connection_info_order: {})
-        }.to raise_error(Puppet::DevError, %r{`:connection_info_order` must be an array, not})
+        }.to raise_error(Puppet::DevError, /`:connection_info_order` must be an array, not/)
       }
     end
 
@@ -76,7 +76,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       context 'when re-registering a transport' do
         it {
           described_class.register(schema)
-          expect { described_class.register(schema) }.to raise_error(Puppet::DevError, %r{`minimal` is already registered})
+          expect { described_class.register(schema) }.to raise_error(Puppet::DevError, /`minimal` is already registered/)
         }
       end
     end
@@ -137,7 +137,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
       it {
         expect { described_class.register(schema) }.to raise_error(
-          Puppet::DevError, %r{<garbage> is not a valid type specification}
+          Puppet::DevError, /<garbage> is not a valid type specification/
         )
       }
     end
@@ -206,7 +206,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
           expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect { described_class.connect(name, { host: 'example.com' }) }.to raise_error NameError,
-                                                                                           %r{uninitialized constant (Puppet::Transport|TestTarget)}
+                                                                                           /uninitialized constant (Puppet::Transport|TestTarget)/
         end
       end
 

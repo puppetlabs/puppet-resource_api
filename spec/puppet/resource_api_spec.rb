@@ -140,7 +140,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(type_name.to_sym) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.properties.map { |p| p.doc }).to include a_string_matching %r{the description} }
+      it { expect(type.properties.map { |p| p.doc }).to include a_string_matching(/the description/) }
       it { expect(type.properties.map { |p| p.name }).to include :test_string }
 
       def extract_values(function)
@@ -248,19 +248,19 @@ RSpec.describe Puppet::ResourceApi do
         context 'when using an unparsable value' do
           let(:the_boolean) { 'flubb' }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, /test_boolean expect.* Boolean .* got String/ }
         end
 
         context 'when using true string' do
           let(:the_boolean) { 'true' }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, /test_boolean expect.* Boolean .* got String/ }
         end
 
         context 'when using false string' do
           let(:the_boolean) { 'false' }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, /test_boolean expect.* Boolean .* got String/ }
         end
 
         context 'when using a legacy true symbol' do
@@ -335,7 +335,7 @@ RSpec.describe Puppet::ResourceApi do
             def set(_context, _changes); end
           end
         end
-        let(:message) { %r{Provider returned data that does not match the Type Schema for `type_check\[test\]`\n\s*Unknown attribute:\n\s*\* wibble\n\n\s*Value type mismatch:\n\s*\* test_string: 15} }
+        let(:message) { /Provider returned data that does not match the Type Schema for `type_check\[test\]`\n\s*Unknown attribute:\n\s*\* wibble\n\n\s*Value type mismatch:\n\s*\* test_string: 15/ }
 
         context 'when strict is default (:warning)' do
           let(:strict_level) { :warning }
@@ -563,7 +563,7 @@ RSpec.describe Puppet::ResourceApi do
             expect {
               instance.validate
               instance.retrieve
-            }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided}
+            }.to raise_exception Puppet::ResourceError, /The following mandatory attributes were not provided/
           }
         end
 
@@ -637,7 +637,7 @@ RSpec.describe Puppet::ResourceApi do
         }
       end
 
-      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{`:ensure` attribute must have a type of: `Enum\[present, absent\]`} }
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, /`:ensure` attribute must have a type of: `Enum\[present, absent\]`/ }
     end
   end
 
@@ -735,7 +735,7 @@ RSpec.describe Puppet::ResourceApi do
           { parameters: { name: 'test' } }
         end
 
-        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory parameters were not provided} }
+        it { expect { instance }.to raise_exception Puppet::ResourceError, /The following mandatory parameters were not provided/ }
       end
     end
   end
@@ -885,14 +885,14 @@ RSpec.describe Puppet::ResourceApi do
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
 
-          it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to change `something_init_only` init_only attribute value from} }
+          it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to change `something_init_only` init_only attribute value from/ }
         end
 
         context 'when Puppet strict setting is :warning' do
           let(:strict_level) { :warning }
 
           it {
-            expect(Puppet).to receive(:warning).with(%r{Attempting to change `something_init_only` init_only attribute value from})
+            expect(Puppet).to receive(:warning).with(/Attempting to change `something_init_only` init_only attribute value from/)
             instance.flush
           }
         end
@@ -959,13 +959,13 @@ RSpec.describe Puppet::ResourceApi do
       context 'when a manifest wants to set the value of a read_only attribute' do
         let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'new_ro', ensure: 'present', immutable: 'new') }
 
-        it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
+        it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to set `immutable` read_only attribute value to/ }
       end
 
       context 'when a manifest wants to change the value of a read_only attribute' do
         let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'foo_ro', ensure: 'present', immutable: 'change') }
 
-        it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
+        it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to set `immutable` read_only attribute value to/ }
       end
     end
   end
@@ -1041,7 +1041,7 @@ RSpec.describe Puppet::ResourceApi do
       it('throws an error') {
         expect {
           instance.instances
-        }.to  raise_error Puppet::ResourceError, %r{^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$}
+        }.to  raise_error Puppet::ResourceError, /^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$/
       }
     end
   end
@@ -1139,7 +1139,7 @@ RSpec.describe Puppet::ResourceApi do
             desc: 'Where the package and the manager are provided with a slash separator'
           },
           {
-            pattern: %r{^(?<package>.*)$},
+            pattern: /^(?<package>.*)$/,
             desc: 'Where only the package is provided'
           }
         ]
@@ -1180,7 +1180,7 @@ RSpec.describe Puppet::ResourceApi do
             expect(type_class.title_patterns.first[1][1][0]).to eq :manager
 
             expect(type_class.title_patterns.last[0]).to be_a Regexp
-            expect(type_class.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
+            expect(type_class.title_patterns.last[0]).to eq(/^(?<package>.*)$/)
             expect(type_class.title_patterns.last[1].size).to eq 1
             expect(type_class.title_patterns.last[1][0][0]).to eq :package
           end
@@ -1245,13 +1245,13 @@ RSpec.describe Puppet::ResourceApi do
             it 'instances will throw an exception' do
               expect {
                 type_class.instances
-              }.to raise_error(Puppet::DevError, %r{has not provided a title attribute})
+              }.to raise_error(Puppet::DevError, /has not provided a title attribute/)
             end
 
             it 'refresh_current_state will throw an exception' do
               expect {
                 type.refresh_current_state
-              }.to raise_error(Puppet::DevError, %r{has not provided a title attribute})
+              }.to raise_error(Puppet::DevError, /has not provided a title attribute/)
             end
           end
 
@@ -1259,12 +1259,12 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :warning }
 
             it 'instances will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has not provided a title attribute})
+              expect(Puppet).to receive(:warning).with(/has not provided a title attribute/)
               type_class.instances
             end
 
             it 'refresh_current_state will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has not provided a title attribute})
+              expect(Puppet).to receive(:warning).with(/has not provided a title attribute/)
               type.refresh_current_state
             end
           end
@@ -1302,13 +1302,13 @@ RSpec.describe Puppet::ResourceApi do
             it 'instances will throw an exception' do
               expect {
                 type_class.instances
-              }.to raise_error(Puppet::DevError, %r{has provided a title attribute which does not match})
+              }.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
             end
 
             it 'refresh_current_state will throw an exception' do
               expect {
                 type.refresh_current_state
-              }.to raise_error(Puppet::DevError, %r{has provided a title attribute which does not match})
+              }.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
             end
           end
 
@@ -1316,12 +1316,12 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :warning }
 
             it 'instances will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has provided a title attribute which does not match})
+              expect(Puppet).to receive(:warning).with(/has provided a title attribute which does not match/)
               type_class.instances
             end
 
             it 'refresh_current_state will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has provided a title attribute which does not match})
+              expect(Puppet).to receive(:warning).with(/has provided a title attribute which does not match/)
               type.refresh_current_state
             end
           end
@@ -1428,7 +1428,7 @@ RSpec.describe Puppet::ResourceApi do
     context 'when loading a provider that doesn\'t create the correct class' do
       let(:definition) { { name: 'no_class', attributes: {} } }
 
-      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{provider class Puppet::Provider::NoClass::NoClass not found} }
+      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, /provider class Puppet::Provider::NoClass::NoClass not found/ }
     end
 
     context 'when loading a provider that creates the correct class' do
@@ -1457,7 +1457,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'with no provider' do
         let(:device_class_name) { 'Puppet::Util::NetworkDevice::Some_device::Device' }
 
-        it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{device-specific provider class Puppet::Provider::NoClass::SomeDevice} }
+        it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, /device-specific provider class Puppet::Provider::NoClass::SomeDevice/ }
       end
 
       context 'with no device-specific provider' do
@@ -1556,7 +1556,7 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+      expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
     end
 
     describe '#strict_check' do
@@ -1581,7 +1581,7 @@ RSpec.describe Puppet::ResourceApi do
           it 'will throw an exception' do
             expect {
               instance.strict_check({})
-            }.to raise_error(Puppet::DevError, %r{has not provided canonicalized values})
+            }.to raise_error(Puppet::DevError, /has not provided canonicalized values/)
           end
         end
 
@@ -1591,7 +1591,7 @@ RSpec.describe Puppet::ResourceApi do
           it { expect(instance.strict_check({})).to be_nil }
 
           it 'will log warning message' do
-            expect(Puppet).to receive(:warning).with(%r{has not provided canonicalized values})
+            expect(Puppet).to receive(:warning).with(/has not provided canonicalized values/)
             instance.strict_check({})
           end
         end
@@ -1642,7 +1642,7 @@ RSpec.describe Puppet::ResourceApi do
         it 'stills raise an error' do
           expect {
             instance.strict_check({})
-          }.to raise_error(Puppet::Error, %r{has not provided canonicalized values})
+          }.to raise_error(Puppet::Error, /has not provided canonicalized values/)
         end
       end
     end
@@ -1763,7 +1763,7 @@ RSpec.describe Puppet::ResourceApi do
         it { expect { described_class.register_type(definition) }.not_to raise_error }
 
         it 'is seen as a supported feature' do
-          expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+          expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
         end
       end
 
@@ -1980,7 +1980,7 @@ RSpec.describe Puppet::ResourceApi do
       it { expect { described_class.register_type(definition) }.not_to raise_error }
 
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+        expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
       end
 
       describe 'the registered type' do
@@ -2026,7 +2026,7 @@ RSpec.describe Puppet::ResourceApi do
       it { expect { described_class.register_type(definition) }.not_to raise_error }
 
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+        expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
       end
 
       describe 'the registered type' do
@@ -2083,7 +2083,7 @@ RSpec.describe Puppet::ResourceApi do
     end
 
     it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*remote_resource})
+      expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*remote_resource/)
       expect { described_class.register_type(definition) }.not_to raise_error
     end
 
@@ -2163,7 +2163,7 @@ CODE
     end
 
     it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*supports_noop})
+      expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*supports_noop/)
       expect { described_class.register_type(definition) }.not_to raise_error
     end
 
@@ -2224,7 +2224,7 @@ CODE
       end
 
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter_2})
+        expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*simple_test_filter_2/)
         expect { described_class.register_type(definition) }.not_to raise_error
       end
 
@@ -2252,7 +2252,7 @@ CODE
     end
 
     it 'warns about the feature' do
-      expect(Puppet).to receive(:warning).with(%r{Unknown feature detected:.*no such feature})
+      expect(Puppet).to receive(:warning).with(/Unknown feature detected:.*no such feature/)
       expect { described_class.register_type(definition) }.not_to raise_error
     end
   end
@@ -2340,7 +2340,7 @@ CODE
         }
       end
 
-      it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, %r{^`bad` is not a valid behaviour value$} }
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, /^`bad` is not a valid behaviour value$/ }
     end
   end
 

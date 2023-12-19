@@ -40,14 +40,14 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
       end
 
       it 'raises an error' do
-        expect { context.device }.to raise_error RuntimeError, %r{no device configured}
+        expect { context.device }.to raise_error RuntimeError, /no device configured/
       end
     end
   end
 
   describe '#warning(msg)' do
     it 'calls the Puppet logging infrastructure' do
-      expect(Puppet::Util::Log).to receive(:create).with(level: :warning, message: match(%r{message}))
+      expect(Puppet::Util::Log).to receive(:create).with(level: :warning, message: match(/message/))
       context.warning('message')
     end
   end

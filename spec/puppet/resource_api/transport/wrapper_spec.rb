@@ -113,7 +113,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
 
       context 'when using method?' do
         it 'will return false' do
-          expect { instance.method :wibble }.to raise_error NameError, %r{undefined method `wibble'}
+          expect { instance.method :wibble }.to raise_error NameError, /undefined method `wibble'/
         end
       end
     end

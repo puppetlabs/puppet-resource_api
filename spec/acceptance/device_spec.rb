@@ -35,7 +35,7 @@ RSpec.describe 'exercising a device provider' do
         stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
                    'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
-        expect(stdout_str).to match %r{#{stdmatch}}
+        expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).not_to be_success
       end
     end
@@ -48,7 +48,7 @@ RSpec.describe 'exercising a device provider' do
         stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
                    'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
-        expect(stdout_str).to match %r{#{stdmatch}}
+        expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).to be_success
       end
     end
@@ -61,7 +61,7 @@ RSpec.describe 'exercising a device provider' do
         expected_values = 'device_provider { \'wibble\': \n\s+ensure => \'present\',\n\s+string => \'sample\',\n\#\s+string_ro => \'fixed\', # Read Only\n  string_param => \'default value\',\n}'
         fiddle_deprecate_msg = "DL is deprecated, please use Fiddle\n"
         win32_deprecate_msg = ".*Struct layout is already defined for class Windows::ServiceStructs::SERVICE_STATUS_PROCESS.*\n"
-        expect(stdout_str.strip).to match %r{\A(#{fiddle_deprecate_msg}|#{win32_deprecate_msg})?#{expected_values}\Z}
+        expect(stdout_str.strip).to match(/\A(#{fiddle_deprecate_msg}|#{win32_deprecate_msg})?#{expected_values}\Z/)
         expect(status).to eq 0
       end
 
@@ -70,14 +70,14 @@ RSpec.describe 'exercising a device provider' do
         expected_values = 'device_provider: |2\n\s+wibble:\n\s+ensure: :present\n\s+string: sample\n\s+string_ro: fixed\n\s+string_param: default value'
         fiddle_deprecate_msg = "DL is deprecated, please use Fiddle\n"
         win32_deprecate_msg = ".*Struct layout is already defined for class Windows::ServiceStructs::SERVICE_STATUS_PROCESS.*\n"
-        expect(stdout_str.strip).to match %r{\A(#{fiddle_deprecate_msg}|#{win32_deprecate_msg})?#{expected_values}\Z}
+        expect(stdout_str.strip).to match(/\A(#{fiddle_deprecate_msg}|#{win32_deprecate_msg})?#{expected_values}\Z/)
         expect(status).to eq 0
       end
 
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Notice: /Device_provider\[wibble\]/string: string changed \'sample\' to \'changed\''
-        expect(stdout_str).to match %r{#{stdmatch}}
+        expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).to be_success
       end
     end
@@ -134,9 +134,9 @@ RSpec.describe 'exercising a device provider' do
         f.close
 
         stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply #{f.path}")
-        expect(stdout_str).to match %r{Compiled catalog for the_node}
-        expect(stdout_str).to match %r{defined 'message' as 'foo'}
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).to match(/Compiled catalog for the_node/)
+        expect(stdout_str).to match(/defined 'message' as 'foo'/)
+        expect(stdout_str).not_to match(/Error:/)
       end
     end
 
@@ -146,7 +146,7 @@ RSpec.describe 'exercising a device provider' do
         f.close
 
         stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply #{f.path}")
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).not_to match(/Error:/)
         expect(status).to eq 0
       end
     end
@@ -161,7 +161,7 @@ RSpec.describe 'exercising a device provider' do
           f.close
 
           stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply #{f.path}")
-          expect(stdout_str).not_to match %r{Error:}
+          expect(stdout_str).not_to match(/Error:/)
         end
       end
     end

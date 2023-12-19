@@ -11,11 +11,11 @@ RSpec.describe 'Resource API integrated tests:' do
         name: 'integration',
         title_patterns: [
           {
-            pattern: %r{^(?<name>.*[^-])-(?<name2>.*)$},
+            pattern: /^(?<name>.*[^-])-(?<name2>.*)$/,
             desc: 'Where the name and the name2 are provided with a hyphen separator'
           },
           {
-            pattern: %r{^(?<name>.*)$},
+            pattern: /^(?<name>.*)$/,
             desc: 'Where only the name is provided'
           }
         ],
@@ -271,7 +271,7 @@ RSpec.describe 'Resource API integrated tests:' do
           end
         end
 
-        it('doesn\'t flush') { expect { instance.flush }.to raise_exception(StandardError, %r{Execution encountered an error}) }
+        it('doesn\'t flush') { expect { instance.flush }.to raise_exception(StandardError, /Execution encountered an error/) }
       end
     end
   end

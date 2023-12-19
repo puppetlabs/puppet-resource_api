@@ -23,8 +23,8 @@ DOC
       end
 
       it 'applies a catalog with no changes' do
-        expect(stdout_str).not_to match %r{foo|bar|wibble}
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).not_to match(/foo|bar|wibble/)
+        expect(stdout_str).not_to match(/Error:/)
         expect(status.exitstatus).to eq 0
       end
     end
@@ -43,13 +43,13 @@ DOC
       it 'applies a catalog with bool changes' do
         expect(stdout_str).to match %r{Test_bool\[foo\]/test_bool: test_bool changed (true|'true') to 'false'}
         expect(stdout_str).to match %r{Test_bool\[bar\]/test_bool: test_bool changed (false|'false') to 'true'}
-        expect(stdout_str).to match %r{Updating 'foo' with \{:name=>"foo", :test_bool=>false, :variant_bool=>false, :optional_bool=>false, :test_bool_param=>false, :ensure=>"present"\}}
-        expect(stdout_str).to match %r{Updating 'bar' with \{:name=>"bar", :test_bool=>true, :variant_bool=>true, :optional_bool=>true, :test_bool_param=>true, :ensure=>"present"\}}
+        expect(stdout_str).to match(/Updating 'foo' with \{:name=>"foo", :test_bool=>false, :variant_bool=>false, :optional_bool=>false, :test_bool_param=>false, :ensure=>"present"\}/)
+        expect(stdout_str).to match(/Updating 'bar' with \{:name=>"bar", :test_bool=>true, :variant_bool=>true, :optional_bool=>true, :test_bool_param=>true, :ensure=>"present"\}/)
         expect(stdout_str).to match %r{Test_bool\[wibble\]/test_bool: test_bool changed (false|'false') to 'true'}
         expect(stdout_str).to match %r{Test_bool\[wibble\]/variant_bool: variant_bool changed (false|'false') to 'true'}
         expect(stdout_str).to match %r{Test_bool\[wibble\]/optional_bool: optional_bool changed ('')? to 'true'}
-        expect(stdout_str).to match %r{Updating: Updating 'wibble' with \{:name=>"wibble", :test_bool=>true, :variant_bool=>true, :optional_bool=>true, :test_bool_param=>true, :ensure=>"present"\}}
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).to match(/Updating: Updating 'wibble' with \{:name=>"wibble", :test_bool=>true, :variant_bool=>true, :optional_bool=>true, :test_bool_param=>true, :ensure=>"present"\}/)
+        expect(stdout_str).not_to match(/Error:/)
         expect(status.exitstatus).to eq 2
       end
     end
@@ -65,8 +65,8 @@ DOC
 
       it 'applies a catalog with bool changes' do
         expect(stdout_str).to match %r{Test_bool\[foo\]/variant_bool: variant_bool changed (true|'true') to 'variant'}
-        expect(stdout_str).to match %r{Updating 'foo' with \{:name=>"foo", :test_bool=>true, :variant_bool=>"variant", :optional_bool=>true, :test_bool_param=>true, :ensure=>"present"\}}
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).to match(/Updating 'foo' with \{:name=>"foo", :test_bool=>true, :variant_bool=>"variant", :optional_bool=>true, :test_bool_param=>true, :ensure=>"present"\}/)
+        expect(stdout_str).not_to match(/Error:/)
         expect(status.exitstatus).to eq 2
       end
     end

@@ -57,7 +57,7 @@ RSpec.describe 'the dirty bits' do
         end
 
         it 'doesn\'t output the hidden property' do
-          expect(instance.to_manifest).not_to match %r{rsapi_custom_insync_trigger}
+          expect(instance.to_manifest).not_to match(/rsapi_custom_insync_trigger/)
         end
       end
     end
@@ -86,7 +86,7 @@ RSpec.describe 'the dirty bits' do
         end
 
         it 'doesn\'t output the hidden property' do
-          expect(instance.to_json).not_to match %r{rsapi_custom_insync_trigger}
+          expect(instance.to_json).not_to match(/rsapi_custom_insync_trigger/)
         end
       end
     end
@@ -108,7 +108,7 @@ RSpec.describe 'the dirty bits' do
         end
 
         it 'doesn\'t output the hidden property' do
-          expect(instance.to_hierayaml).not_to match %r{rsapi_custom_insync_trigger}
+          expect(instance.to_hierayaml).not_to match(/rsapi_custom_insync_trigger/)
         end
       end
     end

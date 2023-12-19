@@ -19,7 +19,7 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       } }
   end
 
-  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{TransportSchemaDef must be a Hash} }
+  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, /TransportSchemaDef must be a Hash/ }
 
   describe '#attributes' do
     context 'when type has attributes' do
@@ -33,8 +33,8 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       let(:resource) { {} }
 
       it 'raises an error listing the missing attributes' do
-        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, %r{host}
-        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, %r{user}
+        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, /host/
+        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, /user/
       end
     end
 

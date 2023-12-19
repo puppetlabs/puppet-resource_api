@@ -26,7 +26,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     allow(attribute_class).to receive(:isnamevar)
   end
 
-  it { expect { described_class.create_values(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+  it { expect { described_class.create_values(nil) }.to raise_error ArgumentError, /wrong number of arguments/ }
   it { expect { value_creator }.not_to raise_error }
 
   describe '#create_values' do
@@ -80,7 +80,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #newvalue once' do
-          expect(attribute_class).to have_received(:newvalue).with(%r{})
+          expect(attribute_class).to have_received(:newvalue).with(//)
         end
       end
 
@@ -94,7 +94,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #newvalue once' do
-          expect(attribute_class).to have_received(:newvalue).with(%r{^-?\d+$})
+          expect(attribute_class).to have_received(:newvalue).with(/^-?\d+$/)
         end
       end
 
@@ -194,7 +194,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #newvalues once' do
-          expect(attribute_class).to have_received(:newvalues).with(%r{})
+          expect(attribute_class).to have_received(:newvalues).with(//)
         end
       end
 
@@ -208,7 +208,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         end
 
         it 'calls #newvalues once' do
-          expect(attribute_class).to have_received(:newvalues).with(%r{^-?\d+$})
+          expect(attribute_class).to have_received(:newvalues).with(/^-?\d+$/)
         end
       end
 
@@ -223,7 +223,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
 
         it 'calls #newvalues once' do
           expect(attribute_class).to have_received(:newvalues).with(
-            %r{\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z}
+            /\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z/
           )
         end
       end

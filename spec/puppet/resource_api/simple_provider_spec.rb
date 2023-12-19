@@ -27,15 +27,15 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
   context 'without overriding the crud methods' do
     it 'create fails' do
-      expect { described_class.new.create(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*create}
+      expect { described_class.new.create(context, nil, nil) }.to raise_error StandardError, /has not implemented.*create/
     end
 
     it 'update fails' do
-      expect { described_class.new.update(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*update}
+      expect { described_class.new.update(context, nil, nil) }.to raise_error StandardError, /has not implemented.*update/
     end
 
     it 'delete fails' do
-      expect { described_class.new.delete(context, nil) }.to raise_error StandardError, %r{has not implemented.*delete}
+      expect { described_class.new.delete(context, nil) }.to raise_error StandardError, /has not implemented.*delete/
     end
   end
 
@@ -449,7 +449,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       allow(type_def).to receive(:namevars).and_return([:name])
     end
 
-    it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
+    it { expect { provider.set(context, changes) }.to raise_error(/SimpleProvider cannot be used with a Type that is not ensurable/) }
   end
 
   context 'with a single change to create a composite namevar resource' do

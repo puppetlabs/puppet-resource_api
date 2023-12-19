@@ -14,12 +14,12 @@ RSpec.describe Puppet::ResourceApi::IOContext do
   describe '#warning(msg)' do
     it 'outputs the message' do
       context.warning('message')
-      expect(io.string).to match %r{message}
+      expect(io.string).to match(/message/)
     end
 
     it 'outputs at the correct level' do
       context.warning('message')
-      expect(io.string).to match %r{warning}i
+      expect(io.string).to match(/warning/i)
     end
   end
 

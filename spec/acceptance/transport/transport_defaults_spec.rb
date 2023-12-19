@@ -60,14 +60,14 @@ RSpec.describe 'a transport' do
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
           expect(status.exitstatus).to eq 0
-          expect(stdout_str).not_to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{Error}
+          expect(stdout_str).not_to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/Error/)
 
-          expect(stdout_str).to match %r{transport connection_info:}
-          expect(stdout_str).to match %r{:username=>"foo"}
-          expect(stdout_str).to match %r{:default_string=>"other"}
-          expect(stdout_str).to match %r{:optional_default=>"bar"}
-          expect(stdout_str).to match %r{:array_default=>\["z"\]}
+          expect(stdout_str).to match(/transport connection_info:/)
+          expect(stdout_str).to match(/:username=>"foo"/)
+          expect(stdout_str).to match(/:default_string=>"other"/)
+          expect(stdout_str).to match(/:optional_default=>"bar"/)
+          expect(stdout_str).to match(/:array_default=>\["z"\]/)
         end
       end
     end
@@ -87,17 +87,17 @@ RSpec.describe 'a transport' do
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).not_to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{Error}
+          expect(stdout_str).not_to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/Error/)
 
-          expect(stdout_str).to match %r{Debug: test_device_default: Using default value for attribute: default_string, value: "default_value"}
-          expect(stdout_str).to match %r{Debug: test_device_default: Using default value for attribute: optional_default, value: "another_default_value"}
-          expect(stdout_str).to match %r{Debug: test_device_default: Using default value for attribute: array_default, value: \["a", "b"\]}
-          expect(stdout_str).to match %r{transport connection_info:}
-          expect(stdout_str).to match %r{:username=>"foo"}
-          expect(stdout_str).to match %r{:default_string=>"default_value"}
-          expect(stdout_str).to match %r{:optional_default=>"another_default_value"}
-          expect(stdout_str).to match %r{:array_default=>\["a", "b"\]}
+          expect(stdout_str).to match(/Debug: test_device_default: Using default value for attribute: default_string, value: "default_value"/)
+          expect(stdout_str).to match(/Debug: test_device_default: Using default value for attribute: optional_default, value: "another_default_value"/)
+          expect(stdout_str).to match(/Debug: test_device_default: Using default value for attribute: array_default, value: \["a", "b"\]/)
+          expect(stdout_str).to match(/transport connection_info:/)
+          expect(stdout_str).to match(/:username=>"foo"/)
+          expect(stdout_str).to match(/:default_string=>"default_value"/)
+          expect(stdout_str).to match(/:optional_default=>"another_default_value"/)
+          expect(stdout_str).to match(/:array_default=>\["a", "b"\]/)
 
           expect(status.exitstatus).to eq 0
         end

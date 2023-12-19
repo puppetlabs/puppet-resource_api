@@ -10,8 +10,8 @@ RSpec.describe 'a provider using arrays' do
     it 'applies a catalog successfully' do
       # rubocop:disable Layout/LineLength
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_array { foo: some_array => [a, c, b], variant_array => 'not_an_array', array_of_arrays => [[a, b, c], [d, e, f]], array_from_hell => [a, [b, c], d] }\"")
-      expect(stdout_str).to match %r{Updating 'foo' with \{:name=>"foo", :some_array=>\["a", "c", "b"\], :variant_array=>"not_an_array", :array_of_arrays=>\[\["a", "b", "c"\], \["d", "e", "f"\]\], :array_from_hell=>\["a", \["b", "c"\], "d"\], :ensure=>"present"\}}
-      expect(stdout_str).not_to match %r{Error:}
+      expect(stdout_str).to match(/Updating 'foo' with \{:name=>"foo", :some_array=>\["a", "c", "b"\], :variant_array=>"not_an_array", :array_of_arrays=>\[\["a", "b", "c"\], \["d", "e", "f"\]\], :array_from_hell=>\["a", \["b", "c"\], "d"\], :ensure=>"present"\}/)
+      expect(stdout_str).not_to match(/Error:/)
       # rubocop:enable Layout/LineLength
     end
   end

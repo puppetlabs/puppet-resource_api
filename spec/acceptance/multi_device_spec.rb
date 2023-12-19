@@ -85,9 +85,9 @@ RSpec.describe 'exercising a type with device-specific providers' do
         f.close
 
         stdout_str, _status = Open3.capture2e("puppet device #{common_args} --apply #{f.path}")
-        expect(stdout_str).to match %r{Compiled catalog for some_node}
-        expect(stdout_str).to match %r{Compiled catalog for other_node}
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).to match(/Compiled catalog for some_node/)
+        expect(stdout_str).to match(/Compiled catalog for other_node/)
+        expect(stdout_str).not_to match(/Error:/)
       end
     end
   end

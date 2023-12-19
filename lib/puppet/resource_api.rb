@@ -487,7 +487,7 @@ module Puppet::ResourceApi
         @title_patterns ||= if type_definition.definition.key? :title_patterns
                               parse_title_patterns(type_definition.definition[:title_patterns])
                             else
-                              [[%r{(.*)}m, [[type_definition.namevars.first]]]]
+                              [[/(.*)/m, [[type_definition.namevars.first]]]]
                             end
       end
 
@@ -515,7 +515,7 @@ module Puppet::ResourceApi
           Puppet.debug("Registering #{auto} for #{type}: #{values.inspect}")
           send(auto, type.downcase.to_sym) do
             resolved = [values].flatten.map do |v|
-              match = %r{\A\$(.*)\Z}.match(v) if v.is_a? String
+              match = /\A\$(.*)\Z/.match(v) if v.is_a? String
               if match.nil?
                 v
               else

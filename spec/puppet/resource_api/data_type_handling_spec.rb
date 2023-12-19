@@ -43,7 +43,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
       context 'when the munge fails' do
         let(:result) { [nil, 'some error'] }
 
-        it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app) }.to raise_error Puppet::ResourceError, %r{\Asome error\Z} }
+        it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app) }.to raise_error Puppet::ResourceError, /\Asome error\Z/ }
       end
     end
 
@@ -98,7 +98,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           context "when validating #{invalid_value.inspect}" do
             let(:value) { invalid_value }
 
-            it { expect(error_msg).to match %r{^error prefix } }
+            it { expect(error_msg).to match(/^error prefix /) }
           end
         end
       end
@@ -326,7 +326,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
             let(:input) { input }
 
             it('returns no value') { expect(@value).to be_nil }
-            it('returns an error') { expect(@error).to match %r{\A\s*error prefix} }
+            it('returns an error') { expect(@error).to match(/\A\s*error prefix/) }
           end
         end
       end
@@ -348,7 +348,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
             let(:input) { input }
 
             it('returns no value') { expect(@value).to be_nil }
-            it('returns an error') { expect(@error).to match %r{\A\s*error prefix} }
+            it('returns an error') { expect(@error).to match(/\A\s*error prefix/) }
           end
         end
       end

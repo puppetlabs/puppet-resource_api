@@ -30,7 +30,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
   end
   let(:feature_support) { [] }
 
-  it { expect { described_class.new(nil, :attributes) }.to raise_error Puppet::DevError, %r{BaseTypeDefinition must be a Hash} }
+  it { expect { described_class.new(nil, :attributes) }.to raise_error Puppet::DevError, /BaseTypeDefinition must be a Hash/ }
 
   describe '.name' do
     it { expect(type.name).to eq 'some_resource' }
@@ -113,7 +113,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         let(:resource) { { username: 'wibble', secret: 12_345 } }
 
         it 'returns a hash of the keys that have invalid values' do
-          expect(type.check_schema_values(resource)).to match(secret: %r{<< redacted value >> expect(s|ed) a String value, got Integer})
+          expect(type.check_schema_values(resource)).to match(secret: /<< redacted value >> expect(s|ed) a String value, got Integer/)
         end
       end
     end
@@ -123,12 +123,12 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
     context 'when resource does not contain its namevar' do
       let(:resource) { { nom: 'some_resource', prop: 1, ensure: 'present' } }
 
-      it { expect { type.check_schema(resource) }.to raise_error Puppet::ResourceError, %r{`some_resource.get` did not return a value for the `name` namevar attribute} }
+      it { expect { type.check_schema(resource) }.to raise_error Puppet::ResourceError, /`some_resource.get` did not return a value for the `name` namevar attribute/ }
     end
 
     context 'when a resource contains unknown attributes' do
       let(:resource) { { name: 'wibble', prop: 1, ensure: 'present', foo: 'bar' } }
-      let(:message) { %r{Provider returned data that does not match the Type Schema for `some_resource\[wibble\]`\n\s*Unknown attribute:\n\s*\* foo} }
+      let(:message) { /Provider returned data that does not match the Type Schema for `some_resource\[wibble\]`\n\s*Unknown attribute:\n\s*\* foo/ }
       let(:strict_level) { :warning }
 
       before(:each) do
@@ -169,7 +169,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
 
     context 'when a resource contains invalid value' do
       let(:resource) { { name: 'wibble', prop: 'foo', ensure: 'present' } }
-      let(:message) { %r{Provider returned data that does not match the Type Schema for `some_resource\[wibble\]`\n\s*Value type mismatch:\n\s*\* prop: foo} }
+      let(:message) { /Provider returned data that does not match the Type Schema for `some_resource\[wibble\]`\n\s*Value type mismatch:\n\s*\* prop: foo/ }
       let(:strict_level) { :warning }
 
       before(:each) do
@@ -213,25 +213,25 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
     context 'when the type definition does not have a name' do
       let(:definition) { { attributes: 'some_string' } }
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{must have a name} }
+      it { expect { type }.to raise_error Puppet::DevError, /must have a name/ }
     end
 
     context 'when attributes is not a hash' do
       let(:definition) { { name: 'some_resource', attributes: 'some_string' } }
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{`some_resource.attributes` must be a hash} }
+      it { expect { type }.to raise_error Puppet::DevError, /`some_resource.attributes` must be a hash/ }
     end
 
     context 'when an attribute is not a hash' do
       let(:definition) { { name: 'some_resource', attributes: { name: 'some_string' } } }
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{`some_resource.name` must be a Hash} }
+      it { expect { type }.to raise_error Puppet::DevError, /`some_resource.name` must be a Hash/ }
     end
 
     context 'when an attribute has no type' do
       let(:definition) { { name: 'some_resource', attributes: { name: { desc: 'message' } } } }
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{has no type} }
+      it { expect { type }.to raise_error Puppet::DevError, /has no type/ }
     end
 
     context 'when an attribute has no description' do
@@ -246,7 +246,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
     context 'when an attribute has an unsupported type' do
       let(:definition) { { name: 'some_resource', desc: 'some desc', attributes: { name: { type: 'basic' } } } }
 
-      it { expect { type }.to raise_error %r{<basic> is not a valid type specification} }
+      it { expect { type }.to raise_error(/<basic> is not a valid type specification/) }
     end
 
     context 'with both behavior and behaviour' do
@@ -263,7 +263,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         }
       end
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{name.*attribute has both} }
+      it { expect { type }.to raise_error Puppet::DevError, /name.*attribute has both/ }
     end
 
     context 'when registering a type with badly formed attribute type' do
@@ -278,7 +278,7 @@ RSpec.describe Puppet::ResourceApi::BaseTypeDefinition do
         }
       end
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{The type of the `name` attribute `Optional\[String` could not be parsed:} }
+      it { expect { type }.to raise_error Puppet::DevError, /The type of the `name` attribute `Optional\[String` could not be parsed:/ }
     end
   end
 end

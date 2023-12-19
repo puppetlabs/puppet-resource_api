@@ -61,15 +61,15 @@ RSpec.describe 'a transport' do
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
           expect(status.exitstatus).to eq 0
-          expect(stdout_str).not_to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{Error}
+          expect(stdout_str).not_to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/Error/)
 
-          expect(stdout_str).to match %r{transport connection_info:}
-          expect(stdout_str).to match %r{:username=>"foo"}
-          expect(stdout_str).not_to match %r{wibble}
-          expect(stdout_str).not_to match %r{bar}
-          expect(stdout_str).not_to match %r{meep}
-          expect(stdout_str).not_to match %r{1234567890}
+          expect(stdout_str).to match(/transport connection_info:/)
+          expect(stdout_str).to match(/:username=>"foo"/)
+          expect(stdout_str).not_to match(/wibble/)
+          expect(stdout_str).not_to match(/bar/)
+          expect(stdout_str).not_to match(/meep/)
+          expect(stdout_str).not_to match(/1234567890/)
         end
       end
     end
@@ -93,12 +93,12 @@ RSpec.describe 'a transport' do
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).to match %r{secret_string: << redacted value >> }
-          expect(stdout_str).not_to match %r{optional_secret}
-          expect(stdout_str).not_to match %r{array_secret}
-          expect(stdout_str).not_to match %r{variant_secret}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).to match(/secret_string: << redacted value >> /)
+          expect(stdout_str).not_to match(/optional_secret/)
+          expect(stdout_str).not_to match(/array_secret/)
+          expect(stdout_str).not_to match(/variant_secret/)
 
           expect(status.exitstatus).to eq 1
         end
@@ -124,12 +124,12 @@ RSpec.describe 'a transport' do
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{secret_string }
-          expect(stdout_str).to match %r{optional_secret: << redacted value >>}
-          expect(stdout_str).not_to match %r{array_secret}
-          expect(stdout_str).not_to match %r{variant_secret}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/secret_string /)
+          expect(stdout_str).to match(/optional_secret: << redacted value >>/)
+          expect(stdout_str).not_to match(/array_secret/)
+          expect(stdout_str).not_to match(/variant_secret/)
 
           expect(status.exitstatus).to eq 1
         end
@@ -155,12 +155,12 @@ RSpec.describe 'a transport' do
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{secret_string }
-          expect(stdout_str).not_to match %r{optional_secret}
-          expect(stdout_str).to match %r{array_secret: << redacted value >>}
-          expect(stdout_str).not_to match %r{variant_secret}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/secret_string /)
+          expect(stdout_str).not_to match(/optional_secret/)
+          expect(stdout_str).to match(/array_secret: << redacted value >>/)
+          expect(stdout_str).not_to match(/variant_secret/)
 
           expect(status.exitstatus).to eq 1
         end
@@ -186,12 +186,12 @@ RSpec.describe 'a transport' do
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{secret_string }
-          expect(stdout_str).not_to match %r{optional_secret}
-          expect(stdout_str).not_to match %r{array_secret}
-          expect(stdout_str).to match %r{variant_secret: << redacted value >>}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/secret_string /)
+          expect(stdout_str).not_to match(/optional_secret/)
+          expect(stdout_str).not_to match(/array_secret/)
+          expect(stdout_str).to match(/variant_secret: << redacted value >>/)
 
           expect(status.exitstatus).to eq 1
         end

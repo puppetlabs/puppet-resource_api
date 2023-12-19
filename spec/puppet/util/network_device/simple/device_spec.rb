@@ -31,7 +31,7 @@ RSpec.describe Puppet::Util::NetworkDevice::Simple::Device do
       let(:url_or_config) { 'file:///tmp/foo.txt' }
 
       it 'raises an error' do
-        expect { device.config }.to raise_error RuntimeError, %r{foo\.txt.*file does not exist}
+        expect { device.config }.to raise_error RuntimeError, /foo\.txt.*file does not exist/
       end
     end
   end

@@ -25,7 +25,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
   end
   let(:feature_support) { [] }
 
-  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{TypeDefinition must be a Hash} }
+  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, /TypeDefinition must be a Hash/ }
 
   describe '#ensurable?' do
     context 'when type is ensurable' do
@@ -164,7 +164,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
     context 'when the schema contains title_patterns and it is not an array' do
       let(:definition) { { name: 'some_resource', title_patterns: {}, attributes: {} } }
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{`:title_patterns` must be an array} }
+      it { expect { type }.to raise_error Puppet::DevError, /`:title_patterns` must be an array/ }
     end
   end
 end

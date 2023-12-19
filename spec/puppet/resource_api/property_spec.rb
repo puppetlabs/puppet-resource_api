@@ -16,7 +16,7 @@ RSpec.describe Puppet::ResourceApi::Property do
   let(:context) { instance_double('Puppet::ResourceApi::PuppetContext') }
 
   describe '#new(type_name, data_type, attribute_name, resource_hash, referrable_type)' do
-    it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+    it { expect { described_class.new(nil) }.to raise_error ArgumentError, /wrong number of arguments/ }
     it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash, referrable_type) }.not_to raise_error }
   end
 
@@ -114,7 +114,7 @@ RSpec.describe Puppet::ResourceApi::Property do
         context 'when insync? is not defined in the provider' do
           it 'raises an error' do
             expect(referrable_type_custom_insync).to receive(:my_provider).and_return(test_provider_without_insync)
-            expect { custom_insync_property.insync?('Foo') }.to raise_error Puppet::DevError, %r{No insync\? method defined in the provider}
+            expect { custom_insync_property.insync?('Foo') }.to raise_error Puppet::DevError, /No insync\? method defined in the provider/
           end
         end
 
@@ -210,7 +210,7 @@ RSpec.describe Puppet::ResourceApi::Property do
             it 'relies on Puppet::Property.change_to_s for change reporting' do
               expect(test_provider_with_insync).to receive(:insync?).and_return([nil, 'custom change message'])
               expect(custom_insync_property.insync?('Foo')).to be(false)
-              expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
+              expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(/changed 'Foo' to 'foo'/)
             end
           end
 
@@ -219,7 +219,7 @@ RSpec.describe Puppet::ResourceApi::Property do
               it 'relies on Puppet::Property.change_to_s for change reporting' do
                 expect(test_provider_with_insync).to receive(:insync?).and_return([false, ''])
                 expect(custom_insync_property.insync?('Foo')).to be(false)
-                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
+                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(/changed 'Foo' to 'foo'/)
               end
             end
 
@@ -227,7 +227,7 @@ RSpec.describe Puppet::ResourceApi::Property do
               it 'relies on Puppet::Property.change_to_s for change reporting' do
                 expect(test_provider_with_insync).to receive(:insync?).and_return(nil)
                 expect(custom_insync_property.insync?('Foo')).to be(false)
-                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{changed 'Foo' to 'foo'})
+                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(/changed 'Foo' to 'foo'/)
               end
             end
 
@@ -235,7 +235,7 @@ RSpec.describe Puppet::ResourceApi::Property do
               it 'passes the message for change_to_s' do
                 expect(test_provider_with_insync).to receive(:insync?).and_return([false, 'custom change log'])
                 expect(custom_insync_property.insync?('Foo')).to be(false)
-                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(%r{custom change log})
+                expect(custom_insync_property.change_to_s('Foo', 'foo')).to match(/custom change log/)
               end
             end
           end
@@ -253,7 +253,7 @@ RSpec.describe Puppet::ResourceApi::Property do
           it 'passes the default message for change reporting if insync? did not return a string' do
             expect(test_provider_with_insync).to receive(:insync?).and_return(false)
             custom_insync_property.insync?('Foo')
-            expect(custom_insync_property.change_to_s(false, true)).to match(%r{Custom insync logic determined that this resource is out of sync})
+            expect(custom_insync_property.change_to_s(false, true)).to match(/Custom insync logic determined that this resource is out of sync/)
           end
 
           it 'passes the string returned by insync? for change reporting' do

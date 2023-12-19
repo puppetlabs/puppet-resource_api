@@ -15,9 +15,9 @@ RSpec.describe 'a provider using custom insync' do
       let(:manifest) { raising_resource_declaration.dup }
 
       it 'reports the error with stack trace and change failure' do
-        expect(puppet_apply_stdout).to match %r{Error:}
-        expect(puppet_apply_stdout).to match %r{block in def_custom_insync?}
-        expect(puppet_apply_stdout).to match %r{change from 'FooBar' to 'RaiseError' failed}
+        expect(puppet_apply_stdout).to match(/Error:/)
+        expect(puppet_apply_stdout).to match(/block in def_custom_insync?/)
+        expect(puppet_apply_stdout).to match(/change from 'FooBar' to 'RaiseError' failed/)
       end
 
       context 'with a dependent resource' do
@@ -27,7 +27,7 @@ RSpec.describe 'a provider using custom insync' do
         let(:manifest) { "#{raising_resource_declaration} #{dependent_resource_declaration}" }
 
         it 'skips dependent resource because of failed dependencies' do
-          expect(puppet_apply_stdout).to match %r{Test_custom_insync\[dependent\]: Skipping because of failed dependencies}
+          expect(puppet_apply_stdout).to match(/Test_custom_insync\[dependent\]: Skipping because of failed dependencies/)
         end
       end
     end
@@ -39,8 +39,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { %w[a b] }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -48,8 +48,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { ['a'] }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -57,9 +57,9 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { %w[a b c] }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).to match %r{Adding missing members \["c"\]}
-          expect(puppet_apply_stdout).to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).to match(/Adding missing members \["c"\]/)
+          expect(puppet_apply_stdout).to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
     end
@@ -71,8 +71,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { %w[a b] }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -80,8 +80,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { %w[b a] }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -89,9 +89,9 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { ['a'] }
 
         it 'removes the additional member from the array without erroring' do
-          expect(puppet_apply_stdout).to match %r{some_array changed \['a', 'b'\] to \['a'\]}
-          expect(puppet_apply_stdout).to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).to match(/some_array changed \['a', 'b'\] to \['a'\]/)
+          expect(puppet_apply_stdout).to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -99,9 +99,9 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { %w[a b c] }
 
         it 'adds the missing member to the array without erroring' do
-          expect(puppet_apply_stdout).to match %r{some_array changed \['a', 'b'\] to \['a', 'b', 'c'\]}
-          expect(puppet_apply_stdout).to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).to match(/some_array changed \['a', 'b'\] to \['a', 'b', 'c'\]/)
+          expect(puppet_apply_stdout).to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
     end
@@ -113,8 +113,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { 'FooBar' }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -122,9 +122,9 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { 'foobar' }
 
         it 'changes the string value without erroring' do
-          expect(puppet_apply_stdout).to match %r{case_sensitive_string changed 'FooBar' to 'foobar'}
-          expect(puppet_apply_stdout).to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).to match(/case_sensitive_string changed 'FooBar' to 'foobar'/)
+          expect(puppet_apply_stdout).to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
     end
@@ -136,8 +136,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { 'FooBar' }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -145,8 +145,8 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { 'foobar' }
 
         it 'makes no changes and does not error' do
-          expect(puppet_apply_stdout).not_to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).not_to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
 
@@ -154,9 +154,9 @@ RSpec.describe 'a provider using custom insync' do
         let(:test_value) { 'FooBarBaz' }
 
         it 'changes the string value without erroring' do
-          expect(puppet_apply_stdout).to match %r{case_insensitive_string changed 'FooBar' to 'FooBarBaz'}
-          expect(puppet_apply_stdout).to match %r{Updating}
-          expect(puppet_apply_stdout).not_to match %r{Error:}
+          expect(puppet_apply_stdout).to match(/case_insensitive_string changed 'FooBar' to 'FooBarBaz'/)
+          expect(puppet_apply_stdout).to match(/Updating/)
+          expect(puppet_apply_stdout).not_to match(/Error:/)
         end
       end
     end
@@ -169,8 +169,8 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "version => '1.2.3'" }
 
           it 'makes no changes and does not error' do
-            expect(puppet_apply_stdout).not_to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).not_to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
 
@@ -178,9 +178,9 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "version => '3.2.1'" }
 
           it 'changes the version without erroring' do
-            expect(puppet_apply_stdout).to match %r{version changed '1.2.3' to '3.2.1'}
-            expect(puppet_apply_stdout).to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).to match(/version changed '1.2.3' to '3.2.1'/)
+            expect(puppet_apply_stdout).to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
       end
@@ -190,8 +190,8 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "version => '> 1.0.0'" }
 
           it 'makes no changes and does not error' do
-            expect(puppet_apply_stdout).not_to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).not_to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
 
@@ -199,9 +199,9 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "version => '> 2.0.0'" }
 
           it 'changes to a satisfactory version without erroring' do
-            expect(puppet_apply_stdout).to match %r{The actual version \(1.2.3\) does not meet the custom version bound \(> 2.0.0\); updating to a version that does}
-            expect(puppet_apply_stdout).to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).to match(/The actual version \(1.2.3\) does not meet the custom version bound \(> 2.0.0\); updating to a version that does/)
+            expect(puppet_apply_stdout).to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
       end
@@ -211,8 +211,8 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "minimum_version => '1.0.0'" }
 
           it 'makes no changes and does not error' do
-            expect(puppet_apply_stdout).not_to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).not_to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
 
@@ -220,9 +220,9 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "minimum_version => '2.0.0'" }
 
           it 'changes to a satisfactory version without erroring' do
-            expect(puppet_apply_stdout).to match %r{The actual version \(1.2.3\) does not meet the minimum version bound \(2.0.0\); updating to a version that does}
-            expect(puppet_apply_stdout).to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).to match(/The actual version \(1.2.3\) does not meet the minimum version bound \(2.0.0\); updating to a version that does/)
+            expect(puppet_apply_stdout).to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
       end
@@ -232,8 +232,8 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "maximum_version => '2.0.0'" }
 
           it 'makes no changes and does not error' do
-            expect(puppet_apply_stdout).not_to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).not_to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
 
@@ -241,9 +241,9 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "maximum_version => '1.0.0'" }
 
           it 'changes to a satisfactory version without erroring' do
-            expect(puppet_apply_stdout).to match %r{The actual version \(1.2.3\) does not meet the maximum version bound \(1.0.0\); updating to a version that does}
-            expect(puppet_apply_stdout).to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).to match(/The actual version \(1.2.3\) does not meet the maximum version bound \(1.0.0\); updating to a version that does/)
+            expect(puppet_apply_stdout).to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
       end
@@ -253,8 +253,8 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "minimum_version => '1.0.0', maximum_version => '2.0.0'" }
 
           it 'makes no changes and does not error' do
-            expect(puppet_apply_stdout).not_to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).not_to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
 
@@ -262,9 +262,9 @@ RSpec.describe 'a provider using custom insync' do
           let(:test_key_value_pairs) { "minimum_version => '1.0.0', maximum_version => '1.2.0'" }
 
           it 'changes to a satisfactory version without erroring' do
-            expect(puppet_apply_stdout).to match %r{The actual version \(1.2.3\) does not meet the combined minimum \(1.0.0\) and maximum \(1.2.0\) bounds; updating to a version which does.}
-            expect(puppet_apply_stdout).to match %r{Updating}
-            expect(puppet_apply_stdout).not_to match %r{Error:}
+            expect(puppet_apply_stdout).to match(/The actual version \(1.2.3\) does not meet the combined minimum \(1.0.0\) and maximum \(1.2.0\) bounds; updating to a version which does./)
+            expect(puppet_apply_stdout).to match(/Updating/)
+            expect(puppet_apply_stdout).not_to match(/Error:/)
           end
         end
       end
