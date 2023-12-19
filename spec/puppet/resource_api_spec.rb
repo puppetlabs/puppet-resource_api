@@ -2177,7 +2177,7 @@ CODE
   context 'with a `simple_get_filter` provider', agent_test: true do
     let(:definition) do
       {
-        name: 'test_simple_get_filter_2',
+        name: 'test_get_filter',
         features: ['simple_get_filter'],
         attributes: {
           ensure: {
@@ -2191,7 +2191,7 @@ CODE
         }
       }
     end
-    let(:type) { Puppet::Type.type(:test_simple_get_filter_2) }
+    let(:type) { Puppet::Type.type(:test_get_filter) }
     let(:provider_class) do
       Class.new do
         def get(_context, _names = nil)
@@ -2201,11 +2201,11 @@ CODE
         def set(_context, changes) end
       end
     end
-    let(:provider) { instance_double('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', 'provider') }
+    let(:provider) { instance_double('Puppet::Provider::TestGetFilter::TestGetFilter', 'provider') }
 
     before do
-      stub_const('Puppet::Provider::TestSimpleGetFilter2', Module.new)
-      stub_const('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', provider_class)
+      stub_const('Puppet::Provider::TestGetFilter', Module.new)
+      stub_const('Puppet::Provider::TestGetFilter::TestGetFilter', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
     end
 

@@ -41,9 +41,9 @@ Naming/MethodParameterName:
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.
 # SupportedStyles: snake_case, normalcase, non_integer
 # AllowedIdentifiers: capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339, x86_64
-Naming/VariableNumber:
-  Exclude:
-    - 'spec/puppet/resource_api_spec.rb'
+# Naming/VariableNumber:
+#   Exclude:
+#     - 'spec/puppet/resource_api_spec.rb'
 
 # Offense count: 4
 RSpec/BeforeAfterAll:
@@ -137,7 +137,6 @@ RSpec/SubjectStub:
   Exclude:
     - 'spec/puppet/resource_api/base_context_spec.rb'
 
-
 # Offense count: 21
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
@@ -147,13 +146,6 @@ Style/FormatString:
     - 'lib/puppet/resource_api/base_context.rb'
     - 'lib/puppet/resource_api/transport.rb'
     - 'lib/puppet/resource_api/type_definition.rb'
-
-# # Offense count: 27
-# # This cop supports safe autocorrection (--autocorrect).
-# # Configuration parameters: MaxUnannotatedPlaceholdersAllowed, AllowedMethods, AllowedPatterns.
-# # SupportedStyles: annotated, template, unannotated
-# Style/FormatStringToken:
-#   EnforcedStyle: template
 
 # Offense count: 2
 # Configuration parameters: AllowedMethods.
