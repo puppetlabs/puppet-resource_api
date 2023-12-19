@@ -6,16 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 6
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: enums
-Lint/ConstantDefinitionInBlock:
-  Exclude:
-    - 'spec/puppet/resource_api/base_context_spec.rb'
-    - 'spec/puppet/resource_api/transport/wrapper_spec.rb'
-    - 'spec/puppet/resource_api/transport_spec.rb'
-    - 'spec/puppet/resource_api_spec.rb'
-
 # Offense count: 29
 # Configuration parameters: AllowedMethods, AllowedPatterns.
 Lint/NestedMethodDefinition:

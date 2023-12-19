@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Lint/ConstantDefinitionInBlock
+
 require 'spec_helper'
 require 'puppet/resource_api/transport/wrapper'
 require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device'
@@ -137,3 +139,5 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     end
   end
 end
+
+# rubocop:enable Lint/ConstantDefinitionInBlock

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Lint/ConstantDefinitionInBlock
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::BaseContext do
@@ -382,3 +384,5 @@ RSpec.describe Puppet::ResourceApi::BaseContext do
     end
   end
 end
+
+# rubocop:enable Lint/ConstantDefinitionInBlock
