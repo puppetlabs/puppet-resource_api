@@ -222,7 +222,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
           allow(described_class).to receive(:require).with('puppet/resource_api/puppet_context').and_call_original
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
-          expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)
+          allow(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)
+          expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef))
 
           stub_const('Puppet::Transport::TestTarget', test_target)
           expect(test_target).to receive(:new).with(context, { host: 'example.com' })
@@ -250,7 +251,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when puppet has set_device' do
       it 'wraps the transport and calls set_device within NetworkDevice' do
-        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        allow(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport)
         allow(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(true)
         expect(Puppet::Util::NetworkDevice).to receive(:set_device).with(device_name, wrapper)
 
@@ -260,8 +262,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when puppet does not have set_device' do
       it 'wraps the transport and sets it as current in NetworkDevice' do
-        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
-        expect(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(false)
+        allow(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport)
+        allow(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(false)
+        expect(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device)
 
         described_class.inject_device(device_name, transport)
 
@@ -299,8 +303,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
       it 'validates the connection_info' do
         expect(described_class).not_to receive(:require).with('puppet/transport/schema/validate')
-        expect(schema_def).to receive(:check_schema).with({}, kind_of(String)).and_return(nil)
-        expect(schema_def).to receive(:validate).with({}).and_return(nil)
+        allow(schema_def).to receive(:check_schema).with({}, kind_of(String)).and_return(nil)
+        expect(schema_def).to receive(:check_schema).with({}, kind_of(String))
+        allow(schema_def).to receive(:validate).with({}).and_return(nil)
+        expect(schema_def).to receive(:validate).with({})
 
         described_class.send :validate, 'validate', {}
       end
@@ -309,8 +315,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
         let(:attributes) { { host: {}, foo: {} } }
 
         it 'cleans the connection_info' do
-          expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
-          expect(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' }).and_return(nil)
+          allow(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
+          expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String))
+          allow(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' }).and_return(nil)
+          expect(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' })
 
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: query')
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: remote-transport')
@@ -331,8 +339,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
         let(:attributes) { { host: { default: 'example.com' }, port: { default: 443 } } }
 
         it 'sets defaults in the connection info' do
-          expect(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String)).and_return(nil)
-          expect(schema_def).to receive(:validate).with({ host: 'host value', port: 443 }).and_return(nil)
+          allow(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String)).and_return(nil)
+          expect(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String))
+          allow(schema_def).to receive(:validate).with({ host: 'host value', port: 443 }).and_return(nil)
+          expect(schema_def).to receive(:validate).with({ host: 'host value', port: 443 })
 
           expect(context).to receive(:debug).with('Using default value for attribute: port, value: 443')
           described_class.send :validate, 'validate', host: 'host value'

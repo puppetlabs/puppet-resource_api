@@ -2229,13 +2229,15 @@ CODE
       end
 
       it 'passes through the an empty array to `get`' do
-        expect(provider).to receive(:get).with(anything, nil).and_return([])
+        allow(provider).to receive(:get).with(anything, nil).and_return([])
+        expect(provider).to receive(:get).with(anything, nil)
         type.instances
       end
 
       it 'passes through the resource title to `get`' do
         instance = type.new(name: 'bar', ensure: 'present')
-        expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
+        allow(provider).to receive(:get).with(anything, ['bar']).and_return([])
+        expect(provider).to receive(:get).with(anything, ['bar'])
         instance.retrieve
       end
     end

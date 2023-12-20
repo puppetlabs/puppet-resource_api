@@ -23,7 +23,7 @@ RSpec/InstanceVariable:
     - 'spec/acceptance/namevar_spec.rb'
     - 'spec/puppet/resource_api/data_type_handling_spec.rb'
 
-# Offense count: 15
+# # Offense count: 15
 RSpec/LeakyConstantDeclaration:
   Exclude:
     - 'spec/puppet/resource_api/base_context_spec.rb'
@@ -44,14 +44,6 @@ RSpec/MultipleMemoizedHelpers:
 # Configuration parameters: AllowedGroups.
 RSpec/NestedGroups:
   Max: 7
-
-# Offense count: 25
-RSpec/StubbedMock:
-  Exclude:
-    - 'spec/puppet/resource_api/property_spec.rb'
-    - 'spec/puppet/resource_api/transport/wrapper_spec.rb'
-    - 'spec/puppet/resource_api/transport_spec.rb'
-    - 'spec/puppet/resource_api_spec.rb'
 
 # Offense count: 47
 RSpec/SubjectStub:
