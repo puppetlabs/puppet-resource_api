@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+# rubocop:disable Lint/ConstantDefinitionInBlock
+
 require 'spec_helper'
 require 'puppet/resource_api/transport/wrapper'
 require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device'
 
 RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
   describe '#initialize(name, url_or_config)' do
-    before(:each) do
+    before do
       module Puppet::Transport
         class SomethingSomethingDarkside; end
       end
@@ -20,7 +22,8 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
           allow(File).to receive(:exist?).and_return(true)
           allow(Hocon).to receive(:load).and_call_original
           expect(Puppet::ResourceApi::Transport).to receive(:connect)
-          expect(Hocon).to receive(:load).with('/etc/credentials', any_args).and_return('foo' => %w[a b], 'bar' => 2)
+          allow(Hocon).to receive(:load).with('/etc/credentials', any_args).and_return('foo' => %w[a b], 'bar' => 2)
+          expect(Hocon).to receive(:load).with('/etc/credentials', any_args)
           expect { described_class.new('wibble', url) }.not_to raise_error
         end
       end
@@ -100,7 +103,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     let(:instance) { described_class.new('wibble', {}) }
     let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
 
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
     end
 
@@ -113,13 +116,13 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
 
       context 'when using method?' do
         it 'will return false' do
-          expect { instance.method :wibble }.to raise_error NameError, %r{undefined method `wibble'}
+          expect { instance.method :wibble }.to raise_error NameError, /undefined method `wibble'/
         end
       end
     end
 
     context 'when the transport does support the function' do
-      before(:each) do
+      before do
         allow(transport).to receive(:close)
       end
 
@@ -137,3 +140,5 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     end
   end
 end
+
+# rubocop:enable Lint/ConstantDefinitionInBlock

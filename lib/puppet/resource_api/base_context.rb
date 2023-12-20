@@ -19,7 +19,7 @@ class Puppet::ResourceApi::BaseContext
     elsif definition.is_a? Puppet::ResourceApi::BaseTypeDefinition
       @type = definition
     else
-      raise ArgumentError, 'BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%{actual_type}>' % { actual_type: definition.class }
+      raise ArgumentError, format('BaseContext requires definition to be a child of Puppet::ResourceApi::BaseTypeDefinition, not <%<actual_type>s>', actual_type: definition.class)
     end
   end
 
@@ -44,7 +44,7 @@ class Puppet::ResourceApi::BaseContext
     type.feature?(feature)
   end
 
-  [:debug, :info, :notice, :warning, :err].each do |level|
+  %i[debug info notice warning err].each do |level|
     define_method(level) do |*args|
       if args.length == 1
         message = "#{@context || @type.name}: #{args.last}"
@@ -58,7 +58,7 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
-  [:creating, :updating, :deleting].each do |method|
+  %i[creating updating deleting].each do |method|
     define_method(method) do |titles, message: method.to_s.capitalize, &block|
       start_time = Time.now
       setup_context(titles, message)
@@ -107,7 +107,7 @@ class Puppet::ResourceApi::BaseContext
     end
   end
 
-  [:created, :updated, :deleted].each do |method|
+  %i[created updated deleted].each do |method|
     define_method(method) do |titles, message: method.to_s.capitalize|
       notice("#{message}: #{titles}")
     end
@@ -172,8 +172,8 @@ class Puppet::ResourceApi::BaseContext
   end
 
   def format_seconds(seconds)
-    return '%.6f' % seconds if seconds < 1
+    return format('%.6f', seconds) if seconds < 1
 
-    '%.2f' % seconds
+    format('%.2f', seconds)
   end
 end

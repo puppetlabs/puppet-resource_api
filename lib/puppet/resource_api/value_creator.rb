@@ -36,14 +36,12 @@ module Puppet::ResourceApi::ValueCreator
     end
 
     # provide hints to `puppet type generate` for better parsing
-    if data_type.instance_of? Puppet::Pops::Types::POptionalType
-      data_type = data_type.type
-    end
+    data_type = data_type.type if data_type.instance_of? Puppet::Pops::Types::POptionalType
 
     case data_type
     when Puppet::Pops::Types::PStringType
       # require any string value
-      def_newvalues(attribute_class, param_or_property, %r{})
+      def_newvalues(attribute_class, param_or_property, //)
     when Puppet::Pops::Types::PBooleanType
       def_newvalues(attribute_class, param_or_property, 'true', 'false')
       attribute_class.aliasvalue true, 'true'
@@ -51,7 +49,7 @@ module Puppet::ResourceApi::ValueCreator
       attribute_class.aliasvalue :true, 'true' # rubocop:disable Lint/BooleanSymbol
       attribute_class.aliasvalue :false, 'false' # rubocop:disable Lint/BooleanSymbol
     when Puppet::Pops::Types::PIntegerType
-      def_newvalues(attribute_class, param_or_property, %r{^-?\d+$})
+      def_newvalues(attribute_class, param_or_property, /^-?\d+$/)
     when Puppet::Pops::Types::PFloatType, Puppet::Pops::Types::PNumericType
       def_newvalues(attribute_class, param_or_property, Puppet::Pops::Patterns::NUMERIC)
     end

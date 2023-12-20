@@ -27,9 +27,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
       # Define class method insync?(is) if the custom_insync feature flag is set
       if referrable_type&.type_definition&.feature?('custom_insync')
         def_custom_insync?
-        if @attribute_name == :rsapi_custom_insync_trigger
-          @change_to_s_value = 'Custom insync logic determined that this resource is out of sync'
-        end
+        @change_to_s_value = 'Custom insync logic determined that this resource is out of sync' if @attribute_name == :rsapi_custom_insync_trigger
       # Define class method insync?(is) if the name is :ensure and custom_insync feature flag is not set
       elsif @attribute_name == :ensure
         def_ensure_insync?
@@ -62,9 +60,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
   def should=(value)
     @shouldorig = value
 
-    if @attribute_name == :ensure
-      value = value.to_s
-    end
+    value = value.to_s if @attribute_name == :ensure
 
     # Puppet requires the @should value to always be stored as an array. We do not use this
     # for anything else
@@ -74,8 +70,8 @@ class Puppet::ResourceApi::Property < Puppet::Property
         @data_type,
         value,
         "#{@type_name}.#{@attribute_name}",
-        Puppet::ResourceApi.caller_is_resource_app?,
-      ),
+        Puppet::ResourceApi.caller_is_resource_app?
+      )
     ]
   end
 
@@ -104,9 +100,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
 
       provider_insync_result, change_message = provider.insync?(context, title, @attribute_name, is_hash, should_hash)
 
-      unless provider_insync_result.nil? || change_message.nil? || change_message.empty?
-        @change_to_s_value = change_message
-      end
+      @change_to_s_value = change_message unless provider_insync_result.nil? || change_message.nil? || change_message.empty?
 
       case provider_insync_result
       when nil
@@ -119,7 +113,7 @@ class Puppet::ResourceApi::Property < Puppet::Property
         provider_insync_result
       else
         # When returning anything else, raise a DevError for a non-idiomatic return
-        raise(Puppet::DevError, "Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} with a value of #{provider_insync_result.inspect} instead of true/false; insync? MUST return nil or the boolean true or false") # rubocop:disable Metrics/LineLength
+        raise(Puppet::DevError, "Custom insync for #{@attribute_name} returned a #{provider_insync_result.class} with a value of #{provider_insync_result.inspect} instead of true/false; insync? MUST return nil or the boolean true or false") # rubocop:disable Layout/LineLength
       end
     end
 

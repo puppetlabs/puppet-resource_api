@@ -14,7 +14,7 @@ RSpec.describe Puppet::ResourceApi::Parameter do
   let(:referrable_type) { Puppet::ResourceApi.register_type(name: 'minimal', attributes: {}) }
 
   describe '#new(type_name, data_type, attribute_name, resource_hash, referrable_type)' do
-    it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+    it { expect { described_class.new(nil) }.to raise_error ArgumentError, /wrong number of arguments/ }
     it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash, referrable_type) }.not_to raise_error }
   end
 
@@ -30,7 +30,7 @@ RSpec.describe Puppet::ResourceApi::Parameter do
   end
 
   describe 'value munging and storage' do
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::DataTypeHandling).to receive(:mungify)
         .with(data_type, value, 'test_name.some_parameter', false)
         .and_return(munged_value)

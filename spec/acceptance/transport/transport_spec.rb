@@ -7,7 +7,7 @@ require 'open3'
 RSpec.describe 'a transport' do
   let(:common_args) { '--verbose --trace --debug --strict=error --modulepath spec/fixtures' }
 
-  before(:all) do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
   end
 
@@ -15,11 +15,11 @@ RSpec.describe 'a transport' do
     let(:common_args) { "#{super()} --target the_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
-      <<DEVICE_CONF
-[the_node]
-type test_device_sensitive
-url  file://#{device_credentials.path}
-DEVICE_CONF
+      <<~DEVICE_CONF
+        [the_node]
+        type test_device_sensitive
+        url  file://#{device_credentials.path}
+      DEVICE_CONF
     end
     let(:device_credentials) { Tempfile.new('credentials.txt') }
 
@@ -27,7 +27,7 @@ DEVICE_CONF
       Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')
     end
 
-    before(:each) do
+    before do
       skip "No device --apply in puppet before v5.3.6 nor in v5.4.0 (v#{Puppet::PUPPETVERSION} is installed)" unless is_device_apply_supported?
       device_conf.write(device_conf_content)
       device_conf.close
@@ -36,22 +36,22 @@ DEVICE_CONF
       device_credentials.close
     end
 
-    after(:each) do
+    after do
       device_conf.unlink
       device_credentials.unlink
     end
 
     context 'when all sensitive values are valid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: bar
-  array_secret: [meep]
-  variant_secret: 1234567890
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: bar
+            array_secret: [meep]
+            variant_secret: 1234567890
+          }
+        DEVICE_CREDS
       end
 
       it 'does not throw' do
@@ -61,30 +61,30 @@ DEVICE_CREDS
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
           expect(status.exitstatus).to eq 0
-          expect(stdout_str).not_to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{Error}
+          expect(stdout_str).not_to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/Error/)
 
-          expect(stdout_str).to match %r{transport connection_info:}
-          expect(stdout_str).to match %r{:username=>"foo"}
-          expect(stdout_str).not_to match %r{wibble}
-          expect(stdout_str).not_to match %r{bar}
-          expect(stdout_str).not_to match %r{meep}
-          expect(stdout_str).not_to match %r{1234567890}
+          expect(stdout_str).to match(/transport connection_info:/)
+          expect(stdout_str).to match(/:username=>"foo"/)
+          expect(stdout_str).not_to match(/wibble/)
+          expect(stdout_str).not_to match(/bar/)
+          expect(stdout_str).not_to match(/meep/)
+          expect(stdout_str).not_to match(/1234567890/)
         end
       end
     end
 
     context 'with a sensitive string value that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: 12345
-  optional_secret: wibble
-  array_secret: [meep]
-  variant_secret: 21
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: 12345
+            optional_secret: wibble
+            array_secret: [meep]
+            variant_secret: 21
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -93,12 +93,12 @@ DEVICE_CREDS
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).to match %r{secret_string: << redacted value >> }
-          expect(stdout_str).not_to match %r{optional_secret}
-          expect(stdout_str).not_to match %r{array_secret}
-          expect(stdout_str).not_to match %r{variant_secret}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).to match(/secret_string: << redacted value >> /)
+          expect(stdout_str).not_to match(/optional_secret/)
+          expect(stdout_str).not_to match(/array_secret/)
+          expect(stdout_str).not_to match(/variant_secret/)
 
           expect(status.exitstatus).to eq 1
         end
@@ -107,15 +107,15 @@ DEVICE_CREDS
 
     context 'with an optional sensitive string value that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: 12345
-  array_secret: [meep]
-  variant_secret: 21
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: 12345
+            array_secret: [meep]
+            variant_secret: 21
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -124,12 +124,12 @@ DEVICE_CREDS
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{secret_string }
-          expect(stdout_str).to match %r{optional_secret: << redacted value >>}
-          expect(stdout_str).not_to match %r{array_secret}
-          expect(stdout_str).not_to match %r{variant_secret}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/secret_string /)
+          expect(stdout_str).to match(/optional_secret: << redacted value >>/)
+          expect(stdout_str).not_to match(/array_secret/)
+          expect(stdout_str).not_to match(/variant_secret/)
 
           expect(status.exitstatus).to eq 1
         end
@@ -138,15 +138,15 @@ DEVICE_CREDS
 
     context 'with an array of sensitive strings that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: bar
-  array_secret: [17]
-  variant_secret: 21
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: bar
+            array_secret: [17]
+            variant_secret: 21
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -155,12 +155,12 @@ DEVICE_CREDS
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{secret_string }
-          expect(stdout_str).not_to match %r{optional_secret}
-          expect(stdout_str).to match %r{array_secret: << redacted value >>}
-          expect(stdout_str).not_to match %r{variant_secret}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/secret_string /)
+          expect(stdout_str).not_to match(/optional_secret/)
+          expect(stdout_str).to match(/array_secret: << redacted value >>/)
+          expect(stdout_str).not_to match(/variant_secret/)
 
           expect(status.exitstatus).to eq 1
         end
@@ -169,15 +169,15 @@ DEVICE_CREDS
 
     context 'with an variant containing a sensitive value that is invalid' do
       let(:device_credentials_content) do
-        <<DEVICE_CREDS
-{
-  username: foo
-  secret_string: wibble
-  optional_secret: bar
-  array_secret: [meep]
-  variant_secret: wobble
-}
-DEVICE_CREDS
+        <<~DEVICE_CREDS
+          {
+            username: foo
+            secret_string: wibble
+            optional_secret: bar
+            array_secret: [meep]
+            variant_secret: wobble
+          }
+        DEVICE_CREDS
       end
 
       it 'Value type mismatch' do
@@ -186,12 +186,12 @@ DEVICE_CREDS
           f.close
 
           stdout_str, status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path}  --apply #{f.path}")
-          expect(stdout_str).to match %r{Error}
-          expect(stdout_str).to match %r{Value type mismatch}
-          expect(stdout_str).not_to match %r{secret_string }
-          expect(stdout_str).not_to match %r{optional_secret}
-          expect(stdout_str).not_to match %r{array_secret}
-          expect(stdout_str).to match %r{variant_secret: << redacted value >>}
+          expect(stdout_str).to match(/Error/)
+          expect(stdout_str).to match(/Value type mismatch/)
+          expect(stdout_str).not_to match(/secret_string /)
+          expect(stdout_str).not_to match(/optional_secret/)
+          expect(stdout_str).not_to match(/array_secret/)
+          expect(stdout_str).to match(/variant_secret: << redacted value >>/)
 
           expect(status.exitstatus).to eq 1
         end

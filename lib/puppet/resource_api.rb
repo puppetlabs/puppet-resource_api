@@ -33,9 +33,7 @@ module Puppet::ResourceApi
     # this has to happen before Puppet::Type.newtype starts autoloading providers
     # it also needs to be guarded against the namespace already being defined by something
     # else to avoid ruby warnings
-    unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
-      Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
-    end
+    Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new) unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
 
     Puppet::Type.newtype(definition[:name].to_sym) do
       # The :desc value is already cleaned up by the TypeDefinition validation
@@ -66,9 +64,7 @@ module Puppet::ResourceApi
         self.class.type_definition
       end
 
-      if type_definition.feature?('remote_resource')
-        apply_to_device
-      end
+      apply_to_device if type_definition.feature?('remote_resource')
 
       define_singleton_method(:rsapi_provider_get_cache) do
         # This gives a new cache per resource provider on each Puppet run:
@@ -94,24 +90,18 @@ module Puppet::ResourceApi
         # undo puppet's unwrapping of Sensitive values to provide a uniform experience for providers
         # See https://tickets.puppetlabs.com/browse/PDK-1091 for investigation and background
         sensitives.each do |name|
-          if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
-            attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name])
-          end
+          attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name]) if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
         end
 
         # $stderr.puts "B: #{attributes.inspect}"
-        if type_definition.feature?('canonicalize')
-          attributes = my_provider.canonicalize(context, [attributes])[0]
-        end
+        attributes = my_provider.canonicalize(context, [attributes])[0] if type_definition.feature?('canonicalize')
 
         # the `Puppet::Resource::Ral.find` method, when `instances` does not return a match, uses a Hash with a `:name` key to create
         # an "absent" resource. This is often hit by `puppet resource`. This needs to work, even if the namevar is not called `name`.
         # This bit here relies on the default `title_patterns` (see below) to match the title back to the first (and often only) namevar
         if type_definition.attributes[:name].nil? && attributes[:title].nil?
           attributes[:title] = attributes.delete(:name)
-          if attributes[:title].nil? && !type_definition.namevars.empty?
-            attributes[:title] = @title
-          end
+          attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
         super(attributes)
@@ -139,7 +129,7 @@ module Puppet::ResourceApi
         @rsapi_canonicalized_target_state ||= begin
           # skip puppet's injected metaparams
           actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
-          target_state = actual_params.transform_values { |v| v.rs_value }
+          target_state = actual_params.transform_values(&:rs_value)
           target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
           target_state
         end
@@ -200,11 +190,11 @@ module Puppet::ResourceApi
         definition[:attributes].each do |name, options|
           type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             :name,
-            options[:type],
+            options[:type]
           )
 
           # skip read only vars and the namevar
-          next if [:read_only, :namevar].include? options[:behaviour]
+          next if %i[read_only namevar].include? options[:behaviour]
 
           # skip properties if the resource is being deleted
           next if definition[:attributes][:ensure] &&
@@ -231,7 +221,7 @@ module Puppet::ResourceApi
         custom_insync_trigger_options = {
           type: 'Enum[do_not_specify_in_manifest]',
           desc: 'A hidden property which enables a type with custom insync to perform an insync check without specifying any insyncable properties',
-          default: 'do_not_specify_in_manifest',
+          default: 'do_not_specify_in_manifest'
         }
 
         type_definition.create_attribute_in(self, :rsapi_custom_insync_trigger, :newproperty, Puppet::ResourceApi::Property, custom_insync_trigger_options)
@@ -240,14 +230,12 @@ module Puppet::ResourceApi
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
-        if options[:behaviour] && !([:read_only, :namevar, :parameter, :init_only].include? options[:behaviour])
-          raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
-        end
+        raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value" if options[:behaviour] && !(%i[read_only namevar parameter init_only].include? options[:behaviour])
 
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        if [:parameter, :namevar].include? options[:behaviour]
+        if %i[parameter namevar].include? options[:behaviour]
           param_or_property = :newparam
           parent = Puppet::ResourceApi::Parameter
         elsif options[:behaviour] == :read_only
@@ -429,11 +417,11 @@ module Puppet::ResourceApi
 
         # :nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
-        message = <<MESSAGE.strip
-#{type_definition.name}[#{@title}]#get has not provided canonicalized values.
-Returned values:       #{current_state.inspect}
-Canonicalized values:  #{state_clone.inspect}
-MESSAGE
+        message = <<~MESSAGE.strip
+          #{type_definition.name}[#{@title}]#get has not provided canonicalized values.
+          Returned values:       #{current_state.inspect}
+          Canonicalized values:  #{state_clone.inspect}
+        MESSAGE
         # :nocov:
         strict_message(message)
       end
@@ -465,12 +453,12 @@ MESSAGE
 
         # :nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
-        message = <<MESSAGE.strip
-#{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
-Namevars which do not match: #{namevars.inspect}
-Returned parsed title hash:  #{title_hash.inspect}
-Expected hash:               #{rsapi_title.inspect}
-MESSAGE
+        message = <<~MESSAGE.strip
+          #{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
+          Namevars which do not match: #{namevars.inspect}
+          Returned parsed title hash:  #{title_hash.inspect}
+          Expected hash:               #{rsapi_title.inspect}
+        MESSAGE
         # :nocov:
         strict_message(message)
       end
@@ -487,7 +475,7 @@ MESSAGE
         @title_patterns ||= if type_definition.definition.key? :title_patterns
                               parse_title_patterns(type_definition.definition[:title_patterns])
                             else
-                              [[%r{(.*)}m, [[type_definition.namevars.first]]]]
+                              [[/(.*)/m, [[type_definition.namevars.first]]]]
                             end
       end
 
@@ -508,14 +496,14 @@ MESSAGE
         end
       end
 
-      [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
+      %i[autorequire autobefore autosubscribe autonotify].each do |auto|
         next unless definition[auto]
 
         definition[auto].each do |type, values|
           Puppet.debug("Registering #{auto} for #{type}: #{values.inspect}")
           send(auto, type.downcase.to_sym) do
             resolved = [values].flatten.map do |v|
-              match = %r{\A\$(.*)\Z}.match(v) if v.is_a? String
+              match = /\A\$(.*)\Z/.match(v) if v.is_a? String
               if match.nil?
                 v
               else
@@ -524,7 +512,7 @@ MESSAGE
             end
             # Flatten to handle any resolved array properties and filter any nil
             # values resulting from unspecified optional parameters:
-            resolved.flatten.reject { |v| v.nil? }
+            resolved.flatten.reject(&:nil?)
           end
         end
       end

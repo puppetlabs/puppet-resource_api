@@ -6,7 +6,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
   let(:strict_level) { :error }
   let(:log_sink) { [] }
 
-  before(:each) do
+  before do
     # set default to strictest setting
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = strict_level
@@ -16,13 +16,13 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
     Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
   end
 
-  after(:each) do
+  after do
     Puppet::Util::Log.close_all
   end
 
   describe '#mungify(type, value, unpack_strings = false)' do
     context 'when called from `puppet resource`' do
-      before(:each) do
+      before do
         allow(described_class).to receive(:try_mungify).with('type', 'input', 'error prefix').and_return(result)
         allow(described_class).to receive(:validate)
       end
@@ -43,12 +43,12 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
       context 'when the munge fails' do
         let(:result) { [nil, 'some error'] }
 
-        it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app) }.to raise_error Puppet::ResourceError, %r{\Asome error\Z} }
+        it('raises the error') { expect { described_class.mungify('type', 'input', 'error prefix', caller_is_resource_app) }.to raise_error Puppet::ResourceError, /\Asome error\Z/ }
       end
     end
 
     context 'when called from something else' do
-      before(:each) do
+      before do
         allow(described_class).to receive(:try_mungify).at_most(0).times
         allow(described_class).to receive(:validate)
       end
@@ -76,13 +76,13 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
       {
         type: 'String',
         valid: %w[a true],
-        invalid: [1, true],
+        invalid: [1, true]
       },
       {
         type: 'Integer',
         valid: [1, -1, 0],
-        invalid: ['a', :a, 'true', 1.0],
-      },
+        invalid: ['a', :a, 'true', 1.0]
+      }
     ].each do |testcase|
       context "when validating '#{testcase[:type]}" do
         let(:type) { testcase[:type] }
@@ -98,7 +98,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           context "when validating #{invalid_value.inspect}" do
             let(:value) { invalid_value }
 
-            it { expect(error_msg).to match %r{^error prefix } }
+            it { expect(error_msg).to match(/^error prefix /) }
           end
         end
       end
@@ -106,7 +106,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
   end
 
   describe '#try_mungify(type, value)' do
-    before(:each) do
+    before do
       @value, @error = described_class.try_mungify(type, input, 'error prefix')
     end
 
@@ -119,9 +119,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           ['true', true],
           [false, false],
           [:false, false], # rubocop:disable Lint/BooleanSymbol
-          ['false', false],
+          ['false', false]
         ],
-        errors: ['something', 'yes', 'no', 0, 1, -1, '1', 1.1, -1.1, '1.1', '-1.1', ''],
+        errors: ['something', 'yes', 'no', 0, 1, -1, '1', 1.1, -1.1, '1.1', '-1.1', '']
       },
       {
         type: 'Integer',
@@ -130,9 +130,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [1, 1],
           ['1', 1],
           [-1, -1],
-          ['-1', -1],
+          ['-1', -1]
         ],
-        errors: ['something', 1.1, -1.1, '1.1', '-1.1', '', :'1'],
+        errors: ['something', 1.1, -1.1, '1.1', '-1.1', '', :'1']
       },
       {
         type: 'Float',
@@ -141,9 +141,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [1.5, 1.5],
           ['1.5', 1.5],
           [-1.5, -1.5],
-          ['-1.5', -1.5],
+          ['-1.5', -1.5]
         ],
-        errors: ['something', '', 0, '0', 1, '1', -1, '-1', :'1.1'],
+        errors: ['something', '', 0, '0', 1, '1', -1, '-1', :'1.1']
       },
       {
         type: 'Numeric',
@@ -157,9 +157,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [1.5, 1.5],
           ['1.5', 1.5],
           [-1.5, -1.5],
-          ['-1.5', -1.5],
+          ['-1.5', -1.5]
         ],
-        errors: ['something', '', true, :symbol, :'1'],
+        errors: ['something', '', true, :symbol, :'1']
       },
       {
         type: 'String',
@@ -171,9 +171,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           ['true', 'true'],
           ['false', 'false'],
           ['something', 'something'],
-          [:symbol, 'symbol'],
+          [:symbol, 'symbol']
         ],
-        errors: [1.1, -1.1, 1, -1, true, false],
+        errors: [1.1, -1.1, 1, -1, true, false]
       },
       {
         type: 'Enum[absent, present]',
@@ -181,18 +181,18 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           %w[absent absent],
           %w[absent absent],
           %w[present present],
-          %w[present present],
+          %w[present present]
         ],
-        errors: ['enabled', :something, 1, 'y', 'true', ''],
+        errors: ['enabled', :something, 1, 'y', 'true', '']
       },
       {
         type: 'Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/]',
         transformations: [
           %w[0xABCD1234 0xABCD1234],
           %w[ABCD1234 ABCD1234],
-          [:'0xABCD1234', '0xABCD1234'],
+          [:'0xABCD1234', '0xABCD1234']
         ],
-        errors: [0xABCD1234, '1234567', 'enabled', 0, ''],
+        errors: [0xABCD1234, '1234567', 'enabled', 0, '']
       },
       {
         type: 'Array',
@@ -202,9 +202,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [['a'], ['a']],
           [['a', 1], ['a', 1]],
           [%w[a b c], %w[a b c]],
-          [[true, 'a', 1], [true, 'a', 1]],
+          [[true, 'a', 1], [true, 'a', 1]]
         ],
-        errors: ['enabled', :something, 1, 'y', 'true', ''],
+        errors: ['enabled', :something, 1, 'y', 'true', '']
       },
       {
         type: 'Array[Boolean]',
@@ -217,9 +217,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [[:false], [false]], # rubocop:disable Lint/BooleanSymbol
           [['false'], [false]],
           [[true, 'false'], [true, false]],
-          [[true, true, true, 'false'], [true, true, true, false]],
+          [[true, true, true, 'false'], [true, true, true, false]]
         ],
-        errors: [['something'], ['yes'], ['no'], [0], true, false],
+        errors: [['something'], ['yes'], ['no'], [0], true, false]
       },
       {
         type: 'Array[Integer]',
@@ -227,9 +227,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [[], []],
           [[1], [1]],
           [['1'], [1]],
-          [['1', 2, '3'], [1, 2, 3]],
+          [['1', 2, '3'], [1, 2, 3]]
         ],
-        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1, 'b', 3], [[]]],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1, 'b', 3], [[]]]
       },
       {
         type: 'Array[Float]',
@@ -237,9 +237,9 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [[], []],
           [[1.0], [1.0]],
           [['1.0'], [1.0]],
-          [['1.0', 2.0, '3.0'], [1.0, 2.0, 3.0]],
+          [['1.0', 2.0, '3.0'], [1.0, 2.0, 3.0]]
         ],
-        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1.0, 'b', 3.0], [[]]],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1.0, 'b', 3.0], [[]]]
       },
       {
         type: 'Array[Numeric]',
@@ -250,18 +250,18 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [[1.0], [1.0]],
           [['1.0'], [1.0]],
           [['1.0', 2, '3'], [1.0, 2, 3]],
-          [['1.0', 2.0, '3.0'], [1.0, 2.0, 3.0]],
+          [['1.0', 2.0, '3.0'], [1.0, 2.0, 3.0]]
         ],
-        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1.0, 'b', 3.0], [[]]],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [true, 'a'], [1.0, 'b', 3.0], [[]]]
       },
       {
         type: 'Array[String]',
         transformations: [
           [[], []],
           [['a'], ['a']],
-          [%w[a b c], %w[a b c]],
+          [%w[a b c], %w[a b c]]
         ],
-        errors: ['enabled', :something, 1, 'y', 'true', '', [1], ['a', 1, 'b'], [true, 'a'], [[]]],
+        errors: ['enabled', :something, 1, 'y', 'true', '', [1], ['a', 1, 'b'], [true, 'a'], [[]]]
       },
       {
         # When requesting a Variant type, expect values to be transformed according to the rules of the constituent types.
@@ -283,17 +283,17 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           ['-1', -1],
           ['something', 'something'],
           [:symbol, 'symbol'],
-          ['1.1', '1.1'],
+          ['1.1', '1.1']
         ],
-        errors: [1.0, [1.0], ['1']],
+        errors: [1.0, [1.0], ['1']]
       },
       {
         type: 'Variant[Integer, Enum[a, "2", "3"]]',
         transformations: [
           [1, 1],
-          %w[a a],
+          %w[a a]
         ],
-        errors: %w[2 3],
+        errors: %w[2 3]
       },
       {
         type: 'Variant[Array[Variant[Integer,String]],Boolean]',
@@ -302,12 +302,12 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           [:false, false], # rubocop:disable Lint/BooleanSymbol
           [[1], [1]],
           [['1'], [1]],
-          [%w[1 a], [1, 'a']],
+          [%w[1 a], [1, 'a']]
         ],
         errors: [
-          [:something, [1.0]],
-        ],
-      },
+          [:something, [1.0]]
+        ]
+      }
     ].each do |type_test|
       context "with a #{type_test[:type]} type" do
         let(:type) { Puppet::Pops::Types::TypeParser.singleton.parse(type_test[:type]) }
@@ -326,7 +326,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
             let(:input) { input }
 
             it('returns no value') { expect(@value).to be_nil }
-            it('returns an error') { expect(@error).to match %r{\A\s*error prefix} }
+            it('returns an error') { expect(@error).to match(/\A\s*error prefix/) }
           end
         end
       end
@@ -348,7 +348,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
             let(:input) { input }
 
             it('returns no value') { expect(@value).to be_nil }
-            it('returns an error') { expect(@error).to match %r{\A\s*error prefix} }
+            it('returns an error') { expect(@error).to match(/\A\s*error prefix/) }
           end
         end
       end
@@ -375,28 +375,28 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
       [
         {
           value: 'true',
-          result: true,
+          result: true
         },
         {
           value: :true, # rubocop:disable Lint/BooleanSymbol
-          result: true,
+          result: true
         },
         {
           value: true,
-          result: true,
+          result: true
         },
         {
           value: 'false',
-          result: false,
+          result: false
         },
         {
           value: :false, # rubocop:disable Lint/BooleanSymbol
-          result: false,
+          result: false
         },
         {
           value: false,
-          result: false,
-        },
+          result: false
+        }
       ].each do |munge_test|
         context "with a #{munge_test[:value].class} value" do
           let(:input) { munge_test[:value] }

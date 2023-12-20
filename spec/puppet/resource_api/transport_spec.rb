@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Lint/ConstantDefinitionInBlock
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi::Transport do
@@ -23,7 +25,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
   let(:strict_level) { :error }
 
-  before(:each) do
+  before do
     # set default to strictest setting
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = strict_level
@@ -33,17 +35,17 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
   describe '#register(schema)' do
     describe 'validation checks' do
-      it { expect { described_class.register([]) }.to raise_error(Puppet::DevError, %r{requires a hash as schema}) }
-      it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, %r{requires a `:name`}) }
-      it { expect { described_class.register(name: 'no connection info', desc: 'some description') }.to raise_error(Puppet::DevError, %r{requires `:connection_info`}) }
-      it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, %r{requires `:desc`}) }
+      it { expect { described_class.register([]) }.to raise_error(Puppet::DevError, /requires a hash as schema/) }
+      it { expect { described_class.register({}) }.to raise_error(Puppet::DevError, /requires a `:name`/) }
+      it { expect { described_class.register(name: 'no connection info', desc: 'some description') }.to raise_error(Puppet::DevError, /requires `:connection_info`/) }
+      it { expect { described_class.register(name: 'no description') }.to raise_error(Puppet::DevError, /requires `:desc`/) }
 
       it {
-        expect {
+        expect do
           described_class.register(name: 'no hash connection_info',
                                    desc: 'some description',
                                    connection_info: [])
-        }.to raise_error(Puppet::DevError, %r{`:connection_info` must be a hash, not})
+        end.to raise_error(Puppet::DevError, /`:connection_info` must be a hash, not/)
       }
 
       it {
@@ -59,12 +61,12 @@ RSpec.describe Puppet::ResourceApi::Transport do
       }
 
       it {
-        expect {
+        expect do
           described_class.register(name: 'no array connection_info_order',
                                    desc: 'some description',
                                    connection_info: {},
                                    connection_info_order: {})
-        }.to raise_error(Puppet::DevError, %r{`:connection_info_order` must be an array, not})
+        end.to raise_error(Puppet::DevError, /`:connection_info_order` must be an array, not/)
       }
     end
 
@@ -76,7 +78,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       context 'when re-registering a transport' do
         it {
           described_class.register(schema)
-          expect { described_class.register(schema) }.to raise_error(Puppet::DevError, %r{`minimal` is already registered})
+          expect { described_class.register(schema) }.to raise_error(Puppet::DevError, /`minimal` is already registered/)
         }
       end
     end
@@ -89,23 +91,23 @@ RSpec.describe Puppet::ResourceApi::Transport do
           connection_info: {
             host: {
               type: 'String',
-              desc: 'the host ip address or hostname',
+              desc: 'the host ip address or hostname'
             },
             user: {
               type: 'String',
-              desc: 'the user to connect as',
+              desc: 'the user to connect as'
             },
             password: {
               type: 'String',
               sensitive: true,
-              desc: 'the password to make the connection',
-            },
-          },
+              desc: 'the password to make the connection'
+            }
+          }
         }
       end
 
       context 'when a environment is available' do
-        before(:each) { change_environment('production') }
+        before { change_environment('production') }
 
         it 'adds to the transports register' do
           expect { described_class.register(schema) }.not_to raise_error
@@ -113,7 +115,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       end
 
       context 'when no environment is available' do
-        before(:each) { change_environment(nil) }
+        before { change_environment(nil) }
 
         it 'adds to the transports register' do
           expect { described_class.register(schema) }.not_to raise_error
@@ -129,15 +131,15 @@ RSpec.describe Puppet::ResourceApi::Transport do
           connection_info: {
             host: {
               type: 'garbage',
-              desc: 'the host ip address or hostname',
-            },
-          },
+              desc: 'the host ip address or hostname'
+            }
+          }
         }
       end
 
       it {
         expect { described_class.register(schema) }.to raise_error(
-          Puppet::DevError, %r{<garbage> is not a valid type specification}
+          Puppet::DevError, /<garbage> is not a valid type specification/
         )
       }
     end
@@ -158,13 +160,13 @@ RSpec.describe Puppet::ResourceApi::Transport do
           connection_info: {
             host: {
               type: 'String',
-              desc: 'the host ip address or hostname',
-            },
-          },
+              desc: 'the host ip address or hostname'
+            }
+          }
         }
       end
 
-      before(:each) do
+      before do
         described_class.register(schema)
       end
 
@@ -185,9 +187,9 @@ RSpec.describe Puppet::ResourceApi::Transport do
         connection_info: {
           host: {
             type: 'String',
-            desc: 'the host ip address or hostname',
-          },
-        },
+            desc: 'the host ip address or hostname'
+          }
+        }
       }
     end
 
@@ -206,7 +208,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
           expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect { described_class.connect(name, { host: 'example.com' }) }.to raise_error NameError,
-                                                                                           %r{uninitialized constant (Puppet::Transport|TestTarget)}
+                                                                                           /uninitialized constant (Puppet::Transport|TestTarget)/
         end
       end
 
@@ -220,7 +222,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
           allow(described_class).to receive(:require).with('puppet/resource_api/puppet_context').and_call_original
           expect(described_class).to receive(:require).with('puppet/transport/test_target')
           expect(described_class).to receive(:validate).with(name, { host: 'example.com' })
-          expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)
+          allow(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef)).and_return(context)
+          expect(Puppet::ResourceApi::PuppetContext).to receive(:new).with(kind_of(Puppet::ResourceApi::TransportSchemaDef))
 
           stub_const('Puppet::Transport::TestTarget', test_target)
           expect(test_target).to receive(:new).with(context, { host: 'example.com' })
@@ -236,19 +239,20 @@ RSpec.describe Puppet::ResourceApi::Transport do
     let(:transport) { instance_double(Puppet::Transport::Wibble, 'transport') }
     let(:wrapper) { instance_double(Puppet::ResourceApi::Transport::Wrapper, 'wrapper') }
 
-    before(:each) do
+    before do
       module Puppet::Transport
         class Wibble; end
       end
     end
 
-    after(:each) do
+    after do
       Puppet::Util::NetworkDevice.instance_variable_set(:@current, nil)
     end
 
     context 'when puppet has set_device' do
       it 'wraps the transport and calls set_device within NetworkDevice' do
-        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        allow(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport)
         allow(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(true)
         expect(Puppet::Util::NetworkDevice).to receive(:set_device).with(device_name, wrapper)
 
@@ -258,8 +262,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when puppet does not have set_device' do
       it 'wraps the transport and sets it as current in NetworkDevice' do
-        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
-        expect(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(false)
+        allow(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport)
+        allow(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(false)
+        expect(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device)
 
         described_class.inject_device(device_name, transport)
 
@@ -286,7 +292,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
       let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
       let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
-      before(:each) do
+      before do
         allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
         allow(schema_def).to receive(:attributes).with(no_args).and_return(attributes)
         allow(schema_def).to receive(:name).with(no_args).and_return(schema[:name])
@@ -297,8 +303,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
       it 'validates the connection_info' do
         expect(described_class).not_to receive(:require).with('puppet/transport/schema/validate')
-        expect(schema_def).to receive(:check_schema).with({}, kind_of(String)).and_return(nil)
-        expect(schema_def).to receive(:validate).with({}).and_return(nil)
+        allow(schema_def).to receive(:check_schema).with({}, kind_of(String)).and_return(nil)
+        expect(schema_def).to receive(:check_schema).with({}, kind_of(String))
+        allow(schema_def).to receive(:validate).with({}).and_return(nil)
+        expect(schema_def).to receive(:validate).with({})
 
         described_class.send :validate, 'validate', {}
       end
@@ -307,8 +315,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
         let(:attributes) { { host: {}, foo: {} } }
 
         it 'cleans the connection_info' do
-          expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
-          expect(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' }).and_return(nil)
+          allow(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String)).and_return(nil)
+          expect(schema_def).to receive(:check_schema).with({ host: 'host value', foo: 'foo value' }, kind_of(String))
+          allow(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' }).and_return(nil)
+          expect(schema_def).to receive(:validate).with({ host: 'host value', foo: 'foo value' })
 
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: query')
           expect(context).to receive(:debug).with('Discarding bolt metaparameter: remote-transport')
@@ -329,8 +339,10 @@ RSpec.describe Puppet::ResourceApi::Transport do
         let(:attributes) { { host: { default: 'example.com' }, port: { default: 443 } } }
 
         it 'sets defaults in the connection info' do
-          expect(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String)).and_return(nil)
-          expect(schema_def).to receive(:validate).with({ host: 'host value', port: 443 }).and_return(nil)
+          allow(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String)).and_return(nil)
+          expect(schema_def).to receive(:check_schema).with({ host: 'host value', port: 443 }, kind_of(String))
+          allow(schema_def).to receive(:validate).with({ host: 'host value', port: 443 }).and_return(nil)
+          expect(schema_def).to receive(:validate).with({ host: 'host value', port: 443 })
 
           expect(context).to receive(:debug).with('Using default value for attribute: port, value: 443')
           described_class.send :validate, 'validate', host: 'host value'
@@ -348,14 +360,14 @@ RSpec.describe Puppet::ResourceApi::Transport do
           secret: {
             type: 'String',
             desc: 'A secret to protect.',
-            sensitive: true,
-          },
-        },
+            sensitive: true
+          }
+        }
       }
     end
     let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
 
-    before(:each) do
+    before do
       allow(Puppet::ResourceApi::TransportSchemaDef).to receive(:new).with(schema).and_return(schema_def)
       described_class.register(schema)
     end
@@ -363,7 +375,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
     context 'when the connection info contains a `Sensitive` type' do
       let(:connection_info) do
         {
-          secret: 'sup3r_secret_str1ng',
+          secret: 'sup3r_secret_str1ng'
         }
       end
 
@@ -388,3 +400,5 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
   end
 end
+
+# rubocop:enable Lint/ConstantDefinitionInBlock

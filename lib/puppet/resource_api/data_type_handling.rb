@@ -20,12 +20,12 @@ module Puppet::ResourceApi::DataTypeHandling
   # @param unpack_strings[Boolean] unpacking of strings for migrating off
   # legacy type
   # @return [type] the cleaned value
-  def self.mungify(type, value, error_msg_prefix, unpack_strings = false)
+  def self.mungify(type, value, error_msg_prefix, unpack_strings = false) # rubocop:disable Style/OptionalBooleanParameter
     cleaned_value = mungify_core(
       type,
       value,
       error_msg_prefix,
-      unpack_strings,
+      unpack_strings
     )
     validate(type, cleaned_value, error_msg_prefix)
     cleaned_value
@@ -42,7 +42,7 @@ module Puppet::ResourceApi::DataTypeHandling
   # @return [type] the cleaned value
   # @raise [Puppet::ResourceError] if `value` could not be parsed into `type`
   # @private
-  def self.mungify_core(type, value, error_msg_prefix, unpack_strings = false)
+  def self.mungify_core(type, value, error_msg_prefix, unpack_strings = false) # rubocop:disable Style/OptionalBooleanParameter
     if unpack_strings
       # When the provider is exercised from the `puppet resource` CLI, we need
       # to unpack strings into the correct types, e.g. "1" (a string)
@@ -78,18 +78,14 @@ module Puppet::ResourceApi::DataTypeHandling
         end
         # only convert the values if none failed. otherwise fall through and
         # rely on puppet to render a proper error
-        if conversions.all? { |c| c[1].nil? }
-          value = conversions.map { |c| c[0] }
-        end
+        value = conversions.map { |c| c[0] } if conversions.all? { |c| c[1].nil? }
       end
     when Puppet::Pops::Types::PBooleanType
       value = boolean_munge(value)
     when Puppet::Pops::Types::PIntegerType,
          Puppet::Pops::Types::PFloatType,
          Puppet::Pops::Types::PNumericType
-      if value.is_a?(String) && (value.match?(%r{^-?\d+$}) || value.match?(Puppet::Pops::Patterns::NUMERIC))
-        value = Puppet::Pops::Utils.to_n(value)
-      end
+      value = Puppet::Pops::Utils.to_n(value) if value.is_a?(String) && (value.match?(/^-?\d+$/) || value.match?(Puppet::Pops::Patterns::NUMERIC))
     when Puppet::Pops::Types::PEnumType,
          Puppet::Pops::Types::PStringType,
          Puppet::Pops::Types::PPatternType
@@ -110,9 +106,7 @@ module Puppet::ResourceApi::DataTypeHandling
       return conversion_results[0] if conversion_results.length == 1
 
       # return an error if ambiguous
-      if conversion_results.length > 1
-        return [nil, ambiguous_error_msg(error_msg_prefix, value, type)]
-      end
+      return [nil, ambiguous_error_msg(error_msg_prefix, value, type)] if conversion_results.length > 1
 
       # try to interpret as string
       return try_mungify(string_type, value, error_msg_prefix) if string_type
@@ -176,7 +170,7 @@ module Puppet::ResourceApi::DataTypeHandling
     Puppet::Pops::Types::TypeMismatchDescriber.new.describe_mismatch(
       error_msg_prefix,
       type,
-      inferred_type,
+      inferred_type
     )
   end
 

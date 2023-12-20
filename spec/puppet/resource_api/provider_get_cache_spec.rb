@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Puppet::ResourceApi::ProviderGetCache do
   subject(:cache) { described_class.new }
 
-  before(:each) do
+  before do
     cache.add(:a, 'a')
     cache.add(:b, 'b')
   end
@@ -18,7 +18,7 @@ RSpec.describe Puppet::ResourceApi::ProviderGetCache do
 
   describe '#all' do
     it 'raises an error when cached_all has not been called' do
-      expect { cache.all }.to raise_error(%r{cached_all not called})
+      expect { cache.all }.to raise_error(/cached_all not called/)
     end
 
     it 'returns all values in cache when cached_all has been called' do

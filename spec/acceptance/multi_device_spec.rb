@@ -8,7 +8,7 @@ require 'tempfile'
 RSpec.describe 'exercising a type with device-specific providers' do
   let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
 
-  before(:all) do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/some_node/state'))
     FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/other_node/state'))
   end
@@ -17,27 +17,27 @@ RSpec.describe 'exercising a type with device-specific providers' do
     let(:common_args) { super() + " --deviceconfig #{device_conf.path} --target some_node --target other_node" }
     let(:device_conf) { Tempfile.new('device.conf') }
     let(:device_conf_content) do
-      <<DEVICE_CONF
-[some_node]
-type some_device
-url  file:///etc/credentials.txt
-[other_node]
-type other_device
-url  file:///etc/credentials.txt
-DEVICE_CONF
+      <<~DEVICE_CONF
+        [some_node]
+        type some_device
+        url  file:///etc/credentials.txt
+        [other_node]
+        type other_device
+        url  file:///etc/credentials.txt
+      DEVICE_CONF
     end
 
     def is_device_apply_supported?
       Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')
     end
 
-    before(:each) do
+    before do
       skip "No device --apply in puppet before v5.3.6 nor in v5.4.0 (v#{Puppet::PUPPETVERSION} is installed)" unless is_device_apply_supported?
       device_conf.write(device_conf_content)
       device_conf.close
     end
 
-    after(:each) do
+    after do
       device_conf.unlink
     end
 
@@ -85,9 +85,9 @@ DEVICE_CONF
         f.close
 
         stdout_str, _status = Open3.capture2e("puppet device #{common_args} --apply #{f.path}")
-        expect(stdout_str).to match %r{Compiled catalog for some_node}
-        expect(stdout_str).to match %r{Compiled catalog for other_node}
-        expect(stdout_str).not_to match %r{Error:}
+        expect(stdout_str).to match(/Compiled catalog for some_node/)
+        expect(stdout_str).to match(/Compiled catalog for other_node/)
+        expect(stdout_str).not_to match(/Error:/)
       end
     end
   end

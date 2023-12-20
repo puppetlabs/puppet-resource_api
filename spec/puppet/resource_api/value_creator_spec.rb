@@ -14,11 +14,11 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     {
       type: 'Enum[present, absent]',
       desc: 'Whether this resource should be present or absent on the target system.',
-      default: 'present',
+      default: 'present'
     }
   end
 
-  before(:each) do
+  before do
     allow(attribute_class).to receive(:newvalue)
     allow(attribute_class).to receive(:newvalues)
     allow(attribute_class).to receive(:aliasvalue)
@@ -26,11 +26,11 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
     allow(attribute_class).to receive(:isnamevar)
   end
 
-  it { expect { described_class.create_values(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+  it { expect { described_class.create_values(nil) }.to raise_error ArgumentError, /wrong number of arguments/ }
   it { expect { value_creator }.not_to raise_error }
 
   describe '#create_values' do
-    before(:each) do
+    before do
       value_creator.create_values(attribute_class, data_type, param_or_property, options)
     end
 
@@ -53,7 +53,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Boolean',
-            desc: 'Boolean test.',
+            desc: 'Boolean test.'
           }
         end
 
@@ -75,12 +75,12 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'String',
-            desc: 'String test.',
+            desc: 'String test.'
           }
         end
 
         it 'calls #newvalue once' do
-          expect(attribute_class).to have_received(:newvalue).with(%r{})
+          expect(attribute_class).to have_received(:newvalue).with(//)
         end
       end
 
@@ -89,12 +89,12 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Integer',
-            desc: 'Integer test.',
+            desc: 'Integer test.'
           }
         end
 
         it 'calls #newvalue once' do
-          expect(attribute_class).to have_received(:newvalue).with(%r{^-?\d+$})
+          expect(attribute_class).to have_received(:newvalue).with(/^-?\d+$/)
         end
       end
 
@@ -103,7 +103,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Float',
-            desc: 'Float test.',
+            desc: 'Float test.'
           }
         end
 
@@ -127,7 +127,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           {
             type: 'String',
             desc: 'Namevar test',
-            behaviour: :namevar,
+            behaviour: :namevar
           }
         end
 
@@ -141,7 +141,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
           {
             type: 'Boolean',
             desc: 'Default value test',
-            default: true,
+            default: true
           }
         end
 
@@ -154,7 +154,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Boolean',
-            desc: 'No default value test',
+            desc: 'No default value test'
           }
         end
 
@@ -168,7 +168,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Boolean',
-            desc: 'Boolean test.',
+            desc: 'Boolean test.'
           }
         end
 
@@ -189,12 +189,12 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'String',
-            desc: 'String test.',
+            desc: 'String test.'
           }
         end
 
         it 'calls #newvalues once' do
-          expect(attribute_class).to have_received(:newvalues).with(%r{})
+          expect(attribute_class).to have_received(:newvalues).with(//)
         end
       end
 
@@ -203,12 +203,12 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Integer',
-            desc: 'Integer test.',
+            desc: 'Integer test.'
           }
         end
 
         it 'calls #newvalues once' do
-          expect(attribute_class).to have_received(:newvalues).with(%r{^-?\d+$})
+          expect(attribute_class).to have_received(:newvalues).with(/^-?\d+$/)
         end
       end
 
@@ -217,13 +217,13 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
         let(:options) do
           {
             type: 'Float',
-            desc: 'Float test.',
+            desc: 'Float test.'
           }
         end
 
         it 'calls #newvalues once' do
           expect(attribute_class).to have_received(:newvalues).with(
-            %r{\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z},
+            /\A[[:blank:]]*([-+]?)[[:blank:]]*((0[xX][0-9A-Fa-f]+)|(0?\d+)((?:\.\d+)?(?:[eE]-?\d+)?))[[:blank:]]*\z/
           )
         end
       end

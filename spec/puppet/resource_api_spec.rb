@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
+# rubocop:disable Lint/ConstantDefinitionInBlock
+
 require 'spec_helper'
 
 RSpec.describe Puppet::ResourceApi do
   let(:strict_level) { :error }
   let(:log_sink) { [] }
 
-  before(:each) do
+  before do
     # set default to strictest setting
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = strict_level
@@ -16,7 +18,7 @@ RSpec.describe Puppet::ResourceApi do
     Puppet::Util::Log.newdestination(Puppet::Test::LogCollector.new(log_sink))
   end
 
-  after(:each) do
+  after do
     Puppet::Util::Log.close_all
   end
 
@@ -76,63 +78,63 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           test_string: {
             type: 'String',
             desc: 'the description',
-            default: 'default value',
+            default: 'default value'
           },
           test_boolean: {
             type: 'Boolean',
-            desc: 'a boolean value',
+            desc: 'a boolean value'
           },
           test_integer: {
             type: 'Integer',
-            desc: 'an integer value',
+            desc: 'an integer value'
           },
           test_float: {
             type: 'Float',
-            desc: 'a floating point value',
+            desc: 'a floating point value'
           },
           test_enum: {
             type: 'Enum[a, b, c]',
-            desc: 'an enumeration',
+            desc: 'an enumeration'
           },
           test_variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
-            desc: 'a pattern value',
+            desc: 'a pattern value'
           },
           test_url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
-            desc: 'a hkp or http(s) url',
+            desc: 'a hkp or http(s) url'
           },
           test_optional_string: {
             type: 'Optional[String]',
-            desc: 'a optional string value',
+            desc: 'a optional string value'
           },
           test_array: {
             type: 'Array',
-            desc: 'an array value',
-          },
+            desc: 'an array value'
+          }
         },
         autorequire: {
-          var: '$test_string',
+          var: '$test_string'
         },
         autobefore: {
-          const: 'value',
+          const: 'value'
         },
         autosubscribe: {
-          list: %w[foo bar],
+          list: %w[foo bar]
         },
         autonotify: {
-          mixed: [10, '$test_integer', '$test_optional_string', '$test_array'],
-        },
+          mixed: [10, '$test_integer', '$test_optional_string', '$test_array']
+        }
       }
     end
     let(:type_name) { 'with_string' }
 
-    before(:each) do
+    before do
       described_class.register_type(definition)
     end
 
@@ -140,8 +142,8 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(type_name.to_sym) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.properties.map { |p| p.doc }).to include a_string_matching %r{the description} }
-      it { expect(type.properties.map { |p| p.name }).to include :test_string }
+      it { expect(type.properties.map(&:doc)).to include a_string_matching(/the description/) }
+      it { expect(type.properties.map(&:name)).to include :test_string }
 
       def extract_values(function)
         result = []
@@ -207,7 +209,7 @@ RSpec.describe Puppet::ResourceApi do
             test_float: -1.5,
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
-            test_url: 'hkp://example.com',
+            test_url: 'hkp://example.com'
           }
         end
 
@@ -228,7 +230,7 @@ RSpec.describe Puppet::ResourceApi do
             test_float: -1.5,
             test_enum: 'a',
             test_variant_pattern: 'a' * 8,
-            test_url: 'http://example.com',
+            test_url: 'http://example.com'
           }
         end
 
@@ -248,19 +250,19 @@ RSpec.describe Puppet::ResourceApi do
         context 'when using an unparsable value' do
           let(:the_boolean) { 'flubb' }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, /test_boolean expect.* Boolean .* got String/ }
         end
 
         context 'when using true string' do
           let(:the_boolean) { 'true' }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, /test_boolean expect.* Boolean .* got String/ }
         end
 
         context 'when using false string' do
           let(:the_boolean) { 'false' }
 
-          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, %r{test_boolean expect.* Boolean .* got String} }
+          it('an error is raised') { expect { instance }.to raise_error Puppet::ResourceError, /test_boolean expect.* Boolean .* got String/ }
         end
 
         context 'when using a legacy true symbol' do
@@ -288,7 +290,7 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::WithString', Module.new)
           stub_const('Puppet::Provider::WithString::WithString', provider_class)
         end
@@ -296,15 +298,15 @@ RSpec.describe Puppet::ResourceApi do
         context 'when mandatory attributes are missing' do
           let(:params) do
             {
-              title: 'test',
+              title: 'test'
             }
           end
 
           it {
-            expect {
+            expect do
               instance.validate
               instance.retrieve
-            }.not_to raise_exception
+            end.not_to raise_exception
           }
         end
       end
@@ -321,7 +323,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'with a bad provider', agent_test: true do
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::TypeCheck', Module.new)
           stub_const('Puppet::Provider::TypeCheck::TypeCheck', provider_class)
         end
@@ -335,7 +337,7 @@ RSpec.describe Puppet::ResourceApi do
             def set(_context, _changes); end
           end
         end
-        let(:message) { %r{Provider returned data that does not match the Type Schema for `type_check\[test\]`\n\s*Unknown attribute:\n\s*\* wibble\n\n\s*Value type mismatch:\n\s*\* test_string: 15} }
+        let(:message) { /Provider returned data that does not match the Type Schema for `type_check\[test\]`\n\s*Unknown attribute:\n\s*\* wibble\n\n\s*Value type mismatch:\n\s*\* test_string: 15/ }
 
         context 'when strict is default (:warning)' do
           let(:strict_level) { :warning }
@@ -350,9 +352,9 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :error }
 
           it {
-            expect {
+            expect do
               instance.retrieve
-            }.to raise_error Puppet::DevError, message
+            end.to raise_error Puppet::DevError, message
           }
         end
 
@@ -376,18 +378,18 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           secret: {
             type: 'Sensitive[String]',
-            desc: 'a password',
-          },
-        },
+            desc: 'a password'
+          }
+        }
       }
     end
     let(:type_name) { 'with_sensitive' }
 
-    before(:each) do
+    before do
       described_class.register_type(definition)
     end
 
@@ -417,7 +419,7 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::WithSensitive', Module.new)
           stub_const('Puppet::Provider::WithSensitive::WithSensitive', provider_class)
         end
@@ -425,15 +427,15 @@ RSpec.describe Puppet::ResourceApi do
         context 'when mandatory attributes are missing' do
           let(:params) do
             {
-              title: 'test',
+              title: 'test'
             }
           end
 
           it {
-            expect {
+            expect do
               instance.validate
               instance.retrieve
-            }.not_to raise_exception
+            end.not_to raise_exception
           }
         end
 
@@ -442,7 +444,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
           let(:catalog) { instance_double('Unknown', 'catalog') }
 
-          before(:each) do
+          before do
             allow(provider_class).to receive(:new).with(no_args).and_return(provider_instance)
             allow(provider_instance).to receive(:get).and_return([])
             allow(params).to receive(:is_a?).with(Puppet::Resource).and_return(true)
@@ -458,7 +460,7 @@ RSpec.describe Puppet::ResourceApi do
               .with(anything,
                     'test' => {
                       is: { title: 'test' },
-                      should: { name: 'test', secret: a_kind_of(Puppet::Pops::Types::PSensitiveType::Sensitive) },
+                      should: { name: 'test', secret: a_kind_of(Puppet::Pops::Types::PSensitiveType::Sensitive) }
                     })
             instance.retrieve
             instance[:secret] = Puppet::Pops::Types::PSensitiveType::Sensitive.new('a new password')
@@ -478,46 +480,46 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               behaviour: :namevar,
-              desc: 'the title',
+              desc: 'the title'
             },
             ensure: {
               type: 'Enum[present, absent]',
-              desc: 'a ensure value',
+              desc: 'a ensure value'
             },
             test_string: {
               type: 'String',
               desc: 'the description',
-              default: 'default value',
+              default: 'default value'
             },
             test_boolean: {
               type: 'Boolean',
-              desc: 'a boolean value',
+              desc: 'a boolean value'
             },
             test_integer: {
               type: 'Integer',
-              desc: 'an integer value',
+              desc: 'an integer value'
             },
             test_float: {
               type: 'Float',
-              desc: 'a floating point value',
+              desc: 'a floating point value'
             },
             test_enum: {
               type: 'Enum[a, b, c]',
-              desc: 'an enumeration',
+              desc: 'an enumeration'
             },
             test_variant_pattern: {
               type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
-              desc: 'a pattern value',
+              desc: 'a pattern value'
             },
             test_url: {
               type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
-              desc: 'a hkp or http(s) url',
+              desc: 'a hkp or http(s) url'
             },
             test_optional_string: {
               type: 'Optional[String]',
-              desc: 'a optional string value',
-            },
-          },
+              desc: 'a optional string value'
+            }
+          }
         }
       end
 
@@ -531,7 +533,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::WithEnsure', Module.new)
         stub_const('Puppet::Provider::WithEnsure::WithEnsure', provider_class)
       end
@@ -555,15 +557,15 @@ RSpec.describe Puppet::ResourceApi do
           let(:params) do
             {
               title: 'test',
-              ensure: 'present',
+              ensure: 'present'
             }
           end
 
           it {
-            expect {
+            expect do
               instance.validate
               instance.retrieve
-            }.to raise_exception Puppet::ResourceError, %r{The following mandatory attributes were not provided}
+            end.to raise_exception Puppet::ResourceError, /The following mandatory attributes were not provided/
           }
         end
 
@@ -575,7 +577,7 @@ RSpec.describe Puppet::ResourceApi do
 
           let(:params) do
             {
-              title: 'does_not_exist',
+              title: 'does_not_exist'
             }
           end
 
@@ -601,7 +603,7 @@ RSpec.describe Puppet::ResourceApi do
               test_float: -1.5,
               test_enum: 'a',
               test_variant_pattern: 'a' * 8,
-              test_url: 'hkp://example.com',
+              test_url: 'hkp://example.com'
             }
           end
 
@@ -627,17 +629,17 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               behaviour: :namevar,
-              desc: 'the title',
+              desc: 'the title'
             },
             ensure: {
               type: 'Enum[yes, no]',
-              desc: 'a bad ensure attribute',
-            },
-          },
+              desc: 'a bad ensure attribute'
+            }
+          }
         }
       end
 
-      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, %r{`:ensure` attribute must have a type of: `Enum\[present, absent\]`} }
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::DevError, /`:ensure` attribute must have a type of: `Enum\[present, absent\]`/ }
     end
   end
 
@@ -649,45 +651,45 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the title',
+            desc: 'the title'
           },
           test_string: {
             type: 'String',
             desc: 'a string parameter',
             default: 'default value',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_boolean: {
             type: 'Boolean',
             desc: 'a boolean parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_integer: {
             type: 'Integer',
             desc: 'an integer parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_float: {
             type: 'Float',
             desc: 'a floating point parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_variant_pattern: {
             type: 'Variant[Pattern[/\A(0x)?[0-9a-fA-F]{8}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{16}\Z/], Pattern[/\A(0x)?[0-9a-fA-F]{40}\Z/]]',
             desc: 'a pattern parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_url: {
             type: 'Pattern[/\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/]',
             desc: 'a hkp or http(s) url parameter',
-            behaviour: :parameter,
+            behaviour: :parameter
           },
           test_optional_string: {
             type: 'Optional[String]',
             desc: 'a optional string parameter',
-            behaviour: :parameter,
-          },
-        },
+            behaviour: :parameter
+          }
+        }
       }
     end
 
@@ -719,7 +721,7 @@ RSpec.describe Puppet::ResourceApi do
             test_integer: -1,
             test_float: -1.5,
             test_variant_pattern: 'a' * 8,
-            test_url: 'hkp://example.com',
+            test_url: 'hkp://example.com'
           } }
         end
 
@@ -735,7 +737,7 @@ RSpec.describe Puppet::ResourceApi do
           { parameters: { name: 'test' } }
         end
 
-        it { expect { instance }.to raise_exception Puppet::ResourceError, %r{The following mandatory parameters were not provided} }
+        it { expect { instance }.to raise_exception Puppet::ResourceError, /The following mandatory parameters were not provided/ }
       end
     end
   end
@@ -747,9 +749,9 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'Optional[Integer]',
-            behaviour: :namevar,
-          },
-        },
+            behaviour: :namevar
+          }
+        }
       }
     end
 
@@ -769,9 +771,9 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           some_name: {
             type: 'String',
-            behavior: :namevar,
-          },
-        },
+            behavior: :namevar
+          }
+        }
       }
     end
 
@@ -781,7 +783,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:behaviour) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.key_attribute_parameters.map { |p| p.name }).to eq [:some_name] }
+      it { expect(type.key_attribute_parameters.map(&:name)).to eq [:some_name] }
     end
   end
 
@@ -793,23 +795,23 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            desc: '',
+            desc: ''
           },
           name: {
             type: 'String',
             desc: '',
-            behavior: :namevar,
+            behavior: :namevar
           },
           something_init_only: {
             type: 'String',
             desc: '',
-            behaviour: :init_only,
+            behaviour: :init_only
           },
           mutable: {
             type: 'String',
-            desc: '',
-          },
-        },
+            desc: ''
+          }
+        }
       }
     end
 
@@ -833,7 +835,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::InitBehaviour', Module.new)
         stub_const('Puppet::Provider::InitBehaviour::InitBehaviour', provider_class)
       end
@@ -878,21 +880,21 @@ RSpec.describe Puppet::ResourceApi do
       context 'when a manifest wants to change the value of an init_only attribute' do
         let(:instance) { Puppet::Type.type(:init_behaviour).new(name: 'init', ensure: 'present', something_init_only: 'lies', mutable: 'overdraft') }
 
-        before(:each) do
+        before do
           instance.rsapi_provider_get_cache.clear
         end
 
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
 
-          it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to change `something_init_only` init_only attribute value from} }
+          it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to change `something_init_only` init_only attribute value from/ }
         end
 
         context 'when Puppet strict setting is :warning' do
           let(:strict_level) { :warning }
 
           it {
-            expect(Puppet).to receive(:warning).with(%r{Attempting to change `something_init_only` init_only attribute value from})
+            expect(Puppet).to receive(:warning).with(/Attempting to change `something_init_only` init_only attribute value from/)
             instance.flush
           }
         end
@@ -917,17 +919,17 @@ RSpec.describe Puppet::ResourceApi do
         name: 'read_only_behaviour',
         attributes: {
           ensure: {
-            type: 'Enum[present, absent]',
+            type: 'Enum[present, absent]'
           },
           name: {
             type: 'String',
-            behavior: :namevar,
+            behavior: :namevar
           },
           immutable: {
             type: 'String',
-            behaviour: :read_only,
-          },
-        },
+            behaviour: :read_only
+          }
+        }
       }
     end
 
@@ -951,7 +953,7 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::ReadOnlyBehaviour', Module.new)
         stub_const('Puppet::Provider::ReadOnlyBehaviour::ReadOnlyBehaviour', provider_class)
       end
@@ -959,13 +961,13 @@ RSpec.describe Puppet::ResourceApi do
       context 'when a manifest wants to set the value of a read_only attribute' do
         let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'new_ro', ensure: 'present', immutable: 'new') }
 
-        it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
+        it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to set `immutable` read_only attribute value to/ }
       end
 
       context 'when a manifest wants to change the value of a read_only attribute' do
         let(:instance) { Puppet::Type.type(:read_only_behaviour).new(name: 'foo_ro', ensure: 'present', immutable: 'change') }
 
-        it { expect { instance.flush }.to raise_error Puppet::ResourceError, %r{Attempting to set `immutable` read_only attribute value to} }
+        it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to set `immutable` read_only attribute value to/ }
       end
     end
   end
@@ -978,9 +980,9 @@ RSpec.describe Puppet::ResourceApi do
           not_name: {
             type: 'String',
             behaviour: :namevar,
-            desc: 'the name',
-          },
-        },
+            desc: 'the name'
+          }
+        }
       }
     end
 
@@ -1033,15 +1035,15 @@ RSpec.describe Puppet::ResourceApi do
         end
       end
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::NotNameNamevar', Module.new)
         stub_const('Puppet::Provider::NotNameNamevar::NotNameNamevar', provider_class)
       end
 
       it('throws an error') {
-        expect {
+        expect do
           instance.instances
-        }.to  raise_error Puppet::ResourceError, %r{^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$}
+        end.to raise_error Puppet::ResourceError, /^`not_name_namevar.get` did not return a value for the `not_name` namevar attribute$/
       }
     end
   end
@@ -1056,25 +1058,25 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            desc: '',
+            desc: ''
           },
           package: {
             type: 'String',
             desc: '',
-            behavior: :namevar,
+            behavior: :namevar
           },
           manager: {
             type: 'String',
             desc: '',
-            behavior: :namevar,
-          },
-        },
+            behavior: :namevar
+          }
+        }
       }
       result[:title_patterns] = title_patterns if title_patterns
       result
     end
 
-    before(:each) do
+    before do
       described_class.register_type(definition)
     end
 
@@ -1082,7 +1084,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:multiple) }
 
       it { is_expected.not_to be_nil }
-      it { expect(type.parameters).to eq [:package, :manager] }
+      it { expect(type.parameters).to eq %i[package manager] }
     end
 
     describe "the type's class" do
@@ -1097,7 +1099,7 @@ RSpec.describe Puppet::ResourceApi do
       end
       let(:type_class) { Puppet::Type.type(:multiple) }
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::Multiple', Module.new)
         stub_const('Puppet::Provider::Multiple::Multiple', provider_class)
       end
@@ -1111,11 +1113,11 @@ RSpec.describe Puppet::ResourceApi do
       context 'when flushing an instance' do
         let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
 
-        before(:each) do
+        before do
           allow(provider_class).to receive(:new).and_return(provider_instance)
         end
 
-        after(:each) do
+        after do
           # reset cached provider between tests
           type_class.instance_variable_set(:@my_provider, nil)
         end
@@ -1136,12 +1138,12 @@ RSpec.describe Puppet::ResourceApi do
         [
           {
             pattern: %r{^(?<package>.*[^/])/(?<manager>.*)$},
-            desc: 'Where the package and the manager are provided with a slash separator',
+            desc: 'Where the package and the manager are provided with a slash separator'
           },
           {
-            pattern: %r{^(?<package>.*)$},
-            desc: 'Where only the package is provided',
-          },
+            pattern: /^(?<package>.*)$/,
+            desc: 'Where only the package is provided'
+          }
         ]
       end
 
@@ -1149,7 +1151,7 @@ RSpec.describe Puppet::ResourceApi do
         subject(:type) { Puppet::Type.type(:with_patterns) }
 
         it { is_expected.not_to be_nil }
-        it { expect(type.parameters).to eq [:package, :manager] }
+        it { expect(type.parameters).to eq %i[package manager] }
       end
 
       describe "the type's class" do
@@ -1164,7 +1166,7 @@ RSpec.describe Puppet::ResourceApi do
         end
         let(:type_class) { Puppet::Type.type(:with_patterns) }
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::WithPatterns', Module.new)
           stub_const('Puppet::Provider::WithPatterns::WithPatterns', provider_class)
         end
@@ -1180,7 +1182,7 @@ RSpec.describe Puppet::ResourceApi do
             expect(type_class.title_patterns.first[1][1][0]).to eq :manager
 
             expect(type_class.title_patterns.last[0]).to be_a Regexp
-            expect(type_class.title_patterns.last[0]).to eq(%r{^(?<package>.*)$})
+            expect(type_class.title_patterns.last[0]).to eq(/^(?<package>.*)$/)
             expect(type_class.title_patterns.last[1].size).to eq 1
             expect(type_class.title_patterns.last[1][0][0]).to eq :package
           end
@@ -1195,11 +1197,11 @@ RSpec.describe Puppet::ResourceApi do
         context 'when flushing an instance' do
           let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
 
-          before(:each) do
+          before do
             allow(provider_class).to receive(:new).and_return(provider_instance)
           end
 
-          after(:each) do
+          after do
             # reset cached provider between tests
             type_class.instance_variable_set(:@my_provider, nil)
           end
@@ -1243,15 +1245,15 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :error }
 
             it 'instances will throw an exception' do
-              expect {
+              expect do
                 type_class.instances
-              }.to raise_error(Puppet::DevError, %r{has not provided a title attribute})
+              end.to raise_error(Puppet::DevError, /has not provided a title attribute/)
             end
 
             it 'refresh_current_state will throw an exception' do
-              expect {
+              expect do
                 type.refresh_current_state
-              }.to raise_error(Puppet::DevError, %r{has not provided a title attribute})
+              end.to raise_error(Puppet::DevError, /has not provided a title attribute/)
             end
           end
 
@@ -1259,12 +1261,12 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :warning }
 
             it 'instances will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has not provided a title attribute})
+              expect(Puppet).to receive(:warning).with(/has not provided a title attribute/)
               type_class.instances
             end
 
             it 'refresh_current_state will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has not provided a title attribute})
+              expect(Puppet).to receive(:warning).with(/has not provided a title attribute/)
               type.refresh_current_state
             end
           end
@@ -1300,15 +1302,15 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :error }
 
             it 'instances will throw an exception' do
-              expect {
+              expect do
                 type_class.instances
-              }.to raise_error(Puppet::DevError, %r{has provided a title attribute which does not match})
+              end.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
             end
 
             it 'refresh_current_state will throw an exception' do
-              expect {
+              expect do
                 type.refresh_current_state
-              }.to raise_error(Puppet::DevError, %r{has provided a title attribute which does not match})
+              end.to raise_error(Puppet::DevError, /has provided a title attribute which does not match/)
             end
           end
 
@@ -1316,12 +1318,12 @@ RSpec.describe Puppet::ResourceApi do
             let(:strict_level) { :warning }
 
             it 'instances will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has provided a title attribute which does not match})
+              expect(Puppet).to receive(:warning).with(/has provided a title attribute which does not match/)
               type_class.instances
             end
 
             it 'refresh_current_state will not log a warning' do
-              expect(Puppet).to receive(:warning).with(%r{has provided a title attribute which does not match})
+              expect(Puppet).to receive(:warning).with(/has provided a title attribute which does not match/)
               type.refresh_current_state
             end
           end
@@ -1346,29 +1348,29 @@ RSpec.describe Puppet::ResourceApi do
         name: type_name,
         attributes: {
           ensure: {
-            type: 'Enum[present, absent]',
+            type: 'Enum[present, absent]'
           },
           name: {
             type: 'String',
-            behavior: :namevar,
+            behavior: :namevar
           },
           bool: {
             type: 'Boolean',
-            default: default_value,
+            default: default_value
           },
           variant_bool: {
             type: 'Variant[String, Boolean]',
-            default: default_value,
+            default: default_value
           },
           optional_bool: {
             type: 'Optional[Boolean]',
-            default: default_value,
+            default: default_value
           },
           array_bool: {
             type: 'Array[Boolean]',
-            default: [default_value],
-          },
-        },
+            default: [default_value]
+          }
+        }
       }
     end
     let(:type_name) { "default_bool_#{default_value}" }
@@ -1381,14 +1383,14 @@ RSpec.describe Puppet::ResourceApi do
         bool: default_value,
         variant_bool: default_value,
         optional_bool: default_value,
-        array_bool: [default_value],
+        array_bool: [default_value]
       }
     end
 
     context 'when the default value is true' do
       let(:default_value) { true }
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::DefaultBoolTrue', Module.new)
         stub_const('Puppet::Provider::DefaultBoolTrue::DefaultBoolTrue', provider_class)
       end
@@ -1403,7 +1405,7 @@ RSpec.describe Puppet::ResourceApi do
     context 'when the default value is false' do
       let(:default_value) { false }
 
-      before(:each) do
+      before do
         stub_const('Puppet::Provider::DefaultBoolFalse', Module.new)
         stub_const('Puppet::Provider::DefaultBoolFalse::DefaultBoolFalse', provider_class)
       end
@@ -1417,7 +1419,7 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   describe '#load_provider', agent_test: true do
-    before(:each) { described_class.register_type(definition) }
+    before { described_class.register_type(definition) }
 
     context 'when loading a non-existing provider' do
       let(:definition) { { name: 'does_not_exist', attributes: {} } }
@@ -1428,7 +1430,7 @@ RSpec.describe Puppet::ResourceApi do
     context 'when loading a provider that doesn\'t create the correct class' do
       let(:definition) { { name: 'no_class', attributes: {} } }
 
-      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{provider class Puppet::Provider::NoClass::NoClass not found} }
+      it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, /provider class Puppet::Provider::NoClass::NoClass not found/ }
     end
 
     context 'when loading a provider that creates the correct class' do
@@ -1442,7 +1444,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:device) { instance_double('Puppet::Util::NetworkDevice::Simple::Device', 'device') }
       let(:device_class) { instance_double(Class, 'device_class') }
 
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(device)
         allow(device).to receive(:class).with(no_args).and_return(device_class)
         allow(device_class).to receive(:name).with(no_args).and_return(device_class_name)
@@ -1457,7 +1459,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'with no provider' do
         let(:device_class_name) { 'Puppet::Util::NetworkDevice::Some_device::Device' }
 
-        it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, %r{device-specific provider class Puppet::Provider::NoClass::SomeDevice} }
+        it { expect { described_class.load_provider('no_class') }.to raise_error Puppet::DevError, /device-specific provider class Puppet::Provider::NoClass::SomeDevice/ }
       end
 
       context 'with no device-specific provider' do
@@ -1478,7 +1480,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:transport) { instance_double('Puppet::ResourceApi::Transport::Wrapper', 'transport') }
       let(:schema_def) { instance_double('Puppet::ResourceApi::TransportSchemaDef', 'schema_def') }
 
-      before(:each) do
+      before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(transport)
         allow(transport).to receive(:is_a?).with(Puppet::ResourceApi::Transport::Wrapper).and_return(true)
         allow(transport).to receive(:schema).and_return(schema_def)
@@ -1514,14 +1516,14 @@ RSpec.describe Puppet::ResourceApi do
           name: {
             type: 'String',
             desc: '',
-            behaviour: :namevar,
+            behaviour: :namevar
           },
           test_string: {
             type: 'String',
-            desc: '',
-          },
+            desc: ''
+          }
         },
-        features: ['canonicalize'],
+        features: ['canonicalize']
       }
     end
     let(:provider_class) do
@@ -1529,9 +1531,7 @@ RSpec.describe Puppet::ResourceApi do
         def canonicalize(_context, resources)
           resources.map do |resource|
             result = resource.dup
-            unless resource[:test_string]&.start_with?('canon')
-              result[:test_string] = ['canon', resource[:test_string]].compact.join
-            end
+            result[:test_string] = ['canon', resource[:test_string]].compact.join unless resource[:test_string]&.start_with?('canon')
             result
           end
         end
@@ -1548,7 +1548,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Canonicalizer', Module.new)
       stub_const('Puppet::Provider::Canonicalizer::Canonicalizer', provider_class)
     end
@@ -1556,7 +1556,7 @@ RSpec.describe Puppet::ResourceApi do
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+      expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
     end
 
     describe '#strict_check' do
@@ -1579,9 +1579,9 @@ RSpec.describe Puppet::ResourceApi do
           let(:strict_level) { :error }
 
           it 'will throw an exception' do
-            expect {
+            expect do
               instance.strict_check({})
-            }.to raise_error(Puppet::DevError, %r{has not provided canonicalized values})
+            end.to raise_error(Puppet::DevError, /has not provided canonicalized values/)
           end
         end
 
@@ -1591,7 +1591,7 @@ RSpec.describe Puppet::ResourceApi do
           it { expect(instance.strict_check({})).to be_nil }
 
           it 'will log warning message' do
-            expect(Puppet).to receive(:warning).with(%r{has not provided canonicalized values})
+            expect(Puppet).to receive(:warning).with(/has not provided canonicalized values/)
             instance.strict_check({})
           end
         end
@@ -1632,7 +1632,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'when canonicalize modifies current_state' do
         let(:strict_level) { :error }
 
-        before(:each) do
+        before do
           allow(instance.my_provider).to receive(:canonicalize) do |_context, resources|
             resources[0][:test_string] = 'canontest'
             resources
@@ -1640,9 +1640,9 @@ RSpec.describe Puppet::ResourceApi do
         end
 
         it 'stills raise an error' do
-          expect {
+          expect do
             instance.strict_check({})
-          }.to raise_error(Puppet::Error, %r{has not provided canonicalized values})
+          end.to raise_error(Puppet::Error, /has not provided canonicalized values/)
         end
       end
     end
@@ -1650,7 +1650,7 @@ RSpec.describe Puppet::ResourceApi do
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:canonicalizer) }
 
-      before(:each) do
+      before do
         type.rsapi_provider_get_cache.clear
 
         allow(type.my_provider).to receive(:get)
@@ -1669,12 +1669,12 @@ RSpec.describe Puppet::ResourceApi do
         it('its test_string value is canonicalized') { expect(instance[:test_string]).to eq('canonfoo') }
 
         context 'when flushing' do
-          before(:each) do
+          before do
             Puppet.debug = true
             instance.my_provider.set(nil, nil) # reset the current_state
           end
 
-          after(:each) do
+          after do
             Puppet.debug = false
           end
 
@@ -1691,7 +1691,7 @@ RSpec.describe Puppet::ResourceApi do
             let(:run_one) { type.new(name: 'somename', test_string: 'foo') }
             let(:run_two) { type.new(name: 'somename', test_string: 'bar') }
 
-            before(:each) do
+            before do
               run_one.flush
               run_two.flush
             end
@@ -1699,14 +1699,14 @@ RSpec.describe Puppet::ResourceApi do
             it('set will be called with the correct structure') do
               expect(run_two.my_provider.last_changes).to eq('somename' => {
                                                                is: { name: 'somename', test_string: 'canonfoo' },
-                                                               should: { name: 'somename', test_string: 'canonbar' },
+                                                               should: { name: 'somename', test_string: 'canonbar' }
                                                              })
             end
 
             it 'logs correctly' do
               expect(log_sink.map(&:message)).to include(
                 'Current State: {:name=>"somename", :test_string=>"canonfoo"}',
-                'Target State: {:name=>"somename", :test_string=>"canonbar"}',
+                'Target State: {:name=>"somename", :test_string=>"canonbar"}'
               )
             end
           end
@@ -1723,14 +1723,14 @@ RSpec.describe Puppet::ResourceApi do
               name: {
                 type: 'String',
                 desc: '',
-                behaviour: :namevar,
+                behaviour: :namevar
               },
               test_string: {
                 type: 'String',
-                desc: '',
-              },
+                desc: ''
+              }
             },
-            features: ['custom_generate'],
+            features: ['custom_generate']
           }
         end
         let(:provider_class) do
@@ -1755,7 +1755,7 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
 
-        before(:each) do
+        before do
           stub_const('Puppet::Provider::Generator', Module.new)
           stub_const('Puppet::Provider::Generator::Generator', provider_class)
         end
@@ -1763,7 +1763,7 @@ RSpec.describe Puppet::ResourceApi do
         it { expect { described_class.register_type(definition) }.not_to raise_error }
 
         it 'is seen as a supported feature' do
-          expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+          expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
         end
       end
 
@@ -1776,11 +1776,11 @@ RSpec.describe Puppet::ResourceApi do
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
 
-        before(:each) do
+        before do
           Puppet.debug = true
         end
 
-        after(:each) do
+        after do
           Puppet.debug = false
         end
 
@@ -1805,12 +1805,12 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'String',
-            behaviour: :namevar,
+            behaviour: :namevar
           },
           test_string: {
-            type: 'String',
-          },
-        },
+            type: 'String'
+          }
+        }
       }
     end
     let(:provider_class) do
@@ -1827,7 +1827,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Passthrough', Module.new)
       stub_const('Puppet::Provider::Passthrough::Passthrough', provider_class)
     end
@@ -1837,7 +1837,7 @@ RSpec.describe Puppet::ResourceApi do
     describe 'the registered type' do
       subject(:type) { Puppet::Type.type(:passthrough) }
 
-      before(:each) do
+      before do
         allow(type.my_provider).to receive(:get)
           .with(kind_of(Puppet::ResourceApi::BaseContext))
           .and_return([{ name: 'somename', test_string: 'foo' },
@@ -1854,13 +1854,13 @@ RSpec.describe Puppet::ResourceApi do
         it('its provider class') { expect(instance.my_provider).not_to be_nil }
 
         context 'when flushing' do
-          before(:each) do
+          before do
             Puppet.debug = true
             instance.my_provider.set(nil, nil) # reset the current_state
             instance.flush
           end
 
-          after(:each) do
+          after do
             Puppet.debug = false
           end
 
@@ -1877,12 +1877,12 @@ RSpec.describe Puppet::ResourceApi do
             it('set will be called with the correct structure') do
               expect(instance.my_provider.last_changes).to eq('somename' => {
                                                                 is: { name: 'somename', test_string: 'foo' },
-                                                                should: { name: 'somename', test_string: 'bar' },
+                                                                should: { name: 'somename', test_string: 'bar' }
                                                               })
 
               expect(log_sink.map(&:message)).to include(
                 'Current State: {:name=>"somename", :test_string=>"foo"}',
-                'Target State: {:name=>"somename", :test_string=>"bar"}',
+                'Target State: {:name=>"somename", :test_string=>"bar"}'
               )
             end
           end
@@ -1898,11 +1898,11 @@ RSpec.describe Puppet::ResourceApi do
       context 'when retrieving an instance through `retrieve`' do
         let(:resource) { instance.retrieve }
 
-        before(:each) do
+        before do
           Puppet.debug = true
         end
 
-        after(:each) do
+        after do
           Puppet.debug = false
         end
 
@@ -1946,7 +1946,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Insyncer', Module.new)
       stub_const('Puppet::Provider::Insyncer::Insyncer', provider_class)
     end
@@ -1960,27 +1960,27 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               desc: '',
-              behaviour: :namevar,
+              behaviour: :namevar
             },
             test_array: {
               type: 'Array[String]',
-              desc: '',
+              desc: ''
             },
             behaviour_changer: {
               type: 'Boolean',
               desc: '',
               default: false,
-              behaviour: :parameter,
-            },
+              behaviour: :parameter
+            }
           },
-          features: ['custom_insync'],
+          features: ['custom_insync']
         }
       end
 
       it { expect { described_class.register_type(definition) }.not_to raise_error }
 
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+        expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
       end
 
       describe 'the registered type' do
@@ -2010,23 +2010,23 @@ RSpec.describe Puppet::ResourceApi do
             name: {
               type: 'String',
               desc: '',
-              behaviour: :namevar,
+              behaviour: :namevar
             },
             behaviour_changer: {
               type: 'Boolean',
               desc: '',
               default: false,
-              behaviour: :parameter,
-            },
+              behaviour: :parameter
+            }
           },
-          features: ['custom_insync'],
+          features: ['custom_insync']
         }
       end
 
       it { expect { described_class.register_type(definition) }.not_to raise_error }
 
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*})
+        expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*/)
       end
 
       describe 'the registered type' do
@@ -2059,19 +2059,19 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           name: {
             type: 'String',
-            behaviour: :namevar,
+            behaviour: :namevar
           },
           test_string: {
-            type: 'String',
-          },
+            type: 'String'
+          }
         },
-        features: ['remote_resource'],
+        features: ['remote_resource']
       }
     end
     let(:provider_class) { instance_double('Class', 'provider_class') }
     let(:provider) { instance_double('Puppet::Provider::Remoter::Remoter', 'provider_instance') }
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::Remoter', Module.new)
       stub_const('Puppet::Provider::Remoter::Remoter', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
@@ -2083,7 +2083,7 @@ RSpec.describe Puppet::ResourceApi do
     end
 
     it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*remote_resource})
+      expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*remote_resource/)
       expect { described_class.register_type(definition) }.not_to raise_error
     end
 
@@ -2105,7 +2105,7 @@ RSpec.describe Puppet::ResourceApi do
       let(:wrapper) { instance_double('Puppet::ResourceApi::Transport::Wrapper', 'wrapper') }
       let(:transport) { instance_double('Puppet::Transport::Wibble', 'transport') }
 
-      before(:each) do
+      before do
         allow(described_class).to receive(:load_provider).and_return(provider)
         allow(provider).to receive(:new).and_return(provider)
       end
@@ -2131,13 +2131,13 @@ RSpec.describe Puppet::ResourceApi do
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            default: 'present',
+            default: 'present'
           },
           name: {
             type: 'String',
-            behaviour: :namevar,
-          },
-        },
+            behaviour: :namevar
+          }
+        }
       }
     end
     let(:type) { Puppet::Type.type(:test_noop_support) }
@@ -2155,7 +2155,7 @@ CODE
     end
     let(:provider) { instance_double('Puppet::Provider::TestNoopSupport::TestNoopSupport', 'provider') }
 
-    before(:each) do
+    before do
       stub_const('Puppet::Provider::TestNoopSupport', Module.new)
       stub_const('Puppet::Provider::TestNoopSupport::TestNoopSupport', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
@@ -2163,7 +2163,7 @@ CODE
     end
 
     it 'is seen as a supported feature' do
-      expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*supports_noop})
+      expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*supports_noop/)
       expect { described_class.register_type(definition) }.not_to raise_error
     end
 
@@ -2179,21 +2179,21 @@ CODE
   context 'with a `simple_get_filter` provider', agent_test: true do
     let(:definition) do
       {
-        name: 'test_simple_get_filter_2',
+        name: 'test_get_filter',
         features: ['simple_get_filter'],
         attributes: {
           ensure: {
             type: 'Enum[present, absent]',
-            default: 'present',
+            default: 'present'
           },
           name: {
             type: 'String',
-            behaviour: :namevar,
-          },
-        },
+            behaviour: :namevar
+          }
+        }
       }
     end
-    let(:type) { Puppet::Type.type(:test_simple_get_filter_2) }
+    let(:type) { Puppet::Type.type(:test_get_filter) }
     let(:provider_class) do
       Class.new do
         def get(_context, _names = nil)
@@ -2203,15 +2203,15 @@ CODE
         def set(_context, changes) end
       end
     end
-    let(:provider) { instance_double('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', 'provider') }
+    let(:provider) { instance_double('Puppet::Provider::TestGetFilter::TestGetFilter', 'provider') }
 
-    before(:each) do
-      stub_const('Puppet::Provider::TestSimpleGetFilter2', Module.new)
-      stub_const('Puppet::Provider::TestSimpleGetFilter2::TestSimpleGetFilter2', provider_class)
+    before do
+      stub_const('Puppet::Provider::TestGetFilter', Module.new)
+      stub_const('Puppet::Provider::TestGetFilter::TestGetFilter', provider_class)
       allow(provider_class).to receive(:new).and_return(provider)
     end
 
-    after(:each) do
+    after do
       # reset cached provider between tests
       type.instance_variable_set(:@my_provider, nil)
     end
@@ -2219,23 +2219,25 @@ CODE
     it { expect { described_class.register_type(definition) }.not_to raise_error }
 
     context 'with the type registered' do
-      before(:each) do
+      before do
         type.rsapi_provider_get_cache.clear
       end
 
       it 'is seen as a supported feature' do
-        expect(Puppet).not_to receive(:warning).with(%r{Unknown feature detected:.*simple_test_filter_2})
+        expect(Puppet).not_to receive(:warning).with(/Unknown feature detected:.*simple_test_filter_2/)
         expect { described_class.register_type(definition) }.not_to raise_error
       end
 
       it 'passes through the an empty array to `get`' do
-        expect(provider).to receive(:get).with(anything, nil).and_return([])
+        allow(provider).to receive(:get).with(anything, nil).and_return([])
+        expect(provider).to receive(:get).with(anything, nil)
         type.instances
       end
 
       it 'passes through the resource title to `get`' do
         instance = type.new(name: 'bar', ensure: 'present')
-        expect(provider).to receive(:get).with(anything, ['bar']).and_return([])
+        allow(provider).to receive(:get).with(anything, ['bar']).and_return([])
+        expect(provider).to receive(:get).with(anything, ['bar'])
         instance.retrieve
       end
     end
@@ -2247,12 +2249,12 @@ CODE
         name: 'test_noop_support_2',
         desc: 'a test resource',
         features: ['no such feature'],
-        attributes: {},
+        attributes: {}
       }
     end
 
     it 'warns about the feature' do
-      expect(Puppet).to receive(:warning).with(%r{Unknown feature detected:.*no such feature})
+      expect(Puppet).to receive(:warning).with(/Unknown feature detected:.*no such feature/)
       expect { described_class.register_type(definition) }.not_to raise_error
     end
   end
@@ -2266,9 +2268,9 @@ CODE
           attributes: {
             id: {
               type: 'String',
-              behavior: :namevar,
-            },
-          },
+              behavior: :namevar
+            }
+          }
         }
       end
 
@@ -2283,9 +2285,9 @@ CODE
           attributes: {
             param: {
               type: 'String',
-              behavior: :parameter,
-            },
-          },
+              behavior: :parameter
+            }
+          }
         }
       end
 
@@ -2300,9 +2302,9 @@ CODE
           attributes: {
             param_ro: {
               type: 'String',
-              behavior: :read_only,
-            },
-          },
+              behavior: :read_only
+            }
+          }
         }
       end
 
@@ -2317,16 +2319,16 @@ CODE
           attributes: {
             param_ro: {
               type: 'String',
-              behavior: :init_only,
-            },
-          },
+              behavior: :init_only
+            }
+          }
         }
       end
 
       it { expect { described_class.register_type(definition) }.not_to raise_error }
     end
 
-    context 'with :namevar behaviour' do
+    context 'with invalid behaviour' do
       let(:definition) do
         {
           name: 'test_behaviour',
@@ -2334,13 +2336,13 @@ CODE
           attributes: {
             source: {
               type: 'String',
-              behavior: :bad,
-            },
-          },
+              behavior: :bad
+            }
+          }
         }
       end
 
-      it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, %r{^`bad` is not a valid behaviour value$} }
+      it { expect { described_class.register_type(definition) }.to raise_error Puppet::ResourceError, /^`bad` is not a valid behaviour value$/ }
     end
   end
 
@@ -2352,9 +2354,9 @@ CODE
         connection_info: {
           host: {
             type: 'String',
-            desc: 'hostname',
-          },
-        },
+            desc: 'hostname'
+          }
+        }
       }
     end
 
@@ -2364,3 +2366,5 @@ CODE
     end
   end
 end
+
+# rubocop:enable Lint/ConstantDefinitionInBlock

@@ -14,7 +14,7 @@ RSpec.describe Puppet::ResourceApi::ReadOnlyParameter do
   let(:referrable_type) { Puppet::ResourceApi.register_type(name: 'minimal', attributes: {}) }
 
   describe '#new(type_name, data_type, attribute_name, resource_hash, referrable_type)' do
-    it { expect { described_class.new(nil) }.to raise_error ArgumentError, %r{wrong number of arguments} }
+    it { expect { described_class.new(nil) }.to raise_error ArgumentError, /wrong number of arguments/ }
     it { expect { described_class.new(type_name, data_type, attribute_name, resource_hash, referrable_type) }.not_to raise_error }
   end
 
@@ -23,7 +23,7 @@ RSpec.describe Puppet::ResourceApi::ReadOnlyParameter do
       it 'value set fails' do
         expect { read_only_parameter.value = 'value' }.to raise_error(
           Puppet::ResourceError,
-          %r{Attempting to set `some_parameter` read_only attribute value to `value`},
+          /Attempting to set `some_parameter` read_only attribute value to `value`/
         )
       end
     end
@@ -34,7 +34,7 @@ RSpec.describe Puppet::ResourceApi::ReadOnlyParameter do
     end
 
     context 'when value is already set' do
-      before(:each) do
+      before do
         read_only_parameter.instance_variable_set(:@value, 'value')
       end
 

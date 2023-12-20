@@ -20,29 +20,29 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
 
   let(:provider) { provider_class.new }
 
-  before(:each) do
+  before do
     allow(context).to receive(:type).and_return(type_def)
     allow(type_def).to receive(:ensurable?).and_return(true)
   end
 
   context 'without overriding the crud methods' do
     it 'create fails' do
-      expect { described_class.new.create(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*create}
+      expect { described_class.new.create(context, nil, nil) }.to raise_error StandardError, /has not implemented.*create/
     end
 
     it 'update fails' do
-      expect { described_class.new.update(context, nil, nil) }.to raise_error StandardError, %r{has not implemented.*update}
+      expect { described_class.new.update(context, nil, nil) }.to raise_error StandardError, /has not implemented.*update/
     end
 
     it 'delete fails' do
-      expect { described_class.new.delete(context, nil) }.to raise_error StandardError, %r{has not implemented.*delete}
+      expect { described_class.new.delete(context, nil) }.to raise_error StandardError, /has not implemented.*delete/
     end
   end
 
   context 'with no changes' do
     let(:changes) { {} }
 
-    before(:each) do
+    before do
       allow(type_def).to receive(:namevars)
     end
 
@@ -67,11 +67,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'title' =>
         {
-          should: should_values,
+          should: should_values
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:creating).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
@@ -100,7 +100,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     context 'with a type that supports `simple_get_filter`' do
-      before(:each) do
+      before do
         allow(context).to receive(:type).and_return(type_def)
         allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       end
@@ -119,11 +119,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
         {
           is: is_values,
-          should: should_values,
+          should: should_values
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:updating).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
@@ -159,7 +159,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       let(:is_values) { { key: 'title', ensure: 'present' } }
       let(:should_values) { { key: 'title', ensure: 'present' } }
 
-      before(:each) do
+      before do
         allow(type_def).to receive(:namevars).and_return([:key])
       end
 
@@ -176,11 +176,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'title' =>
         {
-          should: should_values,
+          should: should_values
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:updating).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
@@ -215,7 +215,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     context 'with a type that supports `simple_get_filter`' do
-      before(:each) do
+      before do
         allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
         allow(provider).to receive(:get).with(context, ['title']).and_return(is_values)
       end
@@ -230,7 +230,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       let(:is_values) { [{ key: 'title', ensure: 'present' }] }
       let(:should_values) { { key: 'title', ensure: 'present' } }
 
-      before(:each) do
+      before do
         allow(type_def).to receive(:namevars).and_return([:key])
       end
 
@@ -248,11 +248,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
         {
           is: is_values,
-          should: should_values,
+          should: should_values
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:updating).with('title').and_yield
       allow(context).to receive(:type).and_return(type_def)
       allow(type_def).to receive(:feature?).with('simple_get_filter')
@@ -282,11 +282,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
         {
           is: is_values,
-          should: should_values,
+          should: should_values
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:deleting).with('title').and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:namevars).and_return([:name])
@@ -316,7 +316,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       let(:is_values) { { key: 'title', ensure: 'present' } }
       let(:should_values) { { key: 'title', ensure: 'absent' } }
 
-      before(:each) do
+      before do
         allow(type_def).to receive(:namevars).and_return([:key])
       end
 
@@ -333,11 +333,11 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'title' =>
         {
-          should: should_values,
+          should: should_values
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:deleting).with('title').and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
@@ -371,7 +371,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     context 'with a type that supports `simple_get_filter`' do
-      before(:each) do
+      before do
         allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       end
 
@@ -385,7 +385,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       let(:is_values) { [{ key: 'title', ensure: 'present' }] }
       let(:should_values) { { key: 'title', ensure: 'absent' } }
 
-      before(:each) do
+      before do
         allow(type_def).to receive(:namevars).and_return([:key])
       end
 
@@ -400,21 +400,21 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     let(:changes) do
       { 'to create' =>
         {
-          should: { name: 'to create', ensure: 'present' },
+          should: { name: 'to create', ensure: 'present' }
         },
         'to update' =>
         {
           is: { name: 'to update', ensure: 'present' },
-          should: { name: 'to update', ensure: 'present' },
+          should: { name: 'to update', ensure: 'present' }
         },
         'to delete' =>
         {
           is: { name: 'to create', ensure: 'present' },
-          should: { name: 'to create', ensure: 'absent' },
+          should: { name: 'to create', ensure: 'absent' }
         } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:creating).with('to create').and_yield
       allow(context).to receive(:updating).with('to update').and_yield
       allow(context).to receive(:deleting).with('to delete').and_yield
@@ -438,18 +438,18 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       { 'title' =>
             {
               is: is_values,
-              should: should_values,
+              should: should_values
             } }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:updating).with('title').and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:ensurable?).and_return(false)
       allow(type_def).to receive(:namevars).and_return([:name])
     end
 
-    it { expect { provider.set(context, changes) }.to raise_error %r{SimpleProvider cannot be used with a Type that is not ensurable} }
+    it { expect { provider.set(context, changes) }.to raise_error(/SimpleProvider cannot be used with a Type that is not ensurable/) }
   end
 
   context 'with a single change to create a composite namevar resource' do
@@ -458,15 +458,15 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       {
         { name1: 'title1', name2: 'title2' } =>
           {
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:creating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
       allow(type_def).to receive(:check_schema)
     end
 
@@ -486,7 +486,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     context 'with a type that supports `simple_get_filter`' do
-      before(:each) do
+      before do
         allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       end
 
@@ -505,16 +505,16 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
         { name1: 'title1', name2: 'title2' } =>
           {
             is: is_values,
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:updating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
     end
 
     it 'does not call create' do
@@ -545,16 +545,16 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       {
         { name1: 'title1', name2: 'title2' } =>
           {
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:updating).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
       allow(provider).to receive(:get).with(context).and_return(is_values)
     end
 
@@ -579,7 +579,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     context 'with a type that supports `simple_get_filter`' do
-      before(:each) do
+      before do
         allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
         allow(provider).to receive(:get).with(context, [{ name1: 'title1', name2: 'title2' }]).and_return(is_values)
       end
@@ -599,15 +599,15 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
         { name1: 'title1', name2: 'title2' } =>
           {
             is: is_values,
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:deleting).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
     end
 
     it 'does not call create' do
@@ -638,16 +638,16 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
       {
         { name1: 'title1', name2: 'title2' } =>
           {
-            should: should_values,
-          },
+            should: should_values
+          }
       }
     end
 
-    before(:each) do
+    before do
       allow(context).to receive(:deleting).with({ name1: 'title1', name2: 'title2' }).and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
       allow(type_def).to receive(:check_schema)
-      allow(type_def).to receive(:namevars).and_return([:name1, :name2])
+      allow(type_def).to receive(:namevars).and_return(%i[name1 name2])
       allow(provider).to receive(:get).with(context).and_return(is_values)
     end
 
@@ -672,7 +672,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     end
 
     context 'with a type that supports `simple_get_filter`' do
-      before(:each) do
+      before do
         allow(type_def).to receive(:feature?).with('simple_get_filter').and_return(true)
       end
 

@@ -10,16 +10,16 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       connection_info: {
         host: {
           type: 'String',
-          desc: 'The IP address or hostname',
+          desc: 'The IP address or hostname'
         },
         user: {
           type: 'String',
-          desc: 'The user to connect as',
-        },
+          desc: 'The user to connect as'
+        }
       } }
   end
 
-  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{TransportSchemaDef must be a Hash} }
+  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, /TransportSchemaDef must be a Hash/ }
 
   describe '#attributes' do
     context 'when type has attributes' do
@@ -33,8 +33,8 @@ RSpec.describe Puppet::ResourceApi::TransportSchemaDef do
       let(:resource) { {} }
 
       it 'raises an error listing the missing attributes' do
-        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, %r{host}
-        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, %r{user}
+        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, /host/
+        expect { type.validate(resource) }.to raise_error Puppet::ResourceError, /user/
       end
     end
 

@@ -10,22 +10,22 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
       ensure: {
         type: 'Enum[present, absent]',
         desc: 'Whether this resource should be present or absent on the target system.',
-        default: 'present',
+        default: 'present'
       },
       name: {
         type: 'String',
         desc: 'The name of the resource you want to manage.',
-        behaviour: :namevar,
+        behaviour: :namevar
       },
       prop: {
         type: 'Integer',
-        desc: 'A mandatory property, that MUST NOT be validated on deleting.',
-      },
+        desc: 'A mandatory property, that MUST NOT be validated on deleting.'
+      }
     }, features: feature_support }
   end
   let(:feature_support) { [] }
 
-  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, %r{TypeDefinition must be a Hash} }
+  it { expect { described_class.new(nil) }.to raise_error Puppet::DevError, /TypeDefinition must be a Hash/ }
 
   describe '#ensurable?' do
     context 'when type is ensurable' do
@@ -77,7 +77,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
       {
         type: 'String',
         desc: 'Example description for foo',
-        default: 'bar',
+        default: 'bar'
       }
     end
     let(:definition) { { name: 'example_type', attributes: { foo: foo_options } } }
@@ -109,8 +109,8 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
             name: { type: 'String', behaviour: :namevar },
             only_readable: { type: 'String', behaviour: :read_only },
             only_settable: { type: 'String', behaviour: :parameter },
-            only_initable: { type: 'String', behaviour: :init_only },
-          },
+            only_initable: { type: 'String', behaviour: :init_only }
+          }
         }
       end
 
@@ -164,7 +164,7 @@ RSpec.describe Puppet::ResourceApi::TypeDefinition do
     context 'when the schema contains title_patterns and it is not an array' do
       let(:definition) { { name: 'some_resource', title_patterns: {}, attributes: {} } }
 
-      it { expect { type }.to raise_error Puppet::DevError, %r{`:title_patterns` must be an array} }
+      it { expect { type }.to raise_error Puppet::DevError, /`:title_patterns` must be an array/ }
     end
   end
 end

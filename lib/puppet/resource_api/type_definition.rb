@@ -26,11 +26,11 @@ module Puppet::ResourceApi
 
     def validate_schema(definition, attr_key)
       super(definition, attr_key)
-      [:title, :provider, :alias, :audit, :before, :consume, :export, :loglevel, :noop, :notify, :require, :schedule, :stage, :subscribe, :tag].each do |name|
-        raise Puppet::DevError, 'must not define an attribute called `%{name}`' % { name: name.inspect } if definition[attr_key].key? name
+      %i[title provider alias audit before consume export loglevel noop notify require schedule stage subscribe tag].each do |name|
+        raise Puppet::DevError, format('must not define an attribute called `%<name>s`', name: name.inspect) if definition[attr_key].key? name
       end
       if definition.key?(:title_patterns) && !definition[:title_patterns].is_a?(Array)
-        raise Puppet::DevError, '`:title_patterns` must be an array, not `%{other_type}`' % { other_type: definition[:title_patterns].class }
+        raise Puppet::DevError, format('`:title_patterns` must be an array, not `%<other_type>s`', other_type: definition[:title_patterns].class)
       end
 
       Puppet::ResourceApi::DataTypeHandling.validate_ensure(definition)
@@ -54,9 +54,7 @@ module Puppet::ResourceApi
     # options: The hash of attribute options, including type, desc, default, and behaviour
     def create_attribute_in(type, attribute_name, param_or_property, parent, options)
       type.send(param_or_property, attribute_name.to_sym, parent: parent) do
-        if options[:desc]
-          desc "#{options[:desc]} (a #{options[:type]})"
-        end
+        desc "#{options[:desc]} (a #{options[:type]})" if options[:desc]
 
         # The initialize method is called when puppet core starts building up
         # type objects. The core passes in a hash of shape { resource:
@@ -70,9 +68,9 @@ module Puppet::ResourceApi
 
         # get pops data type object for this parameter or property
         define_singleton_method(:data_type) do
-          @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
+          @rsapi_data_type ||= Puppet::ResourceApi::DataTypeHandling.parse_puppet_type( # rubocop:disable Naming/MemoizedInstanceVariableName
             attribute_name,
-            options[:type],
+            options[:type]
           )
         end
 
@@ -82,7 +80,7 @@ module Puppet::ResourceApi
           self,
           data_type,
           param_or_property,
-          options,
+          options
         )
       end
     end
@@ -101,9 +99,7 @@ module Puppet::ResourceApi
       attributes.each do |name, _options|
         type = @data_type_cache[attributes[name][:type]]
 
-        if resource[name].nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
-          missing_attrs << name
-        end
+        missing_attrs << name if resource[name].nil? && !(type.instance_of? Puppet::Pops::Types::POptionalType)
       end
 
       error_msg = "The following mandatory attributes were not provided:\n    *  #{missing_attrs.join(", \n    *  ")}"
@@ -131,61 +127,53 @@ module Puppet::ResourceApi
     end
 
     def namevars
-      @namevars ||= attributes.select { |_name, options|
+      @namevars ||= attributes.select do |_name, options|
         options.key?(:behaviour) && options[:behaviour] == :namevar
-      }.keys
+      end.keys
     end
 
     def insyncable_attributes
-      @insyncable_attributes ||= attributes.reject { |_name, options|
+      @insyncable_attributes ||= attributes.reject do |_name, options|
         # Only attributes without any behavior are normal Puppet Properties and get insynced
         options.key?(:behaviour)
-      }.keys
+      end.keys
     end
 
     def validate_schema(definition, attr_key)
-      raise Puppet::DevError, '%{type_class} must be a Hash, not `%{other_type}`' % { type_class: self.class.name, other_type: definition.class } unless definition.is_a?(Hash)
+      raise Puppet::DevError, format('%<type_class>s must be a Hash, not `%<other_type>s`', type_class: self.class.name, other_type: definition.class) unless definition.is_a?(Hash)
 
       @attributes = definition[attr_key]
-      raise Puppet::DevError, '%{type_class} must have a name' % { type_class: self.class.name } unless definition.key? :name
-      raise Puppet::DevError, '%{type_class} must have `%{attr_key}`' % { type_class: self.class.name, attrs: attr_key } unless definition.key? attr_key
+      raise Puppet::DevError, format('%<type_class>s must have a name', type_class: self.class.name) unless definition.key? :name
+      raise Puppet::DevError, format('%<type_class>s must have `%<attr_key>s`', type_class: self.class.name, attrs: attr_key) unless definition.key? attr_key
 
-      unless attributes.is_a?(Hash)
-        raise Puppet::DevError, '`%{name}.%{attrs}` must be a hash, not `%{other_type}`' % {
-          name: definition[:name], attrs: attr_key, other_type: attributes.class
-        }
-      end
+      raise Puppet::DevError, format('`%<name>s.%<attrs>s` must be a hash, not `%<other_type>s`', name: definition[:name], attrs: attr_key, other_type: attributes.class) unless attributes.is_a?(Hash)
 
       # fixup desc/docs backwards compatibility
       if definition.key? :docs
-        if definition[:desc]
-          raise Puppet::DevError, '`%{name}` has both `desc` and `docs`, prefer using `desc`' % { name: definition[:name] }
-        end
+        raise Puppet::DevError, format('`%<name>s` has both `desc` and `docs`, prefer using `desc`', name: definition[:name]) if definition[:desc]
 
         definition[:desc] = definition[:docs]
         definition.delete(:docs)
       end
-      Puppet.warning('`%{name}` has no documentation, add it using a `desc` key' % { name: definition[:name] }) unless definition.key? :desc
+      Puppet.warning(format('`%<name>s` has no documentation, add it using a `desc` key', name: definition[:name])) unless definition.key? :desc
 
       attributes.each do |key, attr|
-        raise Puppet::DevError, '`rsapi_custom_insync_trigger` cannot be specified as an attribute; it is reserved for propertyless types with the custom_insync feature' if key == :rsapi_custom_insync_trigger # rubocop:disable Metrics/LineLength
+        raise Puppet::DevError, '`rsapi_custom_insync_trigger` cannot be specified as an attribute; it is reserved for propertyless types with the custom_insync feature' if key == :rsapi_custom_insync_trigger # rubocop:disable Layout/LineLength
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` must be a Hash, not a #{attr.class}" unless attr.is_a? Hash
         raise Puppet::DevError, "`#{definition[:name]}.#{key}` has no type" unless attr.key? :type
 
-        Puppet.warning('`%{name}.%{key}` has no documentation, add it using a `desc` key' % { name: definition[:name], key: key }) unless attr.key? :desc
+        Puppet.warning(format('`%<name>s.%<key>s` has no documentation, add it using a `desc` key', name: definition[:name], key: key)) unless attr.key? :desc
 
         # validate the type by attempting to parse into a puppet type
         @data_type_cache[attributes[key][:type]] ||=
           Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             key,
-            attributes[key][:type],
+            attributes[key][:type]
           )
 
         # fixup any weird behavior  ;-)
         next unless attr[:behavior]
-        if attr[:behaviour]
-          raise Puppet::DevError, "the '#{key}' attribute has both a `behavior` and a `behaviour`, only use one"
-        end
+        raise Puppet::DevError, "the '#{key}' attribute has both a `behavior` and a `behaviour`, only use one" if attr[:behaviour]
 
         attr[:behaviour] = attr[:behavior]
         attr.delete(:behavior)
@@ -195,9 +183,7 @@ module Puppet::ResourceApi
     # validates a resource hash against its type schema
     def check_schema(resource, message_prefix = nil)
       namevars.each do |namevar|
-        if resource[namevar].nil?
-          raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute"
-        end
+        raise Puppet::ResourceError, "`#{name}.get` did not return a value for the `#{namevar}` namevar attribute" if resource[namevar].nil?
       end
 
       message_prefix = 'Provider returned data that does not match the Type Schema' if message_prefix.nil?
@@ -252,7 +238,7 @@ module Puppet::ResourceApi
         error_message = Puppet::ResourceApi::DataTypeHandling.try_validate(
           type,
           value,
-          '',
+          ''
         )
         if is_sensitive
           bad_vals[key] = "<< redacted value >> #{error_message}" unless error_message.nil?
