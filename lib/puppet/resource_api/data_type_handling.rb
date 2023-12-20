@@ -20,7 +20,7 @@ module Puppet::ResourceApi::DataTypeHandling
   # @param unpack_strings[Boolean] unpacking of strings for migrating off
   # legacy type
   # @return [type] the cleaned value
-  def self.mungify(type, value, error_msg_prefix, unpack_strings = false)
+  def self.mungify(type, value, error_msg_prefix, unpack_strings = false) # rubocop:disable Style/OptionalBooleanParameter
     cleaned_value = mungify_core(
       type,
       value,
@@ -42,7 +42,7 @@ module Puppet::ResourceApi::DataTypeHandling
   # @return [type] the cleaned value
   # @raise [Puppet::ResourceError] if `value` could not be parsed into `type`
   # @private
-  def self.mungify_core(type, value, error_msg_prefix, unpack_strings = false)
+  def self.mungify_core(type, value, error_msg_prefix, unpack_strings = false) # rubocop:disable Style/OptionalBooleanParameter
     if unpack_strings
       # When the provider is exercised from the `puppet resource` CLI, we need
       # to unpack strings into the correct types, e.g. "1" (a string)

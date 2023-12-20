@@ -57,10 +57,3 @@ RSpec/StubbedMock:
 RSpec/SubjectStub:
   Exclude:
     - 'spec/puppet/resource_api/base_context_spec.rb'
-
-# Offense count: 2
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: respond_to_missing?
-Style/OptionalBooleanParameter:
-  Exclude:
-    - 'lib/puppet/resource_api/data_type_handling.rb'
