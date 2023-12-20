@@ -7,7 +7,7 @@ require 'open3'
 RSpec.describe 'a transport' do
   let(:common_args) { '--verbose --trace --debug --strict=error --modulepath spec/fixtures' }
 
-  before(:all) do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
   end
 

@@ -17,36 +17,26 @@ AllCops:
 
 Metrics/AbcSize:
   Enabled: false
-
 Metrics/BlockLength:
   Enabled: false
-
 Metrics/ClassLength:
   Enabled: false
-
 Metrics/CyclomaticComplexity:
   Enabled: false
-
 Metrics/MethodLength:
   Enabled: false
-
 Metrics/ModuleLength:
   Enabled: false
-
 Metrics/PerceivedComplexity:
   Enabled: false
-
 Style/ClassAndModuleChildren:
   Enabled: false
-
 Naming/MethodParameterName:
   AllowedNames:
     - is
-
 Lint/NestedMethodDefinition:
   Exclude:
     - 'lib/puppet/resource_api.rb'
-
 Layout/LineLength:
   Max: 200
 RSpec/MessageSpies:

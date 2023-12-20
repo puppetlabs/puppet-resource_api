@@ -6,17 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 4
-RSpec/BeforeAfterAll:
-  Exclude:
-    - '**/spec/spec_helper.rb'
-    - '**/spec/rails_helper.rb'
-    - '**/spec/support/**/*.rb'
-    - 'spec/acceptance/device_spec.rb'
-    - 'spec/acceptance/multi_device_spec.rb'
-    - 'spec/acceptance/transport/transport_defaults_spec.rb'
-    - 'spec/acceptance/transport/transport_spec.rb'
-
 # Offense count: 25
 # Configuration parameters: IgnoredMetadata.
 RSpec/DescribeClass:

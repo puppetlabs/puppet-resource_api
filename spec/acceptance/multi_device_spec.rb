@@ -8,7 +8,7 @@ require 'tempfile'
 RSpec.describe 'exercising a type with device-specific providers' do
   let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
 
-  before(:all) do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/some_node/state'))
     FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/other_node/state'))
   end

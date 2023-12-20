@@ -13,7 +13,7 @@ RSpec.describe 'exercising a device provider' do
     'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
   end
 
-  before(:all) do
+  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     if Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.0') && Gem::Version.new(Puppet::PUPPETVERSION) < Gem::Version.new('5.4.0')
       # work around https://tickets.puppetlabs.com/browse/PUP-8632 and https://tickets.puppetlabs.com/browse/PUP-9047
       FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
