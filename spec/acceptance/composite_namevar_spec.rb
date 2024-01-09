@@ -60,7 +60,7 @@ RSpec.describe 'a type with composite namevars' do
       expect(status.exitstatus).to eq 0
     end
 
-    it 'will remove an existing resource' do
+    it 'removes an existing resource' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-gem ensure=absent")
       expect(stdout_str.strip).to match(/^composite_namevar \{ 'php-gem'/)
       expect(stdout_str.strip).to match(/package\s*=> 'php'/)

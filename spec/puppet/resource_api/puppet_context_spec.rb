@@ -59,12 +59,12 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
       ex
     end
 
-    it 'will log message at error level and with trace' do
+    it 'logs message at error level and with trace' do
       expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: "some_resource: message: x\na\nb\nc")
       context.log_exception(exception, message: 'message', trace: true)
     end
 
-    it 'will log message at error level and without trace' do
+    it 'logs message at error level and without trace' do
       expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: 'some_resource: message: x')
       context.log_exception(exception, message: 'message', trace: false)
     end
@@ -75,7 +75,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
         allow(Puppet).to receive(:[]).with(:trace).and_return(true)
       end
 
-      it 'will log message at error level and with trace,' do
+      it 'logs message at error level and with trace,' do
         expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: "some_resource: message: x\na\nb\nc")
         context.log_exception(exception, message: 'message', trace: false)
       end
@@ -87,7 +87,7 @@ RSpec.describe Puppet::ResourceApi::PuppetContext do
         allow(Puppet).to receive(:[]).with(:trace).and_return(false)
       end
 
-      it 'will log message at error level and without trace,' do
+      it 'logs message at error level and without trace,' do
         expect(Puppet::Util::Log).to receive(:create).with(level: :err, message: 'some_resource: message: x')
         context.log_exception(exception, message: 'message', trace: false)
       end

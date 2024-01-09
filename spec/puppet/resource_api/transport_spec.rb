@@ -280,7 +280,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
 
     context 'when the transport being validated has not be registered' do
-      it 'will throw an unregistered error message' do
+      it 'throws an unregistered error message' do
         expect(described_class).to receive(:require).with('puppet/transport/schema/wibble')
         expect { described_class.send(:validate, 'wibble', {}) }.to raise_error Puppet::DevError, %r{ not registered with }
       end
