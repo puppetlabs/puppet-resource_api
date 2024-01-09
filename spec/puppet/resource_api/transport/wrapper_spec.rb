@@ -18,7 +18,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       context 'with a file:// prefix' do
         let(:url) { 'file:///etc/credentials' }
 
-        it 'will not throw an error' do
+        it 'does not throw an error' do
           allow(File).to receive(:exist?).and_return(true)
           allow(Hocon).to receive(:load).and_call_original
           expect(Puppet::ResourceApi::Transport).to receive(:connect)
@@ -38,7 +38,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     context 'when called with a config hash' do
       let(:config) { {} }
 
-      it 'will use the configuration directly' do
+      it 'uses the configuration directly' do
         allow(Hocon).to receive(:load).and_call_original
         expect(Hocon).not_to receive(:load).with('/etc/credentials', any_args)
         expect(Puppet::ResourceApi::Transport).to receive(:connect)
@@ -50,7 +50,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       let(:transport) { Puppet::Transport::SomethingSomethingDarkside.new }
       let(:instance) { described_class.new('something_something_darkside', transport) }
 
-      it 'will set the @transport class variable' do
+      it 'sets the @transport class variable' do
         expect(instance.instance_variable_get(:@transport)).to eq(transport)
       end
     end
@@ -63,7 +63,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       let(:facts) { { 'foo' => 'bar' } }
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
 
-      it 'will return the facts provided by the transport' do
+      it 'returns the facts provided by the transport' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
         allow(Puppet::ResourceApi::Transport).to receive(:list).and_return(schema: :dummy)
         allow(Puppet::ResourceApi::PuppetContext).to receive(:new).and_return(context)
@@ -80,7 +80,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
       let(:context) { instance_double(Puppet::ResourceApi::PuppetContext, 'context') }
 
-      it 'will return the facts provided by the transport' do
+      it 'returns the facts provided by the transport' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
         expect(transport).to receive(:close)
 
@@ -92,7 +92,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       let(:instance) { described_class.new('wibble', {}) }
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
 
-      it 'will raise a NoMethodError' do
+      it 'raises a NoMethodError' do
         allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
         expect { instance.wibble }.to raise_error NoMethodError
       end
@@ -109,13 +109,13 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
 
     context 'when the transport does not support the function' do
       context 'when using respond_to?' do
-        it 'will return false' do
+        it 'returns false' do
           expect(instance.respond_to?(:wibble)).to eq(false)
         end
       end
 
       context 'when using method?' do
-        it 'will return false' do
+        it 'returns false' do
           expect { instance.method :wibble }.to raise_error NameError, /undefined method `wibble'/
         end
       end
@@ -127,13 +127,13 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       end
 
       context 'when using respond_to?' do
-        it 'will return true' do
+        it 'returns true' do
           expect(instance.respond_to?(:close)).to eq(true)
         end
       end
 
       context 'when using method?' do
-        it 'will return the method' do
+        it 'returns the method' do
           expect(instance.method(:close)).to be_a(Method)
         end
       end

@@ -342,7 +342,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when strict is default (:warning)' do
           let(:strict_level) { :warning }
 
-          it 'will log error at warning level' do
+          it 'logs error at warning level' do
             expect(Puppet).to receive(:warning).with(message)
             instance.retrieve
           end
@@ -361,7 +361,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when strict is :off' do
           let(:strict_level) { :off }
 
-          it 'will log error at debug level' do
+          it 'logs error at debug level' do
             instance.retrieve
             expect(log_sink.map(&:message)).to include(message)
           end
@@ -1569,7 +1569,7 @@ RSpec.describe Puppet::ResourceApi do
 
           it { expect(instance.strict_check(nil)).to be_nil }
 
-          it 'will not log a warning message' do
+          it 'does not log a warning message' do
             expect(Puppet).not_to receive(:warning)
             instance.strict_check(nil)
           end
@@ -1578,7 +1578,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
 
-          it 'will throw an exception' do
+          it 'throws an exception' do
             expect do
               instance.strict_check({})
             end.to raise_error(Puppet::DevError, /has not provided canonicalized values/)
@@ -1590,7 +1590,7 @@ RSpec.describe Puppet::ResourceApi do
 
           it { expect(instance.strict_check({})).to be_nil }
 
-          it 'will log warning message' do
+          it 'logs warning message' do
             expect(Puppet).to receive(:warning).with(/has not provided canonicalized values/)
             instance.strict_check({})
           end
@@ -1603,7 +1603,7 @@ RSpec.describe Puppet::ResourceApi do
 
           it { expect(instance.strict_check(test_string: 'canon')).to be_nil }
 
-          it 'will not log a warning message' do
+          it 'does not log a warning message' do
             expect(Puppet).not_to receive(:warning)
             instance.strict_check(test_string: 'canon')
           end
@@ -1612,7 +1612,7 @@ RSpec.describe Puppet::ResourceApi do
         context 'when Puppet strict setting is :error' do
           let(:strict_level) { :error }
 
-          it 'will throw an exception' do
+          it 'throws an exception' do
             expect { instance.strict_check(test_string: 'canon') }.not_to raise_error
           end
         end
@@ -1622,7 +1622,7 @@ RSpec.describe Puppet::ResourceApi do
 
           it { expect(instance.strict_check(test_string: 'canon')).to be_nil }
 
-          it 'will not log a warning message' do
+          it 'does not log a warning message' do
             expect(Puppet).not_to receive(:warning)
             instance.strict_check(test_string: 'canon')
           end
@@ -1917,7 +1917,7 @@ RSpec.describe Puppet::ResourceApi do
           end
 
           context 'when strict checking is on' do
-            it('will not throw') {
+            it('does not throw') {
               Puppet.settings[:strict] = :error
               expect { described_class.register_type(definition) }.not_to raise_error
             }

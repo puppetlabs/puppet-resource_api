@@ -54,14 +54,14 @@ RSpec.describe 'a type with multiple namevars' do
       expect(status).to eq 0
     end
 
-    it 'will remove an existing resource' do
+    it 'removes an existing resource' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} multiple_namevar php manager=gem ensure=absent")
       expect(stdout_str.strip).to match(/^multiple_namevar \{ 'php'/)
       expect(stdout_str.strip).to match(/ensure\s*=> 'absent'/)
       expect(status).to eq 0
     end
 
-    it 'will ignore the title if namevars are provided' do
+    it 'ignores the title if namevars are provided' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} multiple_namevar whatever package=php manager=gem")
       expect(stdout_str.strip).to match(/^multiple_namevar \{ 'whatever'/)
       expect(stdout_str.strip).to match(/package\s*=> 'php'/)
