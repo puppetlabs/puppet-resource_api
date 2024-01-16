@@ -8,12 +8,12 @@ gemspec
 group :tests do
   gem 'CFPropertyList'
   gem 'rspec', '~> 3.0'
+  gem 'simplecov'
   gem 'simplecov-console'
 
   # the test gems required for module testing
-  gem 'puppetlabs_spec_helper', '~> 3.0'
+  gem 'puppetlabs_spec_helper', '~> 5.0'
   gem 'rspec-puppet'
-  gem 'codecov'
   gem 'rake', '~> 13.0'
 
   # since the Resource API runs inside the puppetserver, test against the JRuby versions we ship
