@@ -29,7 +29,7 @@ task :spec => :spec_prep
 namespace :spec do
   desc 'Run RSpec code examples with coverage collection'
   task :coverage do
-    ENV['SIMPLECOV'] = 'yes'
+    ENV['COVERAGE'] = 'yes'
     Rake::Task['spec'].execute
   end
 

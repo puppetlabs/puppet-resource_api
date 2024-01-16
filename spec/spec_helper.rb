@@ -1,5 +1,38 @@
 # frozen_string_literal: true
 
+if ENV['COVERAGE'] == 'yes'
+  begin
+    require 'simplecov'
+    require 'simplecov-console'
+
+    SimpleCov.formatters = [
+      SimpleCov::Formatter::HTMLFormatter,
+      SimpleCov::Formatter::Console
+    ]
+
+    if ENV['CI'] == 'true'
+      require 'codecov'
+      SimpleCov.formatters << SimpleCov::Formatter::Codecov
+    end
+
+    SimpleCov.start do
+      track_files 'lib/**/*.rb'
+
+      add_filter '/spec'
+      add_filter 'lib/puppet/resource_api/version.rb'
+      add_filter '/docs'
+      add_filter '/contrib'
+      add_filter 'bin/setup'
+
+      # do not track vendored files
+      add_filter '/vendor'
+      add_filter '/.vendor'
+    end
+  rescue LoadError
+    raise 'Add the simplecov, simplecov-console, codecov gems to Gemfile to enable this task'
+  end
+end
+
 require 'bundler/setup'
 require 'rspec-puppet'
 require 'open3'
@@ -27,12 +60,7 @@ RSpec.configure do |config|
   end
 end
 
-# load puppet spec support and coverage setup before loading our code
-require 'puppetlabs_spec_helper/module_spec_helper'
 require 'puppet/resource_api'
-
-# exclude the `version.rb` which already gets loaded by bundler via the gemspec, and doesn't need coverage testing anyways.
-SimpleCov.add_filter 'lib/puppet/resource_api/version.rb' if ENV['SIMPLECOV'] == 'yes'
 
 # configure this hook after Resource API is loaded to get access to Puppet::ResourceApi::Transport
 RSpec.configure do |config|
