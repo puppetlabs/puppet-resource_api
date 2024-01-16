@@ -8,6 +8,7 @@ gemspec
 group :tests do
   gem 'CFPropertyList'
   gem 'rspec', '~> 3.0'
+  gem 'simplecov'
   gem 'simplecov-console'
 
   # the test gems required for module testing
