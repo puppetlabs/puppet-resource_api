@@ -237,7 +237,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
   describe '#inject_device(name, transport)' do
     let(:device_name) { 'wibble' }
     let(:transport) { instance_double(Puppet::Transport::Wibble, 'transport') }
-    let(:wrapper) { instance_double(Puppet::ResourceApi::Transport::Wrapper, 'wrapper') }
+    let(:wrapper) { instance_double(described_class::Wrapper, 'wrapper') }
 
     before do
       module Puppet::Transport
@@ -251,8 +251,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when puppet has set_device' do
       it 'wraps the transport and calls set_device within NetworkDevice' do
-        allow(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
-        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport)
+        allow(described_class::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        expect(described_class::Wrapper).to receive(:new).with(device_name, transport)
         allow(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(true)
         expect(Puppet::Util::NetworkDevice).to receive(:set_device).with(device_name, wrapper)
 
@@ -262,8 +262,8 @@ RSpec.describe Puppet::ResourceApi::Transport do
 
     context 'when puppet does not have set_device' do
       it 'wraps the transport and sets it as current in NetworkDevice' do
-        allow(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
-        expect(Puppet::ResourceApi::Transport::Wrapper).to receive(:new).with(device_name, transport)
+        allow(described_class::Wrapper).to receive(:new).with(device_name, transport).and_return(wrapper)
+        expect(described_class::Wrapper).to receive(:new).with(device_name, transport)
         allow(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device).and_return(false)
         expect(Puppet::Util::NetworkDevice).to receive(:respond_to?).with(:set_device)
 
