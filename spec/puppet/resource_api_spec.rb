@@ -23,7 +23,7 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   it 'has a version number' do
-    expect(Puppet::ResourceApi::VERSION).not_to be nil
+    expect(described_class::VERSION).not_to be nil
   end
 
   context 'when registering a minimal type' do
@@ -1482,7 +1482,7 @@ RSpec.describe Puppet::ResourceApi do
 
       before do
         allow(Puppet::Util::NetworkDevice).to receive(:current).with(no_args).and_return(transport)
-        allow(transport).to receive(:is_a?).with(Puppet::ResourceApi::Transport::Wrapper).and_return(true)
+        allow(transport).to receive(:is_a?).with(described_class::Transport::Wrapper).and_return(true)
         allow(transport).to receive(:schema).and_return(schema_def)
         allow(schema_def).to receive(:name).and_return(schema_name)
 
@@ -1654,7 +1654,7 @@ RSpec.describe Puppet::ResourceApi do
         type.rsapi_provider_get_cache.clear
 
         allow(type.my_provider).to receive(:get)
-          .with(kind_of(Puppet::ResourceApi::BaseContext))
+          .with(kind_of(described_class::BaseContext))
           .and_return([{ name: 'somename', test_string: 'canonfoo' },
                        { name: 'other', test_string: 'canonbar' }])
       end
@@ -1839,7 +1839,7 @@ RSpec.describe Puppet::ResourceApi do
 
       before do
         allow(type.my_provider).to receive(:get)
-          .with(kind_of(Puppet::ResourceApi::BaseContext))
+          .with(kind_of(described_class::BaseContext))
           .and_return([{ name: 'somename', test_string: 'foo' },
                        { name: 'other', test_string: 'bar' }])
         type.rsapi_provider_get_cache.clear
@@ -2113,7 +2113,7 @@ RSpec.describe Puppet::ResourceApi do
       context 'when a transport is returned by NetworkDevice.current' do
         it 'stores the provider with the the name of the transport' do
           allow(Puppet::Util::NetworkDevice).to receive(:current).and_return(wrapper)
-          allow(wrapper).to receive(:is_a?).with(Puppet::ResourceApi::Transport::Wrapper).and_return(true)
+          allow(wrapper).to receive(:is_a?).with(described_class::Transport::Wrapper).and_return(true)
           allow(wrapper).to receive(:transport).and_return(transport)
           allow(transport).to receive(:class).and_return(Puppet::Transport::Wibble)
 
@@ -2361,7 +2361,7 @@ CODE
     end
 
     it 'calls Puppet::ResourceApi::Transport.register' do
-      expect(Puppet::ResourceApi::Transport).to receive(:register).with(schema)
+      expect(described_class::Transport).to receive(:register).with(schema)
       described_class.register_transport(schema)
     end
   end
