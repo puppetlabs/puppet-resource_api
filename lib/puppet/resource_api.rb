@@ -265,7 +265,7 @@ module Puppet::ResourceApi
           rsapi_provider_get_cache.add(build_title(type_definition, resource_hash), resource_hash)
         end
 
-        if !type_definition.feature?('simple_get_filter')
+        unless type_definition.feature?('simple_get_filter')
           # Mark the cache as having all possible instances:
           rsapi_provider_get_cache.cached_all
         end
