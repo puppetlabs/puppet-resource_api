@@ -178,7 +178,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
   end
 
-  describe '#connect(name, connection_info)', agent_test: true do
+  describe '#connect(name, connection_info)', :agent_test do
     let(:name) { 'test_target' }
     let(:schema) do
       {
@@ -274,7 +274,7 @@ RSpec.describe Puppet::ResourceApi::Transport do
     end
   end
 
-  describe '#validate(name, connection_info)', agent_test: true do
+  describe '#validate(name, connection_info)', :agent_test do
     context 'when the transport does not exist' do
       it { expect { described_class.send(:validate, 'wibble', {}) }.to raise_error LoadError, %r{(no such file to load|cannot load such file) -- puppet/transport/schema/wibble} }
     end

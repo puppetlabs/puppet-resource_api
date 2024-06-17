@@ -203,8 +203,7 @@ RSpec.describe Puppet::ResourceApi::Property do
           allow(resource).to receive(:rsapi_canonicalized_target_state)
           allow(resource).to receive(:rsapi_current_state)
           allow(resource).to receive(:rsapi_title)
-          allow(referrable_type_custom_insync).to receive(:context).and_return(context)
-          allow(referrable_type_custom_insync).to receive(:my_provider).and_return(test_provider_with_insync)
+          allow(referrable_type_custom_insync).to receive_messages(context: context, my_provider: test_provider_with_insync)
         end
 
         context 'when the property is not rsapi_custom_insync_trigger' do

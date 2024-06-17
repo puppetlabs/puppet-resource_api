@@ -104,7 +104,7 @@ module Puppet::ResourceApi
           attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
-        super(attributes)
+        super
       end
 
       def name

@@ -25,7 +25,7 @@ module Puppet::ResourceApi
     end
 
     def validate_schema(definition, attr_key)
-      super(definition, attr_key)
+      super
       %i[title provider alias audit before consume export loglevel noop notify require schedule stage subscribe tag].each do |name|
         raise Puppet::DevError, format('must not define an attribute called `%<name>s`', name: name.inspect) if definition[attr_key].key? name
       end
