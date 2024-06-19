@@ -20,8 +20,8 @@ group :tests do
   # these require special dependencies to have everything load properly
   # rubocop 1.48 supports JRuby 9.3+, which includes coverage for versions we support
   gem 'rubocop', '~> 1.48.1', require: false
-  gem 'rubocop-rspec', '~> 2.19', require: false
-  gem 'rubocop-performance', '~> 1.16', require: false
+  gem 'rubocop-rspec', '~> 2.20.0', require: false
+  gem 'rubocop-performance', '~> 1.17.1', require: false
 end
 
 group :development do
