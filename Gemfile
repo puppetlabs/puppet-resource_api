@@ -24,9 +24,9 @@ group :tests do
     gem 'rubocop-rspec', '~> 2.20.0', require: false
     gem 'rubocop-performance', '~> 1.17.1', require: false
   else
-    gem 'rubocop', '~> 1.64.1', require: false
-    gem 'rubocop-rspec', '~> 3.0', require: false
-    gem 'rubocop-performance', '~> 1.16', require: false
+    gem 'rubocop', '~> 1.48.1', require: false
+    gem 'rubocop-rspec', '~> 2.20.0', require: false
+    gem 'rubocop-performance', '~> 1.17.1', require: false
   end
 end
 
