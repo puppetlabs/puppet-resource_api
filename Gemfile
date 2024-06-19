@@ -19,15 +19,9 @@ group :tests do
   # Split the rubocop versions to avoid conflicts.  
   # (*) Why is jruby included?  See docs/adr/0001-test-the-resource-api-again-jruby-as-well-as-ruby-engines.md
   # (*) Why are jruby dependencies different from ruby? See docs/adr/0002-split-gemfile-dependencies-by-jruby-and-ruby-engines.md
-  if RUBY_ENGINE == 'jruby'
-    gem 'rubocop', '~> 1.48.1', require: false
-    gem 'rubocop-rspec', '~> 2.20.0', require: false
-    gem 'rubocop-performance', '~> 1.17.1', require: false
-  else
-    gem 'rubocop', '~> 1.48.1', require: false
-    gem 'rubocop-rspec', '~> 2.20.0', require: false
-    gem 'rubocop-performance', '~> 1.17.1', require: false
-  end
+  gem 'rubocop', '~> 1.48.1', require: false
+  gem 'rubocop-rspec', '~> 2.20.0', require: false
+  gem 'rubocop-performance', '~> 1.17.1', require: false
 end
 
 group :development do
