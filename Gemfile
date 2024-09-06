@@ -11,7 +11,7 @@ group :tests do
   gem 'simplecov-console'
 
   # the test gems required for module testing
-  gem 'puppetlabs_spec_helper', '~> 3.0'
+  gem 'puppetlabs_spec_helper', '~> 7.4'
   gem 'rspec-puppet'
   gem 'codecov'
   gem 'rake', '~> 13.0'
