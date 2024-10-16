@@ -1,0 +1,109 @@
+name: Workflow Restarter TEST
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail:
+        description: >
+          For (acceptance, unit) jobs: 
+          'true'  = (fail, succeed) and 
+          'false' = (succeed, fail)  
+        required: true
+        default: 'true'
+env:
+  SOURCE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  linux_tests:
+    name: Linux, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cfg:
+          - {puppet_version: '7', ruby: '2.7'}
+          - {puppet_version: '7', ruby: 'jruby-9.3.7.0'}
+          - {puppet_version: '8', ruby: '3.2'}
+          - {puppet_version: '8', ruby: 'jruby-9.4.2.0'}
+    env:
+      PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Ruby version ${{ matrix.cfg.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.cfg.ruby }}
+      - name: Update rubygems and install gems
+        run: |
+          bundle config set without development
+          bundle install --jobs 4 --retry 3
+
+      - name: Rubocop
+        run: |
+          bundle exec rake rubocop
+
+      - name: Run tests
+        run: |
+          bundle exec rake spec
+
+  # Starting with version 3.2, Ruby no longer bundles libffi, which is necessary for tests on Windows. Due to a discrepancy between the C
+  # library the Windows Puppet gem is built against and what GitHub runners use (MinGW and ucrt, respectively) we can't install the
+  # Windows-specific Puppet gem that includes libffi. To work around these issues, we have a separate "integration" group that we include
+  # when testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
+  windows_tests:
+    name: Windows, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        cfg:
+          - {puppet_version: '7', ruby: '2.7'}
+          - {puppet_version: '8', ruby: '3.2', extra: 'bundle config set with integration'}
+    env:
+      PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Ruby version ${{ matrix.cfg.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.cfg.ruby }}
+      - name: Update rubygems and install gems
+        run: |
+          bundle config set without development
+          ${{ matrix.cfg.extra }}
+          bundle install --jobs 4 --retry 3
+
+      - name: Rubocop
+        run: |
+          bundle exec rake rubocop
+
+      - name: Run tests
+        run: |
+          bundle exec rake spec
+  
+  on-failure-workflow-restarter-proxy:
+    # (1) run this job after the "acceptance" job and...
+    needs: [linux_tests, windows_tests]
+    # (2) continue ONLY IF "acceptance" fails
+    if: always() && needs.linux_tests.result == 'failure' || needs.windows_tests.result == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      # (3) checkout this repository in order to "see" the following custom action
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # (4) "use" the custom action to retrigger the failed "acceptance job" above
+      # NOTE: pass the SOURCE_GITHUB_TOKEN to the custom action because (a) it must have
+      # this to trigger the reusable workflow that restarts the failed job; and
+      # (b) custom actions do not have access to the calling workflow's secrets
+      - name: Trigger reusable workflow
+        uses: "puppetlabs/cat-github-actions/.github/actions/workflow-restarter-proxy@main"
+        env:
+          SOURCE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repository: ${{ github.repository }}
+          run_id: ${{ github.run_id }}
