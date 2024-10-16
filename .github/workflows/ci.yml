@@ -77,3 +77,18 @@ jobs:
       - name: Run tests
         run: |
           bundle exec rake spec
+  
+  on-failure-workflow-restarter-proxy:
+    needs: [linux_tests, windows_tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger reusable workflow
+        uses: "puppetlabs/cat-github-actions/.github/actions/workflow-restarter-proxy@main"
+        env:
+          SOURCE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          repository: ${{ github.repository }}
+          run_id: ${{ github.run_id }}
