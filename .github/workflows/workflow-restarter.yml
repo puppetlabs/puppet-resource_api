@@ -1,0 +1,26 @@
+# target-repo/.github/workflows/call-reusable-workflow.yml
+name: Workflow Restarter
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "GitHub repository name."
+        required: true
+        type: string
+      run_id:
+        description: "The ID of the workflow run to rerun."
+        required: true
+        type: string
+      retries:
+        description: "The number of times to retry the workflow run."
+        required: false
+        type: string
+        default: "3"
+
+jobs:
+  call-reusable-workflow:
+    uses: "puppetlabs/cat-github-actions/.github/workflows/workflow-restarter.yml@main"
+    with:
+      repo: ${{ inputs.repo }}
+      run_id: ${{ inputs.run_id }}
+      retries: ${{ inputs.retries }}
