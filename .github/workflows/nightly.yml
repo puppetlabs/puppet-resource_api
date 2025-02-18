@@ -7,7 +7,7 @@ on:
 jobs:
   linux_tests:
     name: Linux, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         cfg:
