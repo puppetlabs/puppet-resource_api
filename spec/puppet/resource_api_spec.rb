@@ -23,7 +23,7 @@ RSpec.describe Puppet::ResourceApi do
   end
 
   it 'has a version number' do
-    expect(described_class::VERSION).not_to be nil
+    expect(described_class::VERSION).not_to be_nil
   end
 
   context 'when registering a minimal type' do

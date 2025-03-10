@@ -142,7 +142,7 @@ module Puppet::ResourceApi::DataTypeHandling
   # @private
   def self.ambiguous_error_msg(error_msg_prefix, value, type)
     "#{error_msg_prefix} #{value.inspect} is not unabiguously convertable to " \
-    "#{type}"
+      "#{type}"
   end
 
   # Validates the `value` against the specified `type`.
@@ -195,9 +195,9 @@ module Puppet::ResourceApi::DataTypeHandling
     Puppet::Pops::Types::TypeParser.singleton.parse(type)
   rescue Puppet::ParseErrorWithIssue => e
     raise Puppet::DevError, "The type of the `#{attr_name}` attribute " \
-          "`#{type}` could not be parsed: #{e.message}"
+                            "`#{type}` could not be parsed: #{e.message}"
   rescue Puppet::ParseError => e
     raise Puppet::DevError, "The type of the `#{attr_name}` attribute " \
-          "`#{type}` is not recognised: #{e.message}"
+                            "`#{type}` is not recognised: #{e.message}"
   end
 end

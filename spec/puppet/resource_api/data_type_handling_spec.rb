@@ -91,7 +91,7 @@ RSpec.describe Puppet::ResourceApi::DataTypeHandling do
           context "when validating #{valid_value.inspect}" do
             let(:value) { valid_value }
 
-            it { expect(error_msg).to be nil }
+            it { expect(error_msg).to be_nil }
           end
         end
         testcase[:invalid].each do |invalid_value|

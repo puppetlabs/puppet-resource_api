@@ -94,7 +94,7 @@ module Puppet::ResourceApi::Transport
     transport_schema = transports[name]
     raise Puppet::DevError, format('Transport for `%<target>s` not registered with `%<environment>s`', target: name, environment: current_environment_name) if transport_schema.nil?
 
-    clean_bolt_attributes(transport_schema, connection_info) if connection_info.key?(:"remote-transport")
+    clean_bolt_attributes(transport_schema, connection_info) if connection_info.key?(:'remote-transport')
 
     apply_defaults(transport_schema, connection_info)
     message_prefix = 'The connection info provided does not match the Transport Schema'

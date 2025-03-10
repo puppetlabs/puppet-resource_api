@@ -17,8 +17,8 @@ RSpec.describe 'sensitive data' do
     end
 
     it 'is not exposed by a provider' do
-      stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), "\
-        "optional_secret => Sensitive('optional sesitive_data'), array_secret => [Sensitive('array sesitive_data')] }\"")
+      stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), " \
+                                            "optional_secret => Sensitive('optional sesitive_data'), array_secret => [Sensitive('array sesitive_data')] }\"")
       expect(stdout_str).to match(/redacted/)
       expect(stdout_str).not_to match(/sesitive_data/)
       expect(stdout_str).not_to match(/warn|error/i)
@@ -26,16 +26,16 @@ RSpec.describe 'sensitive data' do
 
     context 'when a sensitive value is not the top level type' do
       it 'is not exposed by a provider' do
-        stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), "\
-          "optional_secret => Sensitive('optional sesitive_data'), variant_secret => [Sensitive('variant sesitive_data')] }\"")
+        stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), " \
+                                              "optional_secret => Sensitive('optional sesitive_data'), variant_secret => [Sensitive('variant sesitive_data')] }\"")
         expect(stdout_str).to match(/redacted/)
         expect(stdout_str).not_to match(/variant sesitive_data/)
         expect(stdout_str).not_to match(/warn|error/i)
       end
 
       it 'properly validates the sensitive type value' do
-        stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), "\
-          "optional_secret => Sensitive('optional sesitive_data'), variant_secret => [Sensitive(134679)] }\"")
+        stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_sensitive { test_resource: secret => Sensitive('sesitive_data'), " \
+                                              "optional_secret => Sensitive('optional sesitive_data'), variant_secret => [Sensitive(134679)] }\"")
         expect(stdout_str).to match(/Sensitive\[String\]( value)?, got Sensitive\[Integer\]/)
         expect(stdout_str).not_to match(/134679/)
       end

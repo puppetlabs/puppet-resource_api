@@ -8,9 +8,9 @@ require 'tempfile'
 RSpec.describe 'exercising a device provider' do
   let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
   let(:default_type_values) do
-    'string="meep" boolean=true integer=15 float=1.23 ensure=present variant_pattern=AE321EEF '\
-    'url="http://www.puppet.com" boolean_param=false integer_param=99 float_param=3.21 '\
-    'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
+    'string="meep" boolean=true integer=15 float=1.23 ensure=present variant_pattern=AE321EEF ' \
+      'url="http://www.puppet.com" boolean_param=false integer_param=99 float_param=3.21 ' \
+      'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
   end
 
   before(:all) do # rubocop:disable RSpec/BeforeAfterAll
@@ -32,8 +32,8 @@ RSpec.describe 'exercising a device provider' do
 
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
-        stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
-                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
+        stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n' \
+                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n' \
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).not_to be_success
@@ -45,8 +45,8 @@ RSpec.describe 'exercising a device provider' do
 
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
-        stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
-                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
+        stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n' \
+                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n' \
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).to be_success
@@ -155,9 +155,9 @@ RSpec.describe 'exercising a device provider' do
       it 'applies the catalog successfully' do
         Tempfile.create('fact_set') do |f|
           f.write 'device_provider{ "foo":' \
-            'ensure => "present", boolean => true, integer => 15, float => 1.23, variant_pattern => "0x1234ABCD", '\
-            'url => "http://www.google.com", boolean_param => false, integer_param => 99, float_param => 3.21, '\
-            'ensure_param => "present", variant_pattern_param => "9A2222ED", url_param => "http://www.puppet.com" }'
+                  'ensure => "present", boolean => true, integer => 15, float => 1.23, variant_pattern => "0x1234ABCD", ' \
+                  'url => "http://www.google.com", boolean_param => false, integer_param => 99, float_param => 3.21, ' \
+                  'ensure_param => "present", variant_pattern_param => "9A2222ED", url_param => "http://www.puppet.com" }'
           f.close
 
           stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply #{f.path}")
