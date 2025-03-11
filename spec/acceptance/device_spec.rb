@@ -13,13 +13,6 @@ RSpec.describe 'exercising a device provider' do
       'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
   end
 
-  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
-    if Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.0') && Gem::Version.new(Puppet::PUPPETVERSION) < Gem::Version.new('5.4.0')
-      # work around https://tickets.puppetlabs.com/browse/PUP-8632 and https://tickets.puppetlabs.com/browse/PUP-9047
-      FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
-    end
-  end
-
   describe 'using `puppet resource`' do
     it 'manages resources on the target system' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider foo ensure=present #{default_type_values}")
@@ -103,12 +96,7 @@ RSpec.describe 'exercising a device provider' do
       DEVICE_CREDS
     end
 
-    def is_device_apply_supported?
-      Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')
-    end
-
     before do
-      skip "No device --apply in puppet before v5.3.6 nor in v5.4.0 (v#{Puppet::PUPPETVERSION} is installed)" unless is_device_apply_supported?
       device_conf.write(device_conf_content)
       device_conf.close
 
