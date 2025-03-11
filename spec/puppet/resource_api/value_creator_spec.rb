@@ -119,7 +119,7 @@ RSpec.describe Puppet::ResourceApi::ValueCreator do
       let(:param_or_property) { :newparam }
 
       it 'attribute_class has no #call_provider method' do
-        expect(attribute_class.method_defined?(:call_provider)).to eq(false)
+        expect(attribute_class.method_defined?(:call_provider)).to be(false)
       end
 
       context 'when behaviour is set to :namevar' do

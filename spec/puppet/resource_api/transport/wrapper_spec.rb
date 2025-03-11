@@ -110,7 +110,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
     context 'when the transport does not support the function' do
       context 'when using respond_to?' do
         it 'returns false' do
-          expect(instance.respond_to?(:wibble)).to eq(false)
+          expect(instance.respond_to?(:wibble)).to be(false)
         end
       end
 
@@ -128,7 +128,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
 
       context 'when using respond_to?' do
         it 'returns true' do
-          expect(instance.respond_to?(:close)).to eq(true)
+          expect(instance.respond_to?(:close)).to be(true)
         end
       end
 

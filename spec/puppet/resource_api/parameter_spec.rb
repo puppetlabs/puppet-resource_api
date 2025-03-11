@@ -25,7 +25,7 @@ RSpec.describe Puppet::ResourceApi::Parameter do
 
       expect { parameter.value = 'value' }.to raise_error Exception, 'error'
 
-      expect(parameter.value).to eq nil
+      expect(parameter.value).to be_nil
     end
   end
 
@@ -51,8 +51,8 @@ RSpec.describe Puppet::ResourceApi::Parameter do
       let(:munged_value) { true }
       let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
 
-      it { expect(parameter.rs_value).to eq true }
-      it { expect(parameter.value).to eq true }
+      it { expect(parameter.rs_value).to be true }
+      it { expect(parameter.value).to be true }
     end
   end
 end
