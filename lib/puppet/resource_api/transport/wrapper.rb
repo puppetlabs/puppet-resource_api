@@ -41,9 +41,9 @@ class Puppet::ResourceApi::Transport::Wrapper
     (@transport.respond_to? name) || super
   end
 
-  def method_missing(method_name, *args, &block)
+  def method_missing(method_name, ...)
     if @transport.respond_to? method_name
-      @transport.send(method_name, *args, &block)
+      @transport.send(method_name, ...)
     else
       super
     end

@@ -29,8 +29,8 @@ RSpec.describe Puppet::ResourceApi::ReadOnlyParameter do
     end
 
     context 'when value is not set' do
-      it { expect(read_only_parameter.rs_value).to eq nil }
-      it { expect(read_only_parameter.value).to eq nil }
+      it { expect(read_only_parameter.rs_value).to be_nil }
+      it { expect(read_only_parameter.value).to be_nil }
     end
 
     context 'when value is already set' do

@@ -104,7 +104,7 @@ module Puppet::ResourceApi
           attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
-        super(attributes)
+        super
       end
 
       def name
@@ -541,8 +541,8 @@ module Puppet::ResourceApi
     end
   rescue NameError
     if device_name # line too long # rubocop:disable Style/GuardClause
-      raise Puppet::DevError, "Found neither the device-specific provider class Puppet::Provider::#{class_name}::#{device_class_name} in puppet/provider/#{type_name}/#{device_name}"\
-      " nor the generic provider class Puppet::Provider::#{class_name}::#{class_name} in puppet/provider/#{type_name}/#{type_name}"
+      raise Puppet::DevError, "Found neither the device-specific provider class Puppet::Provider::#{class_name}::#{device_class_name} in puppet/provider/#{type_name}/#{device_name} " \
+                              "nor the generic provider class Puppet::Provider::#{class_name}::#{class_name} in puppet/provider/#{type_name}/#{type_name}"
     else
       raise Puppet::DevError, "provider class Puppet::Provider::#{class_name}::#{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
     end

@@ -13,8 +13,6 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - {puppet_version: '7', ruby: '2.7'}
-          - {puppet_version: '7', ruby: 'jruby-9.3.7.0'}
           - {puppet_version: '8', ruby: '3.2'}
           - {puppet_version: '8', ruby: 'jruby-9.4.2.0'}
     env:
@@ -51,7 +49,6 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - {puppet_version: '7', ruby: '2.7'}
           - {puppet_version: '8', ruby: '3.2', extra: 'bundle config set with integration'}
     env:
       PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}

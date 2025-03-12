@@ -25,7 +25,7 @@ module Puppet::ResourceApi
     end
 
     def validate_schema(definition, attr_key)
-      super(definition, attr_key)
+      super
       %i[title provider alias audit before consume export loglevel noop notify require schedule stage subscribe tag].each do |name|
         raise Puppet::DevError, format('must not define an attribute called `%<name>s`', name: name.inspect) if definition[attr_key].key? name
       end
@@ -234,7 +234,7 @@ module Puppet::ResourceApi
         next unless attributes[key]
 
         type = @data_type_cache[attributes[key][:type]]
-        is_sensitive = (attributes[key].key?(:sensitive) && (attributes[key][:sensitive] == true))
+        is_sensitive = attributes[key].key?(:sensitive) && (attributes[key][:sensitive] == true)
         error_message = Puppet::ResourceApi::DataTypeHandling.try_validate(
           type,
           value,

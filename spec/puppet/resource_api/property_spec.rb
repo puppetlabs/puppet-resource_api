@@ -48,7 +48,7 @@ RSpec.describe Puppet::ResourceApi::Property do
 
     describe '#insync?' do
       it 'compares using symbols' do
-        expect(ensure_property.insync?(:present)).to eq(true)
+        expect(ensure_property.insync?(:present)).to be(true)
       end
     end
 
@@ -153,7 +153,7 @@ RSpec.describe Puppet::ResourceApi::Property do
               end
 
               it 'compares using symbols' do
-                expect(ensure_property.insync?(:present)).to eq(true)
+                expect(ensure_property.insync?(:present)).to be(true)
               end
             end
           end
@@ -285,7 +285,7 @@ RSpec.describe Puppet::ResourceApi::Property do
 
       expect { property.should = 'value' }.to raise_error Exception, 'error'
 
-      expect(property.should).to eq nil
+      expect(property.should).to be_nil
     end
   end
 
@@ -313,7 +313,7 @@ RSpec.describe Puppet::ResourceApi::Property do
       let(:data_type) { Puppet::Pops::Types::PBooleanType.new }
 
       it { expect(property.should).to eq :true } # rubocop:disable Lint/BooleanSymbol
-      it { expect(property.rs_value).to eq true }
+      it { expect(property.rs_value).to be true }
       it { expect(property.value).to eq :true } # rubocop:disable Lint/BooleanSymbol
     end
   end

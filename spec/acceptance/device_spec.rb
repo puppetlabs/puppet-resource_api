@@ -8,16 +8,9 @@ require 'tempfile'
 RSpec.describe 'exercising a device provider' do
   let(:common_args) { '--verbose --trace --strict=error --modulepath spec/fixtures' }
   let(:default_type_values) do
-    'string="meep" boolean=true integer=15 float=1.23 ensure=present variant_pattern=AE321EEF '\
-    'url="http://www.puppet.com" boolean_param=false integer_param=99 float_param=3.21 '\
-    'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
-  end
-
-  before(:all) do # rubocop:disable RSpec/BeforeAfterAll
-    if Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.0') && Gem::Version.new(Puppet::PUPPETVERSION) < Gem::Version.new('5.4.0')
-      # work around https://tickets.puppetlabs.com/browse/PUP-8632 and https://tickets.puppetlabs.com/browse/PUP-9047
-      FileUtils.mkdir_p(File.expand_path('~/.puppetlabs/opt/puppet/cache/devices/the_node/state'))
-    end
+    'string="meep" boolean=true integer=15 float=1.23 ensure=present variant_pattern=AE321EEF ' \
+      'url="http://www.puppet.com" boolean_param=false integer_param=99 float_param=3.21 ' \
+      'ensure_param=present variant_pattern_param=0xAE321EEF url_param="https://www.google.com"'
   end
 
   describe 'using `puppet resource`' do
@@ -32,8 +25,8 @@ RSpec.describe 'exercising a device provider' do
 
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
-        stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
-                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
+        stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n' \
+                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n' \
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).not_to be_success
@@ -45,8 +38,8 @@ RSpec.describe 'exercising a device provider' do
 
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
-        stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n'\
-                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n'\
+        stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n' \
+                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n' \
                    'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
         expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).to be_success
@@ -103,12 +96,7 @@ RSpec.describe 'exercising a device provider' do
       DEVICE_CREDS
     end
 
-    def is_device_apply_supported?
-      Gem::Version.new(Puppet::PUPPETVERSION) >= Gem::Version.new('5.3.6') && Gem::Version.new(Puppet::PUPPETVERSION) != Gem::Version.new('5.4.0')
-    end
-
     before do
-      skip "No device --apply in puppet before v5.3.6 nor in v5.4.0 (v#{Puppet::PUPPETVERSION} is installed)" unless is_device_apply_supported?
       device_conf.write(device_conf_content)
       device_conf.close
 
@@ -155,9 +143,9 @@ RSpec.describe 'exercising a device provider' do
       it 'applies the catalog successfully' do
         Tempfile.create('fact_set') do |f|
           f.write 'device_provider{ "foo":' \
-            'ensure => "present", boolean => true, integer => 15, float => 1.23, variant_pattern => "0x1234ABCD", '\
-            'url => "http://www.google.com", boolean_param => false, integer_param => 99, float_param => 3.21, '\
-            'ensure_param => "present", variant_pattern_param => "9A2222ED", url_param => "http://www.puppet.com" }'
+                  'ensure => "present", boolean => true, integer => 15, float => 1.23, variant_pattern => "0x1234ABCD", ' \
+                  'url => "http://www.google.com", boolean_param => false, integer_param => 99, float_param => 3.21, ' \
+                  'ensure_param => "present", variant_pattern_param => "9A2222ED", url_param => "http://www.puppet.com" }'
           f.close
 
           stdout_str, _status = Open3.capture2e("puppet device #{common_args} --deviceconfig #{device_conf.path} --apply #{f.path}")

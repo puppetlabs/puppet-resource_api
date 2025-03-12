@@ -19,7 +19,7 @@ group :tests do
   # since the Resource API runs inside the puppetserver, test against the JRuby versions we ship
   # these require special dependencies to have everything load properly
   # rubocop 1.48 supports JRuby 9.3+, which includes coverage for versions we support
-  gem 'rubocop', '~> 1.48.1', require: false
+  gem 'rubocop', '~> 1.70.0', require: false
   gem 'rubocop-rspec', '~> 2.20.0', require: false
   gem 'rubocop-performance', '~> 1.17.1', require: false
 end
