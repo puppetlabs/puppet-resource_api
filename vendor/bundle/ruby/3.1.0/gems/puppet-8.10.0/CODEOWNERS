@@ -1,0 +1,11 @@
+# defaults
+* @puppetlabs/phoenix
+
+# PAL
+/lib/puppet/pal @puppetlabs/bolt
+
+# puppet module
+/lib/puppet/application/module.rb @puppetlabs/modules
+/lib/puppet/face/module @puppetlabs/modules
+/lib/puppet/forge @puppetlabs/modules
+/lib/puppet/module_tool @puppetlabs/modules

@@ -1,0 +1,15 @@
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.1.0/gems/racc-1.8.1/ext/racc/cparse
+/opt/hostedtoolcache/Ruby/3.1.6/x64/bin/ruby -I /opt/hostedtoolcache/Ruby/3.1.6/x64/lib/ruby/3.1.0 extconf.rb
+creating Makefile
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.1.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250313-1898-rfdezg sitelibdir\=./.gem.20250313-1898-rfdezg clean
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.1.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250313-1898-rfdezg sitelibdir\=./.gem.20250313-1898-rfdezg
+compiling cparse.c
+linking shared-object racc/cparse.so
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.1.0/gems/racc-1.8.1/ext/racc/cparse
+make DESTDIR\= sitearchdir\=./.gem.20250313-1898-rfdezg sitelibdir\=./.gem.20250313-1898-rfdezg install
+/usr/bin/install -c -m 0755 cparse.so ./.gem.20250313-1898-rfdezg/racc
