@@ -1,7 +1,27 @@
+<!-- markdownlint-disable MD024 -->
 # Changelog
 
-All significant changes to this repo will be summarized in this file.
+All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
+
+## [v2.0.0](https://github.com/puppetlabs/puppet-resource_api/tree/v2.0.0) - 2025-03-13
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.9.0...v2.0.0)
+
+### Changed
+
+- (CAT-2254) Remove puppet 7 / Ruby 2.7 related code [#368](https://github.com/puppetlabs/puppet-resource_api/pull/368) ([LukasAud](https://github.com/LukasAud))
+
+### Added
+
+- Provider get() call optimization [#306](https://github.com/puppetlabs/puppet-resource_api/pull/306) ([seanmil](https://github.com/seanmil))
+
+### Fixed
+
+- Fix instances method with simple_get_filter [#304](https://github.com/puppetlabs/puppet-resource_api/pull/304) ([seanmil](https://github.com/seanmil))
+- SimpleProvider name fixes [#302](https://github.com/puppetlabs/puppet-resource_api/pull/302) ([seanmil](https://github.com/seanmil))
+- Various Rubocop fixes
 
 ## [1.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.0) (2023-08-08)
 
