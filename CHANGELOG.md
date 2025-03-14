@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - SimpleProvider name fixes [#302](https://github.com/puppetlabs/puppet-resource_api/pull/302) ([seanmil](https://github.com/seanmil))
 - Various Rubocop fixes
 
-## [1.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.0) (2023-08-08)
+## [1.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.0) - 2023-08-08
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.18...1.9.0)
 
@@ -31,7 +31,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(CAT-761\) Add custom\_generate as a feature [\#316](https://github.com/puppetlabs/puppet-resource_api/pull/316) ([david22swan](https://github.com/david22swan))
 
-## [1.8.18](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.18) (2023-07-21)
+## [1.8.18](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.18) - 2023-07-21
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.16...1.8.18)
 
@@ -49,7 +49,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) Update to Mend [\#311](https://github.com/puppetlabs/puppet-resource_api/pull/311) ([cthorn42](https://github.com/cthorn42))
 - \(packaging\) Bump to version '1.8.17' \[no-promote\] [\#301](https://github.com/puppetlabs/puppet-resource_api/pull/301) ([tvpartytonight](https://github.com/tvpartytonight))
 
-## [1.8.16](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.16) (2022-10-03)
+## [1.8.16](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.16) - 2022-10-03
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.14...1.8.16)
 
@@ -64,7 +64,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Support ensure parameter with Optional data type [\#292](https://github.com/puppetlabs/puppet-resource_api/pull/292) ([seanmil](https://github.com/seanmil))
 - Only ship needed files [\#289](https://github.com/puppetlabs/puppet-resource_api/pull/289) ([ekohl](https://github.com/ekohl))
 
-## [1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.14) (2021-06-09)
+## [1.8.14](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.14) - 2021-06-09
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.13...1.8.14)
 
@@ -97,7 +97,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Update rake requirement from ~\> 10.0 to ~\> 13.0 [\#262](https://github.com/puppetlabs/puppet-resource_api/pull/262) ([dependabot-preview[bot]](https://github.com/apps/dependabot-preview))
 - \(maint\) update Gemfile to allow use of non-vulnerable rake version 12.3.3 [\#260](https://github.com/puppetlabs/puppet-resource_api/pull/260) ([DavidS](https://github.com/DavidS))
 
-## [1.8.13](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.13) (2020-02-19)
+## [1.8.13](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.13) - 2020-02-19
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.12...1.8.13)
 
@@ -105,7 +105,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(IAC-274\) update CHANGELOG [\#259](https://github.com/puppetlabs/puppet-resource_api/pull/259) ([DavidS](https://github.com/DavidS))
 
-## [1.8.12](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.12) (2020-02-03)
+## [1.8.12](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.12) - 2020-02-03
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.11...1.8.12)
 
@@ -117,7 +117,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Update dependency\_decisions for LicenseFinder 6.0; Fix deprecation warning with outdated win32-service gem pulled in by puppet [\#252](https://github.com/puppetlabs/puppet-resource_api/pull/252) ([DavidS](https://github.com/DavidS))
 
-## [1.8.11](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.11) (2019-12-30)
+## [1.8.11](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.11) - 2019-12-30
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.10...1.8.11)
 
@@ -135,7 +135,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Pin json gem to older version for JRuby 1.7 [\#249](https://github.com/puppetlabs/puppet-resource_api/pull/249) ([DavidS](https://github.com/DavidS))
 
-## [1.8.10](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.10) (2019-11-14)
+## [1.8.10](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.10) - 2019-11-14
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.9...1.8.10)
 
@@ -152,7 +152,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(FM-8740\): Documentation tweaks based on most recent walkthrough [\#246](https://github.com/puppetlabs/puppet-resource_api/pull/246) ([sanfrancrisko](https://github.com/sanfrancrisko))
 
-## [1.8.9](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.9) (2019-10-03)
+## [1.8.9](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.9) - 2019-10-03
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.8...1.8.9)
 
@@ -168,7 +168,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(packaging\) Bump to version '1.8.9' [\#239](https://github.com/puppetlabs/puppet-resource_api/pull/239) ([mihaibuzgau](https://github.com/mihaibuzgau))
 
-## [1.8.8](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.8) (2019-09-25)
+## [1.8.8](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.8) - 2019-09-25
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.7...1.8.8)
 
@@ -177,7 +177,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(MODULES-9258\) Remove obsolete documentation [\#229](https://github.com/puppetlabs/puppet-resource_api/pull/229) ([DavidS](https://github.com/DavidS))
 - CHANGELOG for 1.8.7 [\#206](https://github.com/puppetlabs/puppet-resource_api/pull/206) ([DavidS](https://github.com/DavidS))
 
-## [1.8.7](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.7) (2019-09-11)
+## [1.8.7](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.7) - 2019-09-11
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.6...1.8.7)
 
@@ -191,7 +191,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(MODULES-9258\) Improve referencing and add summary [\#199](https://github.com/puppetlabs/puppet-resource_api/pull/199) ([maxiegit](https://github.com/maxiegit))
 - \(maint\) Pin both Jruby cells to use `dist: trusty` [\#197](https://github.com/puppetlabs/puppet-resource_api/pull/197) ([da-ar](https://github.com/da-ar))
 
-## [1.8.6](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.6) (2019-07-04)
+## [1.8.6](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.6) - 2019-07-04
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.6.5...1.8.6)
 
@@ -206,7 +206,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(packaging\) Bump to version '1.9.0' \[no-promote\] [\#191](https://github.com/puppetlabs/puppet-resource_api/pull/191) ([gimmyxd](https://github.com/gimmyxd))
 - \(maint\) retrofitting changelog for the last couple of releases [\#190](https://github.com/puppetlabs/puppet-resource_api/pull/190) ([DavidS](https://github.com/DavidS))
 
-## [1.6.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.6.5) (2019-07-04)
+## [1.6.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.6.5) - 2019-07-04
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.5...1.6.5)
 
@@ -219,7 +219,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(packaging\) Bump to 1.6.5 [\#196](https://github.com/puppetlabs/puppet-resource_api/pull/196) ([gimmyxd](https://github.com/gimmyxd))
 - \(maint\) test fixes [\#193](https://github.com/puppetlabs/puppet-resource_api/pull/193) ([DavidS](https://github.com/DavidS))
 
-## [1.8.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.5) (2019-06-24)
+## [1.8.5](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.5) - 2019-06-24
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.4...1.8.5)
 
@@ -236,7 +236,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) test fixes [\#185](https://github.com/puppetlabs/puppet-resource_api/pull/185) ([DavidS](https://github.com/DavidS))
 - \(maint\) make test order really random [\#175](https://github.com/puppetlabs/puppet-resource_api/pull/175) ([DavidS](https://github.com/DavidS))
 
-## [1.8.4](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.4) (2019-06-12)
+## [1.8.4](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.4) - 2019-06-12
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.3...1.8.4)
 
@@ -260,7 +260,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) test cleanups [\#172](https://github.com/puppetlabs/puppet-resource_api/pull/172) ([DavidS](https://github.com/DavidS))
 - \(packaging\) Update reported version to 1.8.4 \[no-promote\] [\#171](https://github.com/puppetlabs/puppet-resource_api/pull/171) ([gimmyxd](https://github.com/gimmyxd))
 
-## [1.8.3](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.3) (2019-04-12)
+## [1.8.3](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.3) - 2019-04-12
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.8.2...1.8.3)
 
@@ -272,7 +272,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(PA-2496\) Bump version and remove v from version number [\#170](https://github.com/puppetlabs/puppet-resource_api/pull/170) ([mihaibuzgau](https://github.com/mihaibuzgau))
 
-## [1.8.2](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.2) (2019-04-10)
+## [1.8.2](https://github.com/puppetlabs/puppet-resource_api/tree/1.8.2) - 2019-04-10
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.4...1.8.2)
 
@@ -282,7 +282,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add `implementations` to reserved bolt keywords [\#165](https://github.com/puppetlabs/puppet-resource_api/pull/165) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.8.1 [\#163](https://github.com/puppetlabs/puppet-resource_api/pull/163) ([DavidS](https://github.com/DavidS))
 
-## [v1.6.4](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.4) (2019-03-25)
+## [v1.6.4](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.4) - 2019-03-25
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.8.1...v1.6.4)
 
@@ -290,7 +290,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(MAINT\) Bump version [\#164](https://github.com/puppetlabs/puppet-resource_api/pull/164) ([sebastian-miclea](https://github.com/sebastian-miclea))
 
-## [v1.8.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.1) (2019-03-13)
+## [v1.8.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.1) - 2019-03-13
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.8.0...v1.8.1)
 
 **Fixed bugs:**
@@ -304,7 +304,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) update release docs [\#159](https://github.com/puppetlabs/puppet-resource_api/pull/159) ([DavidS](https://github.com/DavidS))
 - Improve travis cells and testing [\#145](https://github.com/puppetlabs/puppet-resource_api/pull/145) ([DavidS](https://github.com/DavidS))
 
-## [v1.8.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.0) (2019-02-26)
+## [v1.8.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.8.0) - 2019-02-26
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.7.0...v1.8.0)
 
 **Implemented enhancements:**
@@ -327,7 +327,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(FM-7726\) cleanups for the transport  [\#153](https://github.com/puppetlabs/puppet-resource_api/pull/153) ([DavidS](https://github.com/DavidS))
 - \(FM-7691,FM-7696\) refactoring definition handling in contexts [\#150](https://github.com/puppetlabs/puppet-resource_api/pull/150) ([DavidS](https://github.com/DavidS))
 
-## [v1.7.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.7.0) (2019-01-07)
+## [v1.7.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.7.0) - 2019-01-07
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.3...v1.7.0)
 
 **Implemented enhancements:**
@@ -340,7 +340,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 -  \(FM-7597\) RSAPI Transport register function [\#146](https://github.com/puppetlabs/puppet-resource_api/pull/146) ([da-ar](https://github.com/da-ar))
 - \(packaging\) Update version to 1.7.0 [\#144](https://github.com/puppetlabs/puppet-resource_api/pull/144) ([branan](https://github.com/branan))
 
-## [v1.6.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.3) (2018-12-11)
+## [v1.6.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.3) - 2018-12-11
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.2...v1.6.3)
 
 **Closed issues:**
@@ -356,7 +356,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) extract data type handling code [\#137](https://github.com/puppetlabs/puppet-resource_api/pull/137) ([bpietraga](https://github.com/bpietraga))
 - Release prep for v1.6.2 [\#135](https://github.com/puppetlabs/puppet-resource_api/pull/135) ([DavidS](https://github.com/DavidS))
 
-## [v1.6.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.2) (2018-10-25)
+## [v1.6.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.2) - 2018-10-25
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.1...v1.6.2)
 
 **Fixed bugs:**
@@ -367,7 +367,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Release prep for v1.6.1 [\#133](https://github.com/puppetlabs/puppet-resource_api/pull/133) ([DavidS](https://github.com/DavidS))
 
-## [v1.6.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.1) (2018-10-25)
+## [v1.6.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.1) - 2018-10-25
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.6.0...v1.6.1)
 
 **Fixed bugs:**
@@ -382,7 +382,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Adjust announcement template to reality [\#128](https://github.com/puppetlabs/puppet-resource_api/pull/128) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.6.0 [\#127](https://github.com/puppetlabs/puppet-resource_api/pull/127) ([da-ar](https://github.com/da-ar))
 
-## [v1.6.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.0) (2018-09-25)
+## [v1.6.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.6.0) - 2018-09-25
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.5.0...v1.6.0)
 
 **Implemented enhancements:**
@@ -401,7 +401,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) Add Travis job for Puppet 6.0.x branch [\#120](https://github.com/puppetlabs/puppet-resource_api/pull/120) ([da-ar](https://github.com/da-ar))
 - Release prep for v1.5.0 [\#119](https://github.com/puppetlabs/puppet-resource_api/pull/119) ([DavidS](https://github.com/DavidS))
 
-## [v1.5.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.5.0) (2018-09-12)
+## [v1.5.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.5.0) - 2018-09-12
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.2...v1.5.0)
 
 **Implemented enhancements:**
@@ -418,7 +418,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Release prep for v1.4.2 [\#112](https://github.com/puppetlabs/puppet-resource_api/pull/112) ([DavidS](https://github.com/DavidS))
 
-## [v1.4.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.2) (2018-08-09)
+## [v1.4.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.2) - 2018-08-09
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.1...v1.4.2)
 
 **Fixed bugs:**
@@ -430,7 +430,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - \(maint\) fix brace alignment; document reference [\#111](https://github.com/puppetlabs/puppet-resource_api/pull/111) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.4.1 [\#109](https://github.com/puppetlabs/puppet-resource_api/pull/109) ([DavidS](https://github.com/DavidS))
 
-## [v1.4.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.1) (2018-07-20)
+## [v1.4.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.1) - 2018-07-20
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.4.0...v1.4.1)
 
 **Fixed bugs:**
@@ -444,7 +444,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Minor changes to README [\#106](https://github.com/puppetlabs/puppet-resource_api/pull/106) ([clairecadman](https://github.com/clairecadman))
 - Release prep for v1.4.0 [\#102](https://github.com/puppetlabs/puppet-resource_api/pull/102) ([DavidS](https://github.com/DavidS))
 
-## [v1.4.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.0) (2018-06-19)
+## [v1.4.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.4.0) - 2018-06-19
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.3.0...v1.4.0)
 
 **Implemented enhancements:**
@@ -471,7 +471,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Update release docs and announcement template [\#86](https://github.com/puppetlabs/puppet-resource_api/pull/86) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.3.0 [\#85](https://github.com/puppetlabs/puppet-resource_api/pull/85) ([da-ar](https://github.com/da-ar))
 
-## [v1.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.3.0) (2018-05-24)
+## [v1.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.3.0) - 2018-05-24
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.2.0...v1.3.0)
 
 **Implemented enhancements:**
@@ -493,7 +493,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Some glue fixes: announcement, to\_manifest, to\_hierayaml [\#77](https://github.com/puppetlabs/puppet-resource_api/pull/77) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.2.0 [\#75](https://github.com/puppetlabs/puppet-resource_api/pull/75) ([DavidS](https://github.com/DavidS))
 
-## [v1.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.2.0) (2018-05-08)
+## [v1.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.2.0) - 2018-05-08
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.1.0...v1.2.0)
 
 **Implemented enhancements:**
@@ -515,7 +515,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Cache ~/.rvm for jruby jobs [\#66](https://github.com/puppetlabs/puppet-resource_api/pull/66) ([cotsog](https://github.com/cotsog))
 - Release prep for v1.1.0 [\#64](https://github.com/puppetlabs/puppet-resource_api/pull/64) ([DavidS](https://github.com/DavidS))
 
-## [v1.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.1.0) (2018-04-12)
+## [v1.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.1.0) - 2018-04-12
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.3...v1.1.0)
 
 **Implemented enhancements:**
@@ -533,7 +533,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Update puppetlabs\_spec\_helper to fixed master version [\#58](https://github.com/puppetlabs/puppet-resource_api/pull/58) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.0.3 [\#57](https://github.com/puppetlabs/puppet-resource_api/pull/57) ([DavidS](https://github.com/DavidS))
 
-## [v1.0.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.3) (2018-04-06)
+## [v1.0.3](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.3) - 2018-04-06
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.2...v1.0.3)
 
 **Implemented enhancements:**
@@ -552,7 +552,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Update release prep notes [\#51](https://github.com/puppetlabs/puppet-resource_api/pull/51) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.0.2 [\#50](https://github.com/puppetlabs/puppet-resource_api/pull/50) ([DavidS](https://github.com/DavidS))
 
-## [v1.0.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.2) (2018-03-26)
+## [v1.0.2](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.2) - 2018-03-26
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.1...v1.0.2)
 
 **Implemented enhancements:**
@@ -568,7 +568,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - \(PDK-810\) run CI against all the versions [\#46](https://github.com/puppetlabs/puppet-resource_api/pull/46) ([DavidS](https://github.com/DavidS))
 
-## [v1.0.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.1) (2018-03-23)
+## [v1.0.1](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.1) - 2018-03-23
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.0.0...v1.0.1)
 
 **Fixed bugs:**
@@ -580,7 +580,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Release prep for v1.0.1 [\#45](https://github.com/puppetlabs/puppet-resource_api/pull/45) ([DavidS](https://github.com/DavidS))
 - Release prep for v1.0.0 [\#43](https://github.com/puppetlabs/puppet-resource_api/pull/43) ([da-ar](https://github.com/da-ar))
 
-## [v1.0.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.0) (2018-03-23)
+## [v1.0.0](https://github.com/puppetlabs/puppet-resource_api/tree/v1.0.0) - 2018-03-23
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.10.0...v1.0.0)
 
 **Implemented enhancements:**
@@ -597,7 +597,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Notes on how to build a release [\#39](https://github.com/puppetlabs/puppet-resource_api/pull/39) ([DavidS](https://github.com/DavidS))
 - Release prep for v0.10.0 [\#38](https://github.com/puppetlabs/puppet-resource_api/pull/38) ([DavidS](https://github.com/DavidS))
 
-## [v0.10.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.10.0) (2018-03-21)
+## [v0.10.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.10.0) - 2018-03-21
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.9.0...v0.10.0)
 
 **Implemented enhancements:**
@@ -615,7 +615,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Cleanup test module [\#33](https://github.com/puppetlabs/puppet-resource_api/pull/33) ([DavidS](https://github.com/DavidS))
 - Update to rubocop 0.53.0 [\#32](https://github.com/puppetlabs/puppet-resource_api/pull/32) ([DavidS](https://github.com/DavidS))
 
-## [v0.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.9.0) (2018-02-22)
+## [v0.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.9.0) - 2018-02-22
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.3.0...v0.9.0)
 
 **Implemented enhancements:**
@@ -633,7 +633,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add a note on device support to the README [\#26](https://github.com/puppetlabs/puppet-resource_api/pull/26) ([DavidS](https://github.com/DavidS))
 - Remove Command API [\#25](https://github.com/puppetlabs/puppet-resource_api/pull/25) ([DavidS](https://github.com/DavidS))
 
-## [v0.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.3.0) (2018-02-21)
+## [v0.3.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.3.0) - 2018-02-21
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.2.2...v0.3.0)
 
 **Implemented enhancements:**
@@ -650,7 +650,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Release prep v0.3.0 [\#22](https://github.com/puppetlabs/puppet-resource_api/pull/22) ([DavidS](https://github.com/DavidS))
 
-## [v0.2.2](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.2) (2018-01-25)
+## [v0.2.2](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.2) - 2018-01-25
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.2.1...v0.2.2)
 
 **Fixed bugs:**
@@ -661,7 +661,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Release prep v0.2.2 [\#16](https://github.com/puppetlabs/puppet-resource_api/pull/16) ([DavidS](https://github.com/DavidS))
 
-## [v0.2.1](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.1) (2018-01-24)
+## [v0.2.1](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.1) - 2018-01-24
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.2.0...v0.2.1)
 
 **Fixed bugs:**
@@ -672,7 +672,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Release prep [\#14](https://github.com/puppetlabs/puppet-resource_api/pull/14) ([DavidS](https://github.com/DavidS))
 
-## [v0.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.0) (2018-01-23)
+## [v0.2.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.2.0) - 2018-01-23
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v0.1.0...v0.2.0)
 
 **Implemented enhancements:**
@@ -689,7 +689,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Release Prep for 0.2.0 [\#9](https://github.com/puppetlabs/puppet-resource_api/pull/9) ([DavidS](https://github.com/DavidS))
 - Small fixes [\#7](https://github.com/puppetlabs/puppet-resource_api/pull/7) ([DavidS](https://github.com/DavidS))
 
-## [v0.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.1.0) (2017-11-17)
+## [v0.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v0.1.0) - 2017-11-17
 **Merged pull requests:**
 
 - \(maint\) sort dependencies in gemspec [\#6](https://github.com/puppetlabs/puppet-resource_api/pull/6) ([DavidS](https://github.com/DavidS))
