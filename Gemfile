@@ -37,6 +37,7 @@ group :integration do
   # Pin due to an issue with FFI, Windows, and Facter. See FACT-3434
   gem 'ffi', '1.15.5'
   gem 'nkf', '= 0.1.2'
+
 end
 
 # Find a location or specific version for a gem. place_or_version can be a
