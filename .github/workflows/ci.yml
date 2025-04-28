@@ -63,9 +63,8 @@ jobs:
           ruby-version: ${{ matrix.cfg.ruby }}
       - name: Update rubygems and install gems
         run: |
-          bundle config set without development
-          ${{ matrix.cfg.extra }}
           bundle config set with integration
+          ${{ matrix.cfg.extra }}
           bundle install --jobs 4 --retry 3
 
       - name: Rubocop
