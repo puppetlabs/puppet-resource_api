@@ -65,7 +65,8 @@ jobs:
         run: |
           bundle config set without development
           ${{ matrix.cfg.extra }}
-          bundle install --jobs 4 --retry 3 --with integration
+          bundle config set with integration
+          bundle install --jobs 4 --retry 3
 
       - name: Rubocop
         run: |
