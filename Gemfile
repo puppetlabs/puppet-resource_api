@@ -10,6 +10,14 @@ group :tests do
   gem 'rspec', '~> 3.0'
   gem 'simplecov-console'
 
+  platforms :mswin, :mingw, :x64_mingw do
+    gem 'nkf', '= 0.1.2'
+  end
+  
+  platforms :ruby do
+    gem 'nkf', '>= 0.1.2'
+  end
+
   # the test gems required for module testing
   gem 'puppetlabs_spec_helper', '~> 8.0'
   gem 'rspec-puppet'
