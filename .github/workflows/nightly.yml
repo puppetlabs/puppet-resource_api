@@ -1,8 +1,13 @@
 name: "nightly"
 
 on:
-  schedule:
-    - cron: "0 0 * * *"
+#   schedule:
+#     - cron: "0 0 * * *"
+  pull_request:
+    branches:
+      - "maint-fix-nightlies"
+  workflow_dispatch:
+     
 
 jobs:
   linux_tests:
@@ -63,7 +68,7 @@ jobs:
         run: |
           bundle config set without development
           ${{ matrix.cfg.extra }}
-          bundle install --jobs 4 --retry 3
+          bundle install --jobs 4 --retry 3 --with integration
 
       - name: Rubocop
         run: |
