@@ -10,14 +10,6 @@ group :tests do
   gem 'rspec', '~> 3.0'
   gem 'simplecov-console'
 
-  platforms :mswin, :mingw, :x64_mingw do
-    gem 'nkf', '= 0.1.2'
-  end
-  
-  platforms :ruby do
-    gem 'nkf', '>= 0.1.2'
-  end
-
   # the test gems required for module testing
   gem 'puppetlabs_spec_helper', '~> 8.0'
   gem 'rspec-puppet'
@@ -44,6 +36,7 @@ end
 group :integration do
   # Pin due to an issue with FFI, Windows, and Facter. See FACT-3434
   gem 'ffi', '1.15.5'
+  gem 'nkf', '= 0.1.2'
 end
 
 # Find a location or specific version for a gem. place_or_version can be a
