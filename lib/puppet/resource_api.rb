@@ -251,8 +251,20 @@ module Puppet::ResourceApi
 
       def self.rsapi_provider_get(names = nil)
         # If the cache has been marked as having all instances, then just return the
-        # full contents:
-        return rsapi_provider_get_cache.all if rsapi_provider_get_cache.cached_all? && names.nil?
+        # full contents or the filtered contents based on names:
+        if rsapi_provider_get_cache.cached_all?
+          return rsapi_provider_get_cache.all if names.nil?
+          
+          # If we have all instances cached but need specific ones, filter from cache
+          cached_resources = names.map { |name| rsapi_provider_get_cache.get(name) }.compact
+          return cached_resources unless cached_resources.empty?
+        end
+
+        # For simple_get_filter, if we're asking for specific resources and they're cached, return those
+        if type_definition.feature?('simple_get_filter') && !names.nil?
+          cached_resources = names.map { |name| rsapi_provider_get_cache.get(name) }.compact
+          return cached_resources if names.length == cached_resources.length
+        end
 
         fetched = if type_definition.feature?('simple_get_filter')
                     my_provider.get(context, names)
