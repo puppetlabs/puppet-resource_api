@@ -545,6 +545,8 @@ MESSAGE
   end
   module_function :register_transport # rubocop:disable Style/AccessModifierDeclarations
 
+  # rubocop:disable Layout/EndOfLine
+
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
   end
