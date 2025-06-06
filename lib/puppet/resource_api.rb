@@ -5,7 +5,6 @@ require 'puppet/resource_api/data_type_handling'
 require 'puppet/resource_api/glue'
 require 'puppet/resource_api/parameter'
 require 'puppet/resource_api/property'
-require 'puppet/resource_api/provider_get_cache'
 require 'puppet/resource_api/puppet_context' unless RUBY_PLATFORM == 'java'
 require 'puppet/resource_api/read_only_parameter'
 require 'puppet/resource_api/transport'
@@ -33,7 +32,9 @@ module Puppet::ResourceApi
     # this has to happen before Puppet::Type.newtype starts autoloading providers
     # it also needs to be guarded against the namespace already being defined by something
     # else to avoid ruby warnings
-    Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new) unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
+    unless Puppet::Provider.const_defined?(class_name_from_type_name(definition[:name]), false)
+      Puppet::Provider.const_set(class_name_from_type_name(definition[:name]), Module.new)
+    end
 
     Puppet::Type.newtype(definition[:name].to_sym) do
       # The :desc value is already cleaned up by the TypeDefinition validation
@@ -64,15 +65,8 @@ module Puppet::ResourceApi
         self.class.type_definition
       end
 
-      apply_to_device if type_definition.feature?('remote_resource')
-
-      define_singleton_method(:rsapi_provider_get_cache) do
-        # This gives a new cache per resource provider on each Puppet run:
-        @rsapi_provider_get_cache ||= Puppet::ResourceApi::ProviderGetCache.new
-      end
-
-      def rsapi_provider_get_cache
-        self.class.rsapi_provider_get_cache
+      if type_definition.feature?('remote_resource')
+        apply_to_device
       end
 
       def initialize(attributes)
@@ -90,21 +84,27 @@ module Puppet::ResourceApi
         # undo puppet's unwrapping of Sensitive values to provide a uniform experience for providers
         # See https://tickets.puppetlabs.com/browse/PDK-1091 for investigation and background
         sensitives.each do |name|
-          attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name]) if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
+          if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
+            attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name])
+          end
         end
 
         # $stderr.puts "B: #{attributes.inspect}"
-        attributes = my_provider.canonicalize(context, [attributes])[0] if type_definition.feature?('canonicalize')
+        if type_definition.feature?('canonicalize')
+          attributes = my_provider.canonicalize(context, [attributes])[0]
+        end
 
         # the `Puppet::Resource::Ral.find` method, when `instances` does not return a match, uses a Hash with a `:name` key to create
         # an "absent" resource. This is often hit by `puppet resource`. This needs to work, even if the namevar is not called `name`.
         # This bit here relies on the default `title_patterns` (see below) to match the title back to the first (and often only) namevar
         if type_definition.attributes[:name].nil? && attributes[:title].nil?
           attributes[:title] = attributes.delete(:name)
-          attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
+          if attributes[:title].nil? && !type_definition.namevars.empty?
+            attributes[:title] = @title
+          end
         end
 
-        super
+        super(attributes)
       end
 
       def name
@@ -129,7 +129,7 @@ module Puppet::ResourceApi
         @rsapi_canonicalized_target_state ||= begin
           # skip puppet's injected metaparams
           actual_params = @parameters.select { |k, _v| type_definition.attributes.key? k }
-          target_state = actual_params.transform_values(&:rs_value)
+          target_state = Hash[actual_params.map { |k, v| [k, v.rs_value] }]
           target_state = my_provider.canonicalize(context, [target_state]).first if type_definition.feature?('canonicalize')
           target_state
         end
@@ -140,33 +140,22 @@ module Puppet::ResourceApi
       def generate
         # If feature `custom_generate` has been set then call the generate function within the provider and return the given results
         return unless type_definition&.feature?('custom_generate')
-
         should_hash = rsapi_canonicalized_target_state
         is_hash     = rsapi_current_state
         title       = rsapi_title
 
         # Ensure that a custom `generate` method has been created within the provider
         raise(Puppet::DevError, 'No generate method found within the types provider') unless my_provider.respond_to?(:generate)
-
         # Call the providers custom `generate` method
-        my_provider.generate(context, title, is_hash, should_hash)
+        rules_resources = my_provider.generate(context, title, is_hash, should_hash)
 
         # Return array of resources
+        rules_resources
       end
 
       def rsapi_current_state
-        return @rsapi_current_state if @rsapi_current_state
-
-        # If the current state is not set, then check the cache and, if a value is
-        # found, ensure it passes strict_check before allowing it to be used:
-        cached_value = rsapi_provider_get_cache.get(rsapi_title)
-        strict_check(cached_value) if cached_value
-        @rsapi_current_state = cached_value
-      end
-
-      def rsapi_current_state=(value)
-        rsapi_provider_get_cache.add(rsapi_title, value)
-        @rsapi_current_state = value
+        refresh_current_state unless @rsapi_current_state
+        @rsapi_current_state
       end
 
       def to_resource
@@ -190,11 +179,11 @@ module Puppet::ResourceApi
         definition[:attributes].each do |name, options|
           type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
             :name,
-            options[:type]
+            options[:type],
           )
 
           # skip read only vars and the namevar
-          next if %i[read_only namevar].include? options[:behaviour]
+          next if [:read_only, :namevar].include? options[:behaviour]
 
           # skip properties if the resource is being deleted
           next if definition[:attributes][:ensure] &&
@@ -221,7 +210,7 @@ module Puppet::ResourceApi
         custom_insync_trigger_options = {
           type: 'Enum[do_not_specify_in_manifest]',
           desc: 'A hidden property which enables a type with custom insync to perform an insync check without specifying any insyncable properties',
-          default: 'do_not_specify_in_manifest'
+          default: 'do_not_specify_in_manifest',
         }
 
         type_definition.create_attribute_in(self, :rsapi_custom_insync_trigger, :newproperty, Puppet::ResourceApi::Property, custom_insync_trigger_options)
@@ -230,12 +219,16 @@ module Puppet::ResourceApi
       definition[:attributes].each do |name, options|
         # puts "#{name}: #{options.inspect}"
 
-        raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value" if options[:behaviour] && !(%i[read_only namevar parameter init_only].include? options[:behaviour])
+        if options[:behaviour]
+          unless [:read_only, :namevar, :parameter, :init_only].include? options[:behaviour]
+            raise Puppet::ResourceError, "`#{options[:behaviour]}` is not a valid behaviour value"
+          end
+        end
 
         # TODO: using newparam everywhere would suppress change reporting
         #       that would allow more fine-grained reporting through context,
         #       but require more invest in hooking up the infrastructure to emulate existing data
-        if %i[parameter namevar].include? options[:behaviour]
+        if [:parameter, :namevar].include? options[:behaviour]
           param_or_property = :newparam
           parent = Puppet::ResourceApi::Parameter
         elsif options[:behaviour] == :read_only
@@ -249,77 +242,57 @@ module Puppet::ResourceApi
         type_definition.create_attribute_in(self, name, param_or_property, parent, options)
       end
 
-      def self.rsapi_provider_get(names = nil)
-        # If the cache has been marked as having all instances, then just return the
-        # full contents:
-        return rsapi_provider_get_cache.all if rsapi_provider_get_cache.cached_all? && names.nil?
-
-        fetched = if type_definition.feature?('simple_get_filter')
-                    my_provider.get(context, names)
-                  else
-                    my_provider.get(context)
-                  end
-
-        fetched.each do |resource_hash|
-          type_definition.check_schema(resource_hash)
-          rsapi_provider_get_cache.add(build_title(type_definition, resource_hash), resource_hash)
-        end
-
-        if names.nil? && !type_definition.feature?('simple_get_filter')
-          # Mark the cache as having all possible instances:
-          rsapi_provider_get_cache.cached_all
-        end
-
-        fetched
-      end
-
       def self.instances
         # puts 'instances'
         # force autoloading of the provider
         provider(type_definition.name)
 
-        rsapi_provider_get.map do |resource_hash|
+        initial_fetch = if type_definition.feature?('simple_get_filter')
+                          my_provider.get(context, [])
+                        else
+                          my_provider.get(context)
+                        end
+
+        initial_fetch.map do |resource_hash|
+          type_definition.check_schema(resource_hash)
           # allow a :title from the provider to override the default
           result = if resource_hash.key? :title
                      new(title: resource_hash[:title])
                    else
                      new(title: build_title(type_definition, resource_hash))
                    end
-          # Cache the state in the generated resource, but unfortunately
-          # this only benefits "puppet resource", not apply runs:
           result.cache_current_state(resource_hash)
           result
         end
       end
 
       def refresh_current_state
-        current_state = self.class.rsapi_provider_get([rsapi_title]).find { |h| namevar_match?(h) }
+        @rsapi_current_state = if type_definition.feature?('simple_get_filter')
+                                 my_provider.get(context, [rsapi_title]).find { |h| namevar_match?(h) }
+                               else
+                                 my_provider.get(context).find { |h| namevar_match?(h) }
+                               end
 
-        if current_state
-          strict_check(current_state)
+        if @rsapi_current_state
+          type_definition.check_schema(@rsapi_current_state)
+          strict_check(@rsapi_current_state)
         else
-          current_state = if rsapi_title.is_a? Hash
-                            rsapi_title.dup
-                          else
-                            { title: rsapi_title }
-                          end
-          current_state[:ensure] = :absent if type_definition.ensurable?
+          @rsapi_current_state = if rsapi_title.is_a? Hash
+                                   rsapi_title.dup
+                                 else
+                                   { title: rsapi_title }
+                                 end
+          @rsapi_current_state[:ensure] = :absent if type_definition.ensurable?
         end
-        self.rsapi_current_state = current_state
       end
 
-      # Use this to set the current state from the `instances` method. "puppet resources"
-      # needs this to minimize provider get() calls, but during a Puppet apply run
-      # the instances() method is only used by resource generation, and resource
-      # generators use and then discard the resources created by `instances``, so this
-      # does not help with that:
+      # Use this to set the current state from the `instances` method
       def cache_current_state(resource_hash)
-        self.rsapi_current_state = resource_hash
-        strict_check(resource_hash)
+        @rsapi_current_state = resource_hash
+        strict_check(@rsapi_current_state)
       end
 
       def retrieve
-        refresh_current_state unless rsapi_current_state
         Puppet.debug("Current State: #{rsapi_current_state.inspect}")
 
         result = Puppet::Resource.new(self.class, title, parameters: rsapi_current_state)
@@ -343,18 +316,17 @@ module Puppet::ResourceApi
         # puts 'flush'
         target_state = rsapi_canonicalized_target_state
 
-        retrieve unless rsapi_current_state
+        retrieve unless @rsapi_current_state
 
-        return if rsapi_current_state == target_state
+        return if @rsapi_current_state == target_state
 
         Puppet.debug("Target State: #{target_state.inspect}")
 
         # enforce init_only attributes
-        if Puppet.settings[:strict] != :off && rsapi_current_state && (rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
+        if Puppet.settings[:strict] != :off && @rsapi_current_state && (@rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
-            next unless type_definition.attributes[name][:behaviour] == :init_only && value != rsapi_current_state[name]
-
-            message = "Attempting to change `#{name}` init_only attribute value from `#{rsapi_current_state[name]}` to `#{value}`"
+            next unless type_definition.attributes[name][:behaviour] == :init_only && value != @rsapi_current_state[name]
+            message = "Attempting to change `#{name}` init_only attribute value from `#{@rsapi_current_state[name]}` to `#{value}`"
             case Puppet.settings[:strict]
             when :warning
               Puppet.warning(message)
@@ -365,9 +337,9 @@ module Puppet::ResourceApi
         end
 
         if type_definition.feature?('supports_noop')
-          my_provider.set(context, { rsapi_title => { is: rsapi_current_state, should: target_state } }, noop: noop?)
+          my_provider.set(context, { rsapi_title => { is: @rsapi_current_state, should: target_state } }, noop: noop?)
         else
-          my_provider.set(context, rsapi_title => { is: rsapi_current_state, should: target_state }) unless noop?
+          my_provider.set(context, rsapi_title => { is: @rsapi_current_state, should: target_state }) unless noop?
         end
         if context.failed?
           context.reset_failed
@@ -375,16 +347,16 @@ module Puppet::ResourceApi
         end
 
         # remember that we have successfully reached our desired state
-        self.rsapi_current_state = target_state
+        @rsapi_current_state = target_state
       end
 
       def raise_missing_attrs
-        error_msg = "The following mandatory attributes were not provided:\n    *  #{@missing_attrs.join(", \n    *  ")}"
+        error_msg = "The following mandatory attributes were not provided:\n    *  " + @missing_attrs.join(", \n    *  ")
         raise Puppet::ResourceError, error_msg if @missing_attrs.any? && (value(:ensure) != :absent && !value(:ensure).nil?)
       end
 
       def raise_missing_params
-        error_msg = "The following mandatory parameters were not provided:\n    *  #{@missing_params.join(", \n    *  ")}"
+        error_msg = "The following mandatory parameters were not provided:\n    *  " + @missing_params.join(", \n    *  ")
         raise Puppet::ResourceError, error_msg
       end
 
@@ -415,14 +387,14 @@ module Puppet::ResourceApi
         # compare the clone against the current state to see if changes have been made by canonicalize
         return unless state_clone && (current_state != state_clone)
 
-        # :nocov:
+        #:nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
-        message = <<~MESSAGE.strip
-          #{type_definition.name}[#{@title}]#get has not provided canonicalized values.
-          Returned values:       #{current_state.inspect}
-          Canonicalized values:  #{state_clone.inspect}
-        MESSAGE
-        # :nocov:
+        message = <<MESSAGE.strip
+#{type_definition.name}[#{@title}]#get has not provided canonicalized values.
+Returned values:       #{current_state.inspect}
+Canonicalized values:  #{state_clone.inspect}
+MESSAGE
+        #:nocov:
         strict_message(message)
       end
 
@@ -437,7 +409,6 @@ module Puppet::ResourceApi
         self.class.title_patterns.each do |regexp, symbols|
           captures = regexp.match(current_state[:title])
           next if captures.nil?
-
           symbols.zip(captures[1..-1]).each do |symbol_and_lambda, capture|
             # The Resource API does not support passing procs in title_patterns
             # so, unlike Puppet::Resource, we do not need to handle that here.
@@ -451,15 +422,15 @@ module Puppet::ResourceApi
 
         namevars = type_definition.namevars.reject { |namevar| title_hash[namevar] == rsapi_title[namevar] }
 
-        # :nocov:
+        #:nocov:
         # codecov fails to register this multiline as covered, even though simplecov does.
-        message = <<~MESSAGE.strip
-          #{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
-          Namevars which do not match: #{namevars.inspect}
-          Returned parsed title hash:  #{title_hash.inspect}
-          Expected hash:               #{rsapi_title.inspect}
-        MESSAGE
-        # :nocov:
+        message = <<MESSAGE.strip
+#{type_definition.name}[#{@title}]#get has provided a title attribute which does not match all namevars.
+Namevars which do not match: #{namevars.inspect}
+Returned parsed title hash:  #{title_hash.inspect}
+Expected hash:               #{rsapi_title.inspect}
+MESSAGE
+        #:nocov:
         strict_message(message)
       end
 
@@ -475,7 +446,7 @@ module Puppet::ResourceApi
         @title_patterns ||= if type_definition.definition.key? :title_patterns
                               parse_title_patterns(type_definition.definition[:title_patterns])
                             else
-                              [[/(.*)/m, [[type_definition.namevars.first]]]]
+                              [[%r{(.*)}m, [[type_definition.namevars.first]]]]
                             end
       end
 
@@ -496,14 +467,14 @@ module Puppet::ResourceApi
         end
       end
 
-      %i[autorequire autobefore autosubscribe autonotify].each do |auto|
+      [:autorequire, :autobefore, :autosubscribe, :autonotify].each do |auto|
         next unless definition[auto]
 
         definition[auto].each do |type, values|
           Puppet.debug("Registering #{auto} for #{type}: #{values.inspect}")
           send(auto, type.downcase.to_sym) do
             resolved = [values].flatten.map do |v|
-              match = /\A\$(.*)\Z/.match(v) if v.is_a? String
+              match = %r{\A\$(.*)\Z}.match(v) if v.is_a? String
               if match.nil?
                 v
               else
@@ -512,13 +483,13 @@ module Puppet::ResourceApi
             end
             # Flatten to handle any resolved array properties and filter any nil
             # values resulting from unspecified optional parameters:
-            resolved.flatten.reject(&:nil?)
+            resolved.flatten.reject { |v| v.nil? }
           end
         end
       end
     end
   end
-  module_function :register_type
+  module_function :register_type # rubocop:disable Style/AccessModifierDeclarations
 
   def load_provider(type_name)
     class_name = class_name_from_type_name(type_name)
@@ -541,20 +512,20 @@ module Puppet::ResourceApi
     end
   rescue NameError
     if device_name # line too long # rubocop:disable Style/GuardClause
-      raise Puppet::DevError, "Found neither the device-specific provider class Puppet::Provider::#{class_name}::#{device_class_name} in puppet/provider/#{type_name}/#{device_name} " \
-                              "nor the generic provider class Puppet::Provider::#{class_name}::#{class_name} in puppet/provider/#{type_name}/#{type_name}"
+      raise Puppet::DevError, "Found neither the device-specific provider class Puppet::Provider::#{class_name}::#{device_class_name} in puppet/provider/#{type_name}/#{device_name}"\
+      " nor the generic provider class Puppet::Provider::#{class_name}::#{class_name} in puppet/provider/#{type_name}/#{type_name}"
     else
       raise Puppet::DevError, "provider class Puppet::Provider::#{class_name}::#{class_name} not found in puppet/provider/#{type_name}/#{type_name}"
     end
   end
-  module_function :load_provider
+  module_function :load_provider # rubocop:disable Style/AccessModifierDeclarations
 
   def load_default_provider(class_name, type_name_sym)
     # loads the "puppet/provider/#{type_name}/#{type_name}" file through puppet
     Puppet::Type.type(type_name_sym).provider(type_name_sym)
     Puppet::Provider.const_get(class_name, false).const_get(class_name, false)
   end
-  module_function :load_default_provider
+  module_function :load_default_provider # rubocop:disable Style/AccessModifierDeclarations
 
   def load_device_provider(class_name, type_name_sym, device_class_name, device_name_sym)
     # loads the "puppet/provider/#{type_name}/#{device_name}" file through puppet
@@ -566,13 +537,15 @@ module Puppet::ResourceApi
       load_default_provider(class_name, type_name_sym)
     end
   end
-  module_function :load_device_provider
+  module_function :load_device_provider # rubocop:disable Style/AccessModifierDeclarations
 
   # keeps the existing register API format. e.g. Puppet::ResourceApi.register_type
   def register_transport(schema)
     Puppet::ResourceApi::Transport.register(schema)
   end
-  module_function :register_transport
+  module_function :register_transport # rubocop:disable Style/AccessModifierDeclarations
+
+  # rubocop:disable Layout/EndOfLine
 
   def self.class_name_from_type_name(type_name)
     type_name.to_s.split('_').map(&:capitalize).join
