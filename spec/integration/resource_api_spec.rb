@@ -239,9 +239,7 @@ RSpec.describe 'Resource API integrated tests:' do
       end
 
       before do
-        allow(catalog).to receive(:resource).and_return nil
-        allow(catalog).to receive(:alias).and_return nil
-        allow(catalog).to receive(:host_config?).and_return true
+        allow(catalog).to receive_messages(resource: nil, alias: nil, host_config?: true)
       end
 
       it('flushes') { expect { instance.flush }.not_to raise_exception }

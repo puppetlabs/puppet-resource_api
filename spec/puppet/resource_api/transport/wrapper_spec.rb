@@ -6,7 +6,7 @@ require 'spec_helper'
 require 'puppet/resource_api/transport/wrapper'
 require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device'
 
-RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
+RSpec.describe Puppet::ResourceApi::Transport::Wrapper, :agent_test do
   describe '#initialize(name, url_or_config)' do
     before do
       module Puppet::Transport
@@ -64,8 +64,7 @@ RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
       let(:transport) { instance_double(Puppet::Transport::TestDevice, 'transport') }
 
       it 'returns the facts provided by the transport' do
-        allow(Puppet::ResourceApi::Transport).to receive(:connect).and_return(transport)
-        allow(Puppet::ResourceApi::Transport).to receive(:list).and_return(schema: :dummy)
+        allow(Puppet::ResourceApi::Transport).to receive_messages(connect: transport, list: { schema: :dummy })
         allow(Puppet::ResourceApi::PuppetContext).to receive(:new).and_return(context)
         allow(transport).to receive(:facts).with(context).and_return(facts)
 
