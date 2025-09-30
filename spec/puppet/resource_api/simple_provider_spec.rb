@@ -445,8 +445,7 @@ RSpec.describe Puppet::ResourceApi::SimpleProvider do
     before do
       allow(context).to receive(:updating).with('title').and_yield
       allow(type_def).to receive(:feature?).with('simple_get_filter')
-      allow(type_def).to receive(:ensurable?).and_return(false)
-      allow(type_def).to receive(:namevars).and_return([:name])
+      allow(type_def).to receive_messages(ensurable?: false, namevars: [:name])
     end
 
     it { expect { provider.set(context, changes) }.to raise_error(/SimpleProvider cannot be used with a Type that is not ensurable/) }
