@@ -136,7 +136,7 @@ RSpec.describe 'the dirty bits' do
 
       it { expect(value <=> 'string').to eq(-1) }
       # Avoid this test on jruby 1.7, where it is hitting a implementation inconsistency and `'string' <=> value` returns `nil`
-      it('compares to a string', j17_exclude: true) { expect('string' <=> value).to eq 1 }
+      it('compares to a string', :j17_exclude) { expect('string' <=> value).to eq 1 }
       it { expect(value <=> described_class[b: 'b', c: 'c']).to eq 0 }
       it { expect(value <=> described_class[d: 'd']).to eq(-1) }
       it { expect(value <=> described_class[a: 'a']).to eq 1 }

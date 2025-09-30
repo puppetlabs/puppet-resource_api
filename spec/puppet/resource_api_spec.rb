@@ -38,7 +38,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:minimal) }
 
       it { is_expected.not_to be_nil }
-      it { is_expected.to be_respond_to :instances }
+      it { is_expected.to respond_to :instances }
       it { expect(type.apply_to).to eq(:host) }
     end
 
@@ -64,7 +64,7 @@ RSpec.describe Puppet::ResourceApi do
       subject(:type) { Puppet::Type.type(:both) }
 
       it { is_expected.not_to be_nil }
-      it { is_expected.to be_respond_to :instances }
+      it { is_expected.to respond_to :instances }
       it { expect(type.instance_variable_get(:@doc)).to eq 'the docs' }
     end
   end
@@ -279,7 +279,7 @@ RSpec.describe Puppet::ResourceApi do
         # rubocop:enable Lint/BooleanSymbol
       end
 
-      context 'with a basic provider', agent_test: true do
+      context 'with a basic provider', :agent_test do
         let(:provider_class) do
           Class.new do
             def get(_context)
@@ -322,7 +322,7 @@ RSpec.describe Puppet::ResourceApi do
           test_enum: 'a', test_variant_pattern: '0xAEF123FF', test_url: 'http://example.com' }
       end
 
-      context 'with a bad provider', agent_test: true do
+      context 'with a bad provider', :agent_test do
         before do
           stub_const('Puppet::Provider::TypeCheck', Module.new)
           stub_const('Puppet::Provider::TypeCheck::TypeCheck', provider_class)
@@ -408,7 +408,7 @@ RSpec.describe Puppet::ResourceApi do
 
       it('has the secret value is set correctly') { expect(instance[:secret]).to be_a Puppet::Pops::Types::PSensitiveType::Sensitive }
 
-      context 'with a basic provider', agent_test: true do
+      context 'with a basic provider', :agent_test do
         let(:provider_class) do
           Class.new do
             def get(_context)
@@ -471,7 +471,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type that is ensurable', agent_test: true do
+  context 'when registering a type that is ensurable', :agent_test do
     context 'when ensurable is correctly declared' do
       let(:definition) do
         {
@@ -787,7 +787,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with an `init_only` attribute', agent_test: true do
+  context 'when registering a type with an `init_only` attribute', :agent_test do
     let(:definition) do
       {
         name: 'init_behaviour',
@@ -913,7 +913,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with an `read_only` attribute', agent_test: true do
+  context 'when registering a type with an `read_only` attribute', :agent_test do
     let(:definition) do
       {
         name: 'read_only_behaviour',
@@ -1022,7 +1022,7 @@ RSpec.describe Puppet::ResourceApi do
       end
     end
 
-    describe 'a provider that does not return the namevar', agent_test: true do
+    describe 'a provider that does not return the namevar', :agent_test do
       subject(:instance) { Puppet::Type.type(:not_name_namevar) }
 
       let(:provider_class) do
@@ -1048,7 +1048,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with multiple namevars', agent_test: true do
+  context 'when registering a type with multiple namevars', :agent_test do
     let(:name) { 'multiple' }
     let(:title_patterns) { nil }
     let(:definition) do
@@ -1332,7 +1332,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'when registering a type with a mandatory boolean value', agent_test: true do
+  context 'when registering a type with a mandatory boolean value', :agent_test do
     let(:provider_class) do
       Class.new do
         def get(_context)
@@ -1418,7 +1418,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  describe '#load_provider', agent_test: true do
+  describe '#load_provider', :agent_test do
     before { described_class.register_type(definition) }
 
     context 'when loading a non-existing provider' do
@@ -1507,7 +1507,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a provider that does canonicalization', agent_test: true do
+  context 'with a provider that does canonicalization', :agent_test do
     let(:definition) do
       {
         name: 'canonicalizer',
@@ -1714,7 +1714,7 @@ RSpec.describe Puppet::ResourceApi do
       end
 
       context 'with a provider that has a custom
-       generate', agent_test: true do
+       generate', :agent_test do
         let(:definition) do
           {
             name: 'generator',
@@ -1798,7 +1798,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a provider that does not need canonicalization', agent_test: true do
+  context 'with a provider that does not need canonicalization', :agent_test do
     let(:definition) do
       {
         name: 'passthrough',
@@ -1927,7 +1927,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a provider that does custom insync', agent_test: true do
+  context 'with a provider that does custom insync', :agent_test do
     let(:provider_class) do
       Class.new do
         def insync?(_context, _title, _attribute_name, _is_hash, _should_hash)
@@ -2052,7 +2052,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a `remote_resource` provider', agent_test: true do
+  context 'with a `remote_resource` provider', :agent_test do
     let(:definition) do
       {
         name: 'remoter',
@@ -2123,7 +2123,7 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
-  context 'with a `supports_noop` provider', agent_test: true do
+  context 'with a `supports_noop` provider', :agent_test do
     let(:definition) do
       {
         name: 'test_noop_support',
@@ -2176,7 +2176,7 @@ CODE
     end
   end
 
-  context 'with a `simple_get_filter` provider', agent_test: true do
+  context 'with a `simple_get_filter` provider', :agent_test do
     let(:definition) do
       {
         name: 'test_get_filter',

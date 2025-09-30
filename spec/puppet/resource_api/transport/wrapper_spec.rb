@@ -6,7 +6,7 @@ require 'spec_helper'
 require 'puppet/resource_api/transport/wrapper'
 require_relative '../../../fixtures/test_module/lib/puppet/transport/test_device'
 
-RSpec.describe Puppet::ResourceApi::Transport::Wrapper, agent_test: true do
+RSpec.describe Puppet::ResourceApi::Transport::Wrapper, :agent_test do
   describe '#initialize(name, url_or_config)' do
     before do
       module Puppet::Transport
