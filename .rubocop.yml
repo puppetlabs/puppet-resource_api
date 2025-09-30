@@ -1,7 +1,12 @@
 ---
 inherit_from: .rubocop_todo.yml
 
-require: rubocop-rspec
+plugins: 
+  - rubocop-rspec
+  - rubocop-rspec_rails
+  - rubocop-performance
+  - rubocop-factory_bot
+  - rubocop-capybara
 AllCops:
   NewCops: enable
   TargetRubyVersion: '3.1'
