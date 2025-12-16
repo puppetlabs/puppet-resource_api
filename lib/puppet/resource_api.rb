@@ -107,6 +107,27 @@ module Puppet::ResourceApi
         super
       end
 
+      # Override finish method to ensure scope tags (like class names) are properly inherited
+      # This is called after the resource is added to the catalog and containment is established
+      def finish
+        super if defined?(super)
+        return unless @catalog
+
+        # Use pathbuilder to tag all containing classes
+        # Pathbuilder returns the containment hierarchy; class names appear as plain strings
+        # while other resources have the format "Type[title]"
+        return unless respond_to?(:pathbuilder)
+
+        pathbuilder.each do |container|
+          next unless container.is_a?(String)
+
+          # Classes don't contain '[' or ']' characters, resources do
+          # Classes: "Test::Modules_11462", "Settings"
+          # Resources: "Stage[main]", "Firewall[001 test rule]"
+          tag(container) unless container.include?('[')
+        end
+      end
+
       def name
         title
       end
