@@ -2330,4 +2330,142 @@ CODE
       described_class.register_transport(schema)
     end
   end
+
+  describe 'finish method for class tag inheritance', :agent_test do
+    let(:definition) do
+      {
+        name: 'tag_test',
+        desc: 'a test resource for tag inheritance',
+        attributes: {
+          name: {
+            type: 'String',
+            behaviour: :namevar,
+            desc: 'the title'
+          },
+          ensure: {
+            type: 'Enum[present, absent]',
+            desc: 'the ensure value'
+          }
+        }
+      }
+    end
+    let(:provider_class) do
+      Class.new do
+        def get(_context)
+          []
+        end
+
+        def set(_context, _changes); end
+      end
+    end
+    let(:type) { Puppet::Type.type(:tag_test) }
+    let(:catalog) { Puppet::Resource::Catalog.new }
+
+    before do
+      described_class.register_type(definition)
+      stub_const('Puppet::Provider::TagTest', Module.new)
+      stub_const('Puppet::Provider::TagTest::TagTest', provider_class)
+    end
+
+    context 'when resource has pathbuilder with class names' do
+      let(:instance) { type.new(name: 'test_resource', ensure: 'present') }
+
+      before do
+        instance.catalog = catalog
+        allow(instance).to receive(:respond_to?).with(:pathbuilder).and_return(true)
+        allow(instance).to receive(:pathbuilder).and_return(['Stage[main]', 'Test::MyClass', 'Test::AnotherClass', 'TagTest[test_resource]'])
+      end
+
+      it 'tags the resource with class names from pathbuilder' do
+        instance.finish
+        expect(instance.tags.to_a).to include('test::myclass', 'test::anotherclass', 'test', 'anotherclass', 'myclass')
+      end
+
+      it 'does not tag resources that have brackets' do
+        instance.finish
+        expect(instance.tags.to_a).not_to include('stage[main]')
+        expect(instance.tags.to_a).not_to include('tagtest[test_resource]')
+      end
+    end
+
+    context 'when resource has pathbuilder with only resources (no classes)' do
+      let(:instance) { type.new(name: 'test_resource2', ensure: 'present') }
+
+      before do
+        instance.catalog = catalog
+        allow(instance).to receive(:respond_to?).with(:pathbuilder).and_return(true)
+        allow(instance).to receive(:pathbuilder).and_return(['Stage[main]', 'TagTest[test_resource2]'])
+      end
+
+      it 'does not tag any classes' do
+        initial_tags = instance.tags.to_a
+        instance.finish
+        # Should only have the default tags, no class tags added
+        expect(instance.tags.to_a - initial_tags).to be_empty
+      end
+    end
+
+    context 'when resource does not have pathbuilder' do
+      let(:instance) { type.new(name: 'test_resource3', ensure: 'present') }
+
+      before do
+        instance.catalog = catalog
+        allow(instance).to receive(:respond_to?).with(:pathbuilder).and_return(false)
+      end
+
+      it 'does not error' do
+        expect { instance.finish }.not_to raise_error
+      end
+    end
+
+    context 'when resource does not have a catalog' do
+      let(:instance) { type.new(name: 'test_resource4', ensure: 'present') }
+
+      before do
+        instance.catalog = nil
+      end
+
+      it 'returns early without processing' do
+        expect(instance).not_to receive(:pathbuilder)
+        instance.finish
+      end
+    end
+
+    context 'when pathbuilder returns mixed case class names' do
+      let(:instance) { type.new(name: 'test_resource5', ensure: 'present') }
+
+      before do
+        instance.catalog = catalog
+        allow(instance).to receive(:respond_to?).with(:pathbuilder).and_return(true)
+        allow(instance).to receive(:pathbuilder).and_return(['MyModule::MyClass', 'AnotherModule'])
+      end
+
+      it 'normalizes class names to lowercase when tagging' do
+        instance.finish
+        # Puppet's tag() method automatically lowercases
+        expect(instance.tags.to_a).to include('mymodule::myclass', 'anothermodule', 'mymodule', 'myclass')
+      end
+    end
+
+    context 'when pathbuilder returns nested classes' do
+      let(:instance) { type.new(name: 'test_resource6', ensure: 'present') }
+
+      before do
+        instance.catalog = catalog
+        allow(instance).to receive(:respond_to?).with(:pathbuilder).and_return(true)
+        allow(instance).to receive(:pathbuilder).and_return([
+                                                              'Stage[main]',
+                                                              'Profiles::Base',
+                                                              'Profiles::Web',
+                                                              'Profiles::Web::Apache',
+                                                              'TagTest[test_resource6]'
+                                                            ])
+      end
+
+      it 'tags all classes in the containment hierarchy' do
+        instance.finish
+        expect(instance.tags.to_a).to include('profiles::base', 'profiles::web', 'profiles::web::apache', 'profiles', 'web', 'base', 'apache')
+      end
+    end
+  end
 end
