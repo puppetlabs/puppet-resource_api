@@ -2,6 +2,13 @@
 
 All significant changes to this repo will be summarized in this file.
 
+## [1.9.1](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.1) (2025-12-17)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.9.0...1.9.1)
+
+**Fixed bugs:**
+
+- \(MODULES-11462\): Implement finish method for class tag inheritance in Puppet::ResourceApi in 1.9.0 branch [\#381](https://github.com/puppetlabs/puppet-resource_api/pull/381) ([span786](https://github.com/span786))
 
 ## [1.9.0](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.0) (2023-08-08)
 
