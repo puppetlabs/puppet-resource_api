@@ -498,6 +498,33 @@ RSpec.describe Puppet::ResourceApi do
             instance[:secret] = Puppet::Pops::Types::PSensitiveType::Sensitive.new('a new password')
             instance.flush
           end
+
+          it 'marks the sensitive property with sensitive=true so it is excluded from the transaction store' do
+            expect(instance.parameter(:secret).sensitive).to be true
+          end
+        end
+
+        context 'when loading from a Puppet::Resource with no sensitive parameters' do
+          let(:params) { instance_double('Puppet::Resource', 'resource') }
+          let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
+          let(:catalog) { instance_double('Unknown', 'catalog') }
+
+          before(:each) do
+            allow(provider_class).to receive(:new).with(no_args).and_return(provider_instance)
+            allow(provider_instance).to receive(:get).and_return([])
+            allow(params).to receive(:is_a?).with(Puppet::Resource).and_return(true)
+            allow(params).to receive(:title).with(no_args).and_return('a title')
+            allow(params).to receive(:catalog).with(no_args).and_return(catalog)
+            allow(params).to receive(:sensitive_parameters).with(no_args).and_return([])
+            allow(params).to receive(:to_hash).with(no_args)
+                                              .and_return(title: 'test',
+                                                          secret: Puppet::Pops::Types::PSensitiveType::Sensitive.new('a password value'))
+            allow(catalog).to receive(:host_config?).and_return(true)
+          end
+
+          it 'does not mark the property as sensitive' do
+            expect(instance.parameter(:secret).sensitive).not_to be true
+          end
         end
       end
     end

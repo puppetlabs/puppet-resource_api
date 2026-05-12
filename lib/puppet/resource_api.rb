@@ -104,7 +104,8 @@ module Puppet::ResourceApi
           attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
-        super
+        attributes[:sensitive_parameters] = sensitives unless sensitives.empty?
+        super(attributes)
       end
 
       # Override finish method to ensure scope tags (like class names) are properly inherited
