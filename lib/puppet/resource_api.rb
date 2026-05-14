@@ -104,6 +104,7 @@ module Puppet::ResourceApi
           end
         end
 
+        attributes[:sensitive_parameters] = sensitives unless sensitives.empty?
         super(attributes)
       end
 
