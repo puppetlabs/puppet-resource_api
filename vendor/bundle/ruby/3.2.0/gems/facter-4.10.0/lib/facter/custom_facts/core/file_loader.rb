@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+require_relative '../../../facter/custom_facts/util/fact'
+require_relative '../../../facter/custom_facts/util/collection'
+require_relative '../../../facter/custom_facts/util/loader'
+require_relative '../../../facter/custom_facts/core/execution/base'
+require_relative '../../../facter/custom_facts/core/execution/windows'
+require_relative '../../../facter/custom_facts/core/execution/posix'
+require_relative '../../../facter/custom_facts/util/values'
+require_relative '../../../facter/custom_facts/util/confine'
+require_relative '../../../facter/custom_facts/util/config'
+
+require_relative '../../../facter/custom_facts/util/normalization'
+require_relative '../../../facter/custom_facts/core/execution'
+require_relative '../../../facter/custom_facts/core/resolvable'
+require_relative '../../../facter/custom_facts/core/suitable'
+require_relative '../../../facter/custom_facts/util/resolution'
+require_relative '../../../facter/custom_facts/core/directed_graph'
+require_relative '../../../facter/custom_facts/core/aggregate'
+require_relative '../../../facter/custom_facts/util/composite_loader'
+require_relative '../../../facter/custom_facts/util/parser'
+require_relative '../../../facter/custom_facts/util/directory_loader'
+require_relative '../../../facter/custom_facts/util/nothing_loader'

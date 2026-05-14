@@ -1,0 +1,42 @@
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/fiddle-1.1.8/ext/fiddle
+/opt/hostedtoolcache/Ruby/3.2.11/x64/bin/ruby extconf.rb
+checking for --enable-debug-build option... no
+checking for ffi.h... yes
+checking for -lffi... yes
+libffi_version: 3.4.6
+checking for sys/mman.h... yes
+checking for link.h... yes
+checking for dlfcn.h... yes
+checking for -ldl... yes
+checking for dlopen()... yes
+checking for dlclose()... yes
+checking for dlsym()... yes
+checking for dlerror()... yes
+checking for dlinfo()... yes
+checking for RTLD_DI_LINKMAP in dlfcn.h... yes
+checking for FFI_STDCALL in ffi.h... no
+checking signedness of size_t... unsigned
+checking for rb_str_to_interned_str()... yes
+creating Makefile
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/fiddle-1.1.8/ext/fiddle
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-fwcyg8 sitelibdir\=./.gem.20260514-2305-fwcyg8 clean
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/fiddle-1.1.8/ext/fiddle
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-fwcyg8 sitelibdir\=./.gem.20260514-2305-fwcyg8
+compiling closure.c
+compiling conversions.c
+compiling fiddle.c
+compiling function.c
+compiling handle.c
+compiling memory_view.c
+compiling pinned.c
+compiling pointer.c
+linking shared-object fiddle.so
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/fiddle-1.1.8/ext/fiddle
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-fwcyg8 sitelibdir\=./.gem.20260514-2305-fwcyg8 install
+/usr/bin/install -c -m 0755 fiddle.so ./.gem.20260514-2305-fwcyg8
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/fiddle-1.1.8/ext/fiddle
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-fwcyg8 sitelibdir\=./.gem.20260514-2305-fwcyg8 clean

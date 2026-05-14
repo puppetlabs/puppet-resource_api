@@ -1,0 +1,138 @@
+<% setup_slack = defined?(slack_url) && defined?(slack_channel) %>
+<% ruby_versions = ruby_versions.split(',') %>
+
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
+<% if setup_slack %>
+- name: slack-notification
+  type: registry-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
+    username: ((license-finder-docker-username))
+    password: ((license-finder-docker-password))
+<% end %>
+
+resources:
+- name: lf-git
+  type: git
+  source:
+    uri: git@github.com:pivotal/LicenseFinder.git
+    private_key: ((github-cf-osl-bot-private-key))
+    branch: master
+
+- name: github-pull-request
+  type: pull-request
+  check_every: 24h
+  webhook_token: ((github-pull-request-webhook-token))
+  source:
+    repository: pivotal/LicenseFinder
+    access_token: ((github-api-pull-request-token))
+
+- name: dockerhub-pr
+  type: docker-image
+  source:
+    tag: edge-pr
+    repository: licensefinder/license_finder
+    email: ((license-finder-docker-email))
+    username: ((license-finder-docker-username))
+    password: ((license-finder-docker-password))
+
+<% if setup_slack %>
+- name: slack-alert
+  type: slack-notification
+  source:
+    url: <%= slack_url %>
+<% end %>
+
+jobs:
+- name: build-docker-image
+  public: true
+  plan:
+  - get: github-pull-request
+    version: every
+    trigger: true
+  - put: dockerhub-pr
+    params:
+      build: github-pull-request
+  on_success:
+    put: github-pull-request
+    params:
+      path: github-pull-request
+      status: success
+      context: build-docker-image
+  on_failure:
+    put: github-pull-request
+    params:
+      path: github-pull-request
+      status: failure
+      context: build-docker-image
+<% ruby_versions.each do |ruby_version| %>
+- name: PR-ruby-<%= ruby_version %>-linux
+  public: true
+  plan:
+  - in_parallel:
+    - get: github-pull-request
+      passed: [build-docker-image]
+      version: every
+    - get: dockerhub-pr
+      passed: [build-docker-image]
+      trigger: true
+    - get: lf-git
+  - task: ruby-<%= ruby_version %>
+    privileged: true
+    image: dockerhub-pr
+    file: lf-git/ci/tasks/run-tests.yml
+    params:
+      RUBY_VERSION_UNDER_TEST: <%= ruby_version %>
+    input_mapping: { LicenseFinder: github-pull-request }
+    on_success:
+      put: github-pull-request
+      params:
+        path: github-pull-request
+        status: success
+        context: ruby-<%= ruby_version %>
+    on_failure:
+      put: github-pull-request
+      params:
+        path: github-pull-request
+        status: failure
+        context: ruby-<%= ruby_version %>
+<% if setup_slack %>
+  on_failure:
+    put: slack-alert
+    params:
+      channel: '<%= slack_channel %>'
+      icon_emoji: ':crying_cat_face:'
+      text: '<%= "License Finder build failed. Build: https://norsk.cf-app.com/teams/main/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME" %>'
+<% end %>
+<% end %>
+
+- name: PR-rubocop
+  public: true
+  plan:
+  - in_parallel:
+    - get: github-pull-request
+      trigger: true
+      version: every
+    - get: lf-git
+  - task: run-rubocop
+    privileged: true
+    file: lf-git/ci/tasks/rubocop.yml
+    input_mapping: { LicenseFinder: github-pull-request }
+    on_success:
+      put: github-pull-request
+      params:
+        path: github-pull-request
+        status: success
+        context: run-rubocop
+    on_failure:
+      put: github-pull-request
+      params:
+        path: github-pull-request
+        status: failure
+        context: run-rubocop

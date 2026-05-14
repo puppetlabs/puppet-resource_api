@@ -1,0 +1,41 @@
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/io-event-1.14.3/ext
+/opt/hostedtoolcache/Ruby/3.2.11/x64/bin/ruby extconf.rb
+checking for whether -Wall is accepted as CFLAGS... yes
+checking for whether -Wno-unknown-pragmas is accepted as CFLAGS... yes
+checking for whether -std=c99 is accepted as CFLAGS... yes
+checking for rb_ext_ractor_safe()... yes
+checking for &rb_fiber_transfer()... yes
+checking for -luring... no
+checking for sys/epoll.h... yes
+checking for sys/event.h... no
+checking for sys/wait.h... yes
+checking for sys/eventfd.h... yes
+checking for rb_io_descriptor()... yes
+checking for &rb_process_status_wait()... no
+checking for rb_fiber_current()... yes
+checking for &rb_fiber_raise()... yes
+checking for epoll_pwait2()... yes
+checking for ruby/io/buffer.h... yes
+checking for rb_fiber_scheduler_blocking_operation_extract()... no
+creating extconf.h
+creating Makefile
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/io-event-1.14.3/ext
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-hfwv15 sitelibdir\=./.gem.20260514-2305-hfwv15 clean
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/io-event-1.14.3/ext
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-hfwv15 sitelibdir\=./.gem.20260514-2305-hfwv15
+compiling ./io/event/event.c
+compiling ./io/event/time.c
+compiling ./io/event/fiber.c
+compiling ./io/event/selector/selector.c
+compiling ./io/event/selector/epoll.c
+compiling ./io/event/interrupt.c
+linking shared-object IO_Event.so
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/io-event-1.14.3/ext
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-hfwv15 sitelibdir\=./.gem.20260514-2305-hfwv15 install
+/usr/bin/install -c -m 0755 IO_Event.so ./.gem.20260514-2305-hfwv15
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/io-event-1.14.3/ext
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-hfwv15 sitelibdir\=./.gem.20260514-2305-hfwv15 clean

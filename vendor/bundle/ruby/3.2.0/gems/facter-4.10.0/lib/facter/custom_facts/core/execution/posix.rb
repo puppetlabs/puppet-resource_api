@@ -1,0 +1,59 @@
+# frozen_string_literal: true
+
+module Facter
+  module Core
+    module Execution
+      class Posix < Facter::Core::Execution::Base
+        DEFAULT_SEARCH_PATHS = ['/sbin', '/usr/sbin'].freeze
+
+        def search_paths
+          # Make sure custom_facts is usable even for non-root users. Most commands
+          # in /sbin (like ifconfig) can be run as non privileged users as
+          # long as they do not modify anything - which we do not do with custom_facts
+          ENV['PATH'].split(File::PATH_SEPARATOR) + DEFAULT_SEARCH_PATHS
+        end
+
+        def which(bin)
+          if absolute_path?(bin)
+            return bin if File.executable?(bin) && FileTest.file?(bin)
+          else
+            search_paths.each do |dir|
+              dest = File.join(dir, bin)
+              return dest if File.executable?(dest) && FileTest.file?(dest)
+            end
+          end
+          nil
+        end
+
+        ABSOLUTE_PATH_REGEX = %r{^/}.freeze
+
+        def absolute_path?(path)
+          !!(path =~ ABSOLUTE_PATH_REGEX)
+        end
+
+        DOUBLE_QUOTED_COMMAND = /\A"(.+?)"(?:\s+(.*))?/.freeze
+        SINGLE_QUOTED_COMMAND = /\A'(.+?)'(?:\s+(.*))?/.freeze
+
+        def expand_command(command)
+          exe = nil
+          args = nil
+
+          match = command.match(DOUBLE_QUOTED_COMMAND) || command.match(SINGLE_QUOTED_COMMAND)
+          if match
+            exe, args = match.captures
+          else
+            exe, args = command.split(/ /, 2)
+          end
+
+          return unless exe && (expanded = which(exe))
+
+          expanded = expanded.dup
+          expanded = +"'#{expanded}'" if /\s/.match?(expanded)
+          expanded << " #{args}" if args
+
+          expanded
+        end
+      end
+    end
+  end
+end

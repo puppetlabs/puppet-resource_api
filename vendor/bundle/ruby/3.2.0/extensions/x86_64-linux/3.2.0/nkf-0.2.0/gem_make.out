@@ -1,0 +1,18 @@
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+/opt/hostedtoolcache/Ruby/3.2.11/x64/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-96qdy4 sitelibdir\=./.gem.20260514-2305-96qdy4 clean
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-96qdy4 sitelibdir\=./.gem.20260514-2305-96qdy4
+compiling nkf.c
+linking shared-object nkf.so
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-96qdy4 sitelibdir\=./.gem.20260514-2305-96qdy4 install
+/usr/bin/install -c -m 0755 nkf.so ./.gem.20260514-2305-96qdy4
+
+current directory: /home/runner/work/puppet-resource_api/puppet-resource_api/vendor/bundle/ruby/3.2.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20260514-2305-96qdy4 sitelibdir\=./.gem.20260514-2305-96qdy4 clean
