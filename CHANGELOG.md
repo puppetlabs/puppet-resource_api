@@ -2,6 +2,14 @@
 
 All significant changes to this repo will be summarized in this file.
 
+## [1.9.2](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.2) (2026-05-18)
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.9.1...1.9.2)
+
+**Fixed bugs:**
+
+- \(PA-8346\): Preserve sensitive parameters [\#384](https://github.com/puppetlabs/puppet-resource_api/pull/384) ([joshcooper](https://github.com/joshcooper))
+
 ## [1.9.1](https://github.com/puppetlabs/puppet-resource_api/tree/1.9.1) (2025-12-17)
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/1.9.0...1.9.1)
