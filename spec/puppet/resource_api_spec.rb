@@ -367,6 +367,38 @@ RSpec.describe Puppet::ResourceApi do
           end
         end
       end
+
+      context 'with a provider that returns other, unmanaged resources with schema violations', :agent_test do
+        before do
+          stub_const('Puppet::Provider::TypeCheck', Module.new)
+          stub_const('Puppet::Provider::TypeCheck::TypeCheck', provider_class)
+          Puppet::Type.type(type_name.to_sym).rsapi_provider_get_cache.clear
+        end
+
+        # `get` returns the managed resource (`test`, schema-valid) alongside another
+        # resource (`other`) that the catalog does not manage but which violates the
+        # schema. Only the managed resource should be schema-checked on retrieve.
+        let(:provider_class) do
+          Class.new do
+            def get(_context)
+              [
+                { name: 'test' },
+                { name: 'other', test_string: 15, wibble: 'foo' }
+              ]
+            end
+
+            def set(_context, _changes); end
+          end
+        end
+
+        context 'when strict is :error' do
+          let(:strict_level) { :error }
+
+          it 'does not raise for schema violations in the unmanaged resource' do
+            expect { instance.retrieve }.not_to raise_error
+          end
+        end
+      end
     end
   end
 

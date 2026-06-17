@@ -282,7 +282,6 @@ module Puppet::ResourceApi
                   end
 
         fetched.each do |resource_hash|
-          type_definition.check_schema(resource_hash)
           rsapi_provider_get_cache.add(build_title(type_definition, resource_hash), resource_hash)
         end
 
@@ -300,6 +299,7 @@ module Puppet::ResourceApi
         provider(type_definition.name)
 
         rsapi_provider_get.map do |resource_hash|
+          type_definition.check_schema(resource_hash)
           # allow a :title from the provider to override the default
           result = if resource_hash.key? :title
                      new(title: resource_hash[:title])
@@ -317,6 +317,7 @@ module Puppet::ResourceApi
         current_state = self.class.rsapi_provider_get([rsapi_title]).find { |h| namevar_match?(h) }
 
         if current_state
+          type_definition.check_schema(current_state)
           strict_check(current_state)
         else
           current_state = if rsapi_title.is_a? Hash
