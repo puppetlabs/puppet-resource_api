@@ -105,7 +105,7 @@ module Puppet::ResourceApi
         end
 
         attributes[:sensitive_parameters] = sensitives unless sensitives.empty?
-        super(attributes)
+        super
       end
 
       # Override finish method to ensure scope tags (like class names) are properly inherited

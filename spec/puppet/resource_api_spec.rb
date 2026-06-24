@@ -509,7 +509,7 @@ RSpec.describe Puppet::ResourceApi do
           let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
           let(:catalog) { instance_double('Unknown', 'catalog') }
 
-          before(:each) do
+          before do
             allow(provider_class).to receive(:new).with(no_args).and_return(provider_instance)
             allow(provider_instance).to receive(:get).and_return([])
             allow(params).to receive(:is_a?).with(Puppet::Resource).and_return(true)
