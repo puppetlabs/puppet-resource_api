@@ -104,6 +104,7 @@ module Puppet::ResourceApi
           attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
+        attributes[:sensitive_parameters] = sensitives unless sensitives.empty?
         super
       end
 
