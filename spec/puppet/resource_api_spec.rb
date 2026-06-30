@@ -526,6 +526,32 @@ RSpec.describe Puppet::ResourceApi do
             expect(instance.parameter(:secret).sensitive).not_to be true
           end
         end
+
+        context 'when loading from a Puppet::Resource with sensitive parameters listed' do
+          let(:params) { instance_double('Puppet::Resource', 'resource') }
+          let(:provider_instance) { instance_double(provider_class, 'provider_instance') }
+          let(:catalog) { instance_double('Unknown', 'catalog') }
+
+          before do
+            allow(provider_class).to receive(:new).with(no_args).and_return(provider_instance)
+            allow(provider_instance).to receive(:get).and_return([])
+            allow(params).to receive(:is_a?).with(Puppet::Resource).and_return(true)
+            allow(params).to receive(:title).with(no_args).and_return('a title')
+            allow(params).to receive(:catalog).with(no_args).and_return(catalog)
+            allow(params).to receive(:sensitive_parameters).with(no_args).and_return([:secret])
+            allow(params).to receive(:to_hash).with(no_args)
+                                              .and_return(title: 'test', secret: 'a password value')
+            allow(catalog).to receive(:host_config?).and_return(true)
+          end
+
+          it 'preserves sensitive_parameters so Puppet::Parameter#sensitive returns true' do
+            expect(instance.parameter(:secret).sensitive).to be true
+          end
+
+          it 're-wraps the unwrapped secret value as Sensitive' do
+            expect(instance[:secret]).to be_a Puppet::Pops::Types::PSensitiveType::Sensitive
+          end
+        end
       end
     end
   end

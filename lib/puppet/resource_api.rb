@@ -96,6 +96,11 @@ module Puppet::ResourceApi
         # $stderr.puts "B: #{attributes.inspect}"
         attributes = my_provider.canonicalize(context, [attributes])[0] if type_definition.feature?('canonicalize')
 
+        # Re-wrap any sensitive values that canonicalize may have unwrapped
+        sensitives.each do |name|
+          attributes[name] = Puppet::Pops::Types::PSensitiveType::Sensitive.new(attributes[name]) if attributes.key?(name) && !attributes[name].is_a?(Puppet::Pops::Types::PSensitiveType::Sensitive)
+        end
+
         # the `Puppet::Resource::Ral.find` method, when `instances` does not return a match, uses a Hash with a `:name` key to create
         # an "absent" resource. This is often hit by `puppet resource`. This needs to work, even if the namevar is not called `name`.
         # This bit here relies on the default `title_patterns` (see below) to match the title back to the first (and often only) namevar
@@ -104,8 +109,8 @@ module Puppet::ResourceApi
           attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
-        attributes[:sensitive_parameters] = sensitives unless sensitives.empty?
-        super
+        super(attributes)
+        set_sensitive_parameters(sensitives) unless sensitives.empty?
       end
 
       # Override finish method to ensure scope tags (like class names) are properly inherited
