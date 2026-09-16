@@ -34,17 +34,15 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.cfg.ruby }}
-      - name: Update rubygems and install gems
+      - name: Install gems, rubocop, and run tests
+        # DIAGNOSTIC: merged into one step to test whether a separate `bundle exec rake
+        # rubocop` step in a fresh process is what's causing "GemNotFound: puppet (~> 9)"
+        # on the Puppet 9 (PuppetCore-sourced) lanes specifically -- Puppet 8 lanes never hit
+        # this with the previous split-step form. Revert to split steps once root-caused.
         run: |
           bundle config set without development
           bundle install --jobs 4 --retry 3
-
-      - name: Rubocop
-        run: |
           bundle exec rake rubocop
-
-      - name: Run tests
-        run: |
           bundle exec rake spec
 
   # Starting with version 3.2, Ruby no longer bundles libffi, which is necessary for tests on Windows. Due to a discrepancy between the C
@@ -73,16 +71,11 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.cfg.ruby }}
-      - name: Update rubygems and install gems
+      - name: Install gems, rubocop, and run tests
+        # DIAGNOSTIC: see matching comment in linux_tests above.
         run: |
           bundle config set without development
           ${{ matrix.cfg.extra }}
           bundle install --jobs 4 --retry 3
-
-      - name: Rubocop
-        run: |
           bundle exec rake rubocop
-
-      - name: Run tests
-        run: |
           bundle exec rake spec
