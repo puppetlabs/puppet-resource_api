@@ -39,19 +39,6 @@ jobs:
           bundle config set without development
           bundle install --jobs 4 --retry 3
 
-      - name: DIAGNOSTIC bundle state
-        run: |
-          echo "--- bundle list | grep puppet ---"
-          bundle list | grep -i puppet || true
-          echo "--- Gemfile.lock puppet/facter entries ---"
-          grep -B2 -A2 "^    puppet \|^    facter \|remote:" Gemfile.lock || true
-          echo "--- trivial bundle exec ruby require puppet ---"
-          bundle exec ruby -e "require 'puppet'; puts Puppet::PUPPETVERSION" || echo "TRIVIAL REQUIRE FAILED exit=$?"
-          echo "--- trivial bundle exec rubocop --version (no rake) ---"
-          bundle exec rubocop --version || echo "BARE RUBOCOP FAILED exit=$?"
-          echo "--- bundle check ---"
-          bundle check || echo "BUNDLE CHECK FAILED exit=$?"
-
       - name: Rubocop
         run: |
           bundle exec rake rubocop
