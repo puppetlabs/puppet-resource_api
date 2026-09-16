@@ -21,7 +21,13 @@ group :tests do
   gem 'simplecov-console'
 
   # the test gems required for module testing
-  gem 'puppetlabs_spec_helper', '~> 9.0'
+  # puppetlabs_spec_helper 9.0.0 requires Ruby >= 3.2, which jruby-9.4.2.0 (our Puppet 8 JRuby
+  # lane, ~Ruby 3.1 compatible) doesn't satisfy -- keep that lane on 8.0, bump everything else.
+  if Gem::Requirement.create('>= 3.2').satisfied_by?(Gem::Version.new(RUBY_VERSION))
+    gem 'puppetlabs_spec_helper', '~> 9.0'
+  else
+    gem 'puppetlabs_spec_helper', '~> 8.0'
+  end
   gem 'rspec-puppet'
   gem 'codecov'
   gem 'rake', '~> 13.0'
