@@ -74,14 +74,9 @@ def location_for(place_or_version, fake_version = nil, opts = {})
   end
 end
 
-# facter is a transitive dependency of puppet (not declared directly here), but bundler resolves
-# transitive deps from the default source unless pinned explicitly -- so it needs the same
-# PuppetCore routing as puppet itself whenever we're on the Ruby 4.0 / Puppet 9 lane.
-gemsource_facter = if Gem.ruby_version >= Gem::Version.new('4.0')
-                     gemsource_puppetcore
-                   else
-                     'https://rubygems.org'
-                   end
-
+# DIAGNOSTIC: dropped the explicit facter pin -- Gemfile.lock evidence (from a prior CI run)
+# already showed facter correctly grouped under the puppetcore remote as a transitive dependency
+# of the pinned puppet gem, without needing its own explicit source pin. Testing whether this
+# extra pin was actually the cause of frozen mode's "lockfile does not satisfy dependencies of
+# puppet" error (Bundler::Definition#ensure_equivalent_gemfile_and_lockfile mismatch).
 gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'], nil, { source: gemsource_puppetcore })
-gem 'facter', *location_for(nil, nil, { source: gemsource_facter })
