@@ -38,19 +38,12 @@ jobs:
         run: |
           bundle config set without development
           bundle install --jobs 4 --retry 3
-
-      - name: DIAGNOSTIC bundle state
-        run: |
-          echo "--- bundle list | grep puppet ---"
-          bundle list | grep -i puppet || true
-          echo "--- Gemfile.lock puppet/facter entries ---"
-          grep -B2 -A2 "^    puppet \|^    facter \|remote:" Gemfile.lock || true
-          echo "--- trivial bundle exec ruby require puppet ---"
-          bundle exec ruby -e "require 'puppet'; puts Puppet::PUPPETVERSION" || echo "TRIVIAL REQUIRE FAILED exit=$?"
-          echo "--- trivial bundle exec rubocop --version (no rake) ---"
-          bundle exec rubocop --version || echo "BARE RUBOCOP FAILED exit=$?"
-          echo "--- bundle check ---"
-          bundle check || echo "BUNDLE CHECK FAILED exit=$?"
+          # The PuppetCore gem source doesn't implement Bundler's legacy dependency API, which
+          # otherwise sends `bundle exec` down a broken "locally installed gems" fallback lookup
+          # on every subsequent invocation (even though the lockfile itself is valid -- `bundle
+          # check` confirms that). Freezing after install forces `bundle exec` to trust the
+          # already-resolved lockfile instead of re-triggering that broken fallback.
+          bundle config set frozen true
 
       - name: Rubocop
         run: |
@@ -91,6 +84,9 @@ jobs:
           bundle config set without development
           ${{ matrix.cfg.extra }}
           bundle install --jobs 4 --retry 3
+          # See matching comment in linux_tests above -- PuppetCore lacks Bundler's dependency
+          # API, so freeze after install to stop `bundle exec` from re-triggering it.
+          bundle config set frozen true
 
       - name: Rubocop
         run: |
