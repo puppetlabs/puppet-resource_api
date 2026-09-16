@@ -11,12 +11,20 @@ jobs:
     name: Linux, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         cfg:
           - {puppet_version: '8', ruby: '3.2'}
           - {puppet_version: '8', ruby: 'jruby-9.4.2.0'}
+          - {puppet_version: '9', ruby: '4.0'}
+          - {puppet_version: '9', ruby: 'jruby-10.1.1.0'}
     env:
       PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
+      # Puppet 9 (and its facter/ffi dependencies compatible with Ruby 4.0) are not yet published to
+      # public RubyGems -- route the gem resolution through the private PuppetCore source instead.
+      # See rubygems-puppetcore usage in ruby-pwsh#385 / bolt-private#120 for the established pattern.
+      PUPPET_FORGE_TOKEN: ${{ secrets.PUPPET_FORGE_TOKEN }}
+      BUNDLE_RUBYGEMS___PUPPETCORE__PUPPET__COM: "forge-key:${{ secrets.PUPPET_FORGE_TOKEN }}"
     steps:
       - name: Checkout current PR
         uses: actions/checkout@v4
@@ -47,11 +55,15 @@ jobs:
     name: Windows, Puppet ${{ matrix.cfg.puppet_version }}, Ruby ${{ matrix.cfg.ruby }}
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         cfg:
           - {puppet_version: '8', ruby: '3.2', extra: 'bundle config set with integration'}
+          - {puppet_version: '9', ruby: '4.0', extra: 'bundle config set with integration'}
     env:
       PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
+      PUPPET_FORGE_TOKEN: ${{ secrets.PUPPET_FORGE_TOKEN }}
+      BUNDLE_RUBYGEMS___PUPPETCORE__PUPPET__COM: "forge-key:${{ secrets.PUPPET_FORGE_TOKEN }}"
     steps:
       - name: Checkout current PR
         uses: actions/checkout@v4

@@ -1,5 +1,15 @@
 source 'https://rubygems.org'
 
+# Puppet 9 (and the facter/ffi versions it requires under Ruby 4.0) are not published to public
+# RubyGems yet -- resolve them from the private PuppetCore source instead, when a forge token is
+# available. Falls back to the default source otherwise (e.g. local dev on the Puppet 8 lane).
+# See ruby-pwsh#385 / bolt-private#120 for the established pattern this mirrors.
+gemsource_puppetcore = if ENV['PUPPET_FORGE_TOKEN'] && !ENV['PUPPET_FORGE_TOKEN'].empty?
+                          'https://rubygems-puppetcore.puppet.com'
+                        else
+                          ENV['GEM_SOURCE_PUPPETCORE'] || 'https://rubygems.org'
+                        end
+
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Specify your gem's dependencies in puppet-resource_api.gemspec
@@ -11,7 +21,7 @@ group :tests do
   gem 'simplecov-console'
 
   # the test gems required for module testing
-  gem 'puppetlabs_spec_helper', '~> 8.0'
+  gem 'puppetlabs_spec_helper', '~> 9.0'
   gem 'rspec-puppet'
   gem 'codecov'
   gem 'rake', '~> 13.0'
@@ -38,21 +48,34 @@ end
 # testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
 group :integration do
   # Pin due to an issue with FFI, Windows, and Facter. See FACT-3434
-  gem 'ffi', '1.15.5'
+  # Bumped from 1.15.5 for Ruby 4.0/Puppet 9 compatibility (see also open dependabot PR #364,
+  # which proposed this same bump independently for Puppet 8) -- verify against the actual
+  # Puppet 9 gemspec's ffi constraint once available, the public Puppet 8 gemspec still caps at < 1.17.0.
+  gem 'ffi', '1.17.1'
 end
 
 # Find a location or specific version for a gem. place_or_version can be a
 # version, which is most often used. It can also be git, which is specified as
 # `git://somewhere.git#branch`. You can also use a file source location, which
 # is specified as `file://some/location/on/disk`.
-def location_for(place_or_version, fake_version = nil)
+def location_for(place_or_version, fake_version = nil, opts = {})
   if place_or_version =~ /^((?:git|https)[:@][^#]*)#(.*)/
     [fake_version, { :git => $1, :branch => $2, :require => false }].compact
   elsif place_or_version =~ /^file:\/\/(.*)/
     ['>= 0', { :path => File.expand_path($1), :require => false }]
   else
-    [place_or_version, { :require => false }]
+    [place_or_version, { :require => false }.merge(opts)]
   end
 end
 
-gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
+# facter is a transitive dependency of puppet (not declared directly here), but bundler resolves
+# transitive deps from the default source unless pinned explicitly -- so it needs the same
+# PuppetCore routing as puppet itself whenever we're on the Ruby 4.0 / Puppet 9 lane.
+gemsource_facter = if Gem.ruby_version >= Gem::Version.new('4.0')
+                     gemsource_puppetcore
+                   else
+                     'https://rubygems.org'
+                   end
+
+gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'], nil, { source: gemsource_puppetcore })
+gem 'facter', *location_for(nil, nil, { source: gemsource_facter })
