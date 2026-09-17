@@ -36,10 +36,7 @@ jobs:
           ruby-version: ${{ matrix.cfg.ruby }}
       - name: Update rubygems and install gems
         run: |
-          # DIAGNOSTIC: dropped `bundle config set without development`. ruby-pwsh's working CI
-          # (via cat-github-actions/gem_ci.yml) never excludes any group -- testing whether
-          # excluding a group is what breaks `bundle exec`'s re-verification against the
-          # PuppetCore-pinned puppet gem on subsequent Puppet 9 steps.
+          bundle config set without development
           bundle install --jobs 4 --retry 3
 
       - name: Rubocop
