@@ -39,9 +39,6 @@ jobs:
           bundle config set without development
           bundle install --jobs 4 --retry 3
 
-      - name: DIAGNOSTIC full lockfile
-        run: cat Gemfile.lock
-
       - name: Rubocop
         run: |
           bundle exec rake rubocop
