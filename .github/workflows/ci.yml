@@ -17,6 +17,7 @@ jobs:
           - {puppet_version: '8', ruby: 'jruby-9.4.2.0'}
     env:
       PUPPET_GEM_VERSION: ~> ${{ matrix.cfg.puppet_version }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Checkout current PR
         uses: actions/checkout@v4
