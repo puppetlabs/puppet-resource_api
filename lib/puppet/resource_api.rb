@@ -211,7 +211,7 @@ module Puppet::ResourceApi
 
         definition[:attributes].each do |name, options|
           type = Puppet::ResourceApi::DataTypeHandling.parse_puppet_type(
-            :name,
+            name,
             options[:type]
           )
 
