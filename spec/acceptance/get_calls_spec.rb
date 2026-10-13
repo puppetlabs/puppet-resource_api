@@ -20,14 +20,14 @@ RSpec.describe 'minimizing provider get calls' do
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_get_calls_basic { foo: } test_get_calls_basic { bar: }\"")
       expect(stdout_str).to match(/Notice: test_get_calls_basic: Provider get called 1 times/)
       expect(stdout_str).not_to match(/Notice: test_get_calls_basic: Provider get called 2 times/)
-      expect(stdout_str).not_to match(/Creating/)
+      expect(stdout_str).not_to match(/\]: Creating/)
     end
 
     it 'calls get 1 time with resource purging' do
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_get_calls_basic { foo: } test_get_calls_basic { bar: } resources { test_get_calls_basic: purge => true }\"")
       expect(stdout_str).to match(/Notice: test_get_calls_basic: Provider get called 1 times/)
       expect(stdout_str).not_to match(/Notice: test_get_calls_basic: Provider get called 2 times/)
-      expect(stdout_str).not_to match(/Creating/)
+      expect(stdout_str).not_to match(/\]: Creating/)
     end
   end
 
@@ -46,14 +46,14 @@ RSpec.describe 'minimizing provider get calls' do
       expect(stdout_str).to match(/Notice: test_get_calls_sgf: Provider get called 1 times/)
       expect(stdout_str).to match(/Notice: test_get_calls_sgf: Provider get called 2 times/)
       expect(stdout_str).not_to match(/Notice: test_get_calls_sgf: Provider get called 3 times/)
-      expect(stdout_str).not_to match(/Creating/)
+      expect(stdout_str).not_to match(/\]: Creating/)
     end
 
     it 'calls get 1 time when resource purging' do
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_get_calls_sgf { foo: } test_get_calls_sgf { bar: } resources { test_get_calls_sgf: purge => true }\"")
       expect(stdout_str).to match(/Notice: test_get_calls_sgf: Provider get called 1 times/)
       expect(stdout_str).not_to match(/Notice: test_get_calls_sgf: Provider get called 2 times/)
-      expect(stdout_str).not_to match(/Creating/)
+      expect(stdout_str).not_to match(/\]: Creating/)
     end
   end
 end

@@ -25,6 +25,7 @@ jobs:
       # See rubygems-puppetcore usage in ruby-pwsh#385 / bolt-private#120 for the established pattern.
       PUPPET_FORGE_TOKEN: ${{ secrets.PUPPET_FORGE_TOKEN }}
       BUNDLE_RUBYGEMS___PUPPETCORE__PUPPET__COM: "forge-key:${{ secrets.PUPPET_FORGE_TOKEN }}"
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Checkout current PR
         uses: actions/checkout@v4
