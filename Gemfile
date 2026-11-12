@@ -1,10 +1,12 @@
 source 'https://rubygems.org'
 
 # Puppet 9 (and the facter/ffi versions it requires under Ruby 4.0) are not published to public
-# RubyGems yet -- resolve them from the private PuppetCore source instead, when a forge token is
-# available. Falls back to the default source otherwise (e.g. local dev on the Puppet 8 lane).
+# RubyGems yet -- resolve it from the private PuppetCore source instead, when requesting Puppet 9
+# specifically and a forge token is available. Falls back to the default source otherwise (e.g.
+# the Puppet 8 lane, even when a forge token happens to be set in the environment).
 # See ruby-pwsh#385 / bolt-private#120 for the established pattern this mirrors.
-gemsource_puppetcore = if ENV['PUPPET_FORGE_TOKEN'] && !ENV['PUPPET_FORGE_TOKEN'].empty?
+gemsource_puppetcore = if ENV['PUPPET_GEM_VERSION'].to_s.match?(/\A~>\s*9/) &&
+                           ENV['PUPPET_FORGE_TOKEN'] && !ENV['PUPPET_FORGE_TOKEN'].empty?
                           'https://rubygems-puppetcore.puppet.com'
                         else
                           ENV['GEM_SOURCE_PUPPETCORE'] || 'https://rubygems.org'
