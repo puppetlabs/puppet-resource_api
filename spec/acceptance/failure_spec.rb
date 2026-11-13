@@ -23,11 +23,11 @@ DOC
       end
 
       it 'applies a catalog with some failing resources' do
-        expect(stdout_str).to match(/Creating 'one' with \{:name=>"one", :failure=>false, :ensure=>"present"\}/)
-        expect(stdout_str).to match(/Creating 'two' with \{:name=>"two", :failure=>true, :ensure=>"present"\}/)
+        expect(stdout_str).to match(/Creating 'one' with \{(?:name: |:name=>)"one", (?:failure: |:failure=>)false, (?:ensure: |:ensure=>)"present"\}/)
+        expect(stdout_str).to match(/Creating 'two' with \{(?:name: |:name=>)"two", (?:failure: |:failure=>)true, (?:ensure: |:ensure=>)"present"\}/)
         expect(stdout_str).to match(/Creating: Failed.*A failure for two/)
         expect(stdout_str).to match(/Could not evaluate: Execution encountered an error/)
-        expect(stdout_str).to match(/Creating 'three' with \{:name=>"three", :failure=>false, :ensure=>"present"\}/)
+        expect(stdout_str).to match(/Creating 'three' with \{(?:name: |:name=>)"three", (?:failure: |:failure=>)false, (?:ensure: |:ensure=>)"present"\}/)
         expect(stdout_str).not_to match(/Creating: Failed.*A failure for three/)
         expect(stdout_str).to match(/test_failure\[three\]: Finished/)
         expect(status.exitstatus).to eq 6

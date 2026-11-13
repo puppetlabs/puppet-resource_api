@@ -46,7 +46,7 @@ RSpec.describe 'a type with composite namevars' do
       stdout_str, status = Open3.capture2e("puppet resource #{common_args} composite_namevar php-wibble")
       expect(stdout_str.strip).to match(/^composite_namevar \{ 'php-wibble'/)
       expect(stdout_str.strip).to match(/ensure\s*=> 'absent'/)
-      expect(stdout_str.strip).to match(/Looking for \[\{:package=>"php", :manager=>"wibble"\}\]/)
+      expect(stdout_str.strip).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"wibble"\}\]/)
       expect(status.exitstatus).to eq 0
     end
 
@@ -56,7 +56,7 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match(/ensure\s*=> 'present'/)
       expect(stdout_str.strip).to match(/package\s*=> 'php'/)
       expect(stdout_str.strip).to match(/manager\s*=> 'wibble'/)
-      expect(stdout_str.strip).to match(/Looking for \[\{:package=>"php", :manager=>"wibble"\}\]/)
+      expect(stdout_str.strip).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"wibble"\}\]/)
       expect(status.exitstatus).to eq 0
     end
 
@@ -66,7 +66,7 @@ RSpec.describe 'a type with composite namevars' do
       expect(stdout_str.strip).to match(/package\s*=> 'php'/)
       expect(stdout_str.strip).to match(/manager\s*=> 'gem'/)
       expect(stdout_str.strip).to match(/ensure\s*=> 'absent'/)
-      expect(stdout_str.strip).to match(/Looking for \[\{:package=>"php", :manager=>"gem"\}\]/)
+      expect(stdout_str.strip).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"gem"\}\]/)
       expect(status.exitstatus).to eq 0
     end
   end
@@ -88,8 +88,13 @@ RSpec.describe 'a type with composite namevars' do
       context 'when managing a present instance' do
         let(:manifest) { 'composite_namevar { php-gem: }' }
 
-        it { expect(@stdout_str).to match(/Current State: \{:title=>"php-gem", :package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}/) }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"gem"\}\]/) }
+        it do
+          current_state = 'Current State: \{(?:title: |:title=>)"php-gem", (?:package: |:package=>)"php", ' \
+                          '(?:manager: |:manager=>)"gem", (?:ensure: |:ensure=>)"present", (?:value: |:value=>)"b"\}'
+          expect(@stdout_str).to match(/#{current_state}/)
+        end
+
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"gem"\}\]/) }
         it { expect(@status.exitstatus).to eq 0 }
       end
 
@@ -97,7 +102,7 @@ RSpec.describe 'a type with composite namevars' do
         let(:manifest) { 'composite_namevar { php-wibble: ensure=>\'absent\' }' }
 
         it { expect(@stdout_str).to match(/Composite_namevar\[php-wibble\]: Nothing to manage: no ensure and the resource doesn't exist/) }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"wibble"\}\]/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"wibble"\}\]/) }
         it { expect(@status.exitstatus).to eq 0 }
       end
 
@@ -105,7 +110,7 @@ RSpec.describe 'a type with composite namevars' do
         let(:manifest) { 'composite_namevar { php-wibble: ensure=>\'present\' }' }
 
         it { expect(@stdout_str).to match %r{Composite_namevar\[php-wibble\]/ensure: defined 'ensure' as 'present'} }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"wibble"\}\]/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"wibble"\}\]/) }
         it { expect(@status.exitstatus).to eq 2 }
       end
 
@@ -113,16 +118,21 @@ RSpec.describe 'a type with composite namevars' do
         let(:manifest) { 'composite_namevar { php-yum: ensure=>\'absent\' }' }
 
         it { expect(@stdout_str).to match %r{Composite_namevar\[php-yum\]/ensure: undefined 'ensure' from 'present'} }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"yum"\}\]/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"yum"\}\]/) }
         it { expect(@status.exitstatus).to eq 2 }
       end
 
       context 'when modifying an existing resource through an alternative title_pattern' do
         let(:manifest) { 'composite_namevar { \'php/gem\': value=>\'c\' }' }
 
-        it { expect(@stdout_str).to match(/Current State: \{:title=>"php-gem", :package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}/) }
-        it { expect(@stdout_str).to match(/Target State: \{:package=>"php", :manager=>"gem", :value=>"c", :ensure=>"present"\}/) }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"gem"\}\]/) }
+        it do
+          current_state = 'Current State: \{(?:title: |:title=>)"php-gem", (?:package: |:package=>)"php", ' \
+                          '(?:manager: |:manager=>)"gem", (?:ensure: |:ensure=>)"present", (?:value: |:value=>)"b"\}'
+          expect(@stdout_str).to match(/#{current_state}/)
+        end
+
+        it { expect(@stdout_str).to match(/Target State: \{(?:package: |:package=>)"php", (?:manager: |:manager=>)"gem", (?:value: |:value=>)"c", (?:ensure: |:ensure=>)"present"\}/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"gem"\}\]/) }
         it { expect(@status.exitstatus).to eq 2 }
       end
     end
@@ -131,8 +141,13 @@ RSpec.describe 'a type with composite namevars' do
       context 'when managing a present instance' do
         let(:manifest) { 'composite_namevar { "sometitle": package => "php", manager => "gem" }' }
 
-        it { expect(@stdout_str).to match(/Current State: \{:title=>"php-gem", :package=>"php", :manager=>"gem", :ensure=>"present", :value=>"b"\}/) }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"gem"\}\]/) }
+        it do
+          current_state = 'Current State: \{(?:title: |:title=>)"php-gem", (?:package: |:package=>)"php", ' \
+                          '(?:manager: |:manager=>)"gem", (?:ensure: |:ensure=>)"present", (?:value: |:value=>)"b"\}'
+          expect(@stdout_str).to match(/#{current_state}/)
+        end
+
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"gem"\}\]/) }
         it { expect(@status.exitstatus).to eq 0 }
       end
 
@@ -140,7 +155,7 @@ RSpec.describe 'a type with composite namevars' do
         let(:manifest) { 'composite_namevar { "sometitle": ensure => "absent", package => "php", manager => "wibble" }' }
 
         it { expect(@stdout_str).to match(/Composite_namevar\[sometitle\]: Nothing to manage: no ensure and the resource doesn't exist/) }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"wibble"\}\]/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"wibble"\}\]/) }
         it { expect(@status.exitstatus).to eq 0 }
       end
 
@@ -148,7 +163,7 @@ RSpec.describe 'a type with composite namevars' do
         let(:manifest) { 'composite_namevar { "sometitle": ensure => "present", package => "php", manager => "wibble" }' }
 
         it { expect(@stdout_str).to match %r{Composite_namevar\[sometitle\]/ensure: defined 'ensure' as 'present'} }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"wibble"\}\]/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"wibble"\}\]/) }
         it { expect(@status.exitstatus).to eq 2 }
       end
 
@@ -156,7 +171,7 @@ RSpec.describe 'a type with composite namevars' do
         let(:manifest) { 'composite_namevar { "sometitle": ensure => "absent", package => "php", manager => "yum" }' }
 
         it { expect(@stdout_str).to match %r{Composite_namevar\[sometitle\]/ensure: undefined 'ensure' from 'present'} }
-        it { expect(@stdout_str).to match(/Looking for \[\{:package=>"php", :manager=>"yum"\}\]/) }
+        it { expect(@stdout_str).to match(/Looking for \[\{(?:package: |:package=>)"php", (?:manager: |:manager=>)"yum"\}\]/) }
         it { expect(@status.exitstatus).to eq 2 }
       end
     end

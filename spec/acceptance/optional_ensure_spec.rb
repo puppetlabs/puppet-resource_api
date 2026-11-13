@@ -29,7 +29,7 @@ RSpec.describe 'a type with optional ensure' do
 
     it 'does nothing when an existing resource is referenced with no ensure and no properties' do
       stdout_str, _status = Open3.capture2e("puppet apply #{common_args} -e \"test_optional_ensure { existing: }\"")
-      expect(stdout_str).to match(/Current State: \{:namevar=>"existing"/)
+      expect(stdout_str).to match(/Current State: \{(?:namevar: |:namevar=>)"existing"/)
       expect(stdout_str).not_to match(/Creating: /)
       expect(stdout_str).not_to match(/Updating: /)
       expect(stdout_str).not_to match(/Deleting: /)

@@ -60,7 +60,7 @@ RSpec.describe 'a transport' do
           expect(stdout_str).not_to match(/Error/)
 
           expect(stdout_str).to match(/transport connection_info:/)
-          expect(stdout_str).to match(/:username=>"foo"/)
+          expect(stdout_str).to match(/(?:username: |:username=>)"foo"/)
           expect(stdout_str).not_to match(/wibble/)
           expect(stdout_str).not_to match(/bar/)
           expect(stdout_str).not_to match(/meep/)
