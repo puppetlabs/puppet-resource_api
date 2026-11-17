@@ -59,10 +59,10 @@ RSpec.describe 'a transport' do
           expect(stdout_str).not_to match(/Error/)
 
           expect(stdout_str).to match(/transport connection_info:/)
-          expect(stdout_str).to match(/:username=>"foo"/)
-          expect(stdout_str).to match(/:default_string=>"other"/)
-          expect(stdout_str).to match(/:optional_default=>"bar"/)
-          expect(stdout_str).to match(/:array_default=>\["z"\]/)
+          expect(stdout_str).to match(/(?:username: |:username=>)"foo"/)
+          expect(stdout_str).to match(/(?:default_string: |:default_string=>)"other"/)
+          expect(stdout_str).to match(/(?:optional_default: |:optional_default=>)"bar"/)
+          expect(stdout_str).to match(/(?:array_default: |:array_default=>)\["z"\]/)
         end
       end
     end
@@ -89,10 +89,10 @@ RSpec.describe 'a transport' do
           expect(stdout_str).to match(/Debug: test_device_default: Using default value for attribute: optional_default, value: "another_default_value"/)
           expect(stdout_str).to match(/Debug: test_device_default: Using default value for attribute: array_default, value: \["a", "b"\]/)
           expect(stdout_str).to match(/transport connection_info:/)
-          expect(stdout_str).to match(/:username=>"foo"/)
-          expect(stdout_str).to match(/:default_string=>"default_value"/)
-          expect(stdout_str).to match(/:optional_default=>"another_default_value"/)
-          expect(stdout_str).to match(/:array_default=>\["a", "b"\]/)
+          expect(stdout_str).to match(/(?:username: |:username=>)"foo"/)
+          expect(stdout_str).to match(/(?:default_string: |:default_string=>)"default_value"/)
+          expect(stdout_str).to match(/(?:optional_default: |:optional_default=>)"another_default_value"/)
+          expect(stdout_str).to match(/(?:array_default: |:array_default=>)\["a", "b"\]/)
 
           expect(status.exitstatus).to eq 0
         end

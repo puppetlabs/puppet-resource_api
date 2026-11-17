@@ -192,7 +192,7 @@ RSpec.describe Puppet::ResourceApi::Property do
             it 'raises an explanatory DevError' do
               allow(test_provider_with_insync).to receive(:insync?).and_return(foo: 1)
               expect(test_provider_with_insync).to receive(:insync?)
-              expect { custom_insync_property.insync?('foo') }.to raise_error(Puppet::DevError, %r{returned a Hash with a value of \{:foo=>1\} instead of true/false})
+              expect { custom_insync_property.insync?('foo') }.to raise_error(Puppet::DevError, %r{returned a Hash with a value of \{(?:foo: |:foo=>)1\} instead of true/false})
             end
           end
         end

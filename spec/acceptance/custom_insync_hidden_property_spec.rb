@@ -25,7 +25,7 @@ RSpec.describe 'a provider using custom insync' do
       it 'calls insync? against rsapi_custom_insync_trigger, reporting a change' do
         expect(stdout_str).to match(/Out of sync!/)
         expect(stdout_str).to match(/Custom insync logic determined that this resource is out of sync/)
-        expect(stdout_str).to match(/Setting with {:name=>"example", :force=>true}/)
+        expect(stdout_str).to match(/Setting with \{(?:name: |:name=>)"example", (?:force: |:force=>)true\}/)
         expect(stdout_str).not_to match(/Error:/)
       end
     end

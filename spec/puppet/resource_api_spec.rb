@@ -1741,8 +1741,9 @@ RSpec.describe Puppet::ResourceApi do
             it('set will not be called') do
               instance.flush
 
+              current_state = { name: 'somename', test_string: 'canonfoo' }
               expect(instance.my_provider.last_changes).to be_nil
-              expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
+              expect(log_sink.last.message).to eq("Current State: #{current_state}")
             end
           end
 
@@ -1763,9 +1764,11 @@ RSpec.describe Puppet::ResourceApi do
             end
 
             it 'logs correctly' do
+              current_state = { name: 'somename', test_string: 'canonfoo' }
+              target_state = { name: 'somename', test_string: 'canonbar' }
               expect(log_sink.map(&:message)).to include(
-                'Current State: {:name=>"somename", :test_string=>"canonfoo"}',
-                'Target State: {:name=>"somename", :test_string=>"canonbar"}'
+                "Current State: #{current_state}",
+                "Target State: #{target_state}"
               )
             end
           end
@@ -1849,8 +1852,9 @@ RSpec.describe Puppet::ResourceApi do
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
 
           it('its properties are set correctly') do
+            current_state = { name: 'somename', test_string: 'canonfoo' }
             expect(resource[:test_string]).to eq 'canonfoo'
-            expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"canonfoo"}')
+            expect(log_sink.last.message).to eq("Current State: #{current_state}")
           end
         end
       end
@@ -1925,8 +1929,9 @@ RSpec.describe Puppet::ResourceApi do
 
           context 'with no changes' do
             it('set will not be called') do
+              current_state = { name: 'somename', test_string: 'foo' }
               expect(instance.my_provider.last_changes).to be_nil
-              expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
+              expect(log_sink.last.message).to eq("Current State: #{current_state}")
             end
           end
 
@@ -1939,9 +1944,11 @@ RSpec.describe Puppet::ResourceApi do
                                                                 should: { name: 'somename', test_string: 'bar' }
                                                               })
 
+              current_state = { name: 'somename', test_string: 'foo' }
+              target_state = { name: 'somename', test_string: 'bar' }
               expect(log_sink.map(&:message)).to include(
-                'Current State: {:name=>"somename", :test_string=>"foo"}',
-                'Target State: {:name=>"somename", :test_string=>"bar"}'
+                "Current State: #{current_state}",
+                "Target State: #{target_state}"
               )
             end
           end
@@ -1971,8 +1978,9 @@ RSpec.describe Puppet::ResourceApi do
           it('its name is set correctly') { expect(resource[:name]).to eq 'somename' }
 
           it('its properties are set correctly') do
+            current_state = { name: 'somename', test_string: 'foo' }
             expect(resource[:test_string]).to eq 'foo'
-            expect(log_sink.last.message).to eq('Current State: {:name=>"somename", :test_string=>"foo"}')
+            expect(log_sink.last.message).to eq("Current State: #{current_state}")
           end
 
           context 'when strict checking is on' do

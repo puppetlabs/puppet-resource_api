@@ -26,8 +26,8 @@ RSpec.describe 'exercising a device provider' do
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Error: /Device_provider\[wibble\]: Could not evaluate: device_provider\[wibble\]#get has not provided canonicalized values.\n' \
-                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n' \
-                   'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
+                   'Returned values:       \{(?:name: |:name=>)"wibble", (?:ensure: |:ensure=>)"present", (?:string: |:string=>)"sample", (?:string_ro: |:string_ro=>)"fixed"\}\n' \
+                   'Canonicalized values:  \{(?:name: |:name=>)"wibble", (?:ensure: |:ensure=>)"present", (?:string: |:string=>)"changed", (?:string_ro: |:string_ro=>)"fixed"\}'
         expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).not_to be_success
       end
@@ -39,8 +39,8 @@ RSpec.describe 'exercising a device provider' do
       it 'deals with canonicalized resources correctly' do
         stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider wibble ensure=present #{default_type_values}")
         stdmatch = 'Warning: device_provider\[wibble\]#get has not provided canonicalized values.\n' \
-                   'Returned values:       \{:name=>"wibble", :ensure=>"present", :string=>"sample", :string_ro=>"fixed"\}\n' \
-                   'Canonicalized values:  \{:name=>"wibble", :ensure=>"present", :string=>"changed", :string_ro=>"fixed"\}'
+                   'Returned values:       \{(?:name: |:name=>)"wibble", (?:ensure: |:ensure=>)"present", (?:string: |:string=>)"sample", (?:string_ro: |:string_ro=>)"fixed"\}\n' \
+                   'Canonicalized values:  \{(?:name: |:name=>)"wibble", (?:ensure: |:ensure=>)"present", (?:string: |:string=>)"changed", (?:string_ro: |:string_ro=>)"fixed"\}'
         expect(stdout_str).to match(/#{stdmatch}/)
         expect(status).to be_success
       end
