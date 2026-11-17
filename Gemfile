@@ -1,10 +1,5 @@
 source 'https://rubygems.org'
 
-# Puppet 9 (and the facter/ffi versions it requires under Ruby 4.0) are not published to public
-# RubyGems yet -- resolve it from the private PuppetCore source instead, when requesting Puppet 9
-# specifically and a forge token is available. Falls back to the default source otherwise (e.g.
-# the Puppet 8 lane, even when a forge token happens to be set in the environment).
-# See ruby-pwsh#385 / bolt-private#120 for the established pattern this mirrors.
 gemsource_puppetcore = if ENV['PUPPET_GEM_VERSION'].to_s.match?(/\A~>\s*9/) &&
                            ENV['PUPPET_FORGE_TOKEN'] && !ENV['PUPPET_FORGE_TOKEN'].empty?
                           'https://rubygems-puppetcore.puppet.com'
@@ -23,8 +18,6 @@ group :tests do
   gem 'simplecov-console'
 
   # the test gems required for module testing
-  # puppetlabs_spec_helper 9.0.0 requires Ruby >= 3.2, which jruby-9.4.2.0 (our Puppet 8 JRuby
-  # lane, ~Ruby 3.1 compatible) doesn't satisfy -- keep that lane on 8.0, bump everything else.
   if Gem::Requirement.create('>= 3.2').satisfied_by?(Gem::Version.new(RUBY_VERSION))
     gem 'puppetlabs_spec_helper', '~> 9.0'
   else
@@ -56,9 +49,6 @@ end
 # testing Puppet 8 / Ruby 3.2 on Windows. See PA-5406 for more.
 group :integration do
   # Pin due to an issue with FFI, Windows, and Facter. See FACT-3434
-  # Bumped from 1.15.5 for Ruby 4.0/Puppet 9 compatibility (see also open dependabot PR #364,
-  # which proposed this same bump independently for Puppet 8) -- verify against the actual
-  # Puppet 9 gemspec's ffi constraint once available, the public Puppet 8 gemspec still caps at < 1.17.0.
   gem 'ffi', '1.17.1'
 end
 
@@ -76,6 +66,4 @@ def location_for(place_or_version, fake_version = nil, opts = {})
   end
 end
 
-# facter is a transitive dependency of puppet's gemspec; bundler resolves it from the same
-# PuppetCore remote automatically once puppet itself is pinned there, so no separate pin needed.
 gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'], nil, { source: gemsource_puppetcore })
