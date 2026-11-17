@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
+## [v2.1.0](https://github.com/puppetlabs/puppet-resource_api/tree/v2.1.0) - 2026-11-17
+
+[Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v2.0.1...v2.1.0)
+
+### Added
+
+- (CAT-2840) Add Ruby 4.0 / Puppet 9 CI lane, source gems from PuppetCore [#391](https://github.com/puppetlabs/puppet-resource_api/pull/391) ([LukasAud](https://github.com/LukasAud))
+
 ## [v2.0.1](https://github.com/puppetlabs/puppet-resource_api/tree/v2.0.1) - 2026-06-30
 
 [Full Changelog](https://github.com/puppetlabs/puppet-resource_api/compare/v1.9.2...v2.0.1)
