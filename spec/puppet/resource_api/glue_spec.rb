@@ -114,12 +114,38 @@ RSpec.describe 'the dirty bits' do
     end
 
     describe '.to_hiera_hash' do
-      it { expect(instance.to_hiera_hash).to eq "  title:\n    attr: value\n    attr_ro: fixed\n" }
+      it { expect(instance.to_hiera_hash).to eq('title' => { 'attr' => 'value', 'attr_ro' => 'fixed' }) }
 
       context 'when the title contains YAML special characters' do
         let(:title) { "foo:\nbar" }
 
-        it { expect(instance.to_hiera_hash).to eq "  ? |-\n    foo:\n    bar\n  : attr: value\n    attr_ro: fixed\n" }
+        it { expect(instance.to_hiera_hash).to eq("foo:\nbar" => { 'attr' => 'value', 'attr_ro' => 'fixed' }) }
+      end
+
+      context 'with hidden rsapi_custom_insync_trigger property' do
+        subject(:instance) do
+          described_class.new({ namevarname: title, rsapi_custom_insync_trigger: true }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              rsapi_custom_insync_trigger: { type: 'Boolean', desc: 'Hidden property' })
+        end
+
+        it 'doesn\'t output the hidden property' do
+          expect(instance.to_hiera_hash).to eq('title' => {})
+        end
+      end
+
+      context 'with several resources, as `--to_yaml` merges them' do
+        let(:other) do
+          described_class.new({ namevarname: 'other', attr: 'value2', attr_ro: 'fixed2' }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              attr: { type: 'String', desc: 'a string parameter' },
+                              attr_ro: { type: 'String', desc: 'a string readonly', behaviour: :read_only })
+        end
+
+        it 'produces one YAML hash of all resources' do
+          data = [instance, other].map { |r| r.prune_parameters(parameters_to_include: []).to_hiera_hash }.inject(:merge!)
+          expect(YAML.dump('typename' => data)).to eq "---\ntypename:\n  title:\n    attr: value\n    attr_ro: fixed\n  other:\n    attr: value2\n    attr_ro: fixed2\n"
+        end
       end
     end
 

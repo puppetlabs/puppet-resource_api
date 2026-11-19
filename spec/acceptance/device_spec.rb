@@ -59,12 +59,11 @@ RSpec.describe 'exercising a device provider' do
       end
 
       it 'outputs resources as yaml' do
-        stdout_str, status = Open3.capture2e("puppet resource #{common_args} device_provider --to_yaml")
-        expected_values = 'device_provider: |2\n\s+wibble:\n\s+ensure: :present\n\s+string: sample\n\s+string_ro: fixed\n\s+string_param: default value'
-        fiddle_deprecate_msg = "DL is deprecated, please use Fiddle\n"
-        win32_deprecate_msg = ".*Struct layout is already defined for class Windows::ServiceStructs::SERVICE_STATUS_PROCESS.*\n"
-        expect(stdout_str.strip).to match(/\A(#{fiddle_deprecate_msg}|#{win32_deprecate_msg})?#{expected_values}\Z/)
+        stdout_str, status = Open3.capture2("puppet resource #{common_args} device_provider --to_yaml")
         expect(status).to eq 0
+        expect(YAML.safe_load(stdout_str, permitted_classes: [Symbol])).to eq(
+          'device_provider' => { 'wibble' => { 'ensure' => :present, 'string' => 'sample', 'string_ro' => 'fixed', 'string_param' => 'default value' } }
+        )
       end
 
       it 'deals with canonicalized resources correctly' do
