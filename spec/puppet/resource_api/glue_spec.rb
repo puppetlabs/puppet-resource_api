@@ -91,28 +91,6 @@ RSpec.describe 'the dirty bits' do
       end
     end
 
-    describe '.to_hierayaml' do
-      it { expect(instance.to_hierayaml).to eq "  title:\n    attr: value\n    attr_ro: fixed\n" }
-
-      context 'when the title contains YAML special characters' do
-        let(:title) { "foo:\nbar" }
-
-        it { expect(instance.to_hierayaml).to eq "  ? |-\n    foo:\n    bar\n  : attr: value\n    attr_ro: fixed\n" }
-      end
-
-      context 'with hidden rsapi_custom_insync_trigger property' do
-        subject(:instance) do
-          described_class.new({ namevarname: title, rsapi_custom_insync_trigger: true }, 'typename', [:namevarname],
-                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
-                              rsapi_custom_insync_trigger: { type: 'Boolean', desc: 'Hidden property' })
-        end
-
-        it 'doesn\'t output the hidden property' do
-          expect(instance.to_hierayaml).not_to match(/rsapi_custom_insync_trigger/)
-        end
-      end
-    end
-
     describe '.to_hiera_hash' do
       it { expect(instance.to_hiera_hash).to eq('title' => { 'attr' => 'value' }) }
 

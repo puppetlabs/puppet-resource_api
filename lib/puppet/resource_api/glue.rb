@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'yaml'
-
 module Puppet; end # rubocop:disable Style/Documentation
 
 module Puppet::ResourceApi
@@ -52,12 +50,6 @@ module Puppet::ResourceApi
       keys = keys.sort_by { |k| [k == :ensure ? 0 : 1, k.to_s] }
       attributes = keys.to_h { |k| [k.to_s, values[k]] }
       { title.to_s => Puppet::Pops::Serialization::ToStringifiedConverter.convert(attributes) }
-    end
-
-    # Convert our resource to yaml for Hiera purposes.
-    def to_hierayaml
-      attributes = Hash[filtered_keys.map { |k| [k.to_s, values[k]] }]
-      "#{YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n")}\n"
     end
 
     def to_json(*)
