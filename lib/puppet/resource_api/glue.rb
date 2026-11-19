@@ -40,9 +40,15 @@ module Puppet::ResourceApi
 
     # Required to enable the `puppet resource ... --to_yaml` and
     # `puppet device --resource ... --to_yaml` workflows: Puppet merges the
-    # hashes of all resources and dumps the result as YAML
+    # hashes of all resources and dumps the result as YAML. Like
+    # Puppet::Resource#to_hiera_hash, return plain data that can be fed back
+    # through Hiera: no read-only or unset attributes, values converted to
+    # Puppet data, ensure first and the other attributes sorted.
     def to_hiera_hash
-      { title => Hash[filtered_keys.map { |k| [k.to_s, values[k]] }] }
+      keys = filtered_keys.reject { |k| values[k].nil? || attr_def[k][:behaviour] == :read_only }
+      keys = keys.sort_by { |k| [k == :ensure ? 0 : 1, k.to_s] }
+      attributes = keys.to_h { |k| [k.to_s, values[k]] }
+      { title.to_s => Puppet::Pops::Serialization::ToStringifiedConverter.convert(attributes) }
     end
 
     # Convert our resource to yaml for Hiera purposes.

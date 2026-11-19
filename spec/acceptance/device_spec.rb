@@ -61,8 +61,8 @@ RSpec.describe 'exercising a device provider' do
       it 'outputs resources as yaml' do
         stdout_str, status = Open3.capture2("puppet resource #{common_args} device_provider --to_yaml")
         expect(status).to eq 0
-        expect(YAML.safe_load(stdout_str, permitted_classes: [Symbol])).to eq(
-          'device_provider' => { 'wibble' => { 'ensure' => :present, 'string' => 'sample', 'string_ro' => 'fixed', 'string_param' => 'default value' } }
+        expect(YAML.safe_load(stdout_str)).to eq(
+          'device_provider' => { 'wibble' => { 'ensure' => 'present', 'string' => 'sample', 'string_param' => 'default value' } }
         )
       end
 

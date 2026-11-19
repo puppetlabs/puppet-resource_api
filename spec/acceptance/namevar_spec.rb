@@ -16,9 +16,9 @@ RSpec.describe 'a type with multiple namevars' do
     it 'outputs all resources as one yaml hash' do
       stdout_str, status = Open3.capture2("puppet resource #{common_args} multiple_namevar --to_yaml")
       expect(status).to eq 0
-      data = YAML.safe_load(stdout_str, permitted_classes: [Symbol])
+      data = YAML.safe_load(stdout_str)
       expect(data['multiple_namevar'].keys).to contain_exactly('php-yum', 'php-gem', 'mysql-yum', 'mysql-gem', 'foo-bar', 'bar-foo')
-      expect(data['multiple_namevar']['php-gem']).to include('package' => 'php', 'manager' => 'gem')
+      expect(data['multiple_namevar']['php-gem']).to eq('ensure' => 'present', 'manager' => 'gem', 'package' => 'php')
     end
 
     it 'returns the required resource correctly' do

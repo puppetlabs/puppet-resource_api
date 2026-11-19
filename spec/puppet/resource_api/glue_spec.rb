@@ -114,12 +114,33 @@ RSpec.describe 'the dirty bits' do
     end
 
     describe '.to_hiera_hash' do
-      it { expect(instance.to_hiera_hash).to eq('title' => { 'attr' => 'value', 'attr_ro' => 'fixed' }) }
+      it { expect(instance.to_hiera_hash).to eq('title' => { 'attr' => 'value' }) }
 
       context 'when the title contains YAML special characters' do
         let(:title) { "foo:\nbar" }
 
-        it { expect(instance.to_hiera_hash).to eq("foo:\nbar" => { 'attr' => 'value', 'attr_ro' => 'fixed' }) }
+        it { expect(instance.to_hiera_hash).to eq("foo:\nbar" => { 'attr' => 'value' }) }
+      end
+
+      context 'when the title is not a String' do
+        let(:title) { 42 }
+
+        it { expect(instance.to_hiera_hash).to eq('42' => { 'attr' => 'value' }) }
+      end
+
+      context 'with values that are not plain Puppet data' do
+        subject(:instance) do
+          described_class.new({ namevarname: title, zattr: nil, attr: :value, ensure: :present }, 'typename', [:namevarname],
+                              namevarname: { type: 'String', behaviour: :namevar, desc: 'the title' },
+                              zattr: { type: 'Optional[String]', desc: 'an unset parameter' },
+                              attr: { type: 'String', desc: 'a string parameter' },
+                              ensure: { type: 'Enum[present, absent]', desc: 'whether it exists' })
+        end
+
+        it 'converts them, leaves out unset ones and puts ensure first' do
+          expect(instance.to_hiera_hash).to eq('title' => { 'ensure' => 'present', 'attr' => 'value' })
+          expect(instance.to_hiera_hash['title'].keys).to eq %w[ensure attr]
+        end
       end
 
       context 'with hidden rsapi_custom_insync_trigger property' do
@@ -144,7 +165,7 @@ RSpec.describe 'the dirty bits' do
 
         it 'produces one YAML hash of all resources' do
           data = [instance, other].map { |r| r.prune_parameters(parameters_to_include: []).to_hiera_hash }.inject(:merge!)
-          expect(YAML.dump('typename' => data)).to eq "---\ntypename:\n  title:\n    attr: value\n    attr_ro: fixed\n  other:\n    attr: value2\n    attr_ro: fixed2\n"
+          expect(YAML.dump('typename' => data)).to eq "---\ntypename:\n  title:\n    attr: value\n  other:\n    attr: value2\n"
         end
       end
     end
