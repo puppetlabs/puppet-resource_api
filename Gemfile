@@ -1,11 +1,21 @@
 source 'https://rubygems.org'
 
-gemsource_puppetcore = if ENV['PUPPET_GEM_VERSION'].to_s.match?(/\A~>\s*9/) &&
-                           ENV['PUPPET_FORGE_TOKEN'] && !ENV['PUPPET_FORGE_TOKEN'].empty?
-                          'https://rubygems-puppetcore.puppet.com'
-                        else
+# CAT-2962
+gemsource_public_opt_out = Bundler.settings['gemsource.public']
+gemsource_puppetcore = if gemsource_public_opt_out
                           ENV['GEM_SOURCE_PUPPETCORE'] || 'https://rubygems.org'
+                        else
+                          'https://rubygems-puppetcore.puppet.com'
                         end
+
+unless ENV['PUPPET_FORGE_TOKEN'] || ENV['BUNDLE_RUBYGEMS___PUPPETCORE__PUPPET__COM'] ||
+       Bundler.settings['gemsource.airgapped'] || gemsource_public_opt_out
+  Bundler.ui.warn <<~WARNING
+    No puppetcore credentials detected.
+    On an airgapped install, run `bundle config set gemsource.airgapped true` to suppress this warning.
+    To use public gems instead, run `bundle config set gemsource.public true`.
+  WARNING
+end
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
@@ -66,4 +76,6 @@ def location_for(place_or_version, fake_version = nil, opts = {})
   end
 end
 
-gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'], nil, { source: gemsource_puppetcore })
+source gemsource_puppetcore do
+  gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
+end

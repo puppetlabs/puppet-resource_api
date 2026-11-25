@@ -71,6 +71,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.cfg.ruby }}
+          bundler: '2.4.19'
       - name: Update rubygems and install gems
         run: |
           bundle config set without development
