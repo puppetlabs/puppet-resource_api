@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'yaml'
-
 module Puppet; end # rubocop:disable Style/Documentation
 
 module Puppet::ResourceApi
@@ -38,15 +36,20 @@ module Puppet::ResourceApi
       end + ['}']).compact.join("\n")
     end
 
-    # Required to enable `puppet device --resource ... --to_yaml` workflow
+    # Required to enable the `puppet resource ... --to_yaml` and
+    # `puppet device --resource ... --to_yaml` workflows: Puppet merges the
+    # hashes of all resources and dumps the result as YAML. Like
+    # Puppet::Resource#to_hiera_hash, return plain data that can be fed back
+    # through Hiera: no read-only, unset or sensitive attributes (their value
+    # cannot be exported), values converted to Puppet data, ensure first and
+    # the other attributes sorted.
     def to_hiera_hash
-      to_hierayaml
-    end
-
-    # Convert our resource to yaml for Hiera purposes.
-    def to_hierayaml
-      attributes = Hash[filtered_keys.map { |k| [k.to_s, values[k]] }]
-      "#{YAML.dump('type' => { title => attributes }).split("\n").drop(2).join("\n")}\n"
+      keys = filtered_keys.reject do |k|
+        values[k].nil? || attr_def[k][:behaviour] == :read_only || attr_def[k][:sensitive] == true || sensitive?(values[k])
+      end
+      keys = keys.sort_by { |k| [k == :ensure ? 0 : 1, k.to_s] }
+      attributes = keys.to_h { |k| [k.to_s, values[k]] }
+      { title.to_s => Puppet::Pops::Serialization::ToStringifiedConverter.convert(attributes) }
     end
 
     def to_json(*)
@@ -63,6 +66,18 @@ module Puppet::ResourceApi
     # attribute names that are not title, namevars, or rsapi_custom_insync_trigger
     def filtered_keys
       values.keys.reject { |k| k == :title || k == :rsapi_custom_insync_trigger || !attr_def[k] || (attr_def[k][:behaviour] == :namevar && @namevars.size == 1) }
+    end
+
+    private
+
+    # whether the value is or contains a Sensitive, which cannot be exported
+    def sensitive?(value)
+      case value
+      when Puppet::Pops::Types::PSensitiveType::Sensitive then true
+      when Array then value.any? { |v| sensitive?(v) }
+      when Hash then value.any? { |k, v| sensitive?(k) || sensitive?(v) }
+      else false
+      end
     end
   end
 
