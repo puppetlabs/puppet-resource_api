@@ -77,13 +77,10 @@ jobs:
           ${{ matrix.cfg.extra }}
           bundle install --jobs 4 --retry 3
 
-      # CAT-2840: puppet 8.x's gemspec pins puppet-resource_api ~> 1.9, unsatisfiable by main (2.x)
       - name: Rubocop
-        continue-on-error: ${{ matrix.cfg.puppet_version == '8' }}
         run: |
           bundle exec rake rubocop
 
       - name: Run tests
-        continue-on-error: ${{ matrix.cfg.puppet_version == '8' }}
         run: |
           bundle exec rake spec
