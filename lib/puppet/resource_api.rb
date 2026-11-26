@@ -375,7 +375,7 @@ module Puppet::ResourceApi
         # enforce init_only attributes
         if Puppet.settings[:strict] != :off && rsapi_current_state && (rsapi_current_state[:ensure] == 'present' && target_state[:ensure] == 'present')
           target_state.each do |name, value|
-            next unless type_definition.attributes[name][:behaviour] == :init_only && value != rsapi_current_state[name]
+            next unless type_definition.attributes.dig(name, :behaviour) == :init_only && value != rsapi_current_state[name]
 
             message = "Attempting to change `#{name}` init_only attribute value from `#{rsapi_current_state[name]}` to `#{value}`"
             case Puppet.settings[:strict]

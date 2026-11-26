@@ -972,6 +972,96 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when canonicalize adds :title for a type with composite namevars', :agent_test do
+    let(:extra_attributes) { {} }
+    let(:current_state) { { title: 'g/a', ensure: 'present', name: 'g', member: 'a', weight: 1 } }
+    let(:definition) do
+      {
+        name: 'composite_title',
+        desc: 'a test resource with composite namevars',
+        features: ['canonicalize'],
+        title_patterns: [
+          { pattern: %r{\A(?<name>[^/]+)/(?<member>.+)\z}, desc: 'group/member' }
+        ],
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+            desc: ''
+          },
+          name: {
+            type: 'String',
+            desc: '',
+            behaviour: :namevar
+          },
+          member: {
+            type: 'String',
+            desc: '',
+            behaviour: :namevar
+          },
+          weight: {
+            type: 'Optional[Integer]',
+            desc: ''
+          }
+        }.merge(extra_attributes)
+      }
+    end
+    let(:provider_class) do
+      state = current_state
+      Class.new do
+        define_method(:get) { |_context| [state.dup] }
+
+        attr_reader :last_changes
+
+        def set(_context, changes)
+          @last_changes = changes
+        end
+
+        # give each resource its composite title, as `get` does
+        def canonicalize(_context, resources)
+          resources.each do |resource|
+            resource[:title] = "#{resource[:name]}/#{resource[:member]}" if resource[:name] && resource[:member]
+          end
+        end
+      end
+    end
+
+    before do
+      stub_const('Puppet::Provider::CompositeTitle', Module.new)
+      stub_const('Puppet::Provider::CompositeTitle::CompositeTitle', provider_class)
+      described_class.register_type(definition)
+      instance.rsapi_provider_get_cache.clear
+    end
+
+    context 'when a manifest changes a property' do
+      let(:instance) { Puppet::Type.type(:composite_title).new(name: 'g', member: 'a', ensure: 'present', weight: 2) }
+
+      %i[error warning].each do |level|
+        context "when Puppet strict setting is :#{level}" do
+          let(:strict_level) { level }
+
+          it 'applies the change with the canonicalized title' do
+            expect(Puppet).not_to receive(:warning)
+            expect { instance.flush }.not_to raise_error
+            expect(instance.my_provider.last_changes).to eq(
+              { name: 'g', member: 'a' } => {
+                is: { title: 'g/a', ensure: 'present', name: 'g', member: 'a', weight: 1 },
+                should: { title: 'g/a', ensure: 'present', name: 'g', member: 'a', weight: 2 }
+              }
+            )
+          end
+        end
+      end
+    end
+
+    context 'when the type has an init_only attribute and a manifest changes its value' do
+      let(:extra_attributes) { { kind: { type: 'Optional[String]', desc: '', behaviour: :init_only } } }
+      let(:current_state) { { title: 'g/a', ensure: 'present', name: 'g', member: 'a', kind: 'x', weight: 1 } }
+      let(:instance) { Puppet::Type.type(:composite_title).new(name: 'g', member: 'a', ensure: 'present', kind: 'y', weight: 1) }
+
+      it { expect { instance.flush }.to raise_error Puppet::ResourceError, /Attempting to change `kind` init_only attribute value from `x` to `y`/ }
+    end
+  end
+
   context 'when registering a type with an `read_only` attribute', :agent_test do
     let(:definition) do
       {
