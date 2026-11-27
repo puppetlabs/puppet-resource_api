@@ -972,6 +972,92 @@ RSpec.describe Puppet::ResourceApi do
     end
   end
 
+  context 'when a catalog declares a resource of a type with composite namevars whose first namevar is called `name`', :agent_test do
+    let(:definition) do
+      {
+        name: 'name_member',
+        desc: 'a test resource with composite namevars',
+        title_patterns: [
+          { pattern: %r{\A(?<name>[^/]+)/(?<member>.+)\z}, desc: 'group/member' }
+        ],
+        attributes: {
+          ensure: {
+            type: 'Enum[present, absent]',
+            desc: '',
+            default: 'present'
+          },
+          name: {
+            type: 'String',
+            desc: '',
+            behaviour: :namevar
+          },
+          member: {
+            type: 'String',
+            desc: '',
+            behaviour: :namevar
+          },
+          weight: {
+            type: 'Optional[Integer]',
+            desc: ''
+          }
+        }
+      }
+    end
+    let(:provider_class) do
+      Class.new do
+        def get(_context)
+          [{ title: 'g/a', ensure: 'present', name: 'g', member: 'a', weight: 1 }]
+        end
+
+        attr_reader :last_changes
+
+        def set(_context, changes)
+          @last_changes = changes
+        end
+      end
+    end
+
+    before do
+      stub_const('Puppet::Provider::NameMember', Module.new)
+      stub_const('Puppet::Provider::NameMember::NameMember', provider_class)
+      described_class.register_type(definition)
+    end
+
+    describe 'an instance built from a catalog resource' do
+      let(:instance) { Puppet::Type.type(:name_member).new(Puppet::Resource.new(:name_member, 'g/a', parameters: { weight: 2 })) }
+
+      it 'keeps the composite title' do
+        expect(instance.title).to eq 'g/a'
+        expect(instance[:name]).to eq 'g'
+        expect(instance[:member]).to eq 'a'
+      end
+
+      it 'passes the change to set' do
+        instance.rsapi_provider_get_cache.clear
+        instance.flush
+        expect(instance.my_provider.last_changes).to eq(
+          { name: 'g', member: 'a' } => {
+            is: { title: 'g/a', ensure: 'present', name: 'g', member: 'a', weight: 1 },
+            should: { ensure: 'present', name: 'g', member: 'a', weight: 2 }
+          }
+        )
+      end
+    end
+
+    describe 'a catalog with two resources sharing the first namevar' do
+      let(:catalog) do
+        catalog = Puppet::Resource::Catalog.new
+        catalog.add_resource(Puppet::Resource.new(:name_member, 'g/a', parameters: { weight: 2 }))
+        catalog.add_resource(Puppet::Resource.new(:name_member, 'g/b', parameters: { weight: 1 }))
+        catalog
+      end
+
+      it 'converts both resources with their composite titles' do
+        expect(catalog.to_ral.resources.map(&:title)).to contain_exactly('g/a', 'g/b')
+      end
+    end
+  end
+
   context 'when registering a type with an `read_only` attribute', :agent_test do
     let(:definition) do
       {
