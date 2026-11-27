@@ -104,6 +104,10 @@ module Puppet::ResourceApi
           attributes[:title] = @title if attributes[:title].nil? && !type_definition.namevars.empty?
         end
 
+        # for composite namevars, keep the title of a resource declared in a catalog: when the first namevar is
+        # called `name`, Puppet would otherwise use its value as the title, which does not match the title patterns
+        attributes[:title] = @title if @title && attributes[:title].nil? && type_definition.namevars.size > 1
+
         attributes[:sensitive_parameters] = sensitives unless sensitives.empty?
         super
       end
